@@ -1,0 +1,52 @@
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+\documentclass{article}
+
+\usepackage[ruled]{algorithm2e}
+
+\begin{document}
+\section*{Question Name}
+intro text for the question
+
+\section{TLA Statement problems}
+paragraph talking about known issues with current implementation
+
+\section{Ideal Statements}
+paragraph or list describing what the ideal statements for this algorithm would be
+\section{Algorithm}
+\subsection{statement parameters to utilize}
+
+\begin{itemize}
+  \item first param
+  \item second param
+  \item third param
+  \end{itemize}
+\subsection{Summary}
+\begin{enumerate}
+  \item step 1
+  \item step 2
+  \item step 3
+  \end{enumerate}
+
+  \subsection{Definition}
+  \begin{algorithm}[H]
+    \SetAlgoLined
+    \KwIn{this text}
+    \KwResult{how to write algorithm with \LaTeX2e }
+    initialization\;
+    \While{not at end of this document}{
+      read current\;
+      \eIf{understand}{
+        go to next section\;
+        current section becomes this one\;
+      }{
+        go back to the beginning of current section\;
+      }
+    }
+    \caption{How to write algorithms}
+  \end{algorithm}
+
+\end{document}
