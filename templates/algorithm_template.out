@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{Ideal Statements}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{statement parameters to utilize}{section.1}% 2
+\BOOKMARK [1][-]{section.2}{TLA Statement problems}{}% 3
+\BOOKMARK [1][-]{section.3}{Algorithm}{}% 4
+\BOOKMARK [2][-]{subsection.3.1}{Summary}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.2}{Symbol Definition}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.3}{Z Specifications}{section.3}% 7
+\BOOKMARK [3][-]{subsubsection.3.3.1}{Introduce Basic Types}{subsection.3.3}% 8
+\BOOKMARK [3][-]{subsubsection.3.3.2}{Example Schema}{subsection.3.3}% 9
+\BOOKMARK [3][-]{subsubsection.3.3.3}{Initialisation}{subsection.3.3}% 10
+\BOOKMARK [3][-]{subsubsection.3.3.4}{Operations}{subsection.3.3}% 11
+\BOOKMARK [2][-]{subsection.3.4}{Pseudocode}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.5}{Result JSON Schema}{section.3}% 13
+\BOOKMARK [2][-]{subsection.3.6}{Visualization Description}{section.3}% 14
+\BOOKMARK [2][-]{subsection.3.7}{VEGA example}{section.3}% 15

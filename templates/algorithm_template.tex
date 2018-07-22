@@ -6,17 +6,20 @@
 \documentclass{article}
 
 \usepackage[ruled]{algorithm2e}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{zed-csp}
+\usepackage{breqn}
+\usepackage{listings}
+\lstset{literate = {-}{-}1} % get dashs to show up
 
 \begin{document}
 \section*{Question Name}
 intro text for the question
 
-\section{TLA Statement problems}
-paragraph talking about known data issues within current TLA implementation
-
 \section{Ideal Statements}
 paragraph or list describing the ideal input statements
-\section{Algorithm}
+
 \subsection{statement parameters to utilize}
 
 \begin{itemize}
@@ -24,6 +27,12 @@ paragraph or list describing the ideal input statements
   \item second param
   \item third param
   \end{itemize}
+
+\section{TLA Statement problems}
+paragraph talking about known data issues within current TLA implementation
+
+\section{Algorithm}
+
 \subsection{Summary}
 \begin{enumerate}
   \item step 1
@@ -31,7 +40,123 @@ paragraph or list describing the ideal input statements
   \item step 3
   \end{enumerate}
 
-  \subsection{Definition}
+  \subsection{Symbol Definition}
+  Symbol definitions with example values
+  \begin{lstlisting}[frame=single]
+  f(x) = x^2
+  g(x) = \frac{1}{x}
+  F(x) = \int^a_b \frac{1}{3}x^3
+\end{lstlisting}
+
+\subsection{Z Specifications}
+Outline of Z, includes templates and an example of a system used to check staff members in and out of a building
+\subsubsection{Introduce Basic Types}
+\begin{paragraph}{Template}
+  [Name of variable(s) of type set]
+\end{paragraph}
+\begin{paragraph}{Example}
+  [X]
+\end{paragraph}
+\subsubsection{Example Schema}
+Basic unit of specification, defines state variables, system state, operations, etc.
+\begin{paragraph}{Template}
+\begin{schema}{Schema Name}
+  Variable Declarations
+  \where
+  Predicate/Invariants
+\end{schema}
+\end{paragraph}
+\begin{paragraph}{Example}
+  \begin{schema}{Counter}
+  ctx : \nat
+  \where
+  0 \leq ctr \leq max
+\end{schema}
+\begin{paragraph}{Variables}
+  \begin{schema}{Counter}
+    ctx : \nat
+    \where
+\end{schema}
+\begin{itemize}
+\item the variable ctx is a natural number
+\end{itemize}
+\end{paragraph}
+\begin{paragraph}{Predicates}
+  \begin{schema}{Counter}
+  \where
+  0 \leq ctr \leq max
+\end{schema}
+  \begin{itemize}
+  \item ctr is greater than or equal to 0
+  \item ctr is less than or equal to max
+  \end{itemize}
+\end{paragraph}
+\end{paragraph}
+
+\subsubsection{Initialisation}
+The starting conditions
+\begin{paragraph}{Template}
+\begin{schema}{Init[VarName]}
+  NameOfExistingSchema
+  \where
+  InitStateOfVarsWithinRefSchema
+\end{schema}
+\end{paragraph}
+\begin{paragraph}{Example}
+  \begin{schema}{InitCounter}
+    Counter
+    \where
+    ctr = 0
+  \end{schema}
+  \begin{itemize}
+    \item the value of the counter starts at 0
+  \end{itemize}
+\end{paragraph}
+
+\subsubsection{Operations}
+an operation is specified in Z with a predicate relating the state before and after the invocation of that operation
+\begin{paragraph}{Template}
+  \begin{schema}{OperationName}
+    \Delta SchemaName \\
+    inputParam? : SomeType \\
+    outputParam! : SomeType
+    \where
+    InvariantPredicate \\
+    NewValForVar' = OperationOnInput/OutputParams
+  \end{schema}
+\end{paragraph}
+\begin{paragraph}{Example}
+  \begin{schema}{Increment}
+    \Delta Counter
+    \where
+    ctr < max \\
+    ctr' = crt + 1
+  \end{schema}
+  \begin{itemize}
+    \item There is an implicit conjunction (logical-and) between successive lines of the predicate
+    \end{itemize}
+    \begin{schema}{Decrement}
+      \Delta Counter \\
+      d? : \nat
+      \where
+      ctr \geq d? \\
+      ctr' = ctr - d?
+    \end{schema}
+    \begin{itemize}
+    \item input params suffixed with ?
+    \end{itemize}
+    \begin{schema}{Display}
+      \Xi Counter \\
+      c! : \nat
+      \where
+      c! = ctr
+    \end{schema}
+    \begin{itemize}
+    \item output params suffixed with !
+    \item the greek symbol means that the operation cannot change the state of Counter
+    \end{itemize}
+  \end{paragraph}
+  \subsection{Pseudocode}
   \begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{this text}
@@ -48,14 +173,9 @@ paragraph or list describing the ideal input statements
     }
     \caption{How to write algorithms}
   \end{algorithm}
-
-  \subsection{Pseudocode}
-  TODO: use markdown here?
   \subsection{Result JSON Schema}
-  TODO: is there a default json schema i can use
-  TODO: also should i just use markdown here?
   \subsection{Visualization Description}
   description of the associated visualization in english
   \subsection{VEGA example}
-  VEGA JSON blob for prototype viz
+  This section will be updated to include a VEGA JSON blob for prototype viz
 \end{document}
