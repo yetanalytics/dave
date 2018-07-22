@@ -80,10 +80,10 @@ Outline of Z, includes templates and an example of a system used to check staff 
 \begin{schema}{Statement}
     s : Statement
     \where
-    s == \{Actor, Verb, Object, Timestamp\} \, |
-    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Context\} \, |
-    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Result\} \, |
-    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Result, Context\}
+    s = \{Actor, Verb, Object, Timestamp\} \, |
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, |
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, |
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
 \end{schema}
 \begin{itemize}
 \item The variable s is of type Statement and consists of an Actor, Verb, Object, Timestamp and optionally Context and Result
