@@ -138,7 +138,6 @@ S = curl -X GET -H "Authorization: Auth"
   \begin{schema}{InitTimelineLearnerSuccess}
     TimelineLearnerSuccess \\
     \where
-    S \, \lnot\, \emptyset \\
     S_{extra} = \{\} \\
     S_{completion} = \{\} \\
     S_{success} = \{\} \\
@@ -146,7 +145,6 @@ S = curl -X GET -H "Authorization: Auth"
   \end{schema}
   \begin{itemize}
   \item The sets S_{extra},\,S_{completion},\,S_{success},\,S_{failure} are all initially empty
-  \item The set of all Statements S is not empty
   \end{itemize}
 
   \subsubsection{Filter for Completion}
@@ -167,8 +165,8 @@ S = curl -X GET -H "Authorization: Auth"
     S_{extra}' = \{~s : Statement \, | \, V_{completion} \not \in s \, \land \, s \in S \}
   \end{schema}
   \begin{itemize}
-  \item The set S'_{completion} is the set of all statements s where V_{completion} is in s and s is in S
-  \item the set S'_{extra} is the set of all statements s where V_{completion} is not in s and s is in s
+  \item The updated set S'_{completion} is the set of all statements s where V_{completion} is in s and s is in S
+  \item the updated set S'_{extra} is the set of all statements s where V_{completion} is not in s and s is in s
   \end{itemize}
 
   \subsubsection{Filter for Success}
@@ -186,13 +184,26 @@ S = curl -X GET -H "Authorization: Auth"
     \Delta TimelineLearnerSuccess \\
     s_{completion} : Statement
     \where
-    S_{completion} \, \lnot \, \emptyset \\
     s_{completion} \in S_{completion} \\
     S_{success}' = \{~s_{completion} : Statement \, | \, R_{successful} \in s_{completion}\} \\
     S_{failure}' = \{~s_{completion} : Statement \, | \, R \not \in s_{completion}\}
   \end{schema}
+  \begin{itemize}
+  \item The set s_{completion} is of type Statement and is in the set S_{completion}
+  \item The updated set S_{success}' is the set of all statements s_{completion} where R_{successful} is in s_{completion}
+  \item The updated set S_{failure}' is the set of all statements s_{completion} where R_{successful} is not in s_{completion}
+  \end{itemize}
 
-
+  \subsubsection{Return}
+  \begin{schema}{Return}
+    \Xi TimelineLearnerSuccess \\
+    S_{success}! : Statements
+    \where
+    S_{success}! = S_{success}
+  \end{schema}
+  \begin{itemize}
+    \item The returned variable S_{success}! is equal to the current state of variable S_{success}
+  \end{itemize}
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
