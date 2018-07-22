@@ -1,0 +1,113 @@
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+\documentclass{article}
+
+\usepackage[ruled]{algorithm2e}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{zed-csp}
+\usepackage{breqn}
+\usepackage{listings}
+\lstset{literate = {-}{-}1} % get dashs to show up
+\begin{document}
+\section*{Timeline Of Learner Success}
+As learners engage in a blended eLearning ecosystem, they will build up a history of learning experiences. When that eLearning ecosystem adheres to a framework dedicated to supporting and understanding the learner, such as the Total Learning Architecture (TLA), it becomes possible to retell their story through data. One important aspect of that story is the learner's history of success.
+
+\section{Ideal Statements}
+In order to accurately portray a learner's timeline of success, there are a few requirements of the data produced by a Learning Record Provider (LRP). They are as follows:
+\begin{itemize}
+\item the learner must be uniquely and consistently identified across all LRPs
+\item learning activities which access a learner's understanding of material should report if the learner was successful or not
+  \begin{itemize}
+  \item if the assessment is scored, the grade earned by the learner should be reported
+  \item if the assessment is scored, the minimum and maximum possible grade should be reported
+  \end{itemize}
+\item The learning activities must be uniquely and consistently identified across all LRPs
+\item The time at which a learner completed a learning activity must be recorded
+  \begin{itemize}
+  \item The timestamp should contain an appropriate level of specificity.
+  \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
+  \end{itemize}
+
+\end{itemize}
+
+\subsection{statement parameters to utilize}
+The statement parameter locations here are written in \href{http://goessner.net/articles/JsonPath/}{JSONPath}
+\begin{itemize}
+  \item \$.timestamp
+  \item \$.result.success
+  \item \$.actor
+  \item \$.verb.id
+  \end{itemize}
+
+
+\section{TLA Statement problems}
+The data collected at the TLA pilot run supports the following algorithm.
+\section{Algorithm}
+\subsection{Summary}
+\begin{enumerate}
+  \item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
+  \item Filter the results to the set of statements where:
+    \begin{itemize}
+    \item \$.verb.id is one of:
+      \begin{itemize}
+      \item http://adlnet.gov/expapi/verbs/passed
+      \item https://w3id.org/xapi/dod-isd/verbs/answered
+      \item http://adlnet.gov/expapi/verbs/completed
+      \end{itemize}
+    \item \$.result.success is true
+    \end{itemize}
+  \end{enumerate}
+
+  \subsection{Symbol Definitions}
+  Symbol definitions with example values
+  \footnote{\label{moreLink} S is the set of all statements parsed from the statements array within the HTTP response to the Curl request. It may be possible that multiple Curl requests are needed to retrieve all query results. If multiple requests are necessary, S is the result of concatenating the result of each request into a single set}
+  \begin{lstlisting}[frame=single]
+Agent = "agent={"account":
+                {"homePage": "https://example.homepage",
+                 "name": 123456}}"
+
+Since = "since=2018-07-20T12:08:47Z"
+
+Until = "until=2018-07-21T12:08:47Z"
+
+Base = "https://example.endpoint/statements?"
+
+endpoint = Base + Agent "&" + Since "&" + Until
+
+Auth = Hash generated from basic auth
+
+S = curl -X GET -H "Authorization: Auth"
+         -H "Content-Type: application/json"
+         -H "X-Experience-API-Version: 1.0.3"
+         Endpoint
+  \end{lstlisting}
+
+  \subsection{Z Specifications}
+
+
+  \subsection{Pseudocode}
+  \begin{algorithm}[H]
+    \SetAlgoLined
+    \KwIn{S}
+    \KwResult{S'}
+    \While{not at end of this document}{
+      read current\;
+      \eIf{understand}{
+        go to next section\;
+        current section becomes this one\;
+      }{
+        go back to the beginning of current section\;
+      }
+    }
+    \caption{Timeline of Learner Success}
+  \end{algorithm}
+  \subsection{Result JSON Schema}
+  \subsection{Visualization Description}
+  description of the associated visualization in english
+  \subsection{VEGA example}
+  This section will be updated to include a VEGA JSON blob for prototype viz
+\end{document}
