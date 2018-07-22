@@ -41,12 +41,27 @@ paragraph talking about known data issues within current TLA implementation
   \end{enumerate}
 
   \subsection{Symbol Definition}
-  Symbol definitions with example values
+  Definition of a query to an LRS, updated as needed
   \begin{lstlisting}[frame=single]
-  f(x) = x^2
-  g(x) = \frac{1}{x}
-  F(x) = \int^a_b \frac{1}{3}x^3
-\end{lstlisting}
+Agent = "agent={"account":
+                {"homePage": "https://example.homepage",
+                 "name": 123456}}"
+
+Since = "since=2018-07-20T12:08:47Z"
+
+Until = "until=2018-07-21T12:08:47Z"
+
+Base = "https://example.endpoint/statements?"
+
+endpoint = Base + Agent + "&" + Since + "&" + Until
+
+Auth = Hash generated from basic auth
+
+S = curl -X GET -H "Authorization: Auth"
+         -H "Content-Type: application/json"
+         -H "X-Experience-API-Version: 1.0.3"
+         Endpoint
+  \end{lstlisting}
 
 \subsection{Z Specifications}
 Outline of Z, includes templates and an example of a system used to check staff members in and out of a building
