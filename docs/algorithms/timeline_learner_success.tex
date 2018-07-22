@@ -87,7 +87,34 @@ S = curl -X GET -H "Authorization: Auth"
   \end{lstlisting}
 
   \subsection{Z Specifications}
-
+  \subsubsection{xAPI Schema}
+  [Statement]
+  [Actor]
+  [Verb]
+  [Object]
+  [Result]
+  [Context]
+  [Timestamp]
+  \begin{schema}{Statement}
+    s : Statement
+    \where
+    s = \{Actor, Verb, Object, Timestamp\} \, \lor
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, \lor
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, \lor
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
+  \end{schema}
+  \begin{itemize}
+  \item The variable s is of type Statement and consists of an Actor, Verb, Object, Timestamp and optionally Context and Result
+  \end{itemize}
+  \begin{schema}{Statements}
+    S : Statements
+    \where
+    S = \{~s : Statement \, | \, S \, \neg \, \emptyset\} \\
+  \end{schema}
+  \begin{itemize}
+  \item The variable S is of type Statements and is a set of objects s, each of type Statement
+  \item The variable S is a non empty set
+  \end{itemize}
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
