@@ -98,10 +98,10 @@ S = curl -X GET -H "Authorization: Auth"
   \begin{schema}{Statement}
     s : Statement
     \where
-    s == \{Actor, Verb, Object, Timestamp\} \, |
-    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Context\} \, |
-    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Result\} \, |
-    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Result, Context\}
+    s = \{Actor, Verb, Object, Timestamp\} \, |
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, |
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, |
+    \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
   \end{schema}
   \begin{itemize}
   \item The variable s is of type Statement and consists of an Actor, Verb, Object, Timestamp and optionally Context and Result
@@ -152,9 +152,9 @@ S = curl -X GET -H "Authorization: Auth"
   \begin{schema}{VerbIdCompletion}
     V_{completion} : VerbIdCompletion
     \where
-    V_{completion} == http://adlnet.gov/expapi/verbs/passed \; | \\
-    \t3 \;\; https://w3id.org/xapi/dod-isd/verbs/answered \; | \\
-    \t3 \;\; http://adlnet.gov/expapi/verbs/completed
+    V_{completion} = http://adlnet.gov/expapi/verbs/passed \; | \\
+    \t3 https://w3id.org/xapi/dod-isd/verbs/answered \; | \\
+    \t3 http://adlnet.gov/expapi/verbs/completed
   \end{schema}
   \begin{itemize}
     \item The var V_completion has a value of one of the above IRIs and is of type VerbIdCompletion
@@ -171,6 +171,14 @@ S = curl -X GET -H "Authorization: Auth"
   \item The set S'_completion is the set of all statements s where V is in s and s is in S
   \item the set S'_extra is the set of all statements s where V is not in s and s is in s
   \end{itemize}
+
+  \subsubsection{Filter for Success}
+  \begin{schema}{ResultSuccessTrue}
+    R_{successful} : ResultSuccessTrue
+    \where
+    R_{successful} = true \\
+    R_{successful} \not = false
+  \end{schema}
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
