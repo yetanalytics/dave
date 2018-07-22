@@ -206,20 +206,27 @@ S = curl -X GET -H "Authorization: Auth"
   \end{itemize}
 
   \subsection{Pseudocode}
+  \footnote{\label{variableDescription} S_{completion} = S-completion s_{completion} = s-completion, S_{extra} = S-extra, V_{completion} = V-completion,
+     R_{successful} = R-successful, S_{success} = S-success, S_{failure} = S-failure}
   \begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{S}
-    \KwResult{S'}
-    \While{not at end of this document}{
-      read current\;
-      \eIf{understand}{
-        go to next section\;
-        current section becomes this one\;
-      }{
-        go back to the beginning of current section\;
+    \KwResult{S-success}
+    \While{S is not empty} {
+      for each Statement s in S \\
+      \eIf {s.verb.id = V-completion}
+      {
+        add s to S-completion
       }
+      {
+        add s to S-extra
+      }}
+    \While {S-completion is not empty} {
+      for each Statement s-completion in S-completion \\
+      \eIf {s-completion.result.success = R-success}
+      { add s-completion to S-success }
+      { add s-completion to S-failure }
     }
-    \caption{Timeline of Learner Success}
   \end{algorithm}
   \subsection{Result JSON Schema}
   \subsection{Visualization Description}
