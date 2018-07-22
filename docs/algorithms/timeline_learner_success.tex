@@ -12,6 +12,7 @@
 \usepackage{breqn}
 \usepackage{listings}
 \lstset{literate = {-}{-}1} % get dashs to show up
+%%% TODO: get items to respect latex
 \begin{document}
 \section*{Timeline Of Learner Success}
 As learners engage in a blended eLearning ecosystem, they will build up a history of learning experiences. When that eLearning ecosystem adheres to a framework dedicated to supporting and understanding the learner, such as the Total Learning Architecture (TLA), it becomes possible to retell their story through data. One important aspect of that story is the learner's history of success.
@@ -135,13 +136,13 @@ S = curl -X GET -H "Authorization: Auth"
 
   \subsubsection{Initial State of Timeline Learner Success System}
   \begin{schema}{InitTimelineLearnerSuccess}
-    TimelineLearnerSuccess
+    TimelineLearnerSuccess \\
     \where
     S \, \lnot\, \emptyset \\
     S_{extra} = \{\} \\
     S_{completion} = \{\} \\
     S_{success} = \{\} \\
-    S_{failure} = \{\}
+    S_{failure} = \{\} \\
   \end{schema}
   \begin{itemize}
   \item The sets S_{extra},\,S_{completion},\,S_{success},\,S_{failure} are all initially empty
@@ -150,35 +151,48 @@ S = curl -X GET -H "Authorization: Auth"
 
   \subsubsection{Filter for Completion}
   \begin{schema}{VerbIdCompletion}
-    V_{completion} : VerbIdCompletion
+    V_{completion} : Verb
     \where
     V_{completion} = http://adlnet.gov/expapi/verbs/passed \; | \\
     \t3 https://w3id.org/xapi/dod-isd/verbs/answered \; | \\
     \t3 http://adlnet.gov/expapi/verbs/completed
   \end{schema}
   \begin{itemize}
-    \item The var V_completion has a value of one of the above IRIs and is of type VerbIdCompletion
+    \item The var V_completion has a value of one of the above IRIs and is of type Verb
   \end{itemize}
-  \begin{schema}{FilerForCompletion}
+  \begin{schema}{FilterForCompletion}
     \Delta TimelineLearnerSuccess \\
-    V : Verb \, \land VerbIdCompletion
     \where
-    S_{completion}' = \{~s : Statement \, | \, V \in s \, \land \, s \in S \} \\
-    S_{extra}' = \{~s : Statement \, | \, V \not \in s \, \land \, s \in S \}
+    S_{completion}' = \{~s : Statement \, | \, V_{completion} \in s \, \land \, s \in S \} \\
+    S_{extra}' = \{~s : Statement \, | \, V_{completion} \not \in s \, \land \, s \in S \}
   \end{schema}
   \begin{itemize}
-  \item The var V is of the compound type Verb and VerbIdCompletion
-  \item The set S'_completion is the set of all statements s where V is in s and s is in S
-  \item the set S'_extra is the set of all statements s where V is not in s and s is in s
+  \item The set S'_{completion} is the set of all statements s where V_{completion} is in s and s is in S
+  \item the set S'_{extra} is the set of all statements s where V_{completion} is not in s and s is in s
   \end{itemize}
 
   \subsubsection{Filter for Success}
   \begin{schema}{ResultSuccessTrue}
-    R_{successful} : ResultSuccessTrue
+    R_{successful} : Result
     \where
     R_{successful} = true \\
     R_{successful} \not = false
   \end{schema}
+  \begin{itemize}
+    \item The var R_{successful} has a value of true but not false and is of the type Result
+  \end{itemize}
+
+  \begin{schema}{FilterForSuccess}
+    \Delta TimelineLearnerSuccess \\
+    s_{completion} : Statement
+    \where
+    S_{completion} \, \lnot \, \emptyset \\
+    s_{completion} \in S_{completion} \\
+    S_{success}' = \{~s_{completion} : Statement \, | \, R_{successful} \in s_{completion}\} \\
+    S_{failure}' = \{~s_{completion} : Statement \, | \, R \not \in s_{completion}\}
+  \end{schema}
+
+
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
