@@ -40,8 +40,9 @@ paragraph talking about known data issues within current TLA implementation
   \item step 3
   \end{enumerate}
 
-  \subsection{Symbol Definition}
-  Definition of a query to an LRS, updated as needed
+  \subsection{Query an LRS via REST}
+  How to query an LRS via a GET request to the Statements Resource
+  \footnote{\label{moreLink} S is the set of all statements parsed from the statements array within the HTTP response to the Curl request. It may be possible that multiple Curl requests are needed to retrieve all query results. If multiple requests are necessary, S is the result of concatenating the result of each request into a single set}
   \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
                 {"homePage": "https://example.homepage",
