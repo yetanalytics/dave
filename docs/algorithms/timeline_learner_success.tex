@@ -116,6 +116,23 @@ S = curl -X GET -H "Authorization: Auth"
   \item The variable S is a non empty set
   \end{itemize}
 
+  \subsubsection{Algorithm Schema}
+  \begin{schema}{TimelineLearnerSuccess}
+    S_{extra},S_{completion},S_{success},S_{failure} : \power S \\
+    \where
+    S_{extra} \cup S_{completion} = S \\
+    S_{extra} \cap S_{completion} = \{\} \\
+    S_{success} \cup S_{failure} = S_{completion} \\
+    S_{success} \cap S_{failure} = \{\}
+  \end{schema}
+  \begin{itemize}
+  \item The sets S_{extra},\,S_{completion},\,S_{success},\,S_{failure} are the powerset of S
+  \item The union of sets S_{extra} and S_{completion} is equal to the complete set of statements S
+  \item No values are shared between the sets S_{extra} and S_{completion}
+  \item The union of sets S_{success} and S_{failure} is equal to the set S_{completion}
+  \item No values are shared between the sets S_{success} and S_{failure}
+  \end{itemize}
+
   \subsection{Pseudocode}
   \begin{algorithm}[H]
     \SetAlgoLined
