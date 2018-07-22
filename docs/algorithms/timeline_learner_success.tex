@@ -149,6 +149,28 @@ S = curl -X GET -H "Authorization: Auth"
   \end{itemize}
 
   \subsubsection{Filter for Completion}
+  \begin{schema}{VerbIdCompletion}
+    V_{completion} : VerbIdCompletion
+    \where
+    V_{completion} == http://adlnet.gov/expapi/verbs/passed \; | \\
+    \t3 \;\; https://w3id.org/xapi/dod-isd/verbs/answered \; | \\
+    \t3 \;\; http://adlnet.gov/expapi/verbs/completed
+  \end{schema}
+  \begin{itemize}
+    \item The var V_completion has a value of one of the above IRIs and is of type VerbIdCompletion
+  \end{itemize}
+  \begin{schema}{FilerForCompletion}
+    \Delta TimelineLearnerSuccess \\
+    V : Verb \, \land VerbIdCompletion
+    \where
+    S_{completion}' = \{~s : Statement \, | \, V \in s \, \land \, s \in S \} \\
+    S_{extra}' = \{~s : Statement \, | \, V \not \in s \, \land \, s \in S \}
+  \end{schema}
+  \begin{itemize}
+  \item The var V is of the compound type Verb and VerbIdCompletion
+  \item The set S'_completion is the set of all statements s where V is in s and s is in S
+  \item the set S'_extra is the set of all statements s where V is not in s and s is in s
+  \end{itemize}
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
