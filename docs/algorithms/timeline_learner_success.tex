@@ -116,7 +116,7 @@ S = curl -X GET -H "Authorization: Auth"
   \item The variable S is a non empty set
   \end{itemize}
 
-  \subsubsection{Algorithm Schema}
+  \subsubsection{Timeline Leaner Success System State}
   \begin{schema}{TimelineLearnerSuccess}
     S_{extra},S_{completion},S_{success},S_{failure} : \power S \\
     \where
@@ -132,6 +132,23 @@ S = curl -X GET -H "Authorization: Auth"
   \item The union of sets S_{success} and S_{failure} is equal to the set S_{completion}
   \item No values are shared between the sets S_{success} and S_{failure}
   \end{itemize}
+
+  \subsubsection{Initial State of Timeline Learner Success System}
+  \begin{schema}{InitTimelineLearnerSuccess}
+    TimelineLearnerSuccess
+    \where
+    S \, \lnot\, \emptyset \\
+    S_{extra} = \{\} \\
+    S_{completion} = \{\} \\
+    S_{success} = \{\} \\
+    S_{failure} = \{\}
+  \end{schema}
+  \begin{itemize}
+  \item The sets S_{extra},\,S_{completion},\,S_{success},\,S_{failure} are all initially empty
+  \item The set of all Statements S is not empty
+  \end{itemize}
+
+  \subsubsection{Filter for Completion}
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
