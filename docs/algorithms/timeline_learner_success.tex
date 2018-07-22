@@ -98,10 +98,10 @@ S = curl -X GET -H "Authorization: Auth"
   \begin{schema}{Statement}
     s : Statement
     \where
-    s = \{Actor, Verb, Object, Timestamp\} \, \lor
-    \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, \lor
-    \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, \lor
-    \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
+    s == \{Actor, Verb, Object, Timestamp\} \, |
+    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Context\} \, |
+    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Result\} \, |
+    \\ \t1 \:\: \{Actor, Verb, Object, Timestamp, Result, Context\}
   \end{schema}
   \begin{itemize}
   \item The variable s is of type Statement and consists of an Actor, Verb, Object, Timestamp and optionally Context and Result
