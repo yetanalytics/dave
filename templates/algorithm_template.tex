@@ -50,6 +50,34 @@ paragraph talking about known data issues within current TLA implementation
 
 \subsection{Z Specifications}
 Outline of Z, includes templates and an example of a system used to check staff members in and out of a building
+\subsubsection{xAPI Statement(s) Schema}
+[Statement]
+[Actor]
+[Verb]
+[Object]
+[Result]
+[Context]
+[Timestamp]
+\begin{schema}{Statement}
+  s : Statement
+  \where
+  s = \{Actor, Verb, Object, Timestamp\} \, \lor
+  \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, \lor
+  \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, \lor
+  \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
+\end{schema}
+\begin{itemize}
+\item The variable s is of type Statement and consists of an Actor, Verb, Object, Timestamp and optionally Context and Result
+\end{itemize}
+\begin{schema}{Statements}
+  S : Statements
+  \where
+  S = \{~s : Statement \, | \, S \, \neg \, \emptyset\} \\
+\end{schema}
+\begin{itemize}
+\item The variable S is of type Statements and is a set of objects s, each of type Statement
+\item The variable S is a non empty set
+\end{itemize}
 \subsubsection{Introduce Basic Types}
 \begin{paragraph}{Template}
   [Name of variable(s) of type set]
