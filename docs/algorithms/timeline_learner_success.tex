@@ -38,10 +38,10 @@ In order to accurately portray a learner's timeline of success, there are a few 
 \subsection{statement parameters to utilize}
 The statement parameter locations here are written in \href{http://goessner.net/articles/JsonPath/}{JSONPath}
 \begin{itemize}
-  \item \$.timestamp
-  \item \$.result.success
-  \item \$.actor
-  \item \$.verb.id
+  \item $\$.timestamp$
+  \item $\$.result.success$
+  \item $\$.actor$
+  \item $\$.verb.id$
   \end{itemize}
 
 
@@ -53,19 +53,20 @@ The data collected at the TLA pilot run supports the following algorithm.
   \item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
   \item Filter the results to the set of statements where:
     \begin{itemize}
-    \item \$.verb.id is one of:
+    \item $\$.verb.id$ is one of:
       \begin{itemize}
       \item http://adlnet.gov/expapi/verbs/passed
       \item https://w3id.org/xapi/dod-isd/verbs/answered
       \item http://adlnet.gov/expapi/verbs/completed
       \end{itemize}
-    \item \$.result.success is true
+    \item $\$.result.success$ is true
     \end{itemize}
   \end{enumerate}
 
   \subsection{Query an LRS via REST}
   How to query an LRS via a GET request to the Statements Resource
-  \footnote{\label{moreLink} S is the set of all statements parsed from the statements array within the HTTP response to the Curl request. It may be possible that multiple Curl requests are needed to retrieve all query results. If multiple requests are necessary, S is the result of concatenating the result of each request into a single set}
+  \footnote{\label{moreLink} $S$ is the set of all statements parsed from the statements array within the HTTP response to the Curl request. It may be possible that multiple Curl requests are needed to retrieve all query results. If multiple requests are necessary, $S$ is the result of concatenating the result of each request into a single set}
+  %%TODO: update with markdown instead
   \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
                 {"homePage": "https://example.homepage",
@@ -89,13 +90,13 @@ S = curl -X GET -H "Authorization: Auth"
 
   \subsection{Z Specifications}
   \subsubsection{xAPI Schema}
-  [Statement]
-  [Actor]
-  [Verb]
-  [Object]
-  [Result]
-  [Context]
-  [Timestamp]
+  $[Statement]$
+  $[Actor]$
+  $[Verb]$
+  $[Object]$
+  $[Result]$
+  $[Context]$
+  $[Timestamp]$
   \begin{schema}{Statement}
     s : Statement
     \where
@@ -105,7 +106,7 @@ S = curl -X GET -H "Authorization: Auth"
     \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
   \end{schema}
   \begin{itemize}
-  \item The variable s is of type Statement and consists of an Actor, Verb, Object, Timestamp and optionally Context and Result
+  \item The variable $s$ is of type $Statement$ and consists of an $Actor$, $Verb$, $Object$, $Timestamp$ and optionally $Context$ and $Result$
   \end{itemize}
   \begin{schema}{Statements}
     S : Statements
@@ -113,8 +114,8 @@ S = curl -X GET -H "Authorization: Auth"
     S = \{~s : Statement \, | \, S \, \neg \, \emptyset\} \\
   \end{schema}
   \begin{itemize}
-  \item The variable S is of type Statements and is a set of objects s, each of type Statement
-  \item The variable S is a non empty set
+  \item The variable $S$ is of type $Statements$ and is a set of objects $s$, each of type $Statement$
+ \item The variable $S$ is a non empty set
   \end{itemize}
 
   \subsubsection{Timeline Leaner Success System State}
@@ -127,11 +128,11 @@ S = curl -X GET -H "Authorization: Auth"
     S_{success} \cap S_{failure} = \{\}
   \end{schema}
   \begin{itemize}
-  \item The sets S_{extra},\,S_{completion},\,S_{success},\,S_{failure} are the powerset of S
-  \item The union of sets S_{extra} and S_{completion} is equal to the complete set of statements S
-  \item No values are shared between the sets S_{extra} and S_{completion}
-  \item The union of sets S_{success} and S_{failure} is equal to the set S_{completion}
-  \item No values are shared between the sets S_{success} and S_{failure}
+  \item The sets $S_{extra}$,\,$S_{completion}$,\,$S_{success}$,\,$S_{failure}$ are the powerset of $S$
+  \item The union of sets $S_{extra}$ and $S_{completion}$ is equal to the complete set of statements $S$
+  \item No values are shared between the sets $S_{extra}$ and $S_{completion}$
+  \item The union of sets $S_{success}$ and $S_{failure}$ is equal to the set $S_{completion}$
+  \item No values are shared between the sets $S_{success}$ and $S_{failure}$
   \end{itemize}
 
   \subsubsection{Initial State of Timeline Learner Success System}
@@ -144,7 +145,7 @@ S = curl -X GET -H "Authorization: Auth"
     S_{failure} = \{\} \\
   \end{schema}
   \begin{itemize}
-  \item The sets S_{extra},\,S_{completion},\,S_{success},\,S_{failure} are all initially empty
+  \item The sets $S_{extra}$,\,$S_{completion}$,\,$S_{success}$,\,$S_{failure}$ are all initially empty
   \end{itemize}
 
   \subsubsection{Filter for Completion}
@@ -156,7 +157,7 @@ S = curl -X GET -H "Authorization: Auth"
     \t3 http://adlnet.gov/expapi/verbs/completed
   \end{schema}
   \begin{itemize}
-    \item The var V_completion has a value of one of the above IRIs and is of type Verb
+    \item The var $V_{completion}$ has a value of one of the above IRIs and is of type $Verb$
   \end{itemize}
   \begin{schema}{FilterForCompletion}
     \Delta TimelineLearnerSuccess \\
@@ -165,8 +166,8 @@ S = curl -X GET -H "Authorization: Auth"
     S_{extra}' = \{~s : Statement \, | \, V_{completion} \not \in s \, \land \, s \in S \}
   \end{schema}
   \begin{itemize}
-  \item The updated set S'_{completion} is the set of all statements s where V_{completion} is in s and s is in S
-  \item the updated set S'_{extra} is the set of all statements s where V_{completion} is not in s and s is in s
+  \item The updated set $S'_{completion}$ is the set of all statements $s$ where $V_{completion}$ is in $s$ and $s$ is in $S$
+  \item the updated set $S'_{extra}$ is the set of all statements $s$ where $V_{completion}$ is not in $s$ and $s$ is in $s$
   \end{itemize}
 
   \subsubsection{Filter for Success}
@@ -177,7 +178,7 @@ S = curl -X GET -H "Authorization: Auth"
     R_{successful} \not = false
   \end{schema}
   \begin{itemize}
-    \item The var R_{successful} has a value of true but not false and is of the type Result
+    \item The var $R_{successful}$ has a value of $true$ but not $false$ and is of the type $Result$
   \end{itemize}
 
   \begin{schema}{FilterForSuccess}
@@ -189,9 +190,9 @@ S = curl -X GET -H "Authorization: Auth"
     S_{failure}' = \{~s_{completion} : Statement \, | \, R \not \in s_{completion}\}
   \end{schema}
   \begin{itemize}
-  \item The set s_{completion} is of type Statement and is in the set S_{completion}
-  \item The updated set S_{success}' is the set of all statements s_{completion} where R_{successful} is in s_{completion}
-  \item The updated set S_{failure}' is the set of all statements s_{completion} where R_{successful} is not in s_{completion}
+  \item The set $s_{completion}$ is of type $Statement$ and is in the set $S_{completion}$
+  \item The updated set $ S_{success}'$ is the set of all statements $s_{completion}$ where $R_{successful}$ is in $s_{completion}$
+  \item The updated set $S_{failure}'$ is the set of all statements $s_{completion}$ where $R_{successful}$ is not in $s_{completion}$
   \end{itemize}
 
   \subsubsection{Return}
@@ -202,31 +203,32 @@ S = curl -X GET -H "Authorization: Auth"
     S_{success}! = S_{success}
   \end{schema}
   \begin{itemize}
-    \item The returned variable S_{success}! is equal to the current state of variable S_{success}
+    \item The returned variable $S_{success}!$ is equal to the current state of variable $S_{success}$
   \end{itemize}
 
   \subsection{Pseudocode}
-  \footnote{\label{variableDescription} S_{completion} = S-completion s_{completion} = s-completion, S_{extra} = S-extra, V_{completion} = V-completion,
-     R_{successful} = R-successful, S_{success} = S-success, S_{failure} = S-failure}
   \begin{algorithm}[H]
     \SetAlgoLined
-    \KwIn{S}
-    \KwResult{S-success}
-    \While{S is not empty} {
-      for each Statement s in S \\
-      \eIf {s.verb.id = V-completion}
+    \KwIn{$S$}
+    \KwResult{$S_{success}$}
+    \While{$S$ is not empty} {
+      for each Statement $s$ in $S$ \\
+      \eIf {$s.verb.id$ = $V_{completion}$}
       {
-        add s to S-completion
+        add $s$ to $S_{completion}$
       }
       {
-        add s to S-extra
+        add $s$ to $S_{extra}$
       }}
-    \While {S-completion is not empty} {
-      for each Statement s-completion in S-completion \\
-      \eIf {s-completion.result.success = R-success}
-      { add s-completion to S-success }
-      { add s-completion to S-failure }
-    }
+    \While {$S_{completion}$ is not empty} {
+      for each Statement $s_{completion}$ in $S_{completion}$ \\
+      \eIf {$s_{completion}.result.success$ = $R_{success}$}
+      {
+        add $s_{completion}$ to $S_{success}$
+      }
+      {
+        add $s_{completion}$ to $S_{failure}$
+      }}
     \caption{Timeline of Learner Success}
   \end{algorithm}
   \subsection{Result JSON Schema}
