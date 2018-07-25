@@ -127,8 +127,8 @@ algorithm.
     $S$ is the result of concatenating the result of each request into
     a single set}
   \footnote{\label{noZ} Querying an LRS will not be defined within the
-  following Z specifications but the Results of the Query will be}
-  %%TODO: use markdown instead
+  following Z specifications but the results of the query will be}
+
   \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
                 {"homePage": "https://example.homepage",
@@ -190,7 +190,7 @@ S = curl -X GET -H "Authorization: Auth"
   \end{itemize}
   $[STATEMENT]$
   \begin{itemize}
-  \item Basic types for the results of querying an LRS
+  \item Basic type for the results of querying an LRS
   \end{itemize}
   $[AGENT, GROUP]$
   \begin{itemize}
@@ -237,9 +237,9 @@ S = curl -X GET -H "Authorization: Auth"
     Member \\
     group : GROUP \\
     objectType : OBJECTTYPE \\
-    ifi : IFI
+    ifi : IFI\\
+    name : \finset_1 \#1
     \where
-    name : \finset_1 \#1\\
     objectType = Group \\
     group = \{objectType, name, member\} \lor \{objectType, member\}
     \lor \\ \t2 \{objectType, ifi\} \cup \power \{name, member\}
@@ -271,7 +271,7 @@ S = curl -X GET -H "Authorization: Auth"
   \end{schema}
   \begin{itemize}
   \item The schema $Verb$ introduces the component $verb$ which
-      is a set that consists of either $id$ and the finite set
+      is a set that consists of either $id$ and the non-empty finite set
       $display$ or just $id$
   \end{itemize}
 
@@ -489,7 +489,7 @@ S = curl -X GET -H "Authorization: Auth"
     Timestamp \\
     Stored \\
     Attachements \\
-    statement,\$ : STATEMENT
+    statement : STATEMENT
 
     \where
     statement = \{actor, verb, object, stored\} \cup \\\t3 \power \{\id,
