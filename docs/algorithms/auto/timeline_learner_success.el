@@ -23,7 +23,9 @@
     "zed-csp"
     "breqn"
     "xcolor"
-    "listings")
+    "listings"
+    "pgfplots"
+    "pgfplotstable")
    (TeX-add-symbols
     "JSONnumbervaluestyle"
     "JSONstringvaluestyle"

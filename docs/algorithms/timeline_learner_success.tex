@@ -7,6 +7,11 @@
 \usepackage{breqn}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+\usetikzlibrary{pgfplots.dateplot}
+\usepackage{pgfplotstable}
+
 \lstset{literate = {-}{-}1} % get dashs to show up
 
 %%% https://tex.stackexchange.com/questions/195486/how-can-i-highlight-json-string-values-but-not-attributes/195540#195540
@@ -771,8 +776,56 @@ S = curl -X GET -H "Authorization: Auth"
 
   \subsection{Visualization Description}
 
-  description of the associated visualization in english
+  The Timeline of Learner Success visualization will be a line chart
+  where the domain is time and the range is score on a scale of 0.0 to
+  100.0. Every array within the array returned by the algorithm will
+  be a point on the chart.  The domain of the graph should be in
+  chronological order. \\
+
+  Aditional features may be implemented on top of
+  this base specification but would require adding aditional values to
+  each sub-array returned by the algorithm. These values would only be
+  limtied by the fields contained within the xAPI statements being
+  used to populate the visualization. ie.
+  \begin{itemize}
+    \item A tooltip containing the name of an activity when hovering
+      over a specific point on the chart
+      \subitem - this would require adding the value of
+      $\$.object.definition.name$ to each subarray
+    \item A tooltip containing the device on which the activity was experienced
+      \subitem - this would require adding the value from
+      $\$.context.platform$ to each subarray
+    \item A tooltip containing the instructor associated with a
+      particular data point
+      \subitem - this would require adding the value from
+      $\$.context.instructor$ to each subarray
+  \end{itemize}
+
+
   \subsection{Visualization prototype}
-  In Development
+  \pgfplotstabletypeset[string type]
+
+  \begin{tikzpicture}
+    \begin{axis}[
+      title = Timeline of Learner Success,
+      ylabel = $score(\%)$,
+      ymin = 0,
+      ymax = 100,
+      date coordinates in=x,
+      xtick=data,
+      xticklabel style=
+      {rotate=90,anchor=near xticklabel},
+      xticklabel=\month:\day. \hour:\minute,]
+      \addplot coordinates {
+        (2018-07-15 22:22, 75.0)
+        (2018-07-16 15:15, 84.0)
+        (2018-07-17 18:18, 81.0)
+        (2018-07-18 13:13, 91.0)
+        (2018-07-19 17:17, 88.0)
+        (2018-07-20 06:06, 85.0)
+        (2018-07-21 12:12, 87.0)
+      };
+     \end{axis}
+  \end{tikzpicture}
 
 \end{document}
