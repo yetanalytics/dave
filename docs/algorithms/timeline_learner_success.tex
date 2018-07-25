@@ -66,10 +66,10 @@ As learners engage in a blended eLearning ecosystem, they will build up a histor
 In order to accurately portray a learner's timeline of success, there are a few requirements of the data produced by a Learning Record Provider (LRP). They are as follows:
 \begin{itemize}
 \item the learner must be uniquely and consistently identified across all LRPs
-\item learning activities which access a learner's understanding of material should report if the learner was successful or not
+\item learning activities which evaluate a learner's understanding of material must report if the learner was successful or not
   \begin{itemize}
-  \item if the assessment is scored, the grade earned by the learner should be reported
-  \item if the assessment is scored, the minimum and maximum possible grade should be reported
+  \item the grade earned by the learner must be reported
+  \item the minimum and maximum possible grade must be reported
   \end{itemize}
 \item The learning activities must be uniquely and consistently identified across all LRPs
 \item The time at which a learner completed a learning activity must be recorded
@@ -86,7 +86,9 @@ is also compatable with the xAPI Z notation
 \begin{itemize}
   \item $\$.timestamp$
   \item $\$.result.success$
-  \item $\$.actor$
+  \item $\$.result.score.raw$
+  \item $\$.result.score.min$
+  \item $\$.result.score.max$
   \item $\$.verb.id$
   \end{itemize}
 
@@ -525,11 +527,12 @@ S = curl -X GET -H "Authorization: Auth"
  \begin{schema}{TimelineLearnerSuccess}
    Statements \\
    S_{all} : \finset_1 \\
-   S_{completion},S_{success} : \finset \\
+   S_{completion},S_{success},S_{processed} : \finset \\
    \where
    S_{all} = statements \\
    S_{completion} \subseteq S_{all} \\
-   S_{success} \subseteq S_{completion}
+   S_{success} \subseteq S_{completion} \\
+   S_{processed} = \{pair : (statement.timestamp, \nat\#1)\}
  \end{schema}
   \begin{itemize}
   \item The set $S_{all}$ is a non-empty finite set and is the
@@ -537,6 +540,8 @@ S = curl -X GET -H "Authorization: Auth"
   \item The sets $S_{completion}$ and $S_{success}$ are both finite sets
   \item the set $S_{completion}$ is a subset of $S_{all}$
   \item the set $S_{success}$ is a subset of $S_{completion}$
+  \item the set $S_{processed}$ is a finite set of pairs where each
+    contains a $statement.timestamp$ and a natural number
   \end{itemize}
 
   \subsubsection{Initial State of Timeline Learner Success System}
@@ -546,10 +551,11 @@ S = curl -X GET -H "Authorization: Auth"
     S_{all} \not = \emptyset \\
     S_{completion} = \emptyset \\
     S_{success} = \emptyset \\
+    S_{processed} = \emptyset
   \end{schema}
   \begin{itemize}
   \item The set $S_{all}$ is a non-empty set
-  \item The sets $S_{completion}$,\,$S_{success}$ are both initially empty
+  \item The sets $S_{completion}$,\,$S_{success}$ and $S_{processed}$ are all initially empty
   \end{itemize}
 
   \subsubsection{Filter for Completion}
@@ -627,7 +633,6 @@ S = curl -X GET -H "Authorization: Auth"
     state of $S_{success}$ and $successes$
   \end{itemize}
 
-  \subsubsection{Sequence of Operations}
   $FilterStatements \defs FilterForCompletion \semi FilterForSuccess$
   \begin{itemize}
     \item The schema $FilterStatements$ is the sequential composition
@@ -636,13 +641,78 @@ S = curl -X GET -H "Authorization: Auth"
     \item $FilterForCompletion$ happens before $FilterForSuccess$
   \end{itemize}
 
+  \subsubsection{Processes Results}
+
+  \begin{schema}{Scale}
+    scaled! : \nat \\
+    raw?, min?, max? : \num \\
+    scale : \num \fun \nat
+    \where
+    scaled! = scale(raw?, min?, max?) \\
+    scale(raw?, min?, max?) =
+    (raw? * ((0.0 - 100.0) \, div \, (min? - \, max?))) \, + \\ \t6\:\:\:
+    (0.0 - (min? * ((0.0 - 100.0) \, div \, (min? - \, max?))))
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Scale$ introduces the function $scale$ which takes
+    3 arguments, $raw?$, $min?$ and $max?$. The function converts
+    $raw?$ from the range $min?..max?$ to 0.0..100.0
+  \end{itemize}
+
+  \begin{schema}{ProcessStatements}
+    \Delta TimelineLearnerSuccess \\
+    Scale \\
+    FilterStatements \\
+    processed : \finset
+    \where
+    processed = S_{success} \\
+
+    processed' = \{p : (\finset_1\#1 , \nat\#1) \,|\, \\\t3
+    \LET \{processed_{i}..processed_{j}\} == \{s_{i}..s_{j}\} @ \\ \t3
+    \forall i,j : s_{i}..s_{j} @
+    \exists \,  p_{i}..p_{j} @ \\\t3 first~p_{i} = s_{i}.timestamp \, \land
+    \\\t3 second~p_{i} = scale(s_{i}.result.score.raw, s_{i}.result.score.min,
+    s_{i}.result.score.max) \, \land \\\t3 first~p_{j} =
+    s_{j}.timestamp \, \land \\\t3 second~p_{j} = scale(s_{j}.result.score.raw,
+    s_{j}.result.score.min, s_{j}.result.score.max)
+    \} \\
+    S_{processed}' = S_{processed} \cup processed'
+  \end{schema}
+  \begin{itemize}
+  \item The operation $ProcessStatements$ introduces the variable
+    $processed$ which is equalivant to the set $S_{success}$ which is
+    the result of the operation $FilterStatements$
+  \item The operation defines the variable $processsed'$ which is a
+    set of objects $p$ which are each an ordered pair of 1) a finite set
+    containing one value and 2) a single positive number.
+  \item The first component of every object $p$, is the
+    timestamp from the associated $statement$ within $processed$
+    ie. $s.timestamp$
+  \item The second component of every object $p$ is the result
+    of the function $scale$. The score values contained within the
+    associated $statement$ $s$ are the arugments passed to $scale$. ie $scale(s.result.score.raw, s.result.score.min,
+    s.result.score.max)$
+  \item The result of the operation $ProcessStatements$ is to updated
+    the set $S_{processed}$ with the values contained within $processed'$
+  \end{itemize}
+
+  \subsubsection{Sequence of Operations}
+
+  $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
+  \begin{itemize}
+    \item The schema $ProcessedStatements$ is the sequential composition
+      of operation schemas $FilterStatements$ and
+      $ProcessStatements$
+    \item $FilterStatements$ happens before $ProcessStatements$
+  \end{itemize}
+
   \subsubsection{Return}
   \begin{schema}{Return}
     \Xi TimelineLearnerSuccess \\
-    FilterStatements \\
-    S_{success}! : \finset
+    ProcessedStatements \\
+    S_{processed}! : \finset
     \where
-    S_{success}! = S_{success}
+    S_{processed}! = S_{processed}
   \end{schema}
   \begin{itemize}
     \item The returned variable $S_{success}!$ is equal to the current
@@ -676,8 +746,14 @@ S = curl -X GET -H "Authorization: Auth"
       }}
     \caption{Timeline of Learner Success}
   \end{algorithm}
+  \begin{itemize}
+    \item The Z schemas are used within this pseudocode
+    \item Within Z specifications, the collections of statements are sets. In the
+      pseudocode, the data structure is not specified but can be
+      assumed to be a collection of unique statements.
+  \end{itemize}
 
-  \subsection{Result JSON Schema}
+  \subsection{Example Statement Within $S_{success}$}
 \begin{lstlisting}[style=json]
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -690,6 +766,5 @@ S = curl -X GET -H "Authorization: Auth"
 
   description of the associated visualization in english
   \subsection{Visualization prototype}
-
-  This section will be updated to a prototype viz
+  In Development
 \end{document}
