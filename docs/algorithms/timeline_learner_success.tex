@@ -161,7 +161,7 @@ S = curl -X GET -H "Authorization: Auth"
   \item A type which represents the possible context types as
     defined within the xAPI specification
   \end{itemize}
-  $[STATEMENTS, STATEMENT]$
+  $[STATEMENT]$
   \begin{itemize}
   \item Basic types for the results of querying an LRS
   \end{itemize}
@@ -462,7 +462,7 @@ S = curl -X GET -H "Authorization: Auth"
     Timestamp \\
     Stored \\
     Attachements \\
-    statement,\$ : \finset_1
+    statement,\$ : STATEMENT
 
     \where
     statement = \{actor, verb, object, stored\} \cup \\\t3 \power \{\id,
