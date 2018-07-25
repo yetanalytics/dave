@@ -7,9 +7,14 @@
 \usepackage{breqn}
 \usepackage{listings}
 \lstset{literate = {-}{-}1} % get dashs to show up
-%%% document
+%%% Start of text
 \begin{document}
-
+%%% TODO: update this document to be organized
+%%% 1) xAPI Data Retrival
+%%% 2) xAPI Z Specifications
+%%% 3) Algorithm Name with all associated sub sections
+%%% 4) Next Algorithm name with all associated sub sections
+%%% ...
 \section*{Timeline Of Learner Success}
 As learners engage in a blended eLearning ecosystem, they will build up a history of learning experiences. When that eLearning ecosystem adheres to a framework dedicated to supporting and understanding the learner, such as the Total Learning Architecture (TLA), it becomes possible to retell their story through data. One important aspect of that story is the learner's history of success.
 
@@ -441,48 +446,59 @@ S = curl -X GET -H "Authorization: Auth"
     length : \nat
     \where
     attachment = \{usageType, display, contentType, length, sha2 \}
-    \cup \power \{description, fileUrl\}
+    \cup \power \{description, fileUrl\} \\
+    attachments = \{a : attachment\}
   \end{schema}
 
-  \subsubsection{Root Level Dependent Global Variables}
-  %%% Statements, statement
-
-
+  \subsubsection{Statement and Statements Schema}
 
   \begin{schema}{Statement}
-    s : Statement
-    %%% TODO: go back to using \lor
-    %%% TODO: define types for the properties of each statement subtype
-    \where
-    s = \{Actor, Verb, Object, Timestamp\} \, |
-    \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, |
-    \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, |
-    \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
-    %%% for defining a finite set of 1, use non-empty finite set where
-    %%% # is set to 1 - page 111 for reference
-  \end{schema}
-  \begin{itemize}
-  \item The variable $s$ is of type $Statement$ and consists of an $Actor$, $Verb$, $Object$, $Timestamp$ and optionally $Context$ and $Result$
-  \end{itemize}
-  \begin{schema}{Statements}
-    S : Statements
-    \where
-    S = \{~s : Statement \, | \, S \, \neg \, \emptyset\} \\
-    %%% this predicate should speciy a fn keys which when applied to s
-    %%% returns the combo defined within Statement or something like
-    %%% that. The predicate should describe the elements of the set
-    %%% not the set itself.
+    Id \\
+    Actor \\
+    Verb \\
+    Object \\
+    Result \\
+    Context \\
+    Timestamp \\
+    Stored \\
+    Attachements \\
+    statement,\$ : \finset_1
 
+    \where
+    statement = \{actor, verb, object, stored\} \cup \\\t3 \power \{\id,
+    result, context, timestamp, attachments \} \\
+    \$ \bind statement
   \end{schema}
   \begin{itemize}
-  \item The variable $S$ is of type $Statements$ and is a set of objects $s$, each of type $Statement$
- \item The variable $S$ is a non empty set
+  \item The schema $Statement$ introduces the component $statement$
+    which consists of the components $actor$, $verb$, $object$ and
+    $stored$ and the optional components $id$, $result$, $context$,
+    $timestamp$, and/or $attachments$
+  \item The schema $Statement$ also binds the component $statement$ to
+    the variable $\$$ so that JSONPath can be used within Operation
+    schemas which require reaching into a $statement$. This is
+    accomplished by using the $.$ (select) notation starting at $\$$
+    (root) and navigating into subsequent components of the $statement$
+  \end{itemize}
+
+  \begin{schema}{Statements}
+    Statement \\
+    statements : \finset_1
+    \where
+    statements = \{s : statement \}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Statements$ introduces the component $statements$
+    which is a non-empty finite set of components $statement$
  \end{itemize}
 
- \subsubsection{Global Variables}
- Actor Verb Object Result Context Timestamp Stored Attachments
+ \subsection{Timeline Learner Success Z Specifications}
+ The following Z Schemas define the system state, initialization and
+ operations necessary to perform the Timeline Learner Success Algorithm
 
-  \subsubsection{Timeline Leaner Success System State}
+ %%% TODO: update these schemas to account for new xAPI schemas
+
+ \subsubsection{Timeline Leaner Success System State}
   \begin{schema}{TimelineLearnerSuccess}
     S_{extra},S_{completion},S_{success},S_{failure} : \power S \\
     \where
