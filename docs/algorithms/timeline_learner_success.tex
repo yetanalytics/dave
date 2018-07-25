@@ -715,9 +715,9 @@ S = curl -X GET -H "Authorization: Auth"
     S_{processed}! = S_{processed}
   \end{schema}
   \begin{itemize}
-    \item The returned variable $S_{success}!$ is equal to the current
-      state of variable $S_{success}$ after the operations
-      $FilterForCompletion$ and $FilterForSuccess$
+    \item The returned variable $S_{processed}!$ is equal to the current
+      state of variable $S_{processed}$ after the operations
+      $FilterForCompletion$, $FilterForSuccess$ and $ProcessStatements$
     \end{itemize}
 
   \subsection{Pseudocode}
@@ -725,7 +725,8 @@ S = curl -X GET -H "Authorization: Auth"
   \begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{$S_{all}$}
-    \KwResult{$S_{success}$}
+    \KwResult{coll}
+    coll := [] \\
     \While{$S_{all}$ is not empty} {
       for each statement $s$ in $S_{all}$ \\
       \eIf {$s.verb.id$ = $COMPLETION$}
@@ -744,27 +745,34 @@ S = curl -X GET -H "Authorization: Auth"
       {
         noop
       }}
+    \While {$S_{success}$ is not empty} {
+      for each statement $ss$ in $S_{success}$ \\
+      \t1 let ss.result.score.raw = raw? \\ \t1 \:\:\:\:\:
+          ss.result.score.max = max? \\ \t1 \:\:\:\:\:
+          ss.result.score.min = min? \\ \t1 \:\:\:\:\:
+          scaled = scale(raw?, min?, max?) \\
+       \t1 concat coll [ss.timestamp, scaled]
+    }
     \caption{Timeline of Learner Success}
   \end{algorithm}
   \begin{itemize}
     \item The Z schemas are used within this pseudocode
-    \item Within Z specifications, the collections of statements are sets. In the
-      pseudocode, the data structure is not specified but can be
-      assumed to be a collection of unique statements.
+    \item The return value coll is an array of pairs, each being a
+      timestamp and a scaled score.
   \end{itemize}
 
-  \subsection{Example Statement Within $S_{success}$}
+  \subsection{JSON Schema}
 \begin{lstlisting}[style=json]
-{
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "id": "#statement_list",
-    "type": "array",
-    "items": {"$ref": "#statement"}
+{"type":"array",
+   "items":{"type":"array",
+      "items":[{"type":"string"}, {"type":"number"}]}
 }
 \end{lstlisting}
+
   \subsection{Visualization Description}
 
   description of the associated visualization in english
   \subsection{Visualization prototype}
   In Development
+
 \end{document}
