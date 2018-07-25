@@ -5,9 +5,53 @@
 \usepackage{amsmath}
 \usepackage{zed-csp}
 \usepackage{breqn}
+\usepackage{xcolor}
 \usepackage{listings}
 \lstset{literate = {-}{-}1} % get dashs to show up
-%%% Start of text
+
+%%% https://tex.stackexchange.com/questions/195486/how-can-i-highlight-json-string-values-but-not-attributes/195540#195540
+%%% ^ JSON style for lstset
+\newcommand\JSONnumbervaluestyle{\color{blue}}
+\newcommand\JSONstringvaluestyle{\color{red}}
+\newif\ifcolonfoundonthisline
+\makeatletter
+
+\lstdefinestyle{json}
+{
+  showstringspaces    = false,
+  keywords            = {false,true},
+  alsoletter          = 0123456789.,
+  morestring          = [s]{"}{"},
+  stringstyle         = \ifcolonfoundonthisline\JSONstringvaluestyle\fi,
+  MoreSelectCharTable =%
+    \lst@DefSaveDef{`:}\colon@json{\processColon@json},
+  basicstyle          = \ttfamily,
+  keywordstyle        = \ttfamily\bfseries,
+}
+
+\newcommand\processColon@json{%
+  \colon@json%
+  \ifnum\lst@mode=\lst@Pmode%
+    \global\colonfoundonthislinetrue%
+  \fi
+}
+
+\lst@AddToHook{Output}{%
+  \ifcolonfoundonthisline%
+    \ifnum\lst@mode=\lst@Pmode%
+      \def\lst@thestyle{\JSONnumbervaluestyle}%
+    \fi
+  \fi
+  %override by keyword style if a keyword is detected!
+  \lsthk@DetectKeywords%
+}
+
+% reset the switch at the end of line
+\lst@AddToHook{EOL}%
+  {\global\colonfoundonthislinefalse}
+
+\makeatother
+
 \begin{document}
 %%% TODO: update this document to be organized
 %%% 1) xAPI Data Retrival
@@ -100,31 +144,7 @@ S = curl -X GET -H "Authorization: Auth"
   \end{lstlisting}
 
   \subsection{xAPI Z Specifications}
-  %%% for making map like data structures, see 2.1.3, page 26
-  %%% this is done through binding
 
-  %%% The bar version of not I have been using is for relating and
-  %%% combining predicates, not within an individual predicate''
-
-  %%% ' is used for labeling the final state of an operation
-  %%% pretty sure I already follow that notation
-
-  %%% @ = such that
-  %%% | is alternatives but also used as a seperator...
-  %%% Bc of ^, use \lor instead of bar
-
-  %%% TODO: seperate abstract state spaces from concrete state spaces
-  %%% I believe the xAPI stuff is all abstract but the filtering stuff
-  %%% is a mix between abstract and concrete (I think)
-
-  %%%Two schemas S and T with type compatible signatures may be
-  %%%combined with the schema conjunction operator to give a new
-  %%%schema S ∧ T.
-  %%% ^ This is an important restriction I need to keep in mind
-
-  %%% Variable Scopes, Section 2.3 Starting on bottom of 34
-
-  %%% Global variable is introduced via an axiomatic description
   An xAPI statement(s) is only defined abstractly within the context
   of Z. A concrete definition for an xAPI statement(s) it outside the
   scope of this specification.
@@ -467,18 +487,14 @@ S = curl -X GET -H "Authorization: Auth"
     \where
     statement = \{actor, verb, object, stored\} \cup \\\t3 \power \{\id,
     result, context, timestamp, attachments \} \\
-    \$ \bind statement
   \end{schema}
   \begin{itemize}
   \item The schema $Statement$ introduces the component $statement$
     which consists of the components $actor$, $verb$, $object$ and
     $stored$ and the optional components $id$, $result$, $context$,
     $timestamp$, and/or $attachments$
-  \item The schema $Statement$ also binds the component $statement$ to
-    the variable $\$$ so that JSONPath can be used within Operation
-    schemas which require reaching into a $statement$. This is
-    accomplished by using the $.$ (select) notation starting at $\$$
-    (root) and navigating into subsequent components of the $statement$
+  \item The schema $Statement$ allows for subcomponent of $statement$
+    to refrenced via the $.$ (selection) operator
   \end{itemize}
 
   \begin{schema}{Statements}
@@ -612,7 +628,6 @@ S = curl -X GET -H "Authorization: Auth"
   \end{itemize}
 
   \subsubsection{Sequence of Operations}
-
   $FilterStatements \defs FilterForCompletion \semi FilterForSuccess$
   \begin{itemize}
     \item The schema $FilterStatements$ is the sequential composition
@@ -636,34 +651,45 @@ S = curl -X GET -H "Authorization: Auth"
     \end{itemize}
 
   \subsection{Pseudocode}
+
   \begin{algorithm}[H]
     \SetAlgoLined
-    \KwIn{$S$}
+    \KwIn{$S_{all}$}
     \KwResult{$S_{success}$}
-    \While{$S$ is not empty} {
-      for each Statement $s$ in $S$ \\
-      \eIf {$s.verb.id$ = $V_{completion}$}
+    \While{$S_{all}$ is not empty} {
+      for each statement $s$ in $S_{all}$ \\
+      \eIf {$s.verb.id$ = $COMPLETION$}
       {
         add $s$ to $S_{completion}$
       }
       {
-        add $s$ to $S_{extra}$
+        noop
       }}
     \While {$S_{completion}$ is not empty} {
-      for each Statement $s_{completion}$ in $S_{completion}$ \\
-      \eIf {$s_{completion}.result.success$ = $R_{success}$}
+      for each statement $sc$ in $S_{completion}$ \\
+      \eIf {$sc.result.success$ = $SUCCESS$}
       {
-        add $s_{completion}$ to $S_{success}$
+        add $sc$ to $S_{success}$
       }
       {
-        add $s_{completion}$ to $S_{failure}$
+        noop
       }}
     \caption{Timeline of Learner Success}
   \end{algorithm}
+
   \subsection{Result JSON Schema}
-  JSON schema describing the returned data structure
+\begin{lstlisting}[style=json]
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "#statement_list",
+    "type": "array",
+    "items": {"$ref": "#statement"}
+}
+\end{lstlisting}
   \subsection{Visualization Description}
+
   description of the associated visualization in english
   \subsection{Visualization prototype}
+
   This section will be updated to a prototype viz
 \end{document}

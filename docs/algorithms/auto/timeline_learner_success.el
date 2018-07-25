@@ -22,9 +22,16 @@
     "amsmath"
     "zed-csp"
     "breqn"
+    "xcolor"
     "listings")
+   (TeX-add-symbols
+    "JSONnumbervaluestyle"
+    "JSONstringvaluestyle"
+    "processColon")
    (LaTeX-add-labels
     "moreLink"
-    "noZ"))
+    "noZ")
+   (LaTeX-add-listings-lstdefinestyles
+    "json"))
  :latex)
 
