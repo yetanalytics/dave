@@ -1,10 +1,5 @@
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: t
-%%% End:
-
 \documentclass{article}
-
+%%% Package imports
 \usepackage[ruled]{algorithm2e}
 \usepackage{hyperref}
 \usepackage{amsmath}
@@ -12,8 +7,9 @@
 \usepackage{breqn}
 \usepackage{listings}
 \lstset{literate = {-}{-}1} % get dashs to show up
-%%% TODO: get items to respect latex
+%%% document
 \begin{document}
+
 \section*{Timeline Of Learner Success}
 As learners engage in a blended eLearning ecosystem, they will build up a history of learning experiences. When that eLearning ecosystem adheres to a framework dedicated to supporting and understanding the learner, such as the Total Learning Architecture (TLA), it becomes possible to retell their story through data. One important aspect of that story is the learner's history of success.
 
@@ -32,11 +28,12 @@ In order to accurately portray a learner's timeline of success, there are a few 
   \item The timestamp should contain an appropriate level of specificity.
   \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
   \end{itemize}
-
 \end{itemize}
 
 \subsection{statement parameters to utilize}
-The statement parameter locations here are written in \href{http://goessner.net/articles/JsonPath/}{JSONPath}
+The statement parameter locations here are written in
+\href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
+is also defined by the Z Schema JSONPath
 \begin{itemize}
   \item $\$.timestamp$
   \item $\$.result.success$
@@ -44,10 +41,12 @@ The statement parameter locations here are written in \href{http://goessner.net/
   \item $\$.verb.id$
   \end{itemize}
 
-
 \section{TLA Statement problems}
-The data collected at the TLA pilot run supports the following algorithm.
+The data collected at the TLA pilot run supports the following
+algorithm.
+
 \section{Algorithm}
+
 \subsection{Summary}
 \begin{enumerate}
   \item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
@@ -65,8 +64,15 @@ The data collected at the TLA pilot run supports the following algorithm.
 
   \subsection{Query an LRS via REST}
   How to query an LRS via a GET request to the Statements Resource
-  \footnote{\label{moreLink} $S$ is the set of all statements parsed from the statements array within the HTTP response to the Curl request. It may be possible that multiple Curl requests are needed to retrieve all query results. If multiple requests are necessary, $S$ is the result of concatenating the result of each request into a single set}
-  %%TODO: update with markdown instead
+  \footnote{\label{moreLink} $S$ is the set of all statements parsed
+    from the statements array within the HTTP response to the Curl
+    request. It may be possible that multiple Curl requests are needed
+    to retrieve all query results. If multiple requests are necessary,
+    $S$ is the result of concatenating the result of each request into
+    a single set}
+  \footnote{\label{noZ} Querying an LRS will not be defined within the
+  following Z specifications but the Results of the Query will be}
+  %%TODO: use markdown instead
   \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
                 {"homePage": "https://example.homepage",
@@ -88,22 +94,400 @@ S = curl -X GET -H "Authorization: Auth"
          Endpoint
   \end{lstlisting}
 
-  \subsection{Z Specifications}
-  \subsubsection{xAPI Schema}
-  $[Statement]$
-  $[Actor]$
-  $[Verb]$
-  $[Object]$
-  $[Result]$
-  $[Context]$
-  $[Timestamp]$
+  \subsection{xAPI Z Specifications}
+  %%% for making map like data structures, see 2.1.3, page 26
+  %%% this is done through binding
+
+  %%% The bar version of not I have been using is for relating and
+  %%% combining predicates, not within an individual predicate''
+
+  %%% ' is used for labeling the final state of an operation
+  %%% pretty sure I already follow that notation
+
+  %%% @ = such that
+  %%% | is alternatives but also used as a seperator...
+  %%% Bc of ^, use \lor instead of bar
+
+  %%% TODO: seperate abstract state spaces from concrete state spaces
+  %%% I believe the xAPI stuff is all abstract but the filtering stuff
+  %%% is a mix between abstract and concrete (I think)
+
+  %%%Two schemas S and T with type compatible signatures may be
+  %%%combined with the schema conjunction operator to give a new
+  %%%schema S ∧ T.
+  %%% ^ This is an important restriction I need to keep in mind
+
+  %%% Variable Scopes, Section 2.3 Starting on bottom of 34
+
+  %%% Global variable is introduced via an axiomatic description
+  An xAPI statement(s) is only defined abstractly within the context
+  of Z. A concrete definition for an xAPI statement(s) it outside the
+  scope of this specification.
+
+  \subsubsection{Basic Types}
+  $IFI$ ::=$ mbox \,|\, mbox\_sha1sum \,|\, openid \,|\, account$
+  \begin{itemize}
+  \item Type unique to Agents and Groups, The concrete definition of the listed values
+    is outside the scope of this specification
+  \end{itemize}
+  $OBJECTTYPE$ ::=$ Agent \,|\, Group \,|\, SubStatement \,|\,
+  StatementRef \,|\, Activity$
+  \begin{itemize}
+  \item A type which can be present in all activities as defined by
+    the xAPI specification
+  \end{itemize}
+  $INTERACTIONTYPE$ ::= $true-false \,|\, choice \,|\, fill-in \,|\,
+  long-fill-in \,|\, matching \,| \\ performance \,|\, sequencing \,|\,
+  likert \,|\, numeric \,|\, other$
+  \begin{itemize}
+  \item A type which represents the possible interactionTypes as
+      defined within the xAPI specification
+  \end{itemize}
+  $INTERACTIONCOMPONENT$ ::= $choices \,|\, scale \,|\, source \,|\,
+  target \,|\, steps$
+  \begin{itemize}
+  \item A type which represents the possible interaction components as
+    defined within the xAPI specification
+  \item the concrete definition of the listed values is outside the
+    scope of this specification
+  \end{itemize}
+  $CONTEXTTYPES$ ::= $parent \,|\, grouping \,|\, category \,|\, other$
+  \begin{itemize}
+  \item A type which represents the possible context types as
+    defined within the xAPI specification
+  \end{itemize}
+
+  %%% TODO: come back and refine
+  $[STATEMENTS, STATEMENT]$
+  \begin{itemize}
+  \item Basic types for the results of querying an LRS
+  \end{itemize}
+  $[ACTOR, VERB, OBJECT, RESULT, CONTEXT, TIMESTAMP, STORED, ATTACHEMNTS]$
+  \begin{itemize}
+  \item Basic types for the top level properties of a statement
+  \end{itemize}
+  $[ID, AGENT, GROUP, EXTENSIONS, OBJECTTYPE, NAME, DISPLAY, DESCRIPTION]$
+  \begin{itemize}
+  \item Basic types for paramters which can exists within multiple
+    types of top level properties
+  \end{itemize}
+  $[MEMBER]$
+  \begin{itemize}
+  \item Basic type unique to Groups
+  \end{itemize}
+  $[DEFINITION, TYPE, MOREINFO]$
+  \begin{itemize}
+  \item Basic types unique to object
+  \end{itemize}
+  $[SCORE, SUCCESS, COMPLETION, RESPONSE, DURATION]$
+  \begin{itemize}
+  \item Basic types unique to result
+  \end{itemize}
+  $[REGISTRATION, INSTRUCTOR, CONTEXTACTIVITIES, REVISIOIN, \\
+  PLATFORM, LANGUAGE]$
+  \begin{itemize}
+  \item Basic types unique to context
+  \end{itemize}
+  $[USAGETYPE, CONTENTTYPE, SHA2, FILEURL]$
+  \begin{itemize}
+  \item Basic types unique to attachment
+  \end{itemize}
+
+  \subsubsection{Id Schema}
+  \begin{schema}{Id}
+    id : \finset_1 \#1
+  \end{schema}
+  \begin{itemize}
+  \item the schema $Id$ introduces the component $id$ which is a
+      non-empty finite set of 1 value
+  \end{itemize}
+
+  \subsubsection{Schemas for Agents and Groups}
+
+  \begin{schema}{Agent}
+    agent : AGENT \\
+    objectType : OBJECTTYPE \\
+    name : \finset_1 \#1 \\
+    ifi : IFI
+    \where
+    objectType = Agent \\
+    agent = \{ifi\} \cup \power \{name, objectType\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Agent$ introduces the component $agent$ which is a set
+    consisting of an $ifi$ and optionally an $objectType$ and/or $name$
+  \end{itemize}
+
+  \begin{schema}{Member}
+    Agent \\
+    member : \finset_1
+    \where
+    member = \{a : AGENT \,|\, \forall a: a_{0}..a_{n} @ a = agent\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Member$ introduces the component $member$ which is a set of
+    objects $a$, where for every $a$ within $a_{0}..a_{n}$, $a$ is an $agent$
+  \end{itemize}
+
+  \begin{schema}{Group}
+    Member \\
+    group : GROUP \\
+    objectType : OBJECTTYPE \\
+    ifi : IFI
+    \where
+    name : \finset_1 \#1\\
+    objectType = Group \\
+    group = \{objectType, name, member\} \lor \{objectType, member\}
+    \lor \\ \t2 \{objectType, ifi\} \cup \power \{name, member\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Group$ introduces the component $group$ which is of
+    type $GROUP$ and is a set of either $objectType$ and $member$ with optionaly $name$ or
+    $objectType$ and $ifi$ with optionally $name$ and/or $member$
+  \end{itemize}
+
+  \begin{schema}{Actor}
+    Agent \\
+    Group \\
+    actor : AGENT \lor GROUP
+    \where
+    actor = agent \lor group
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Actor$ introduces the component $actor$ which
+    is either an $agent$ or $group$
+  \end{itemize}
+
+  \subsubsection{Verb Schema}
+  \begin{schema}{Verb}
+    Id \\
+    display, verb : \finset_1
+    \where
+    verb = \{id, display\} \lor \{id\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Verb$ introduces the component $verb$ which
+      is a set that consists of either $id$ and the finite set
+      $display$ or just $id$
+  \end{itemize}
+
+  \subsubsection{Object Schema}
+
+  \begin{schema}{Extensions}
+    extensions, extensionVal : \finset_1 \\
+    extensionId : \finset_1 \#1 \\
+    \where
+    extensions = \{e : (extensionId, extensionVal)\ \,|\,
+    \forall i,j : e_{i}..e_{j} @ \\
+    \t3 \, (extensionId_{i}, extensionVal_{i})
+    \lor (extensionId_{i}, extensionVal_{j}) \land \\
+    \t3 \, (extensionId_{j}, extensionVal_{i})
+    \lor (extensionId_{j}, extensionVal_{j})
+    \land \\ \t3 \, extensionId_{i} \not = extensionId_{j}\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Extensions$ introduces the component $extensions$ which
+      is a non-empty finite set that consists of ordered pairs of
+      $extensionId$ and $extensionVal$. Different $extensionId$s can
+      have the same $extensionVal$ but there can not be two identical
+      $extensionId$ values
+  \item $extensionId$ is a non-empty finite set with one value
+  \item $extensionVal$ is a non-empty finite set
+  \end{itemize}
+
+  \begin{schema}{InteractionActivity}
+    interactionType : INTERACTIONTYPE \\
+    correctResponsePattern : \seq_1 \\
+    interactionComponent: INTERACTIONCOMPONENT \\
+    \where
+    interactionActivity = \{interactionType, correctReponsePattern,
+    interactionComponent\} \lor \\ \t5 \{interactionType, correctResponsePattern\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $InteractionActivity$ introduces the component
+    $interactionActivity$ which is a set of either $interactionType$
+    and $correctResponsePattern$ or $interactionType$ and
+    $correctResponsePattern$ and $interactionComponent$
+  \end{itemize}
+
+  \begin{schema}{Definition}
+    InteractionActivity \\
+    Extensions \\
+    definition, name, description : \finset_1 \\
+    type, moreInfo : \finset_1 \#1
+    \where
+    definition = \power_1 \{name, description, type, moreInfo,
+    extensions, interactionActivity\} \\
+  \end{schema}
+  \begin{itemize}
+    \item The schema $Definition$ introduces the component
+      $definition$ which is the non-empty, finite power set of $name$, $description$,
+      $type$, $moreInfo$ and $extensions$
+  \end{itemize}
+
+  \begin{schema}{Object}
+    Id \\
+    Definition \\
+    Agent \\
+    Group \\
+    Statement \\
+    objectTypeA, objectTypeS, objectTypeSub, objectType  : OBJECTTYPE \\
+    substatement : STATEMENT \\
+    object : \finset_1 \\
+    \where
+    substatement = statement \\
+    objectTypeA = Activity \\
+    objectTypeS = StatementRef \\
+    objectTypeSub = SubStatement \\
+    objectType = objectTypeA \lor objectTypeS \\
+    object = \{id\} \lor \{id, objectType\} \lor \{id, objectTypeA,
+    definition\} \\ \t2 \lor \{id, definition\} \lor \{agent\} \lor
+    \{group\} \lor \{objectTypeSub, substatement\} \\
+    \t2 \lor \{id, objectTypeA\}
+  \end{schema}
+  \begin{itemize}
+    \item The schema $Object$ introduces the component $object$ which
+      is a non-empty finite set of either $id$, $id$ and $objectType$,
+      $id$ and $objectTypeA$ and $definition$, $agent$, $group$, or
+      $substatement$
+    \item The schema $Statement$ and the corresponding component
+      $statement$ will be defined later on in this specification
+  \end{itemize}
+
+  \subsubsection{Result Schema}
+
+  \begin{schema}{Score}
+    score : \finset_1 \\
+    scaled, min, max, raw : \num \\
+    \where
+    scaled = \{ n : \num \,|\, -1.0 \leq n \leq 1.0 \} \\
+    min = n < max \\
+    max = n > min \\
+    raw = raw = \{ n : \num \,|\, min \leq n \leq max \} \\
+    score = \power_1 \{scaled, raw, min, max\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Score$ introduces the component $score$ which is
+    the non-empty powerset of $min$, $max$, $raw$ and $scaled$
+  \end{itemize}
+
+  \begin{schema}{Result}
+    Score \\
+    Extensions \\
+    success, completion, response, duration : \finset_1 \#1 \\
+    result : \finset_1
+    \where
+    success = true \lor false \\
+    completion = true \lor false \\
+    result = \power_1 \{score, success, completion, response,
+    duration, extensions\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Result$ introduces the component $result$ which is
+    the non-empty power set of $score$, $success$, $completion$,
+    $response$, $duration$ and $extensions$
+  \end{itemize}
+
+  \subsubsection{Context Schema}
+
+  \begin{schema}{Instructor}
+    Agent \\
+    Group \\
+    instructor : AGENT \lor GROUP
+    \where
+    instructor = agent \lor group
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Instructor$ introduces the component $instructor$
+    which can be ether an $agent$ or a $group$
+  \end{itemize}
+
+  \begin{schema}{Team}
+    Group \\
+    team : GROUP
+    \where
+    team = group
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Team$ introduces the component $team$ which is a $group$
+  \end{itemize}
+
+  \begin{schema}{Context}
+    Instructor \\
+    Team \\
+    Object \\
+    Extensions \\
+    registration, revision, platform, language : \finset_1 \#1 \\
+    parentT, groupingT, categoryT, otherT : CONTEXTTYPES \\
+    contextActivities, statement : \finset_1
+    \where
+    statement = object \hide (id, objectType, agent, group,
+    definition) \\
+    parentT = parent \\
+    groupingT = grouping \\
+    categoryT = category \\
+    otherT = other \\
+    contextActivity = \{ca : object \hide (agent, group, objectType,
+    objectTypeSub, substatement)\} \\
+    contextActivityParent = (parentT, contextActivity) \\
+    contextActivityCategory = (categoryT, contextActivity) \\
+    contextActivityGrouping = (groupingT, contextActivity) \\
+    contextActivityOther = (otherT, contextActivity) \\
+    contextActivities = \power_1 \{contextActivityParent,
+    contextActivityCategory, \\ \t5 \:\: contextActivityGrouping,
+    contextActivityOther\} \\
+    context = \power_1 \{registration, instructor, team,
+    contextActivities, revision, \\ \t3 platform, language, statement, extensions\}
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Context$ introduces the component $context$
+    which is the non-empty powerset of $registration$, $instructor$,
+    $team$, $contextActivities$, $revision$, $platform$, $language$,
+    $statement$ and $extensions$
+  \end{itemize}
+
+  \subsubsection{Timestamp and Stored Schema}
+
+  \begin{schema}{Timestamp}
+    timestamp : \finset_1 \#1
+  \end{schema}
+
+  \begin{schema}{Stored}
+    stored : \finset_1 \#1
+  \end{schema}
+  \begin{itemize}
+  \item The schema $Timestamp$ and $stored$ introduce the components
+    $timestamp$ and $stored$ respectively. Each are non-empty finite
+    sets containing one value
+  \end{itemize}
+
+  \subsubsection{Attachements Schema}
+
+  \begin{schema}{Attachments}
+    display, description, attachment, attachments: \finset_1 \\
+    usageType, sha2, fileUrl, contexntType : \finset_1 \#1 \\
+    length : \nat
+    \where
+    attachment = \{usageType, display, contentType, length, sha2 \}
+    \cup \power \{description, fileUrl\}
+  \end{schema}
+
+  \subsubsection{Root Level Dependent Global Variables}
+  %%% Statements, statement
+
+
+
   \begin{schema}{Statement}
     s : Statement
+    %%% TODO: go back to using \lor
+    %%% TODO: define types for the properties of each statement subtype
     \where
     s = \{Actor, Verb, Object, Timestamp\} \, |
     \\ \t1 \{Actor, Verb, Object, Timestamp, Context\} \, |
     \\ \t1 \{Actor, Verb, Object, Timestamp, Result\} \, |
     \\ \t1 \{Actor, Verb, Object, Timestamp, Result, Context\}
+    %%% for defining a finite set of 1, use non-empty finite set where
+    %%% # is set to 1 - page 111 for reference
   \end{schema}
   \begin{itemize}
   \item The variable $s$ is of type $Statement$ and consists of an $Actor$, $Verb$, $Object$, $Timestamp$ and optionally $Context$ and $Result$
@@ -112,11 +496,19 @@ S = curl -X GET -H "Authorization: Auth"
     S : Statements
     \where
     S = \{~s : Statement \, | \, S \, \neg \, \emptyset\} \\
+    %%% this predicate should speciy a fn keys which when applied to s
+    %%% returns the combo defined within Statement or something like
+    %%% that. The predicate should describe the elements of the set
+    %%% not the set itself.
+
   \end{schema}
   \begin{itemize}
   \item The variable $S$ is of type $Statements$ and is a set of objects $s$, each of type $Statement$
  \item The variable $S$ is a non empty set
-  \end{itemize}
+ \end{itemize}
+
+ \subsubsection{Global Variables}
+ Actor Verb Object Result Context Timestamp Stored Attachments
 
   \subsubsection{Timeline Leaner Success System State}
   \begin{schema}{TimelineLearnerSuccess}
@@ -137,6 +529,9 @@ S = curl -X GET -H "Authorization: Auth"
 
   \subsubsection{Initial State of Timeline Learner Success System}
   \begin{schema}{InitTimelineLearnerSuccess}
+    %%% TODO: replace set litterals with the zero with a slash through
+    %%% it , \emptyset
+
     TimelineLearnerSuccess \\
     \where
     S_{extra} = \{\} \\
@@ -160,6 +555,13 @@ S = curl -X GET -H "Authorization: Auth"
     \item The var $V_{completion}$ has a value of one of the above IRIs and is of type $Verb$
   \end{itemize}
   \begin{schema}{FilterForCompletion}
+    %%% Statement can be S,
+    %%% V_{completion} can be turned into
+    %%% a fn and is the new predicate
+    %%% should be able to translate the predicate V \in s into a fn
+    %%% may be able to make a generic fn which does look ups and then
+    %%% filters
+    %%% adapt reminder schema from page 6 to fit this use case
     \Delta TimelineLearnerSuccess \\
     \where
     S_{completion}' = \{~s : Statement \, | \, V_{completion} \in s \, \land \, s \in S \} \\
@@ -204,7 +606,10 @@ S = curl -X GET -H "Authorization: Auth"
   \end{schema}
   \begin{itemize}
     \item The returned variable $S_{success}!$ is equal to the current state of variable $S_{success}$
-  \end{itemize}
+    \end{itemize}
+
+    %%% for ordering by timestamp, see sequential systems section
+    %%% starting on page 128
 
   \subsection{Pseudocode}
   \begin{algorithm}[H]
