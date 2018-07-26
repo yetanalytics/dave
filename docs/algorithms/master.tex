@@ -81,7 +81,11 @@ This document introduces the initial learning analytics algorithms,
 This document will be updated to include the remaining learning analytics questions defined within the
 \href{https://adloffice365.sharepoint.com/sites/TLA_Extranet/Shared\%20Documents/2018\%20TLA\%20Data\%20Requirements\%20Aligned\%20to\%20Event.docx?d=w1cf1d6fe161b4606a11c130baae5f5e1}{2018 TLA Data Requirements}
 document in addition to other learning analytics algorithms which have
-yet to be defined. The structure of this documents is as follows:
+yet to be defined. Updates may also address refinment of these
+algorithms and this document should be understood to be an example of
+algorithm presentation and not the final state of any defined algorithm.
+$\\\\$
+The structure of this documents is as follows:
 \begin{enumerate}
 \item A formal specification for the data standard xAPI written in Z
   and referenced within the formal specifications of learning
@@ -104,7 +108,7 @@ yet to be defined. The structure of this documents is as follows:
     adapted to improve the quality of the visualization prototype
   \end{enumerate}
 \end{enumerate}
-
+$\\\\\\\\\\\\$ %%% only introduction on the first page
 \section{xAPI Formal Specification}
 The current formal specification only defines xAPI statements
 abstractly within the context of Z. A concrete definition for xAPI
@@ -311,7 +315,7 @@ $[AGENT, GROUP]$
 \item The schema $Statement$ and the corresponding component
   $statement$ will be defined later on in this specification
 \end{itemize}
-
+$\\\\\\\\\\\\$ %%% Header with content
 \subsection{Result Schema}
 
 \begin{schema}{Score}
@@ -488,13 +492,14 @@ that story is the learner's history of success.
 \subsection{Ideal Statements}
 In order to accurately portray a learner's timeline of success, there are a few requirements of the data produced by a Learning Record Provider (LRP). They are as follows:
 \begin{itemize}
-\item the learner must be uniquely and consistently identified across all LRPs
+\item the learner must be uniquely and consistently identified across
+  all statements
 \item learning activities which evaluate a learner's understanding of material must report if the learner was successful or not
   \begin{itemize}
   \item the grade earned by the learner must be reported
   \item the minimum and maximum possible grade must be reported
   \end{itemize}
-\item The learning activities must be uniquely and consistently identified across all LRPs
+\item The learning activities must be uniquely and consistently identified across all statements
 \item The time at which a learner completed a learning activity must be recorded
   \begin{itemize}
   \item The timestamp should contain an appropriate level of specificity.
@@ -890,5 +895,78 @@ used to populate the visualization include but are not limited to:
 \end{itemize}
 
 \section{Which Assessment Questions are the Most Difficult}
+As learners engage in a blended eLearning ecosystem, they will
+experiecne teaching content as well as assessment content. Assessments
+are designed to measure the effectiveness of learning content and help
+measure learning. It is possible that certain assessment questions
+do not accurately represent the concepts contained within teaching
+material and this may be indicated by a majority of learners getting
+the question wrong. It is also possible that the question accurately
+represents the learning content but is just hard. The following
+algorithm will identify these questions but will not be able to deduce
+the why learners answer them incorrectly.
+
+\subsection{Ideal Statements}
+In order to accurately determine which assessment questions are the
+most dificult, there are a few requirements of the data produced by a
+LRP. They are as follows:
+\begin{itemize}
+\item statements describing a learner answering a question must report
+  if the learner got the question correct or incorrect via $\$.result.success$
+\item if it is possible to get partial credit on a question, the amount
+  of credit should be reported within the statement
+  \begin{itemize}
+  \item the credit earned by the learner should be reported within $\$.result.score.raw$
+  \item the minimum and maximum possible credit amount should be
+    reported within $\$.result.score.min$ and $\$.result.score.max$
+    respectively
+  \end{itemize}
+\item If it is possible to get partial credit on a question, it must
+  still be reported if the learner reached the threshold of success
+  via $\$.result.success$
+\item Statements describing a learner answering a question should
+  contain activities of the type $cmi.interaction$
+\item activities must be uniquely and consistently identified across all statements
+\item The time at which a learner completed a learning activity must be recorded
+  \begin{itemize}
+  \item The timestamp should contain an appropriate level of specificity.
+  \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Input Data Retrieval}
+
+\subsection{Statement Parameters to Utilize}
+
+\subsection{2018 Pilot TLA Statement Problems}
+
+\subsection{Summary}
+
+\subsection{Formal Specification}
+
+\subsubsection{Basic Types}
+
+\subsubsection{System State}
+
+\subsubsection{Initial System State}
+
+\subsubsection{Filter for Failure}
+
+\subsubsection{Processes Results}
+
+\subsubsection{Sequence of Operations}
+
+\subsubsection{Return}
+
+\subsection{Pseudocode}
+
+\subsection{JSON Schema}
+
+\subsection{Visualization Description}
+
+\subsection{Visualization prototype}
+
+\subsection{Prototype Improvement Suggestions}
 
 \end{document}
