@@ -518,7 +518,7 @@ How to query an LRS via a GET request to the Statements Resource
 \footnote{\label{noZ} Querying an LRS will not be defined within the
   following Z specifications but the results of the query will be}
 \footnote{\label{allTime} If you want to query across the entire
-  history of a LRS, omit Since and Until}
+  history of a LRS, omit Since and Until from the endpoint}
 
 \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
@@ -555,9 +555,9 @@ is also compatable with the xAPI Z notation
 \end{itemize}
 
 \subsection{2018 Pilot TLA Statement Problems}
-The data collected at the TLA pilot run supports the following
-algorithm.
-
+The initial pilot test data supports this algorithm.
+Given that the offical 2018 pilot test is scheduled to take place on July
+27th, 2018, this section may require updates pending data review.
 \subsection{Summary}
 \begin{enumerate}
 \item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
@@ -634,8 +634,8 @@ $SUCCESS$ :== $\{true\}$
   \where
   s? = statement \\
   s! = completion(s?) \\
-  completion(s?) = \IF s?.verb.id : COMPLETION \THEN s! = s? \ELSE
-  s! = \emptyset
+  completion(s?) = \IF s?.verb.id : COMPLETION \\\t5 \THEN s! = s?
+  \\\t5 \ELSE s! = \emptyset
 \end{schema}
 \begin{itemize}
 \item The schema $Completion$ inroduces the function $completion$
@@ -659,9 +659,9 @@ $SUCCESS$ :== $\{true\}$
 \item The set $completions'$ is the set of all statements $s$ where
   the result of $completion(s)$ is not an empty set
 \item the updated set $S'_{completion}$ is the union of the previous
-  state of set $S_{completion}$ and the set $completions$
+  state of set $S_{completion}$ and the set $completions'$
 \end{itemize}
-$\\\\$
+
 \subsubsection{Filter for Success}
 \begin{schema}{Success}
   Statement \\
@@ -671,9 +671,8 @@ $\\\\$
   \where
   s? = statement \\
   s! = success(s?) \\
-  success(s?) = \IF s?.result.success : SUCCESS \THEN s! = s? \ELSE
-  s! = \emptyset
-
+  success(s?) = \IF s?.result.success : SUCCESS \\\t4 \THEN s! = s?
+  \\\t4 \ELSE s! = \emptyset
 \end{schema}
 \begin{itemize}
 \item the schema $Success$ introduces the function $success$ which
@@ -690,14 +689,14 @@ $\\\\$
   \where
   successes = S_{completion} \\
   successes' = \{s : STATEMENT \,|\, success(s) \not = \emptyset\} \\
-  S_{success}' = S_{success} \cup successes
+  S_{success}' = S_{success} \cup successes'
 \end{schema}
 \begin{itemize}
 \item the set $successes$ is the set $S_{completion}$
 \item The set $successes'$ contains elements $s$ of type $STATEMENT$
   where $success(s)$ is not an empty set
 \item The updated set $S_{success}'$ is the union of the previous
-  state of $S_{success}$ and $successes$
+  state of $S_{success}$ and $successes'$
 \end{itemize}
 
 \subsubsection{Processes Results}
@@ -707,9 +706,9 @@ $\\\\$
   scale : \num \fun \nat
   \where
   scaled! = scale(raw?, min?, max?) \\
-  scale(raw?, min?, max?) =
-  (raw? * ((0.0 - 100.0) \, div \, (min? - \, max?))) \, + \\ \t6\:\:\:
-  (0.0 - (min? * ((0.0 - 100.0) \, div \, (min? - \, max?))))
+  scale(raw?, min?, max?) = \\\t4
+  (raw? * ((0.0 - 100.0) \, div \, (min? - \, max?))) \, + \\ \t4
+  (0.0 - (min? * ((0.0 - 100.0) div (min? - \, max?))))
 \end{schema}
 \begin{itemize}
 \item The schema $Scale$ introduces the function $scale$ which takes
@@ -729,12 +728,15 @@ $\\\\$
   \LET \{processed_{i}..processed_{j}\} == \{s_{i}..s_{j}\} @ \\ \t3
   \forall i,j : s_{i}..s_{j} @
   \exists \,  p_{i}..p_{j} @ \\\t3 first~p_{i} = s_{i}.timestamp \, \land
-  \\\t3 second~p_{i} = scale(s_{i}.result.score.raw, s_{i}.result.score.min,
+  \\\t3 second~p_{i} = scale(s_{i}.result.score.raw, \\\t7
+  s_{i}.result.score.min, \\\t7
   s_{i}.result.score.max) \, \land \\\t3 first~p_{j} =
-  s_{j}.timestamp \, \land \\\t3 second~p_{j} = scale(s_{j}.result.score.raw,
-  s_{j}.result.score.min, s_{j}.result.score.max)
+  s_{j}.timestamp \, \land \\\t3 second~p_{j} =
+  scale(s_{j}.result.score.raw, \\\t7
+  s_{j}.result.score.min, \\\t7 s_{j}.result.score.max)
   \} \\
   S_{processed}' = S_{processed} \cup processed'
+
 \end{schema}
 \begin{itemize}
 \item The operation $ProcessStatements$ introduces the variable
@@ -789,27 +791,34 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \subsection{Pseudocode}
 
 \begin{algorithm}[H]
+
   \SetAlgoLined
   \KwIn{$S_{all}$}
   \KwResult{coll}
-  coll := [] \\
+  init coll := [] \\
   \While{$S_{all}$ is not empty} {
     for each statement $s$ in $S_{all}$ \\
     \eIf {$s.verb.id$ = $COMPLETION$}
     {
-      add $s$ to $S_{completion}$
+      add $s$ to $S_{completion}$ \\
+      remove $s$ from $S_{all}$ \\
+      recur
     }
     {
-      noop
+      remove $s$ from $S_{all}$ \\
+      recur
     }}
   \While {$S_{completion}$ is not empty} {
     for each statement $sc$ in $S_{completion}$ \\
     \eIf {$sc.result.success$ = $SUCCESS$}
     {
-      add $sc$ to $S_{success}$
+      add $sc$ to $S_{success}$ \\
+      remove $sc$ from $S_{completion}$ \\
+      recur
     }
     {
-      noop
+      remove $sc$ from $S_{completion}$ \\
+      recur
     }}
   \While {$S_{success}$ is not empty} {
     for each statement $ss$ in $S_{success}$ \\
@@ -817,7 +826,9 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
     ss.result.score.max = max? \\ \t1 \:\:\:\:\:
     ss.result.score.min = min? \\ \t1 \:\:\:\:\:
     scaled = scale(raw?, min?, max?) \\
-    \t1 concat coll [ss.timestamp, scaled]
+    \t1\, concat coll [ss.timestamp, scaled] \\
+    \t1\, remove $ss$ from $S_{success}$ \\
+    \t1\, recur
   }
   \caption{Timeline of Learner Success}
 \end{algorithm}
@@ -826,7 +837,7 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \item The return value coll is an array of arrays, each containing a
   timestamp and a scaled score.
 \end{itemize}
-
+$\\\\$ %% keeping section header and text together
 \subsection{JSON Schema}
 \begin{lstlisting}[style=json]
 {"type":"array",
@@ -875,7 +886,7 @@ this base specification but would require adding aditional values to
 each sub-array returned by the algorithm. These values would only be
 limtied by the fields contained within the xAPI statements being
 used to populate the visualization. Examples of fields which could be
-used to populate the visualization include but are not limited to:
+used to populate the visualization include, but are not limited to:
 \begin{itemize}
 \item A tooltip containing the name of an activity when hovering
   over a specific point on the chart
@@ -906,7 +917,7 @@ material and this may be indicated by a majority of learners getting
 the question wrong. It is also possible that the question accurately
 represents the learning content but is just hard. The following
 algorithm will identify these questions but will not be able to deduce
-the why learners answer them incorrectly.
+why learners answer them incorrectly.
 
 \subsection{Ideal Statements}
 In order to accurately determine which assessment questions are the
@@ -918,7 +929,7 @@ LRP. They are as follows:
 \item if it is possible to get partial credit on a question, the amount
   of credit should be reported within the statement
   \begin{itemize}
-  \item the credit earned by the learner should be reported within $\$.result.score.raw$
+  \item the credit earned by the learner should be reported within \\ $\$.result.score.raw$
   \item the minimum and maximum possible credit amount should be
     reported within $\$.result.score.min$ and $\$.result.score.max$
     respectively
@@ -934,11 +945,6 @@ LRP. They are as follows:
   should\footnote{\label{verbIRI} it is possible to use another verb but if another is
       used, that will need to be accounted for in data retrieval} use
   the verb $http://adlnet.gov/expapi/verbs/answered$
-\item The time at which a learner completed a learning activity must be recorded
-  \begin{itemize}
-  \item The timestamp should contain an appropriate level of specificity.
-  \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
-  \end{itemize}
 \end{itemize}
 
 \subsection{Input Data Retrieval}
@@ -967,35 +973,408 @@ S = curl -X GET -H "Authorization: Auth"
 \end{lstlisting}
 
 \subsection{Statement Parameters to Utilize}
+The statement parameter locations here are written in
+\href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
+is also compatable with the xAPI Z notation
+\begin{itemize}
+\item $\$.result.success$
+\item $\$.object.id$
+\end{itemize}
 
 \subsection{2018 Pilot TLA Statement Problems}
+The initial pilot test data supports this algorithm.
+Given that the offical 2018 pilot test is scheduled to take place on July
+27th, 2018, this section may require updates pending data review.
 
 \subsection{Summary}
+
+\begin{enumerate}
+\item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters verb, since and until
+\item Filter the results to the set of statements where:
+  \begin{itemize}
+  \item $\$.result.success$ is false
+  \end{itemize}
+\item process the filtered data
+  \begin{itemize}
+  \item group by activity ID
+  \item determine the count of each group
+  \item create a collection of pairs = [activity ID, count]
+  \end{itemize}
+\end{enumerate}
 
 \subsection{Formal Specification}
 
 \subsubsection{Basic Types}
 
+$INCORRECT$ :== $\{false\}$
+
 \subsubsection{System State}
+
+\begin{schema}{MostDifficultAssessmentQuestions}
+  Statements \\
+  S_{all} : \finset_1 \\
+  S_{incorrect},S_{grouped},S_{processed} : \finset \\
+  \where
+  S_{all} = statements \\
+  S_{incorrect} \subseteq S_{all} \\
+  S_{grouped} = \{groups : \seq_1 statement\} \\
+  S_{processed} = \{pair : (id , \nat)\}
+\end{schema}
+\begin{itemize}
+\item The set $S_{all}$ is a non-empty finite set and is the
+  component $statements$
+\item The sets $S_{incorrect}$, $S_{grouped}$ and $S_{processed}$ are all finite sets
+\item the set $S_{incorrect}$ is a subset of $S_{all}$
+\item the set $S_{grouped}$ is a finite set of objects $groups$ which
+  are non-empty finite sequences of the component $statement$
+\item the set $S_{processed}$ is a finite set of pairs where each
+  contains the component $id$ and a natural number
+\end{itemize}
 
 \subsubsection{Initial System State}
 
-\subsubsection{Filter for Failure}
+\begin{schema}{InitMostDifficultAssessmentQuestions}
+  MostDifficultAssessmentQuestions \\
+  \where
+  S_{all} \not = \emptyset \\
+  S_{incorrect} = \emptyset \\
+  S_{grouped} = \emptyset \\
+  S_{processed} = \emptyset
+\end{schema}
+\begin{itemize}
+\item The set $S_{all}$ is a non-empty set
+\item The sets $S_{incorrect}$ , $S_{grouped}$ and $S_{processed}$ are all initially empty
+\end{itemize}
+
+\subsubsection{Filter for Incorrect}
+
+\begin{schema}{Incorrect}
+  Statement \\
+  incorrect : STATEMENT \pfun \finset \\
+  s? : STATEMENT \\
+  s! : \finset \\
+  \where
+  s? = statement \\
+  s! = incorrect(s?) \\
+  incorrect(s?) = \IF s?.result.success : INCORRECT \\\t4 \THEN s! =
+  s? \\\t4 \ELSE s! = \emptyset
+\end{schema}
+\begin{itemize}
+\item the schema $Incorrect$ introduces the function $incorrect$ which
+  takes in the variable $s?$ and returns the variable $s!$
+\item the variable $s?$ is the component $statement$
+\item $s!$ is equal to $s?$ if $\$.result.success$ is of the type
+  $INCORRECT$ otherwise $s!$ is an empty set
+\end{itemize}
+
+\begin{schema}{FilterForIncorrect}
+  \Delta MostDifficultAssessmentQuestions \\
+  Incorrect \\
+  incorrects : \finset
+  \where
+  incorrects = S_{all} \\
+  incorrects' = \{s : STATEMENT \,|\, incorrect(s) \not = \emptyset\} \\
+  S_{incorrect}' = S_{incorrect} \cup incorrects'
+\end{schema}
+\begin{itemize}
+\item the set $incorrects$ is the set $S_{all}$
+\item The set $incorrects'$ contains elements $s$ of type $STATEMENT$
+  where $incorrect(s)$ is not an empty set
+\item The updated set $S_{incorrect}'$ is the union of the previous
+  state of $S_{incorrect}$ and $incorrects'$
+\end{itemize}
 
 \subsubsection{Processes Results}
 
+\begin{schema}{GroupByActivityId}
+  Statements \\
+  g? : \finset \\
+  g! : \finset \\
+  group : \finset \fun \finset
+  \where
+  g? = statements \implies \{g : statement\} \\
+  g! = group(g?) \\
+  g! = \{groups : \seq_1 statement \,|\, \\ \t1
+  \LET \seq_1 statement_{i}..statement_{j} == \seq_1 s_{i}..s_{j} @ \\\t1
+  \forall i,j : s_{i}..s_{j} @ s_{i}.object.id = s_{j}.object.id\} \\
+\end{schema}
+\begin{itemize}
+  \item The schema $GroupByActivityId$ introduces the function $group$
+    which has the input of $g?$ and the output of $g!$
+  \item The input variable $g?$ is the component $statements$ which implies
+    its a set of objects $g$ which are each a $statement$
+  \item the output variable $g!$ is a set of objects $groups$ which
+    are each a non-empty finite sequence of $statement$ where each
+    member of the sequence $s_{i}..s_{j}$ has identical object ids.
+\end{itemize}
+
+\begin{schema}{CountPerGroup}
+  Statement \\
+  c? : \seq_1 statement \\
+  c! : \nat \\
+  count : \seq_1 statement \fun \nat
+  \where
+  c! = count(c?) \\
+  c! \geq 1 \\
+  count(c?) = \forall i,j : \seq_1 c?_{i}..c?_{j} @ i,j : \nat \land i
+  = 0 \land i = j \lor i \not = j @  \\\t3 \exists_1 \, c! : \nat @  c! =
+  j + 1
+\end{schema}
+\begin{itemize}
+  \item The schema $CountPerGroup$ introduces the function $count$
+    which has the input of $c?$ and the output of $c!$
+  \item The input variable $c?$ is a non-empty finite sequence in which each element is
+    a $statement$
+  \item The function $count$ reads: for all elements within the
+    sequence $c?_{i}..c?_{j}$, $i$ and $j$ are natural numbers, $i$ is
+    equal to zero and may or may not be equal to $j$ such that there
+    exits a number $c!$ which is equal to $j + 1$
+\end{itemize}
+
+\begin{schema}{AggregateQuestionStatements}
+  \Delta MostDifficultAssessmentQuestions \\
+  FilterForIncorrect \\
+  GroupByActivityId \\
+  CountPerGroup \\
+  grouped, processed : \finset \\
+  \where
+  grouped = \emptyset \\
+  grouped' = group(S_{incorrect}) \\
+  S_{grouped}' = S_{grouped} \cup grouped' \\
+  processed = S_{grouped}' \\
+  processed' = \{p : (id, \nat) \,|\, \\\t3 \LET
+  \{processed_{i}..processed_{j}\} == \{g_{i}..g_{j}\} @ \\\t3
+  \forall i,j : g_{i}..g_{j} @ \exists \,\, p_{i}..p_{j} @ \\\t3
+  first~p_{i} = head~g_{i}.object.id \, \land second~p_{i} =
+  count(g_{i}) \\\t3 first~p_{j} = head g_{j}.object.id \land
+  second~p_{j} = count(g_{j})\} \\
+  S_{processed}' = S_{processed} \cup processed'
+\end{schema}
+\begin{itemize}
+\item The schema $AggregateQuestionStatements$ introduces the variables
+  $grouped$ and $processed$
+\item $grouped$ starts as an empty set but then becomes $grouped'$
+  which is the output of applying the function $group$ to the set of statements
+  $S_{incorrect}$ created by the opperation $FilterForIncorrect$
+\item $grouped'$ is a set of sequences. The elements of those
+  sequences are statements which all have the same $statement.object.id$
+\item The set $S_{grouped}$ is updated to the set $S_{grouped}'$ which
+  is the union of $S_{grouped}$ and $grouped'$
+\item the variable $processed$ is initialized to be $S_{grouped}'$
+\item the variable $processed$ is updated to be the variable
+  $processed'$ which is a set of objects $p$ which are ordered pairs
+  of the component $id$ and a natural number. $p$ is defined as:
+  \begin{itemize}
+  \item for all sequences $g_{i}..g_{j}$ within the set $processed$,
+    there exists ordered pairs $p_{i}..p_{j}$ such that:
+    \begin{itemize}
+    \item the first element of $p_{i}$ is equal to the $object.id$ of the first
+      statement within the sequence $g_{i}$.
+    \item The second element of $p_{i}$ is equal to the value returned
+      when $g_{i}$ is passed to the function $count$.
+    \item The first element of $p_{j}$ is equal to the $object.id$ of the
+      first statement within the sequence $g_{j}$.
+    \item the second element of $p_{j}$ is equal to the value returned
+      when $g_{j}$ is passed to the function $count$
+    \end{itemize}
+  \end{itemize}
+  \item The set $S_{processed}'$ is the union of the sets
+    $S_{processed}$ and $processed'$
+\end{itemize}
+
 \subsubsection{Sequence of Operations}
+
+$ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
+\begin{itemize}
+\item The schema $ProcessedQuestions$ is the sequential composition
+  of operation schemas $FilterForIncorrect$ and
+  $AggregateQuestionStatements$
+\item $FilterForIncorrect$ happens before $AggregateQuestionStatements$
+\end{itemize}
 
 \subsubsection{Return}
 
+\begin{schema}{ReturnAggregate}
+  \Xi MostDifficultAssessmentQuestions \\
+  ProcessedQuestions \\
+  S_{processed}! : \finset
+  \where
+  S_{processed}! = S_{processed}
+\end{schema}
+\begin{itemize}
+\item The returned variable $S_{processed}!$ is equal to the current
+  state of variable $S_{processed}$ after the operations
+  $FilterForIncorrect$ and \\ $AggregateQuestionStatements$
+\end{itemize}
+
 \subsection{Pseudocode}
+
+\begin{algorithm}[H]
+
+  \SetAlgoLined
+
+  \KwIn{$S_{all}$, display-n}
+  \KwResult{display}
+  init id-to-count := [] \\
+  init display := [] \\
+  \While{$S_{all}$ is not empty} {
+    for each statement $s$ in $S_{all}$ \\
+    \eIf{$s.result.success$ = $INCORRECT$}
+    {
+      add $s$ to $S_{incorrect}$ \\
+      remove $s$ from $S_{all}$ \\
+      recur
+    }
+    {
+      remove $s$ from $S_{all}$ \\
+      recur
+    }}
+  \While {$S_{incorrect}$ is not empty} {
+    for {each statement $si$ in $S_{incorrect}$} \\
+    \t1 let $si.object.id$ = $id$ \\
+    \eIf{id-to-count is empty}
+    { concat id-to-count [$id$ , 1] \\
+      remove $si$ from $S_{incorrect}$\\
+      recur;}
+    {
+      \eIf{id-to-count contains [$id$ , \#]}
+      { add one to \# \\
+        remove $si$ from $S_{incorrect}$ \\
+        recur}
+    { concat id-to-count [$id$ , 1] \\
+      remove $si$ from $S_{incorrect}$\\
+      recur}
+    }
+  }
+  Sort id-to-count by second value of each subarray (\#) \\
+  take first display-n subarrays from id-to-count and concat them into display
+  \caption{Most Difficult Assessment Questions}
+\end{algorithm}
+\begin{itemize}
+\item The Z schemas are used within this pseudocode
+\item The return value display is an array of display-n arrays, each containing an
+   object id and a number representing the number of times it showed up.
+\end{itemize}
 
 \subsection{JSON Schema}
 
+\begin{lstlisting}[style=json]
+{"type":"array",
+   "items":{"type":"array",
+      "items":[{"type":"string"}, {"type":"number"}]}
+}
+\end{lstlisting}
+
 \subsection{Visualization Description}
+The Most Difficult Assessment Questions visualization will be a bar
+chart where the domain is statement id and the range is a
+number. Every subarray within the array returned by the algorithm will
+contribute to the bar chart. The pseudocode specifies an input
+paramter display-n which controls how many activitys will be displayed
+within the visualization.
 
 \subsection{Visualization prototype}
 
+\pgfplotstabletypeset[string type]
+
+\begin{tikzpicture}
+\begin{axis}[
+    symbolic x coords={question1-id,question2-id,question3-id,question4-id},
+    xtick=data]
+    \addplot[ybar,fill=blue] coordinates {
+        (question1-id,122)
+        (question2-id,118)
+        (question3-id,156)
+        (question4-id,127)
+    };
+\end{axis}
+\end{tikzpicture}
+
 \subsection{Prototype Improvement Suggestions}
+Additional features may be implemented on top of this base
+specification but would require adding aditional values to each sub
+array returned by the algorithm or performing metadata lookup. The
+following examples assume the metadata is contained within each statement.
+
+\begin{itemize}
+\item Use the name of the activity for the x-axis label instead of
+  its id.
+  \begin{itemize}
+  \item $\$.object.definition.name$
+  \item grouping of statements should still happen by
+    $\$.object.id$ to ensure an accurate count
+  \end{itemize}
+\item a tooltip containing contextual information about the question
+  such as:
+  \begin{itemize}
+  \item The question text
+    \begin{itemize}
+    \item $\$.object.definition.description$
+    \end{itemize}
+  \item Interaction Type
+    \begin{itemize}
+      \item $\$.object.definition$ which specifies interaction properties
+    \end{itemize}
+  \item Answer choices
+    \begin{itemize}
+      \item $\$.object.definition$ which specifies interaction properties
+    \end{itemize}
+  \item Correct answer
+    \begin{itemize}
+      \item $\$.object.definition$ which specifies interaction properties
+    \end{itemize}
+  \item Most popular incorrect answer
+    \begin{itemize}
+      \item This would require an extra step of processing to be added to
+      the algorithm and that all statements utilize interaction
+      properties within $\$.object.definition$
+    \end{itemize}
+  \item average partial credit earned (if applicable)
+    \begin{itemize}
+    \item $\$.result.score.scaled$
+    \item The one potential issue with using scaled score is the
+      calculation of scaled is not stricly defined by the xAPI
+      specification and thus the average scaled score may not be
+      comparable across questions.
+    \item if $\$.result.score.raw$ , $\$.result.score.min$ and
+      $\$.result.score.max$ are reported for all questions, it becomes
+      possible to reliably compare across questions.
+    \end{itemize}
+  \item average number of re-attempts
+    \begin{itemize}
+      \item this would require additional steps of processing so that
+        $\$.actor$ is considered as well
+      \item due to the problem of actor unification, ie the same
+        person being identified differently across statements, this
+        metric may not be accurate
+      \end{itemize}
+    \item average time spent on the question
+      \begin{itemize}
+      \item $\$.result.duration$
+      \item this would require additional steps of processing to
+        extract the duration and average it.
+      \end{itemize}
+    \end{itemize}
+  \item a tooltip containing contextual information about the course
+    and/or assessment the question was within
+    \begin{itemize}
+    \item the instructor for the course
+      \begin{itemize}
+      \item $\$.context.instructor$
+      \end{itemize}
+    \item competency associated with the question
+      \begin{itemize}
+      \item $\$.context.contextActivities$
+      \end{itemize}
+    \item metadata about the learning content associated with the
+      question such as average time spent engaging with associated
+      learning content before attempting the question
+    \item this would require additional steps of processing to
+      retrieve metadata about the content and its usage
+      \begin{itemize}
+      \item $\$.context.contextActivities$
+      \end{itemize}
+    \end{itemize}
+\end{itemize}
 
 \end{document}
