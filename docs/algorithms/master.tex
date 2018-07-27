@@ -616,8 +616,10 @@ $SUCCESS$ :== $\{true\}$
 \item The set $S_{all}$ is a non-empty, finite set and is the
   component $statements$
 \item The sets $S_{completion}$ and $S_{success}$ are both finite sets
-\item the set $S_{completion}$ is a subset of $S_{all}$
-\item the set $S_{success}$ is a subset of $S_{completion}$
+\item the set $S_{completion}$ is a subset of $S_{all}$ which may
+  contain every value within $S_{all}$
+\item the set $S_{success}$ is a subset of $S_{completion}$ which may
+  contain every value within $S_{completion}$
 \item the set $S_{processed}$ is a finite set of pairs where each
   contains a $statement.timestamp$ and a natural number
 \end{itemize}
@@ -918,14 +920,14 @@ metadata is contained within each statement available to the algorithm.
 
 \section{Which Assessment Questions are the Most Difficult}
 As learners engage in a blended eLearning ecosystem, they will
-experiecne teaching content as well as assessment content. Assessments
+experiecne learning content as well as assessment content. Assessments
 are designed to measure the effectiveness of learning content and help
-measure learning. It is possible that certain assessment questions
-do not accurately represent the concepts contained within teaching
-material and this may be indicated by a majority of learners getting
+assess knowledge gained. It is possible that certain assessment questions
+do not accurately represent the concepts contained within learning
+content and this may be indicated by a majority of learners getting
 the question wrong. It is also possible that the question accurately
-represents the learning content but is just hard. The following
-algorithm will identify these questions but will not be able to deduce
+represents the learning content but is very difficult. The following
+algorithm will identify these types of questions but will not be able to deduce
 why learners answer them incorrectly.
 
 \subsection{Ideal Statements}
@@ -957,7 +959,9 @@ LRP. They are as follows:
 \end{itemize}
 
 \subsection{Input Data Retrieval}
-How to query an LRS via a GET request to the Statements Resource
+How to query an LRS via a GET request to the Statements Resource via
+curl. The following section contains the appropriate parameters with
+example values as well as the curl command necessary for making the request.
 \footnote{\label{refMoreLink} See footnote 1.}
 \footnote{\label{refnoZ} See footnote 2.}
 \footnote{\label{refallTime} See footnote 3.}
@@ -1009,7 +1013,7 @@ Given that the offical 2018 pilot test is scheduled to take place on July
   \begin{itemize}
   \item group by $\$.object.id$
   \item determine the count of each group
-  \item create a collection of pairs = [$\$.object.id$, count]
+  \item create a collection of pairs = [$\$.object.id$, \#]
   \end{itemize}
 \end{enumerate}
 
@@ -1035,7 +1039,8 @@ $INCORRECT$ :== $\{false\}$
 \item The set $S_{all}$ is a non-empty, finite set and is the
   component $statements$
 \item The sets $S_{incorrect}$, $S_{grouped}$ and $S_{processed}$ are all finite sets
-\item the set $S_{incorrect}$ is a subset of $S_{all}$
+\item the set $S_{incorrect}$ is a subset of $S_{all}$ which may
+  contain every value within $S_{all}$
 \item the set $S_{grouped}$ is a finite set of objects $groups$ which
   are non-empty, finite sequences of the component $statement$
 \item the set $S_{processed}$ is a finite set of pairs where each
@@ -1083,12 +1088,13 @@ $INCORRECT$ :== $\{false\}$
   Incorrect \\
   incorrects : \finset
   \where
-  incorrects = S_{all} \\
+  incorrects \subseteq S_{all} \\
   incorrects' = \{s : STATEMENT \,|\, incorrect(s) \not = \emptyset\} \\
   S_{incorrect}' = S_{incorrect} \cup incorrects'
 \end{schema}
 \begin{itemize}
-\item the set $incorrects$ is the set $S_{all}$
+\item the set $incorrects$ is a subset of $S_{all}$ which may contain
+  every value within $S_{all}$
 \item The set $incorrects'$ contains elements $s$ of type $STATEMENT$
   where $incorrect(s)$ is not an empty set
 \item The updated set $S_{incorrect}'$ is the union of the previous
@@ -1116,7 +1122,7 @@ $INCORRECT$ :== $\{false\}$
     its a set of objects $g$ which are each a $statement$
   \item the output variable $g!$ is a set of objects $groups$ which
     are each a non-empty, finite sequence of $statement$ where each
-    member of the sequence $s_{i}..s_{j}$ has identical object ids.
+    member of the sequence $s_{i}..s_{j}$ has the same $\$.object.id$
 \end{itemize}
 
 \begin{schema}{CountPerGroup}
@@ -1152,7 +1158,7 @@ $INCORRECT$ :== $\{false\}$
   grouped = \emptyset \\
   grouped' = group(S_{incorrect}) \\
   S_{grouped}' = S_{grouped} \cup grouped' \\
-  processed = S_{grouped}' \\
+  processed \subseteq S_{grouped}' \\
   processed' = \{p : (id, \nat) \,|\, \\\t3 \LET
   \{processed_{i}..processed_{j}\} == \{g_{i}..g_{j}\} @ \\\t3
   \forall g : g_{i}..g_{j} @ \exists \,\, p_{i}..p_{j} @ \\\t3
@@ -1171,7 +1177,8 @@ $INCORRECT$ :== $\{false\}$
   sequences are statements which all have the same $statement.object.id$
 \item The set $S_{grouped}$ is updated to the set $S_{grouped}'$ which
   is the union of $S_{grouped}$ and $grouped'$
-\item the variable $processed$ is initialized to be $S_{grouped}'$
+\item the variable $processed$ is a subset of $S_{grouped}'$ which can
+  contain every value within $S_{grouped}'$
 \item the variable $processed$ is updated to be the variable
   $processed'$ which is a set of objects $p$ which are ordered pairs
   of the component $id$ and a natural number. $p$ is defined as:
@@ -1258,13 +1265,15 @@ $ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
     }
   }
   Sort id-to-count by second value of each subarray (\#) \\
-  take first display-n subarrays from id-to-count and concat them into display
+  take the first display-n subarrays from id-to-count and concat them into display
   \caption{Most Difficult Assessment Questions}
 \end{algorithm}
 \begin{itemize}
 \item The Z schemas are used within this pseudocode
-\item The return value display is an array of display-n arrays, each containing an
-   object id and a number representing the number of times it showed up.
+\item The return value display is an array of length display-n, where
+  each element of display is an array of [$statement.object.id$, \#]
+   where $\#$ representing the number of times $statement.object.id$
+   appeared within $S_{incorrect}$
 \end{itemize}
 
 \subsection{JSON Schema}
@@ -1272,17 +1281,18 @@ $ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
 \begin{lstlisting}[style=json]
 {"type":"array",
    "items":{"type":"array",
-      "items":[{"type":"string"}, {"type":"number"}]}
-}
+      "items":[{"type":"string"}, {"type":"number"}]}}
 \end{lstlisting}
 
 \subsection{Visualization Description}
-The Most Difficult Assessment Questions visualization will be a bar
-chart where the domain is statement id and the range is a
-number. Every subarray within the array returned by the algorithm will
-contribute to the bar chart. The pseudocode specifies an input
-paramter display-n which controls how many activitys will be displayed
-within the visualization.
+The \textbf{Most Difficult Assessment Questions} visualization will be
+a bar chart where the domain consists of $statement.object.id$ and the
+range is a number greater than or equal to 1. Every subarray within
+the array display will be a grouping within the bar chart. The
+pseudocode specifies an input paramter display-n which controls the
+length of the array display and therefor the number of groups contained within
+the visualization.
+
 
 \subsection{Visualization prototype}
 
@@ -1328,32 +1338,32 @@ metadata is contained within each statement available to the algorithm.
     \end{itemize}
   \item Interaction Type
     \begin{itemize}
-      \item $\$.object.definition$ which specifies interaction properties
+      \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Answer choices
     \begin{itemize}
-      \item $\$.object.definition$ which specifies interaction properties
+      \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Correct answer
     \begin{itemize}
-      \item $\$.object.definition$ which specifies interaction properties
+      \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Most popular incorrect answer
     \begin{itemize}
-      \item This would require an extra step of processing to be added to
-      the algorithm and that all statements utilize interaction
-      properties within $\$.object.definition$
+      \item This would require an extra step of processing and all
+        statements would need to utilize interaction properties within
+        $\$.object.definition$
     \end{itemize}
   \item average partial credit earned (if applicable)
     \begin{itemize}
     \item $\$.result.score.scaled$
     \item The one potential issue with using scaled score is the
       calculation of scaled is not stricly defined by the xAPI
-      specification and thus the average scaled score may not be
-      comparable across questions.
+      specification but is instead up to the authors of the LRP. This
+      results in the inability to reliably compare scaled scores across LRPs.
     \item if $\$.result.score.raw$ , $\$.result.score.min$ and
       $\$.result.score.max$ are reported for all questions, it becomes
-      possible to reliably compare across questions.
+      possible to reliably compare scores across questions and LRPs.
     \end{itemize}
   \item average number of re-attempts
     \begin{itemize}
@@ -1361,7 +1371,7 @@ metadata is contained within each statement available to the algorithm.
         $\$.actor$ is considered as well
       \item due to the problem of actor unification, ie the same
         person being identified differently across statements, this
-        metric may not be accurate
+        metric may not be accurate.
       \end{itemize}
     \item average time spent on the question
       \begin{itemize}
@@ -1377,15 +1387,15 @@ metadata is contained within each statement available to the algorithm.
       \begin{itemize}
       \item $\$.context.instructor$
       \end{itemize}
-    \item competency associated with the question
+    \item competency associated with the question and/or course
       \begin{itemize}
       \item $\$.context.contextActivities$
       \end{itemize}
     \item metadata about the learning content associated with the
       question such as average time spent engaging with associated
-      learning content before attempting the question
+      content before attempting the question.
     \item this would require additional steps of processing to
-      retrieve metadata about the content and its usage
+      retrieve metadata about the content and its usage.
       \begin{itemize}
       \item $\$.context.contextActivities$
       \end{itemize}
