@@ -65,7 +65,7 @@
 \makeatother
 \pgfplotsset{compat=1.16}
 
-\title{DAVE Framework Learning Analytics Algorithms}
+\title{DAVE Framework: Learning Analytics Algorithms}
 \author{Yet Analytics}
 
 \begin{document}
@@ -599,7 +599,7 @@ $SUCCESS$ :== $\{true\}$
   S_{all} = statements \\
   S_{completion} \subseteq S_{all} \\
   S_{success} \subseteq S_{completion} \\
-  S_{processed} = \{pair : (statement.timestamp, \nat\#1)\}
+  S_{processed} = \{pair : (statement.timestamp, \nat)\}
 \end{schema}
 \begin{itemize}
 \item The set $S_{all}$ is a non-empty finite set and is the
@@ -634,8 +634,8 @@ $SUCCESS$ :== $\{true\}$
   \where
   s? = statement \\
   s! = completion(s?) \\
-  completion(s?) = \IF s?.verb.id : COMPLETION \\\t5 \THEN s! = s?
-  \\\t5 \ELSE s! = \emptyset
+  completion(s?) = \IF s?.verb.id : COMPLETION \\\t4 \THEN s! = s?
+  \\\t4 \ELSE s! = \emptyset
 \end{schema}
 \begin{itemize}
 \item The schema $Completion$ inroduces the function $completion$
@@ -724,7 +724,7 @@ $SUCCESS$ :== $\{true\}$
   \where
   processed = S_{success} \\
 
-  processed' = \{p : (\finset_1\#1 , \nat\#1) \,|\, \\\t3
+  processed' = \{p : (\finset_1\#1 , \nat) \,|\, \\\t3
   \LET \{processed_{i}..processed_{j}\} == \{s_{i}..s_{j}\} @ \\ \t3
   \forall i,j : s_{i}..s_{j} @
   \exists \,  p_{i}..p_{j} @ \\\t3 first~p_{i} = s_{i}.timestamp \, \land
@@ -996,9 +996,9 @@ Given that the offical 2018 pilot test is scheduled to take place on July
   \end{itemize}
 \item process the filtered data
   \begin{itemize}
-  \item group by activity ID
+  \item group by $\$.object.id$
   \item determine the count of each group
-  \item create a collection of pairs = [activity ID, count]
+  \item create a collection of pairs = [$\$.object.id$, count]
   \end{itemize}
 \end{enumerate}
 
