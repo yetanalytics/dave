@@ -148,7 +148,7 @@ $CONTEXTTYPES$ ::= $parent \,|\, grouping \,|\, category \,|\, other$
 \end{itemize}
 $[STATEMENT]$
 \begin{itemize}
-\item Basic type for the results of querying an LRS
+\item Basic type for an xAPI data point
 \end{itemize}
 $[AGENT, GROUP]$
 \begin{itemize}
@@ -161,7 +161,7 @@ $[AGENT, GROUP]$
 \end{schema}
 \begin{itemize}
 \item the schema $Id$ introduces the component $id$ which is a
-  non-empty finite set of 1 value
+  non-empty, finite set of 1 value
 \end{itemize}
 
 \subsection{Schemas for Agents, Groups and Actors}
@@ -229,7 +229,7 @@ $[AGENT, GROUP]$
 \end{schema}
 \begin{itemize}
 \item The schema $Verb$ introduces the component $verb$ which
-  is a set that consists of either $id$ and the non-empty finite set
+  is a set that consists of either $id$ and the non-empty, finite set
   $display$ or just $id$
 \end{itemize}
 
@@ -240,7 +240,7 @@ $[AGENT, GROUP]$
   extensionId : \finset_1 \#1 \\
   \where
   extensions = \{e : (extensionId, extensionVal)\ \,|\,
-  \forall i,j : e_{i}..e_{j} @ \\
+  \forall e : e_{i}..e_{j} @ \\
   \t3 \, (extensionId_{i}, extensionVal_{i})
   \lor (extensionId_{i}, extensionVal_{j}) \land \\
   \t3 \, (extensionId_{j}, extensionVal_{i})
@@ -249,12 +249,12 @@ $[AGENT, GROUP]$
 \end{schema}
 \begin{itemize}
 \item The schema $Extensions$ introduces the component $extensions$ which
-  is a non-empty finite set that consists of ordered pairs of
+  is a non-empty, finite set that consists of ordered pairs of
   $extensionId$ and $extensionVal$. Different $extensionId$s can
   have the same $extensionVal$ but there can not be two identical
   $extensionId$ values
-\item $extensionId$ is a non-empty finite set with one value
-\item $extensionVal$ is a non-empty finite set
+\item $extensionId$ is a non-empty, finite set with one value
+\item $extensionVal$ is a non-empty, finite set
 \end{itemize}
 
 \begin{schema}{InteractionActivity}
@@ -309,9 +309,9 @@ $[AGENT, GROUP]$
 \end{schema}
 \begin{itemize}
 \item The schema $Object$ introduces the component $object$ which
-  is a non-empty finite set of either $id$, $id$ and $objectType$,
-  $id$ and $objectTypeA$ and $definition$, $agent$, $group$, or
-  $substatement$
+  is a non-empty, finite set of either $id$, $id$ and $objectType$,
+  $id$ and $objectTypeA$, $id$ and $objectTypeA$ and $definition$,
+  $agent$, $group$, or $substatement$
 \item The schema $Statement$ and the corresponding component
   $statement$ will be defined later on in this specification
 \end{itemize}
@@ -406,6 +406,8 @@ $\\\\\\\\\\\\$ %%% Header with content
   which is the non-empty powerset of $registration$, $instructor$,
   $team$, $contextActivities$, $revision$, $platform$, $language$,
   $statement$ and $extensions$
+\item The notation $object \hide agent$ represents the component
+  $object$ except for its subcomponent $agent$
 \end{itemize}
 
 \subsection{Timestamp and Stored Schema}
@@ -419,7 +421,7 @@ $\\\\\\\\\\\\$ %%% Header with content
 \end{schema}
 \begin{itemize}
 \item The schema $Timestamp$ and $stored$ introduce the components
-  $timestamp$ and $stored$ respectively. Each are non-empty finite
+  $timestamp$ and $stored$ respectively. Each are non-empty, finite
   sets containing one value
 \end{itemize}
 $\\ \\$
@@ -436,9 +438,9 @@ $\\ \\$
 \end{schema}
 \begin{itemize}
 \item The schema $Attachements$ introduces the componenet
-  $attachements$ which is a non-empty finite set of the component
+  $attachements$ which is a non-empty, finite set of the component
   $attachement$
-\item The component $attachment$ is a non-empty finite set of the
+\item The component $attachment$ is a non-empty, finite set of the
   componenets $usageType$, $display$, $contentType$, $length$,
   $sha2$ with optionally $description$ and/or $fileUrl$
 \end{itemize}
@@ -478,7 +480,7 @@ $\\ \\$
 \end{schema}
 \begin{itemize}
 \item The schema $Statements$ introduces the component $statements$
-  which is a non-empty finite set of components $statement$
+  which is a non-empty, finite set of the component $statement$
 \end{itemize}
 
 \section{Timeline Of Learner Success}
@@ -490,7 +492,10 @@ possible to retell their story through data. One important aspect of
 that story is the learner's history of success.
 
 \subsection{Ideal Statements}
-In order to accurately portray a learner's timeline of success, there are a few requirements of the data produced by a Learning Record Provider (LRP). They are as follows:
+In order to accurately portray a learner's timeline of success, there
+are a few base requirements of the data produced by a Learning Record
+Provider (LRP). They are as follows:
+
 \begin{itemize}
 \item the learner must be uniquely and consistently identified across
   all statements
@@ -508,7 +513,9 @@ In order to accurately portray a learner's timeline of success, there are a few 
 \end{itemize}
 
 \subsection{Input Data Retrieval}
-How to query an LRS via a GET request to the Statements Resource
+How to query an LRS via a GET request to the Statements Resource via
+curl. The following section contains the appropriate parameters with
+example values as well as the curl command necessary for making the request.
 \footnote{\label{moreLink} $S$ is the set of all statements parsed
   from the statements array within the HTTP response to the Curl
   request. It may be possible that multiple Curl requests are needed
@@ -516,9 +523,10 @@ How to query an LRS via a GET request to the Statements Resource
   $S$ is the result of concatenating the result of each request into
   a single set}
 \footnote{\label{noZ} Querying an LRS will not be defined within the
-  following Z specifications but the results of the query will be}
+  following Z specifications but the results of the query will be utilized}
 \footnote{\label{allTime} If you want to query across the entire
-  history of a LRS, omit Since and Until from the endpoint}
+  history of a LRS, omit Since and Until from the endpoint and remove
+  the associated \& symbols.}
 
 \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
@@ -544,7 +552,9 @@ S = curl -X GET -H "Authorization: Auth"
 \subsection{Statement Parameters to Utilize}
 The statement parameter locations here are written in
 \href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
-is also compatable with the xAPI Z notation
+is also compatable with the xAPI Z notation due to the defined
+hierarchy of components. Within the Z specifications, a variable name
+will be used instead of the $\$$
 \begin{itemize}
 \item $\$.timestamp$
 \item $\$.result.success$
@@ -557,7 +567,7 @@ is also compatable with the xAPI Z notation
 \subsection{2018 Pilot TLA Statement Problems}
 The initial pilot test data supports this algorithm.
 Given that the offical 2018 pilot test is scheduled to take place on July
-27th, 2018, this section may require updates pending data review.
+27th, 2018, this section may require updates pending future data review.
 \subsection{Summary}
 \begin{enumerate}
 \item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
@@ -573,10 +583,11 @@ Given that the offical 2018 pilot test is scheduled to take place on July
   \end{itemize}
 \item process the filtered data
   \begin{itemize}
-  \item extract the timestamp
-  \item extract the score values from the statement and convert them
-    to a scale of 0..100
-  \item create a pair of [timestamp, scaled-score]
+  \item extract $\$.timestamp$
+  \item extract the score values from $\$.result.score.raw$,
+    $\$.result.score.min$ and $\$.result.score.max$ and convert them
+    to the scale 0..100
+  \item create a pair of [$\$.timestamp$, $\#$]
   \end{itemize}
 \end{enumerate}
 
@@ -602,7 +613,7 @@ $SUCCESS$ :== $\{true\}$
   S_{processed} = \{pair : (statement.timestamp, \nat)\}
 \end{schema}
 \begin{itemize}
-\item The set $S_{all}$ is a non-empty finite set and is the
+\item The set $S_{all}$ is a non-empty, finite set and is the
   component $statements$
 \item The sets $S_{completion}$ and $S_{success}$ are both finite sets
 \item the set $S_{completion}$ is a subset of $S_{all}$
@@ -726,7 +737,7 @@ $SUCCESS$ :== $\{true\}$
 
   processed' = \{p : (\finset_1\#1 , \nat) \,|\, \\\t3
   \LET \{processed_{i}..processed_{j}\} == \{s_{i}..s_{j}\} @ \\ \t3
-  \forall i,j : s_{i}..s_{j} @
+  \forall s : s_{i}..s_{j} @
   \exists \,  p_{i}..p_{j} @ \\\t3 first~p_{i} = s_{i}.timestamp \, \land
   \\\t3 second~p_{i} = scale(s_{i}.result.score.raw, \\\t7
   s_{i}.result.score.min, \\\t7
@@ -975,7 +986,9 @@ S = curl -X GET -H "Authorization: Auth"
 \subsection{Statement Parameters to Utilize}
 The statement parameter locations here are written in
 \href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
-is also compatable with the xAPI Z notation
+is also compatable with the xAPI Z notation due to the defined
+hierarchy of components. Within the Z specifications, a variable name
+will be used instead of the $\$$
 \begin{itemize}
 \item $\$.result.success$
 \item $\$.object.id$
@@ -984,7 +997,7 @@ is also compatable with the xAPI Z notation
 \subsection{2018 Pilot TLA Statement Problems}
 The initial pilot test data supports this algorithm.
 Given that the offical 2018 pilot test is scheduled to take place on July
-27th, 2018, this section may require updates pending data review.
+27th, 2018, this section may require updates pending future data review.
 
 \subsection{Summary}
 
@@ -1021,12 +1034,12 @@ $INCORRECT$ :== $\{false\}$
   S_{processed} = \{pair : (id , \nat)\}
 \end{schema}
 \begin{itemize}
-\item The set $S_{all}$ is a non-empty finite set and is the
+\item The set $S_{all}$ is a non-empty, finite set and is the
   component $statements$
 \item The sets $S_{incorrect}$, $S_{grouped}$ and $S_{processed}$ are all finite sets
 \item the set $S_{incorrect}$ is a subset of $S_{all}$
 \item the set $S_{grouped}$ is a finite set of objects $groups$ which
-  are non-empty finite sequences of the component $statement$
+  are non-empty, finite sequences of the component $statement$
 \item the set $S_{processed}$ is a finite set of pairs where each
   contains the component $id$ and a natural number
 \end{itemize}
@@ -1096,7 +1109,7 @@ $INCORRECT$ :== $\{false\}$
   g! = group(g?) \\
   g! = \{groups : \seq_1 statement \,|\, \\ \t1
   \LET \seq_1 statement_{i}..statement_{j} == \seq_1 s_{i}..s_{j} @ \\\t1
-  \forall i,j : s_{i}..s_{j} @ s_{i}.object.id = s_{j}.object.id\} \\
+  \forall s : s_{i}..s_{j} @ s_{i}.object.id = s_{j}.object.id\} \\
 \end{schema}
 \begin{itemize}
   \item The schema $GroupByActivityId$ introduces the function $group$
@@ -1104,7 +1117,7 @@ $INCORRECT$ :== $\{false\}$
   \item The input variable $g?$ is the component $statements$ which implies
     its a set of objects $g$ which are each a $statement$
   \item the output variable $g!$ is a set of objects $groups$ which
-    are each a non-empty finite sequence of $statement$ where each
+    are each a non-empty, finite sequence of $statement$ where each
     member of the sequence $s_{i}..s_{j}$ has identical object ids.
 \end{itemize}
 
@@ -1116,14 +1129,14 @@ $INCORRECT$ :== $\{false\}$
   \where
   c! = count(c?) \\
   c! \geq 1 \\
-  count(c?) = \forall i,j : \seq_1 c?_{i}..c?_{j} @ i,j : \nat \land i
+  count(c?) = \forall c? : c?_{i}..c?_{j} @ i,j : \nat \land i
   = 0 \land i = j \lor i \not = j @  \\\t3 \exists_1 \, c! : \nat @  c! =
   j + 1
 \end{schema}
 \begin{itemize}
   \item The schema $CountPerGroup$ introduces the function $count$
     which has the input of $c?$ and the output of $c!$
-  \item The input variable $c?$ is a non-empty finite sequence in which each element is
+  \item The input variable $c?$ is a non-empty, finite sequence in which each element is
     a $statement$
   \item The function $count$ reads: for all elements within the
     sequence $c?_{i}..c?_{j}$, $i$ and $j$ are natural numbers, $i$ is
@@ -1144,7 +1157,7 @@ $INCORRECT$ :== $\{false\}$
   processed = S_{grouped}' \\
   processed' = \{p : (id, \nat) \,|\, \\\t3 \LET
   \{processed_{i}..processed_{j}\} == \{g_{i}..g_{j}\} @ \\\t3
-  \forall i,j : g_{i}..g_{j} @ \exists \,\, p_{i}..p_{j} @ \\\t3
+  \forall g : g_{i}..g_{j} @ \exists \,\, p_{i}..p_{j} @ \\\t3
   first~p_{i} = head~g_{i}.object.id \, \land second~p_{i} =
   count(g_{i}) \\\t3 first~p_{j} = head g_{j}.object.id \land
   second~p_{j} = count(g_{j})\} \\
