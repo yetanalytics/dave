@@ -848,23 +848,21 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \begin{itemize}
 \item The Z schemas are used within this pseudocode
 \item The return value coll is an array of arrays, each containing a
-  timestamp and a scaled score.
+  $statement.timestamp$ and a scaled score.
 \end{itemize}
 $\\\\$ %% keeping section header and text together
 \subsection{JSON Schema}
 \begin{lstlisting}[style=json]
 {"type":"array",
    "items":{"type":"array",
-      "items":[{"type":"string"}, {"type":"number"}]}
-}
+      "items":[{"type":"string"}, {"type":"number"}]}}
 \end{lstlisting}
 
 \subsection{Visualization Description}
 
-The Timeline of Learner Success visualization will be a line chart
+The \textbf{Timeline of Learner Success} visualization will be a line chart
 where the domain is time and the range is score on a scale of 0.0 to
-100.0. Every array within the array returned by the algorithm will
-be a point on the chart.  The domain of the graph should be in
+100.0. Every subarray will be a point on the chart. The domain of the graph should be in
 chronological order. \\
 
 \subsection{Visualization prototype}
@@ -894,29 +892,27 @@ chronological order. \\
 \end{tikzpicture}
 
 \subsection{Prototype Improvement Suggestions}
-Aditional features may be implemented on top of
-this base specification but would require adding aditional values to
-each sub-array returned by the algorithm. These values would only be
-limtied by the fields contained within the xAPI statements being
-used to populate the visualization. Examples of fields which could be
-used to populate the visualization include, but are not limited to:
+Additional features may be implemented on top of this base
+specification but they would require adding aditional values to each
+subarray returned by the algorithm. These additional values can be
+retrieved via (1) performing metadata lookup within or independently of the
+algorithm (2) by utilizing additional xAPI statement paramters and/or (3) by
+performing additional computations. The following examples assume the
+metadata is contained within each statement available to the algorithm.
 \begin{itemize}
 \item A tooltip containing the name of an activity when hovering
   over a specific point on the chart
   \begin{itemize}
-    \item this would require adding the value of
-  $\$.object.definition.name$ to each subarray
+    \item this would require utilizing $\$.object.definition.name$
   \end{itemize}
 \item A tooltip containing the device on which the activity was experienced
   \begin{itemize}
-    \item this would require adding the value from
-  $\$.context.platform$ to each subarray
+    \item this would require utilizing $\$.context.platform$
   \end{itemize}
 \item A tooltip containing the instructor associated with a
   particular data point
   \begin{itemize}
-    \item this would require adding the value from
-  $\$.context.instructor$ to each subarray
+    \item this would require utilizing $\$.context.instructor$
   \end{itemize}
 \end{itemize}
 
@@ -1307,9 +1303,13 @@ within the visualization.
 
 \subsection{Prototype Improvement Suggestions}
 Additional features may be implemented on top of this base
-specification but would require adding aditional values to each sub
-array returned by the algorithm or performing metadata lookup. The
-following examples assume the metadata is contained within each statement.
+specification but they would require adding aditional values to each
+subarray returned by the algorithm. These additional values can be
+retrieved via (1) performing metadata lookup within or independently of the
+algorithm (2) by utilizing additional xAPI statement paramters and/or (3) by
+performing additional computations. The following examples assume the
+metadata is contained within each statement available to the algorithm.
+
 
 \begin{itemize}
 \item Use the name of the activity for the x-axis label instead of
