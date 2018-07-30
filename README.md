@@ -10,4 +10,5 @@ Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.
 
 ## License
 Copyright © 2018 Yet Analytics Inc
+
 Distributed under the Apache 2.0 License. See the file LICENSE for more information.
