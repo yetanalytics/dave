@@ -65,7 +65,7 @@
 \makeatother
 \pgfplotsset{compat=1.16}
 
-\title{DAVE Framework: Learning Analytics Algorithms}
+\title{Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture: DAVE Learning Analytics Algorithms}
 \author{Yet Analytics}
 
 \begin{document}
@@ -75,19 +75,19 @@
 \end{titlepage}
 
 \section*{Introduction}
-This document introduces the initial learning analytics algorithms,
+This report introduces the initial learning analytics algorithms,
 \textbf{timeline of learner success} and \textbf{which assessment
-  questions are the most difficult}  of the DAVE framework.
-This document will be updated to include the remaining learning analytics questions defined within the
+  questions are the most difficult}  of the DAVE Framework. In doing so, it establishes a set of style guidelines for the reporting of algorithms and associated visualization templates necessary to work with the DAVE Framework.
+This document will be updated to include the learning analytics questions defined within the
 \href{https://adloffice365.sharepoint.com/sites/TLA_Extranet/Shared\%20Documents/2018\%20TLA\%20Data\%20Requirements\%20Aligned\%20to\%20Event.docx?d=w1cf1d6fe161b4606a11c130baae5f5e1}{2018 TLA Data Requirements}
 document in addition to other learning analytics algorithms which have
-yet to be defined. Updates may also address refinment of these
+yet to be defined. Updates may also address refinement of these
 algorithms and this document should be understood to be an example of
 algorithm presentation and not the final state of any defined algorithm.
 $\\\\$
 The structure of this documents is as follows:
 \begin{enumerate}
-\item A formal specification for the data standard xAPI written in Z
+\item A formal specification for xAPI written in Z
   and referenced within the formal specifications of learning
   analytics algorithms
 \item An algorithm definition which will consist of:
@@ -96,7 +96,7 @@ The structure of this documents is as follows:
   \item the structure of the ideal input data
   \item how to retrieve input data from an LRS
   \item the statement parameters which the algorithm will utilize
-  \item any issues with the data collected during the 2018 pilot test of
+  \item notices regarding data collected during the 2018 pilot test of
     the TLA
   \item a summary of the algorithm
   \item the formal specification of the algorithm
@@ -112,7 +112,7 @@ $\\\\\\\\\\\\$ %%% only introduction on the first page
 \section{xAPI Formal Specification}
 The current formal specification only defines xAPI statements
 abstractly within the context of Z. A concrete definition for xAPI
-statements it outside the scope of this document.
+statements is outside the scope of this document.
 
 \subsection{Basic Types}
 $IFI$ ::=$ mbox \,|\, mbox\_sha1sum \,|\, openid \,|\, account$
@@ -484,11 +484,11 @@ $\\ \\$
 \end{itemize}
 
 \section{Timeline Of Learner Success}
-As learners engage in a blended eLearning ecosystem, they will build
-up a history of learning experiences. When that eLearning ecosystem
-adheres to a framework dedicated to supporting and understanding the
+As learners engage in activities supported by a learning ecosystem, they will build
+up a history of learning experiences. When the digital resources of that learning ecosystem
+adhere to a framework dedicated to supporting and understanding the
 learner, such as the Total Learning Architecture (TLA), it becomes
-possible to retell their story through data. One important aspect of
+possible to retell their learning story through data and data visualization. One important aspect of
 that story is the learner's history of success.
 
 \subsection{Ideal Statements}
@@ -566,8 +566,7 @@ will be used instead of the $\$$
 
 \subsection{2018 Pilot TLA Statement Problems}
 The initial pilot test data supports this algorithm.
-Given that the offical 2018 pilot test is scheduled to take place on July
-27th, 2018, this section may require updates pending future data review.
+This section may require updates pending future data review following iterations of the TLA testing.
 \subsection{Summary}
 \begin{enumerate}
 \item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
@@ -919,8 +918,8 @@ metadata is contained within each statement available to the algorithm.
 \end{itemize}
 
 \section{Which Assessment Questions are the Most Difficult}
-As learners engage in a blended eLearning ecosystem, they will
-experiecne learning content as well as assessment content. Assessments
+As learners engage in activities supported by a learning ecosystem, they will
+experience learning content as well as assessment content. Assessments
 are designed to measure the effectiveness of learning content and help
 assess knowledge gained. It is possible that certain assessment questions
 do not accurately represent the concepts contained within learning
