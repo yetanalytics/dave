@@ -483,6 +483,9 @@ $\\ \\$
   which is a non-empty, finite set of the component $statement$
 \end{itemize}
 
+%%% TODO, statement results from the LRS are inherently ordered
+%%% indicate this above either in notation or as an item
+
 \section{Timeline Of Learner Success}
 As learners engage in activities supported by a learning ecosystem, they will build
 up a history of learning experiences. When the digital resources of that learning ecosystem
@@ -612,6 +615,7 @@ $SUCCESS$ :== $\{true\}$
   S_{processed} = \{pair : (statement.timestamp, \nat)\}
 \end{schema}
 \begin{itemize}
+
 \item The set $S_{all}$ is a non-empty, finite set and is the
   component $statements$
 \item The sets $S_{completion}$ and $S_{success}$ are both finite sets
@@ -805,7 +809,6 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \subsection{Pseudocode}
 
 \begin{algorithm}[H]
-
   \SetAlgoLined
   \KwIn{$S_{all}$}
   \KwResult{coll}
@@ -985,6 +988,7 @@ S = curl -X GET -H "Authorization: Auth"
 \end{lstlisting}
 
 \subsection{Statement Parameters to Utilize}
+
 The statement parameter locations here are written in
 \href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
 is also compatable with the xAPI Z notation due to the defined
@@ -1017,7 +1021,6 @@ Given that the offical 2018 pilot test is scheduled to take place on July
 \end{enumerate}
 
 \subsection{Formal Specification}
-
 \subsubsection{Basic Types}
 
 $INCORRECT$ :== $\{false\}$
@@ -1173,7 +1176,9 @@ $INCORRECT$ :== $\{false\}$
   which is the output of applying the function $group$ to the set of statements
   $S_{incorrect}$ created by the opperation $FilterForIncorrect$
 \item $grouped'$ is a set of sequences. The elements of those
-  sequences are statements which all have the same $statement.object.id$
+  sequences are statements which all have the same
+  $statement.object.id$
+
 \item The set $S_{grouped}$ is updated to the set $S_{grouped}'$ which
   is the union of $S_{grouped}$ and $grouped'$
 \item the variable $processed$ is a subset of $S_{grouped}'$ which can
@@ -1189,8 +1194,9 @@ $INCORRECT$ :== $\{false\}$
       statement within the sequence $g_{i}$.
     \item The second element of $p_{i}$ is equal to the value returned
       when $g_{i}$ is passed to the function $count$.
-    \item The first element of $p_{j}$ is equal to the $object.id$ of the
-      first statement within the sequence $g_{j}$.
+
+    \item The first element of $p_{j}$ is equal to the $object.id$ of
+      the first statement within the sequence $g_{j}$.
     \item the second element of $p_{j}$ is equal to the value returned
       when $g_{j}$ is passed to the function $count$
     \end{itemize}
@@ -1201,7 +1207,9 @@ $INCORRECT$ :== $\{false\}$
 
 \subsubsection{Sequence of Operations}
 
-$ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
+$ProcessedQuestions \defs FilterForIncorrect \semi
+AggregateQuestionStatements$
+
 \begin{itemize}
 \item The schema $ProcessedQuestions$ is the sequential composition
   of operation schemas $FilterForIncorrect$ and
@@ -1229,7 +1237,6 @@ $ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
 \begin{algorithm}[H]
 
   \SetAlgoLined
-
   \KwIn{$S_{all}$, display-n}
   \KwResult{display}
   init id-to-count := [] \\
@@ -1402,6 +1409,7 @@ metadata is contained within each statement available to the algorithm.
 \end{itemize}
 
 \section{Rate of Completions}
+
 As learners engage in activities supported by a learning ecosystem, they will build
 up a history of learning experiences. When the digital resources of that learning ecosystem
 adhere to a framework dedicated to supporting and understanding the
@@ -1449,6 +1457,7 @@ Provider (LRP). They are as follows:
 \end{itemize}
 
 \subsection{Input Data Retrieval}
+
 How to query an LRS via a GET request to the Statements Resource via
 curl. The following section contains the appropriate parameters with
 example values as well as the curl command necessary for making the request.
@@ -1476,6 +1485,7 @@ S = curl -X GET -H "Authorization: Auth"
 \end{lstlisting}
 
 \subsection{Statement Parameters to Utilize}
+
 The statement parameter locations here are written in
 \href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
 is also compatable with the xAPI Z notation due to the defined
@@ -1487,6 +1497,7 @@ will be used instead of the $\$$
 \end{itemize}
 
 \subsection{2018 Pilot TLA Statement Problems}
+
 The initial pilot test data supports the core requirements of this
 algorithm but completion statements only reports completion scores via
 $\$.result.scaled$ instead of $\$.result.score.raw$,
@@ -1504,6 +1515,7 @@ that the offical 2018 pilot test is scheduled to take place on July
 review.
 
 \subsection{Summary}
+
 \begin{enumerate}
   \item Query an LRS via a GET request to the statemetns endpoint
     using the paramters verb, since and until.
@@ -1515,10 +1527,119 @@ review.
   \item calculate rate by taking the count of statements within unit
     time groups.
 \end{enumerate}
+
 \subsection{Formal Specification}
+
 \subsubsection{Basic Types}
+
+$TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
+\{week\} | \{month\} | \{year\}$
+
 \subsubsection{System State}
+
+\begin{schema}{RateOfCompletion}
+  Statements \\
+  S_{completions} : \finset_1 \\
+  S_{grouped},S_{timeunit}, S_{processed} : \finset \\
+  \where
+  S_{completions} = statements \\
+  S_{grouped} = \{byId : \seq_1 statement\} \\
+  S_{timeunit} = \{byUnit: \seq_1 statement\} \\
+  S_{processed} = \{rate : (id , \nat, TIMEUNIT)\}
+\end{schema}
+\begin{itemize}
+\item The set $S_{completions}$ is a non-empty, finite set and is the
+  component $statements$ which contains the results of the query to
+  the LRS.
+\item The sets $S_{grouped}$, $S_{timeunit}$ and $S_{processed}$ are all finite sets
+\item the set $S_{grouped}$ is a finite set of objects $byId$ which
+  are non-empty, finite sequences of the component $statement$
+\item the set $S_{timeunit}$ is a finite set of objects $byUnit$ which
+  are non-empty, finite sequences of the component $statement$
+\item the set $S_{processed}$ is a finite set of objects $rate$ where each
+  contains the component $id$, a natural number and the type $TIMEUNIT$
+\end{itemize}
+
 \subsubsection{Initial System State}
+
+\begin{schema}{InitRateOfCompletion}
+  RateOfCompletion
+  \where
+  S_{completions} \not = \emptyset \\
+  S_{grouped} = \emptyset \\
+  S_{timeunit} = \emptyset \\
+  S_{processed} = \emptyset \\
+  TIMEUNIT = \{day\}
+\end{schema}
+\begin{itemize}
+\item The set $S_{completions}$ is a non-empty set
+\item The sets $S_{grouped}$ , $S_{timeunit}$ and $S_{processed}$ are
+  all initially empty
+\item the basic type $TIMEUNIT$ is set to $\{day\}$
+\end{itemize}
+
+\subsubsection{Group by Activity}
+
+\begin{schema}{GroupedByActivityId}
+  \Delta RateOfCompletion \\
+  GroupByActivityId \\
+  grouped = \finset
+  \where
+  grouped = \emptyset \\
+  grouped' = group(S_{completions}) \\
+  S_{grouped}' = S_{grouped} \cup grouped'
+\end{schema}
+\begin{itemize}
+  \item The schema $GroupedByActivityId$ uses the function $group$
+    from the schema $GroupByActivityId$ to group the set of statements
+    $S_{completions}$ by $\$.object.id$
+  \item the set $S_{grouped}'$ is the union of the intially empty set
+    $S_{grouped}$ and the variable $grouped'$
+\end{itemize}
+
+\subsubsection{Group by Timeunit}
+
+\begin{schema}{IsoToUnix}
+  Timestamp \\
+  Stored \\
+  convert : \finset_1 \fun \nat\#1 \\
+  c? : \finset_1 \\
+  c! : \nat\#1
+  \where
+  c! = convert(c?) \\
+  c! = \{n : \nat \}
+\end{schema}
+\begin{itemize}
+  \item The schema $IsoToUnix$ introduces the function $convert$ which
+    takes in a finit set of one thing (a timestamp) and converts it to
+    a single natural number.
+  \item the purpose of this function is to convert an ISO 8601
+    timestamp to the Unix epoch. The concrete definition of the conversion
+    is outside the scope of this document
+    \begin{itemize}
+      \item The Unix epoch is the number of seconds that have elapsed
+        since January 1, 1970 (midnight UTC/GMT), not counting leap seconds.
+    \end{itemize}
+  \end{itemize}
+
+\begin{schema}{GroupByTimeUnit}
+  Statement \\
+  IsoToUnix \\
+  unit? : TIMEUNIT \\
+  s? : \finset \\
+  s! : \finset \\
+  within : \finset \fun \finset
+  \where
+  unit? \, = \,\{second\} \implies \{1\} \lor \{minute\} \implies \{60\}
+  \lor \{hour\} \implies \{3600\} \lor \\\t2 \{day\} \implies \{86400\} \lor
+  \{week\} \implies \{604800\} \lor \\\t2 \{month\} \implies \{2629743\}
+  \lor \{year\} \implies \{31556926\}
+
+  \\
+  s? = \{grouped : seq_1 statement\} \\
+  s! = within(unit?, s?)
+\end{schema}
+
 \subsubsection{Processes Results}
 \subsubsection{Sequence of Operations}
 \subsubsection{Return}
