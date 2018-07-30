@@ -9,4 +9,5 @@ Enter Project DAVE — a framework featuring a suite of prototype analytics algo
 Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.S. Department of Defense.
 
 ## License
-copyright 2018 Yet Analytics, Inc.
+Copyright © 2018 Yet Analytics Inc
+Distributed under the Apache 2.0 License. See the file LICENSE for more information.
