@@ -904,16 +904,16 @@ metadata is contained within each statement available to the algorithm.
 \item A tooltip containing the name of an activity when hovering
   over a specific point on the chart
   \begin{itemize}
-    \item this would require utilizing $\$.object.definition.name$
+  \item this would require utilizing $\$.object.definition.name$
   \end{itemize}
 \item A tooltip containing the device on which the activity was experienced
   \begin{itemize}
-    \item this would require utilizing $\$.context.platform$
+  \item this would require utilizing $\$.context.platform$
   \end{itemize}
 \item A tooltip containing the instructor associated with a
   particular data point
   \begin{itemize}
-    \item this would require utilizing $\$.context.instructor$
+  \item this would require utilizing $\$.context.instructor$
   \end{itemize}
 \end{itemize}
 
@@ -953,7 +953,7 @@ LRP. They are as follows:
   all statements
 \item Statements describing a learner answering a question
   should\footnote{\label{verbIRI} it is possible to use another verb but if another is
-      used, that will need to be accounted for in data retrieval} use
+    used, that will need to be accounted for in data retrieval} use
   the verb $http://adlnet.gov/expapi/verbs/answered$
 \end{itemize}
 
@@ -1115,13 +1115,13 @@ $INCORRECT$ :== $\{false\}$
   \forall s : s_{i}..s_{j} @ s_{i}.object.id = s_{j}.object.id\} \\
 \end{schema}
 \begin{itemize}
-  \item The schema $GroupByActivityId$ introduces the function $group$
-    which has the input of $g?$ and the output of $g!$
-  \item The input variable $g?$ is the component $statements$ which implies
-    its a set of objects $g$ which are each a $statement$
-  \item the output variable $g!$ is a set of objects $groups$ which
-    are each a non-empty, finite sequence of $statement$ where each
-    member of the sequence $s_{i}..s_{j}$ has the same $\$.object.id$
+\item The schema $GroupByActivityId$ introduces the function $group$
+  which has the input of $g?$ and the output of $g!$
+\item The input variable $g?$ is the component $statements$ which implies
+  its a set of objects $g$ which are each a $statement$
+\item the output variable $g!$ is a set of objects $groups$ which
+  are each a non-empty, finite sequence of $statement$ where each
+  member of the sequence $s_{i}..s_{j}$ has the same $\$.object.id$
 \end{itemize}
 
 \begin{schema}{CountPerGroup}
@@ -1137,14 +1137,14 @@ $INCORRECT$ :== $\{false\}$
   j + 1
 \end{schema}
 \begin{itemize}
-  \item The schema $CountPerGroup$ introduces the function $count$
-    which has the input of $c?$ and the output of $c!$
-  \item The input variable $c?$ is a non-empty, finite sequence in which each element is
-    a $statement$
-  \item The function $count$ reads: for all elements within the
-    sequence $c?_{i}..c?_{j}$, $i$ and $j$ are natural numbers, $i$ is
-    equal to zero and may or may not be equal to $j$ such that there
-    exits a number $c!$ which is equal to $j + 1$
+\item The schema $CountPerGroup$ introduces the function $count$
+  which has the input of $c?$ and the output of $c!$
+\item The input variable $c?$ is a non-empty, finite sequence in which each element is
+  a $statement$
+\item The function $count$ reads: for all elements within the
+  sequence $c?_{i}..c?_{j}$, $i$ and $j$ are natural numbers, $i$ is
+  equal to zero and may or may not be equal to $j$ such that there
+  exits a number $c!$ which is equal to $j + 1$
 \end{itemize}
 
 \begin{schema}{AggregateQuestionStatements}
@@ -1195,8 +1195,8 @@ $INCORRECT$ :== $\{false\}$
       when $g_{j}$ is passed to the function $count$
     \end{itemize}
   \end{itemize}
-  \item The set $S_{processed}'$ is the union of the sets
-    $S_{processed}$ and $processed'$
+\item The set $S_{processed}'$ is the union of the sets
+  $S_{processed}$ and $processed'$
 \end{itemize}
 
 \subsubsection{Sequence of Operations}
@@ -1258,9 +1258,9 @@ $ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
       { add one to \# \\
         remove $si$ from $S_{incorrect}$ \\
         recur}
-    { concat id-to-count [$id$ , 1] \\
-      remove $si$ from $S_{incorrect}$\\
-      recur}
+      { concat id-to-count [$id$ , 1] \\
+        remove $si$ from $S_{incorrect}$\\
+        recur}
     }
   }
   Sort id-to-count by second value of each subarray (\#) \\
@@ -1271,8 +1271,8 @@ $ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
 \item The Z schemas are used within this pseudocode
 \item The return value display is an array of length display-n, where
   each element of display is an array of [$statement.object.id$, \#]
-   where $\#$ representing the number of times $statement.object.id$
-   appeared within $S_{incorrect}$
+  where $\#$ representing the number of times $statement.object.id$
+  appeared within $S_{incorrect}$
 \end{itemize}
 
 \subsection{JSON Schema}
@@ -1298,16 +1298,16 @@ the visualization.
 \pgfplotstabletypeset[string type]
 
 \begin{tikzpicture}
-\begin{axis}[
+  \begin{axis}[
     symbolic x coords={question1-id,question2-id,question3-id,question4-id},
     xtick=data]
     \addplot[ybar,fill=blue] coordinates {
-        (question1-id,122)
-        (question2-id,118)
-        (question3-id,156)
-        (question4-id,127)
+      (question1-id,122)
+      (question2-id,118)
+      (question3-id,156)
+      (question4-id,127)
     };
-\end{axis}
+  \end{axis}
 \end{tikzpicture}
 
 \subsection{Prototype Improvement Suggestions}
@@ -1337,21 +1337,21 @@ metadata is contained within each statement available to the algorithm.
     \end{itemize}
   \item Interaction Type
     \begin{itemize}
-      \item $\$.object.definition$ which contains interaction properties
+    \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Answer choices
     \begin{itemize}
-      \item $\$.object.definition$ which contains interaction properties
+    \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Correct answer
     \begin{itemize}
-      \item $\$.object.definition$ which contains interaction properties
+    \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Most popular incorrect answer
     \begin{itemize}
-      \item This would require an extra step of processing and all
-        statements would need to utilize interaction properties within
-        $\$.object.definition$
+    \item This would require an extra step of processing and all
+      statements would need to utilize interaction properties within
+      $\$.object.definition$
     \end{itemize}
   \item average partial credit earned (if applicable)
     \begin{itemize}
@@ -1366,52 +1366,159 @@ metadata is contained within each statement available to the algorithm.
     \end{itemize}
   \item average number of re-attempts
     \begin{itemize}
-      \item this would require additional steps of processing so that
-        $\$.actor$ is considered as well
-      \item due to the problem of actor unification, ie the same
-        person being identified differently across statements, this
-        metric may not be accurate.
-      \end{itemize}
-    \item average time spent on the question
-      \begin{itemize}
-      \item $\$.result.duration$
-      \item this would require additional steps of processing to
-        extract the duration and average it.
-      \end{itemize}
+    \item this would require additional steps of processing so that
+      $\$.actor$ is considered as well
+    \item due to the problem of actor unification, ie the same
+      person being identified differently across statements, this
+      metric may not be accurate.
     \end{itemize}
-  \item a tooltip containing contextual information about the course
-    and/or assessment the question was within
+  \item average time spent on the question
     \begin{itemize}
-    \item the instructor for the course
-      \begin{itemize}
-      \item $\$.context.instructor$
-      \end{itemize}
-    \item competency associated with the question and/or course
-      \begin{itemize}
-      \item $\$.context.contextActivities$
-      \end{itemize}
-    \item metadata about the learning content associated with the
-      question such as average time spent engaging with associated
-      content before attempting the question.
+    \item $\$.result.duration$
     \item this would require additional steps of processing to
-      retrieve metadata about the content and its usage.
-      \begin{itemize}
-      \item $\$.context.contextActivities$
-      \end{itemize}
+      extract the duration and average it.
     \end{itemize}
   \end{itemize}
+\item a tooltip containing contextual information about the course
+  and/or assessment the question was within
+  \begin{itemize}
+  \item the instructor for the course
+    \begin{itemize}
+    \item $\$.context.instructor$
+    \end{itemize}
+  \item competency associated with the question and/or course
+    \begin{itemize}
+    \item $\$.context.contextActivities$
+    \end{itemize}
+  \item metadata about the learning content associated with the
+    question such as average time spent engaging with associated
+    content before attempting the question.
+  \item this would require additional steps of processing to
+    retrieve metadata about the content and its usage.
+    \begin{itemize}
+    \item $\$.context.contextActivities$
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
 
 \section{Rate of Completions}
+As learners engage in activities supported by a learning ecosystem, they will build
+up a history of learning experiences. When the digital resources of that learning ecosystem
+adhere to a framework dedicated to supporting and understanding the
+learner, such as the Total Learning Architecture (TLA), it becomes
+possible to retell their learning story through data and data visualization. One important aspect of
+that story is the rate of completion
+\footnote{\label{defOfCompletion} Completion can be defined by the
+  presence of the verb completed or by the presence of
+  $\$.result.completion$ set equal to true. In this algorithm,
+  completion is defined by the presence of the verb completed
+  regardless of $\$.result.completion$. This decision affects how
+  statements are retrieved and filtered. In the case where completion
+  is defined by $\$.result.completion$, the query to the LRS would not
+  include the verb paramater and there would need to be a filtering
+  process which looks for the presence of $\$.result.completion$ =
+  true} of the various digital resources within the learning
+ecosystem.
+
 \subsection{Ideal Statements}
+
+In order to accurately portray the rates of completion, there
+are a few base requirements of the data produced by a Learning Record
+Provider (LRP). They are as follows:
+\begin{itemize}
+\item statements describing a learner completing an activity should
+  \footnote{\label{verbIRICompletion} it is possible to use another
+    verb but if another is used, that will need to be accounted for
+    in data retrieval}
+  use the verb $http://adlnet.gov/expapi/verbs/completed$
+\item statements describing a learner completing an activity should
+  report if the learner was successful or not via
+  $\$.result.success$
+\item statement describing a learner completing a scored activity
+  should report the learners score via $\$.result.score.raw$,
+  $\$.result.score.min$ and $\$.result.score.max$
+\item activites must be uniquely and consistently identified across
+  all statements
+\item The time at which a learner completed a learning activity must be recorded
+  \begin{itemize}
+  \item The timestamp should contain an appropriate level of specificity.
+  \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
+  \end{itemize}
+\item statements describing a learner completing an activity should
+  report the amount of time taken to complete the activity via $\$.result.duration$
+\end{itemize}
+
 \subsection{Input Data Retrieval}
+How to query an LRS via a GET request to the Statements Resource via
+curl. The following section contains the appropriate parameters with
+example values as well as the curl command necessary for making the request.
+\footnote{\label{refMoreLink2} See footnote 1.}
+\footnote{\label{refnoZ2} See footnote 2.}
+\footnote{\label{refallTime2} See footnote 3.}
+
+\begin{lstlisting}[frame=single]
+Verb = "verb=http://adlnet.gov/expapi/verbs/completed"
+
+Since = "since=2018-07-20T12:08:47Z"
+
+Until = "until=2018-07-21T12:08:47Z"
+
+Base = "https://example.endpoint/statements?"
+
+endpoint = Base + Verb + "&" + Since + "&" + Until
+
+Auth = Hash generated from basic auth
+
+S = curl -X GET -H "Authorization: Auth"
+         -H "Content-Type: application/json"
+         -H "X-Experience-API-Version: 1.0.3"
+         Endpoint
+\end{lstlisting}
+
 \subsection{Statement Parameters to Utilize}
+The statement parameter locations here are written in
+\href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
+is also compatable with the xAPI Z notation due to the defined
+hierarchy of components. Within the Z specifications, a variable name
+will be used instead of the $\$$
+\begin{itemize}
+\item $\$.timestamp$
+\item $\$.object.id$
+\end{itemize}
+
 \subsection{2018 Pilot TLA Statement Problems}
+The initial pilot test data supports the core requirements of this
+algorithm but completion statements only reports completion scores via
+$\$.result.scaled$ instead of $\$.result.score.raw$,
+$\$.result.score.min$ and $\$.result.score.max$.
+\footnote{\label{scaledScores} The one potential issue with using scaled score is the
+calculation of scaled is not stricly defined by the xAPI
+specification but is instead up to the authors of the LRP. This
+results in the inability to reliably compare scaled scores across LRPs.
+if $\$.result.score.raw$ , $\$.result.score.min$ and
+$\$.result.score.max$ are reported for all questions, it becomes
+possible to reliably compare scores across LRPs by generating a scaled
+score in a consistent way.} Given
+that the offical 2018 pilot test is scheduled to take place on July
+27th, 2018, this section may require updates pending future data
+review.
+
 \subsection{Summary}
+\begin{enumerate}
+  \item Query an LRS via a GET request to the statemetns endpoint
+    using the paramters verb, since and until.
+  \item group statements by their $\$.object.id$
+  \item select time range unit for use within rate calculation. Will
+    default to per day.
+  \item group statements with the same $\$.object.id$ by the unit of
+    time by utilizing $\$.timestamp$
+  \item calculate rate by taking the count of statements within unit
+    time groups.
+\end{enumerate}
 \subsection{Formal Specification}
 \subsubsection{Basic Types}
 \subsubsection{System State}
 \subsubsection{Initial System State}
-\subsubsection{Filter for Completion}
 \subsubsection{Processes Results}
 \subsubsection{Sequence of Operations}
 \subsubsection{Return}
