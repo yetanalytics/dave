@@ -70,6 +70,9 @@
 
 \begin{document}
 
+%%% TODO: update forall things within a range i..j to look like
+%%% \forall g_{n}: g_{i}..g_{j} @ i \leq n \leq j @
+
 \begin{titlepage}
   \maketitle
 \end{titlepage}
@@ -1544,18 +1547,18 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   \where
   S_{completions} = statements \\
   S_{grouped} = \{byId : \seq_1 statement\} \\
-  S_{timeunit} = \{byUnit: \seq_1 statement\} \\
+  S_{withRate} = \{byGroup: (\seq_1 statement, \nat)\} \\
   S_{processed} = \{rate : (id , \nat, TIMEUNIT)\}
 \end{schema}
 \begin{itemize}
 \item The set $S_{completions}$ is a non-empty, finite set and is the
   component $statements$ which contains the results of the query to
   the LRS.
-\item The sets $S_{grouped}$, $S_{timeunit}$ and $S_{processed}$ are all finite sets
+\item The sets $S_{grouped}$, $S_{withRate}$ and $S_{processed}$ are all finite sets
 \item the set $S_{grouped}$ is a finite set of objects $byId$ which
   are non-empty, finite sequences of the component $statement$
-\item the set $S_{timeunit}$ is a finite set of objects $byUnit$ which
-  are non-empty, finite sequences of the component $statement$
+\item the set $S_{withRate}$ is a finite set of objects $byGroup$ which
+  are ordered pairs of non-empty, finite sequences of the component $statement$ and a natural number
 \item the set $S_{processed}$ is a finite set of objects $rate$ where each
   contains the component $id$, a natural number and the type $TIMEUNIT$
 \end{itemize}
@@ -1567,37 +1570,18 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   \where
   S_{completions} \not = \emptyset \\
   S_{grouped} = \emptyset \\
-  S_{timeunit} = \emptyset \\
+  S_{withRate} = \emptyset \\
   S_{processed} = \emptyset \\
   TIMEUNIT = \{day\}
 \end{schema}
 \begin{itemize}
-\item The set $S_{completions}$ is a non-empty set
-\item The sets $S_{grouped}$ , $S_{timeunit}$ and $S_{processed}$ are
+\item The set $S_{completions}$ is a non-empty set which contains the results of the GET request(s) to the LRS
+\item The sets $S_{grouped}$ , $S_{withRate}$ and $S_{processed}$ are
   all initially empty
 \item the basic type $TIMEUNIT$ is set to $\{day\}$
 \end{itemize}
 
-\subsubsection{Group by Activity}
-
-\begin{schema}{GroupedByActivityId}
-  \Delta RateOfCompletion \\
-  GroupByActivityId \\
-  grouped = \finset
-  \where
-  grouped = \emptyset \\
-  grouped' = group(S_{completions}) \\
-  S_{grouped}' = S_{grouped} \cup grouped'
-\end{schema}
-\begin{itemize}
-  \item The schema $GroupedByActivityId$ uses the function $group$
-    from the schema $GroupByActivityId$ to group the set of statements
-    $S_{completions}$ by $\$.object.id$
-  \item the set $S_{grouped}'$ is the union of the intially empty set
-    $S_{grouped}$ and the variable $grouped'$
-\end{itemize}
-
-\subsubsection{Group by Timeunit}
+\subsubsection{Calculate Rate}
 
 \begin{schema}{IsoToUnix}
   convert : \finset_1 \fun \nat\#1 \\
@@ -1633,14 +1617,44 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   \{week\} \implies 604800 \,\lor \\\t2 \{month\} \implies 2629743
   \lor \{year\} \implies 31556926 \\
   s? = \{g : seq_1 statement\} \\
-  s! = rate(unit?, s?) \\
+  s! = rate(s?, unit?) \\
   s! = \{s : (g, r) \,|\, \forall g_{n}: g_{i}..g_{j} @ i \leq n \leq j @
-  \exists_1 \, s_{n} : (g_{n}, r_{n}) @ \\\t1
+  \exists \, s_{n} : (g_{n}, r_{n}) @ \\\t1
   r_{n} = count(g_{n}) \div ((convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?)\}
 \end{schema}
+\begin{itemize}
+\item The schema $CalcRateByUnit$ introduces the function $rate$ where the input $s?$ is a set of objects $g$ which are each a non-empty, finite sequence of statements and the input $unit?$ represents a unit of time.
+\item for every $g_{n}$ within the range $g_{i}..g_{j}$, there exists an associated object $s_{n}$ which is an orderd pair of $(g_{n}, r_{n})$ where $r_{n}$ is equal to the number of items within $g_{n}$ divided by the number of $unit?$s within the time range of $last~g_{n}.timestamp-head~g_{n}.timestamp$
+\item the output of the function $rate$ is $s!$, the set of all $s_{n}$
+\end{itemize}
 
 \subsubsection{Processes Results}
-\subsubsection{Sequence of Operations}
+
+\begin{schema}{AggergateCompletionStatements}
+  \Delta RateOfCompletion \\
+  GroupByActivityId \\
+  CalcRateByUnit \\
+  grouped,processed,withRate : \finset \\
+  r : \nat \\
+  T? : TIMEUNIT
+  \where
+  T? = \{day\} \\
+  grouped = \emptyset \\
+  grouped' = group(S_{completions}) \\
+  S_{grouped}' = S_{grouped} \cup grouped' \\
+  withRate \subseteq S_{grouped}' \\
+  withRate' = rate(withRate, T?) \\
+  S_{withRate}' = withRate' \cup S_{withRate} \\
+  processed \subseteq S_{withRate}' \\
+  processed' = \{p: (id, r, T?) \,|\,
+  \\\t3 \LET \{processed_{i}..processed_{j}\} == \{b_{i}..b_{j}\} @ \\\t3
+  \forall b_{n} : b_{i}..b_{j} @ i \leq n \leq j @
+  \exists \, p_{n} : (id_{n}, r_{n}, T?) @  \\\t3
+  id_{n} = (head~(first~b_{n})).object.id \, \land \, \\\t3
+  r_{n} = (second~b_{n})\} \\
+  S_{processed}' = processed' \cup S_{processed}
+\end{schema}
+
 \subsubsection{Return}
 \subsection{Pseudocode}
 \subsection{JSON Schema}
