@@ -63,7 +63,7 @@
 {\global\colonfoundonthislinefalse}
 
 \makeatother
-\pgfplotsset{compat=1.16}
+\pgfplotsset{compat=1.15}
 
 \title{Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture: DAVE Learning Analytics Algorithms}
 \author{Yet Analytics}
@@ -474,17 +474,17 @@ $\\ \\$
 
 \begin{schema}{Statements}
   Statement \\
+  IsoToUnix \\
   statements : \finset_1
   \where
-  statements = \{s : statement \}
+  statements = \{s : statement \,|\, \forall s: s_{i}..s_{j} @ i = 0 \land i = j
+  \lor i \not = j \\\t3\: @ convert(s_{i}.timestamp) \leq convert(s_{j}.timestamp) \}
 \end{schema}
 \begin{itemize}
 \item The schema $Statements$ introduces the component $statements$
-  which is a non-empty, finite set of the component $statement$
+  which is a non-empty, finite set of the component $statement$ which
+  are in chronological order.
 \end{itemize}
-
-%%% TODO, statement results from the LRS are inherently ordered
-%%% indicate this above either in notation or as an item
 
 \section{Timeline Of Learner Success}
 As learners engage in activities supported by a learning ecosystem, they will build
@@ -492,7 +492,7 @@ up a history of learning experiences. When the digital resources of that learnin
 adhere to a framework dedicated to supporting and understanding the
 learner, such as the Total Learning Architecture (TLA), it becomes
 possible to retell their learning story through data and data visualization. One important aspect of
-that story is the learner's history of success.
+that story is the' learners history of success.
 
 \subsection{Ideal Statements}
 In order to accurately portray a learner's timeline of success, there
@@ -1600,14 +1600,11 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
 \subsubsection{Group by Timeunit}
 
 \begin{schema}{IsoToUnix}
-  Timestamp \\
-  Stored \\
   convert : \finset_1 \fun \nat\#1 \\
   c? : \finset_1 \\
   c! : \nat\#1
   \where
-  c! = convert(c?) \\
-  c! = \{n : \nat \}
+  c! = convert(c?)
 \end{schema}
 \begin{itemize}
   \item The schema $IsoToUnix$ introduces the function $convert$ which
@@ -1628,14 +1625,12 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   unit? : TIMEUNIT \\
   s? : \finset \\
   s! : \finset \\
-  within : \finset \fun \finset
+  within : \finset \land TIMEUNIT \fun \finset
   \where
   unit? \, = \,\{second\} \implies \{1\} \lor \{minute\} \implies \{60\}
   \lor \{hour\} \implies \{3600\} \lor \\\t2 \{day\} \implies \{86400\} \lor
   \{week\} \implies \{604800\} \lor \\\t2 \{month\} \implies \{2629743\}
-  \lor \{year\} \implies \{31556926\}
-
-  \\
+  \lor \{year\} \implies \{31556926\}\\
   s? = \{grouped : seq_1 statement\} \\
   s! = within(unit?, s?)
 \end{schema}
