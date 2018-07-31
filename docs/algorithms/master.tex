@@ -1524,11 +1524,9 @@ review.
     using the paramters verb, since and until.
   \item group statements by their $\$.object.id$
   \item select time range unit for use within rate calculation. Will
-    default to per day.
-  \item group statements with the same $\$.object.id$ by the unit of
-    time by utilizing $\$.timestamp$
-  \item calculate rate by taking the count of statements within unit
-    time groups and dividing by the number of unit time groups.
+    default to day.
+  \item determine the amount of time between the first and last instance of a $\$.object.id$ (in seconds) and divide it by the time unit. ie if the unit is minute, you would divide by 60.
+  \item calculate the rate by dividing the count of a group (2) by the number of time units covered by the statements (4) so that the rate is the number of completions per activity per time unit.
 \end{enumerate}
 
 \subsection{Formal Specification}
