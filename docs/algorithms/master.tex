@@ -1622,9 +1622,9 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
 \begin{schema}{CalcRateByUnit}
   Statement \\
   IsoToUnix \\
+  CountPerGroup \\
   unit? : TIMEUNIT \\
-  s? : \finset \\
-  s! : \finset \\
+  s?,s! : \finset \\
   c : \nat \\
   rate : (\finset, TIMEUNIT) \fun \finset
   \where
@@ -1634,13 +1634,10 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   \lor \{year\} \implies 31556926 \\
   s? = \{g : seq_1 statement\} \\
   s! = rate(unit?, s?) \\
-  s! = \{s : (g, c) \,|\, \forall g_{n}: g_{i}..g_{j} @
-  \exists_1 \, s_{n} : (g_{n}, c_{n}) @ i \leq n \leq j @ \\\t1
-  c_{n} = (convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?\}
+  s! = \{s : (g, c) \,|\, \forall g_{n}: g_{i}..g_{j} @ i \leq n \leq j @
+  \exists_1 \, s_{n} : (g_{n}, c_{n}) @ \\\t1
+  c_{n} = count(g_{n}) \div ((convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?)\}
 \end{schema}
-
-%%% take total duration from first statement to last statement within a group of statements (grouped by id)
-%%% divide total duration by unit?
 
 \subsubsection{Processes Results}
 \subsubsection{Sequence of Operations}
