@@ -1525,7 +1525,7 @@ review.
   \item group statements with the same $\$.object.id$ by the unit of
     time by utilizing $\$.timestamp$
   \item calculate rate by taking the count of statements within unit
-    time groups.
+    time groups and dividing by the number of unit time groups.
 \end{enumerate}
 
 \subsection{Formal Specification}
@@ -1619,21 +1619,28 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
     \end{itemize}
   \end{itemize}
 
-\begin{schema}{GroupByTimeUnit}
+\begin{schema}{CalcRateByUnit}
   Statement \\
   IsoToUnix \\
   unit? : TIMEUNIT \\
   s? : \finset \\
   s! : \finset \\
-  within : \finset \land TIMEUNIT \fun \finset
+  c : \nat \\
+  rate : (\finset, TIMEUNIT) \fun \finset
   \where
-  unit? \, = \,\{second\} \implies \{1\} \lor \{minute\} \implies \{60\}
-  \lor \{hour\} \implies \{3600\} \lor \\\t2 \{day\} \implies \{86400\} \lor
-  \{week\} \implies \{604800\} \lor \\\t2 \{month\} \implies \{2629743\}
-  \lor \{year\} \implies \{31556926\}\\
-  s? = \{grouped : seq_1 statement\} \\
-  s! = within(unit?, s?)
+  unit? \, = \,\{second\} \implies 1 \lor \{minute\} \implies 60
+  \lor \{hour\} \implies 3600 \,\lor \\\t2 \{day\} \implies 86400 \lor
+  \{week\} \implies 604800 \,\lor \\\t2 \{month\} \implies 2629743
+  \lor \{year\} \implies 31556926 \\
+  s? = \{g : seq_1 statement\} \\
+  s! = rate(unit?, s?) \\
+  s! = \{s : (g, c) \,|\, \forall g_{n}: g_{i}..g_{j} @
+  \exists_1 \, s_{n} : (g_{n}, c_{n}) @ i \leq n \leq j @ \\\t1
+  c_{n} = (convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?\}
 \end{schema}
+
+%%% take total duration from first statement to last statement within a group of statements (grouped by id)
+%%% divide total duration by unit?
 
 \subsubsection{Processes Results}
 \subsubsection{Sequence of Operations}
