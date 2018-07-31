@@ -1625,7 +1625,7 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   CountPerGroup \\
   unit? : TIMEUNIT \\
   s?,s! : \finset \\
-  c : \nat \\
+  r : \nat \\
   rate : (\finset, TIMEUNIT) \fun \finset
   \where
   unit? \, = \,\{second\} \implies 1 \lor \{minute\} \implies 60
@@ -1634,9 +1634,9 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   \lor \{year\} \implies 31556926 \\
   s? = \{g : seq_1 statement\} \\
   s! = rate(unit?, s?) \\
-  s! = \{s : (g, c) \,|\, \forall g_{n}: g_{i}..g_{j} @ i \leq n \leq j @
-  \exists_1 \, s_{n} : (g_{n}, c_{n}) @ \\\t1
-  c_{n} = count(g_{n}) \div ((convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?)\}
+  s! = \{s : (g, r) \,|\, \forall g_{n}: g_{i}..g_{j} @ i \leq n \leq j @
+  \exists_1 \, s_{n} : (g_{n}, r_{n}) @ \\\t1
+  r_{n} = count(g_{n}) \div ((convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?)\}
 \end{schema}
 
 \subsubsection{Processes Results}
