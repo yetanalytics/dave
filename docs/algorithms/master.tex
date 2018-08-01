@@ -1690,7 +1690,7 @@ $\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
         $S_{completion}' \leftarrow S_{completion} \setminus s$\;
         recur $context', S_{completion}'$\;}
       {\bf do \\
-        $times' \leftarrow context.id + ts$\;
+        $times' \leftarrow context.id \cat ts$\;
         $context' \leftarrow \{id : times'\}$\;
         $S_{completion}' \leftarrow S_{completion} \setminus s$\;
         recur $context', S_{completion}'$\;}}}
