@@ -1296,7 +1296,7 @@ the visualization.
   \begin{axis}[
     symbolic x coords={question1-id,question2-id,question3-id,question4-id},
     xtick=data]
-    \addplot[ybar,fill=blue] coordinates {
+    \addplot[ybar,fill=blue] coordinates{
       (question1-id,122)
       (question2-id,118)
       (question3-id,156)
@@ -1403,9 +1403,8 @@ up a history of learning experiences. When the digital resources of that learnin
 adhere to a framework dedicated to supporting and understanding the
 learner, such as the Total Learning Architecture (TLA), it becomes
 possible to retell their learning story through data and data visualization. One important aspect of
-that story is the rate of completion
-\footnote{\label{defOfCompletion} Completion can be defined by the
-  presence of the verb completed or by the presence of
+that story is the rate of completion\footnote{\label{defOfCompletion}
+  Completion can be defined by the presence of the verb completed or by the presence of
   $\$.result.completion$ set equal to true. In this algorithm,
   completion is defined by the presence of the verb completed
   regardless of $\$.result.completion$. This decision affects how
@@ -1422,9 +1421,9 @@ In order to accurately portray the rates of completion, there
 are a few base requirements of the data produced by a Learning Record
 Provider (LRP). They are as follows:
 \begin{itemize}
-\item statements describing a learner completing an activity should
-  \footnote{\label{verbIRICompletion} it is possible to use another
-    verb but if another is used, that will need to be accounted for
+\item statements describing a learner completing an activity
+  should\footnote{\label{verbIRICompletion} it is possible to use
+    another verb but if another is used, that will need to be accounted for
     in data retrieval}
   use the verb $http://adlnet.gov/expapi/verbs/completed$
 \item statements describing a learner completing an activity should
@@ -1668,39 +1667,52 @@ $\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
 
 \begin{algorithm}[H]
   \SetAlgoLined
-  \KwIn{$S_{completed}$, time-unit}
-  \KwResult{rate-per-obj-tu}
-  init context := \{\} \\
-  init rate-per-obj-tu := [] \\
-  \While {$S_{completion}$ is not empty} {
+  \KwIn{$S_{completed}$, $timeUnit$}
+  \KwResult{$ratePerObjTu$}
+  init $context$ := \{\} \\
+  init $ratePerObjTu$ := [] \\
+  \While {$S_{completion}$ is not empty}{
     for {each statement $s$ in $S_{completion}$} \\
     \t1 let \: $id$ = $s.object.id$ \\
-    \t2 $ts$ = convert($s.timestamp$) \\
-     \eIf{context does not have key = $id$}
-     { init times := [ts] \\
-       update context := \{$id$ : times\} \\
+    \t2 $ts$ = $convert(s.timestamp)$ \\
+     \eIf{$context$ does not have key = $id$}
+     {init $times$ := [ts] \\
+      update $context$ := \{$id$ : $times$ \} \\
       remove $s$ from $S_{completion}$\\
       recur}
-    { get value times at key $id$ from within context \\
-      update times to include $ts$  \\
-      update context to have updated array times at the key $id$ \\
-      remove $s$ fro m$S_{completion}$\\
-      recur}
+    {get value $times$ at key $id$ from within $context$ \\
+     update $times$ to include $ts$  \\
+     update $context$ to have updated array $times$ at the key $id$ \\
+     remove $s$ fro m$S_{completion}$\\
+     recur}
   }
-  \While {context is not empty} {
-    for {each key $k$ in the map context $k$ } \\
-    \t1 let \: $allTs$  = get val at key $k$ within map context \\
+  \While {$context$ is not empty}{
+    for {each key $k$ in the map $context$} \\
+    \t1 let \: $allTs$  = get val at key $k$ within map $context$ \\
     \t2 $totalDuration$ = max($allTs$) - min($allTs$) \\
-    \t2 $totalCount$ = count($allTs$) \\
-    \t2 $rate$ = $totalCount$ / ($totalDuration$ / time-unit) \\
-    \t2 $subvec$ = [$k$, $rate$, time-unit] \\
-    \t1 add $subvec$ to rate-per-obj-tu \\
-    \t1 remove key $k$ and val $allTs$ from context \\
-    \t1 recur}
+    \t2 $totalCount$ = $count(allTs)$ \\
+    \t2 $rate$ = $totalCount$ / ($totalDuration$ / $timeUnit$) \\
+    \t2 $subvec$ = [$k$, $rate$, $timeUnit$] \\
+    \t1\: add $subvec$ to $ratePerObjTu$ \\
+    \t1\: remove key $k$ and val $allTs$ from $context$ \\
+    \t1\: recur}
   \caption{Rate of Completions}
 \end{algorithm}
+\begin{itemize}
+\item Values from Z schemas are used within this pseudocode
+\item the result of the algorithm is an array of arrays where each
+  subarray contains a $statement.object.id$, the $rate$ and the
+  $timeUnit$ used to calculate $rate$.
+\end{itemize}
 
 \subsection{JSON Schema}
+
+\begin{lstlisting}[style=json]
+{"type":"array",
+   "items":{"type":"array",
+      "items":[{"type":"string"}, {"type":"number"}, {"type":"string"}]}}
+\end{lstlisting}
+
 \subsection{Visualization Description}
 \subsection{Visualization prototype}
 \subsection{Prototype Improvement Suggestions}
