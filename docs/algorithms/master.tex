@@ -63,7 +63,7 @@
 {\global\colonfoundonthislinefalse}
 
 \makeatother
-\pgfplotsset{compat=1.16}
+\pgfplotsset{compat=1.15}
 
 \title{Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture: DAVE Learning Analytics Algorithms}
 \author{Yet Analytics}
@@ -76,14 +76,20 @@
 
 \section*{Introduction}
 This report introduces the initial learning analytics algorithms,
-\textbf{timeline of learner success} and \textbf{which assessment
-  questions are the most difficult}  of the DAVE Framework. In doing so, it establishes a set of style guidelines for the reporting of algorithms and associated visualization templates necessary to work with the DAVE Framework.
-This document will be updated to include the learning analytics questions defined within the
-\href{https://adloffice365.sharepoint.com/sites/TLA_Extranet/Shared\%20Documents/2018\%20TLA\%20Data\%20Requirements\%20Aligned\%20to\%20Event.docx?d=w1cf1d6fe161b4606a11c130baae5f5e1}{2018 TLA Data Requirements}
-document in addition to other learning analytics algorithms which have
-yet to be defined. Updates may also address refinement of these
-algorithms and this document should be understood to be an example of
-algorithm presentation and not the final state of any defined algorithm.
+\textbf{timeline of learner success},\textbf{which assessment
+  questions are the most difficult} and \textbf{rate of completions}
+of the DAVE Framework. In doing so, it establishes a set of style
+guidelines for the reporting of algorithms and associated
+visualization templates necessary to work with the DAVE
+Framework. This document will be updated to include the learning
+analytics questions defined within the
+\href{https://adloffice365.sharepoint.com/sites/TLA_Extranet/Shared\%20Documents/2018\%20TLA\%20Data\%20Requirements\%20Aligned\%20to\%20Event.docx?d=w1cf1d6fe161b4606a11c130baae5f5e1}{2018
+  TLA Data Requirements} document in addition to other learning
+analytics algorithms which have yet to be defined. Updates may also
+address refinement of these algorithms and this document should be
+understood to be an example of algorithm presentation and not the
+final state of any defined algorithm.
+
 $\\\\$
 The structure of this documents is as follows:
 \begin{enumerate}
@@ -184,7 +190,8 @@ $[AGENT, GROUP]$
   Agent \\
   member : \finset_1
   \where
-  member = \{a : AGENT \,|\, \forall a: a_{0}..a_{n} @ a = agent\}
+  member = \{a : AGENT \,|\, \forall a_{n}: a_{i}..a_{j} @ i \leq n
+  \leq j @ a = agent\}
 \end{schema}
 \begin{itemize}
 \item The schema $Member$ introduces the component $member$ which is a set of
@@ -240,7 +247,7 @@ $[AGENT, GROUP]$
   extensionId : \finset_1 \#1 \\
   \where
   extensions = \{e : (extensionId, extensionVal)\ \,|\,
-  \forall e : e_{i}..e_{j} @ \\
+  \forall e_{n} : e_{i}..e_{j} @ i \leq n \leq j @ \\
   \t3 \, (extensionId_{i}, extensionVal_{i})
   \lor (extensionId_{i}, extensionVal_{j}) \land \\
   \t3 \, (extensionId_{j}, extensionVal_{i})
@@ -474,13 +481,16 @@ $\\ \\$
 
 \begin{schema}{Statements}
   Statement \\
+  IsoToUnix \\
   statements : \finset_1
   \where
-  statements = \{s : statement \}
+  statements = \{s : statement \,|\, \forall s_{n}: s_{i}..s_{j} @ i
+  \leq n \leq j \\\t3\: @ convert(s_{i}.timestamp) \leq convert(s_{j}.timestamp) \}
 \end{schema}
 \begin{itemize}
 \item The schema $Statements$ introduces the component $statements$
-  which is a non-empty, finite set of the component $statement$
+  which is a non-empty, finite set of the component $statement$ which
+  are in chronological order.
 \end{itemize}
 
 \section{Timeline Of Learner Success}
@@ -489,7 +499,7 @@ up a history of learning experiences. When the digital resources of that learnin
 adhere to a framework dedicated to supporting and understanding the
 learner, such as the Total Learning Architecture (TLA), it becomes
 possible to retell their learning story through data and data visualization. One important aspect of
-that story is the learner's history of success.
+that story is the' learners history of success.
 
 \subsection{Ideal Statements}
 In order to accurately portray a learner's timeline of success, there
@@ -515,18 +525,17 @@ Provider (LRP). They are as follows:
 \subsection{Input Data Retrieval}
 How to query an LRS via a GET request to the Statements Resource via
 curl. The following section contains the appropriate parameters with
-example values as well as the curl command necessary for making the request.
-\footnote{\label{moreLink} $S$ is the set of all statements parsed
-  from the statements array within the HTTP response to the Curl
-  request. It may be possible that multiple Curl requests are needed
-  to retrieve all query results. If multiple requests are necessary,
-  $S$ is the result of concatenating the result of each request into
-  a single set}
-\footnote{\label{noZ} Querying an LRS will not be defined within the
-  following Z specifications but the results of the query will be utilized}
-\footnote{\label{allTime} If you want to query across the entire
-  history of a LRS, omit Since and Until from the endpoint and remove
-  the associated \& symbols.}
+example values as well as the curl command necessary for making the
+request.\footnote{\label{moreLink} $S$ is the set of all statements
+  parsed from the statements array within the HTTP response to the
+  Curl request. It may be possible that multiple Curl requests are
+  needed to retrieve all query results. If multiple requests are
+  necessary, $S$ is the result of concatenating the result of each
+  request into a single set}\footnote{\label{noZ} Querying an LRS will
+  not be defined within the following Z specifications but the results
+  of the query will be utilized}\footnote{\label{allTime} If you want
+  to query across the entire history of a LRS, omit Since and Until
+  from the endpoint and remove the associated \& symbols.}
 
 \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
@@ -598,7 +607,7 @@ $COMPLETION$ :== \\ $\{http://adlnet.gov/expapi/verbs/passed\} \, | \\
 \{http://adlnet.gov/expapi/verbs/completed$\} \\
 \\
 $SUCCESS$ :== $\{true\}$
-
+$\\\\\\\\$ %%% header with schema
 \subsubsection{System State}
 
 \begin{schema}{TimelineLearnerSuccess}
@@ -612,6 +621,7 @@ $SUCCESS$ :== $\{true\}$
   S_{processed} = \{pair : (statement.timestamp, \nat)\}
 \end{schema}
 \begin{itemize}
+
 \item The set $S_{all}$ is a non-empty, finite set and is the
   component $statements$
 \item The sets $S_{completion}$ and $S_{success}$ are both finite sets
@@ -636,7 +646,7 @@ $SUCCESS$ :== $\{true\}$
 \item The set $S_{all}$ is a non-empty set
 \item The sets $S_{completion}$,\,$S_{success}$ and $S_{processed}$ are all initially empty
 \end{itemize}
-
+$\\\\\\\\\\$ %header with schema
 \subsubsection{Filter for Completion}
 \begin{schema}{Completion}
   Statement \\
@@ -674,7 +684,7 @@ $SUCCESS$ :== $\{true\}$
 \item the updated set $S'_{completion}$ is the union of the previous
   state of set $S_{completion}$ and the set $completions'$
 \end{itemize}
-
+$\\\\\\\\$ %%% header with schema
 \subsubsection{Filter for Success}
 \begin{schema}{Success}
   Statement \\
@@ -712,7 +722,7 @@ $SUCCESS$ :== $\{true\}$
 \item The updated set $S_{success}'$ is the union of the previous
   state of $S_{success}$ and $successes'$
 \end{itemize}
-
+$\\\\\\\\$ %%%header with schema
 \subsubsection{Processes Results}
 \begin{schema}{Scale}
   scaled! : \nat \\
@@ -739,15 +749,11 @@ $SUCCESS$ :== $\{true\}$
   processed \subseteq S_{success} \\
   processed' = \{p : (\finset_1\#1 , \nat) \,|\, \\\t3
   \LET \{processed_{i}..processed_{j}\} == \{s_{i}..s_{j}\} @ \\ \t3
-  \forall s : s_{i}..s_{j} @
-  \exists \,  p_{i}..p_{j} @ \\\t3 first~p_{i} = s_{i}.timestamp \, \land
-  \\\t3 second~p_{i} = scale(s_{i}.result.score.raw, \\\t7
-  s_{i}.result.score.min, \\\t7
-  s_{i}.result.score.max) \, \land \\\t3 first~p_{j} =
-  s_{j}.timestamp \, \land \\\t3 second~p_{j} =
-  scale(s_{j}.result.score.raw, \\\t7
-  s_{j}.result.score.min, \\\t7 s_{j}.result.score.max)
-  \} \\
+  i \leq n \leq j @ \forall s_{n} : s_{i}..s_{j} @
+  \exists \, p_{n} : p_{i}..p_{j} @ \\\t3 first~p_{n} = s_{n}.timestamp \, \land
+  \\\t3 second~p_{n} = scale(s_{n}.result.score.raw, \\\t7
+  s_{n}.result.score.min, \\\t7
+  s_{n}.result.score.max)\} \\
   S_{processed}' = S_{processed} \cup processed'
 
 \end{schema}
@@ -805,45 +811,39 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \subsection{Pseudocode}
 
 \begin{algorithm}[H]
-
   \SetAlgoLined
   \KwIn{$S_{all}$}
-  \KwResult{coll}
-  init coll := [] \\
-  \While{$S_{all}$ is not empty} {
-    for each statement $s$ in $S_{all}$ \\
-    \eIf {$s.verb.id$ = $COMPLETION$}
-    {
-      add $s$ to $S_{completion}$ \\
-      remove $s$ from $S_{all}$ \\
-      recur
-    }
-    {
-      remove $s$ from $S_{all}$ \\
-      recur
-    }}
-  \While {$S_{completion}$ is not empty} {
-    for each statement $sc$ in $S_{completion}$ \\
-    \eIf {$sc.result.success$ = $SUCCESS$}
-    {
-      add $sc$ to $S_{success}$ \\
-      remove $sc$ from $S_{completion}$ \\
-      recur
-    }
-    {
-      remove $sc$ from $S_{completion}$ \\
-      recur
-    }}
-  \While {$S_{success}$ is not empty} {
-    for each statement $ss$ in $S_{success}$ \\
-    \t1 let ss.result.score.raw = raw? \\ \t1 \:\:\:\:\:
-    ss.result.score.max = max? \\ \t1 \:\:\:\:\:
-    ss.result.score.min = min? \\ \t1 \:\:\:\:\:
-    scaled = scale(raw?, min?, max?) \\
-    \t1\, concat coll [ss.timestamp, scaled] \\
-    \t1\, remove $ss$ from $S_{success}$ \\
-    \t1\, recur
-  }
+  \KwResult{$coll'$}
+  \emph{coll = []}\;
+  \While{$S_{all} \not = \emptyset$}
+  {\ForEach{$s \in S_{all}$}
+    {\eIf{$s.verb.id = COMPLETION$}
+      {\bf do \\
+        $S_{completion}' \leftarrow s \cup S_{completion}$\;
+        $S_{all}' \leftarrow S_{all} \setminus s$ \;
+        recur $S_{completion}', S_{all}'$\;}
+      {\bf do \\
+        $S_{all}' \leftarrow S_{all} \setminus s$\;
+        recur $S_{all}'$\;}}}
+  \While{$S_{completion}' \not = \emptyset$}
+  {\ForEach{$sc \in S_{completion}'$}
+    {\eIf{$sc.result.success = SUCCESS$}
+      {\bf do \\
+        $S_{success}' \leftarrow sc \cup S_{success}$\;
+        $S_{completion}' \leftarrow S_{completion} \setminus sc$\;
+        recur $S_{success}', S_{completion}'$\;}
+      {\bf do \\
+        $S_{completion}' \leftarrow S_{completion} \setminus sc$\;
+        recur $S_{completion}'$\;}}}
+  {\ForEach{$ss \in S_{success}'$}
+    {$raw? \leftarrow ss.result.score.raw$\;
+     $max? \leftarrow ss.result.score.max$\;
+     $min? \leftarrow ss.result.score.min$\;
+     $scaled \leftarrow scale(raw?, min?, max?)$\;
+     $subVec \leftarrow [ss.timestamp, scaled]$\;
+     $coll' \leftarrow coll \cat subVec$\;
+     {\bf recur $coll'$}}
+   \Return $coll'$}
   \caption{Timeline of Learner Success}
 \end{algorithm}
 \begin{itemize}
@@ -851,7 +851,7 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \item The return value coll is an array of arrays, each containing a
   $statement.timestamp$ and a scaled score.
 \end{itemize}
-$\\\\$ %% keeping section header and text together
+
 \subsection{JSON Schema}
 \begin{lstlisting}[style=json]
 {"type":"array",
@@ -904,16 +904,16 @@ metadata is contained within each statement available to the algorithm.
 \item A tooltip containing the name of an activity when hovering
   over a specific point on the chart
   \begin{itemize}
-    \item this would require utilizing $\$.object.definition.name$
+  \item this would require utilizing $\$.object.definition.name$
   \end{itemize}
 \item A tooltip containing the device on which the activity was experienced
   \begin{itemize}
-    \item this would require utilizing $\$.context.platform$
+  \item this would require utilizing $\$.context.platform$
   \end{itemize}
 \item A tooltip containing the instructor associated with a
   particular data point
   \begin{itemize}
-    \item this would require utilizing $\$.context.instructor$
+  \item this would require utilizing $\$.context.instructor$
   \end{itemize}
 \end{itemize}
 
@@ -953,17 +953,14 @@ LRP. They are as follows:
   all statements
 \item Statements describing a learner answering a question
   should\footnote{\label{verbIRI} it is possible to use another verb but if another is
-      used, that will need to be accounted for in data retrieval} use
+    used, that will need to be accounted for in data retrieval} use
   the verb $http://adlnet.gov/expapi/verbs/answered$
 \end{itemize}
 
 \subsection{Input Data Retrieval}
 How to query an LRS via a GET request to the Statements Resource via
 curl. The following section contains the appropriate parameters with
-example values as well as the curl command necessary for making the request.
-\footnote{\label{refMoreLink} See footnote 1.}
-\footnote{\label{refnoZ} See footnote 2.}
-\footnote{\label{refallTime} See footnote 3.}
+example values as well as the curl command necessary for making the request.\footnote{\label{refMoreLink} See footnote 1.}\footnote{\label{refnoZ} See footnote 2.}\footnote{\label{refallTime} See footnote 3.}
 
 \begin{lstlisting}[frame=single]
 Verb = "verb=http://adlnet.gov/expapi/verbs/answered"
@@ -985,6 +982,7 @@ S = curl -X GET -H "Authorization: Auth"
 \end{lstlisting}
 
 \subsection{Statement Parameters to Utilize}
+
 The statement parameter locations here are written in
 \href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
 is also compatable with the xAPI Z notation due to the defined
@@ -1017,13 +1015,11 @@ Given that the offical 2018 pilot test is scheduled to take place on July
 \end{enumerate}
 
 \subsection{Formal Specification}
-
 \subsubsection{Basic Types}
 
 $INCORRECT$ :== $\{false\}$
 
 \subsubsection{System State}
-
 \begin{schema}{MostDifficultAssessmentQuestions}
   Statements \\
   S_{all} : \finset_1 \\
@@ -1112,16 +1108,17 @@ $INCORRECT$ :== $\{false\}$
   g! = group(g?) \\
   g! = \{groups : \seq_1 statement \,|\, \\ \t1
   \LET \seq_1 statement_{i}..statement_{j} == \seq_1 s_{i}..s_{j} @ \\\t1
-  \forall s : s_{i}..s_{j} @ s_{i}.object.id = s_{j}.object.id\} \\
+  \forall s_{n} : s_{i}..s_{j} @ i \leq n \leq j @ s_{i}.object.id =
+  s_{j}.object.id = s_{n}.object.id\} \\
 \end{schema}
 \begin{itemize}
-  \item The schema $GroupByActivityId$ introduces the function $group$
-    which has the input of $g?$ and the output of $g!$
-  \item The input variable $g?$ is the component $statements$ which implies
-    its a set of objects $g$ which are each a $statement$
-  \item the output variable $g!$ is a set of objects $groups$ which
-    are each a non-empty, finite sequence of $statement$ where each
-    member of the sequence $s_{i}..s_{j}$ has the same $\$.object.id$
+\item The schema $GroupByActivityId$ introduces the function $group$
+  which has the input of $g?$ and the output of $g!$
+\item The input variable $g?$ is the component $statements$ which implies
+  its a set of objects $g$ which are each a $statement$
+\item the output variable $g!$ is a set of objects $groups$ which
+  are each a non-empty, finite sequence of $statement$ where each
+  member of the sequence $s_{i}..s_{j}$ has the same $\$.object.id$
 \end{itemize}
 
 \begin{schema}{CountPerGroup}
@@ -1132,19 +1129,21 @@ $INCORRECT$ :== $\{false\}$
   \where
   c! = count(c?) \\
   c! \geq 1 \\
-  count(c?) = \forall c? : c?_{i}..c?_{j} @ i,j : \nat \land i
-  = 0 \land i = j \lor i \not = j @  \\\t3 \exists_1 \, c! : \nat @  c! =
-  j + 1
+  count(c?) = \forall c_{n}? : \langle c?_{i}..c?_{j} \rangle @ i \leq n \leq j \land i
+  = 0 @ \\\t3  \exists_1 \, c! : \nat @  \IF n = i \THEN c! = n + 1 \ELSE c!
+  =n
+
 \end{schema}
 \begin{itemize}
-  \item The schema $CountPerGroup$ introduces the function $count$
-    which has the input of $c?$ and the output of $c!$
-  \item The input variable $c?$ is a non-empty, finite sequence in which each element is
-    a $statement$
-  \item The function $count$ reads: for all elements within the
-    sequence $c?_{i}..c?_{j}$, $i$ and $j$ are natural numbers, $i$ is
-    equal to zero and may or may not be equal to $j$ such that there
-    exits a number $c!$ which is equal to $j + 1$
+\item The schema $CountPerGroup$ introduces the function $count$
+  which has the input of $c?$ and the output of $c!$
+\item The input variable $c?$ is a non-empty, finite sequence in which each element is
+  a $statement$
+\item The function $count$ reads: for all elements $c?_{n}$ within the
+  sequence $\langle c?_{i}..c?_{j} \rangle$, such that $n$ is greater than or
+  equal to $i$ and less than or equal to $j$, $i$ is
+  equal to zero and there exits a number $c!$ which is equal to $n +
+  1$ (when $n = i \implies n = 0$) or equal to $n$
 \end{itemize}
 
 \begin{schema}{AggregateQuestionStatements}
@@ -1159,11 +1158,10 @@ $INCORRECT$ :== $\{false\}$
   S_{grouped}' = S_{grouped} \cup grouped' \\
   processed \subseteq S_{grouped}' \\
   processed' = \{p : (id, \nat) \,|\, \\\t3 \LET
-  \{processed_{i}..processed_{j}\} == \{g_{i}..g_{j}\} @ \\\t3
-  \forall g : g_{i}..g_{j} @ \exists \,\, p_{i}..p_{j} @ \\\t3
-  first~p_{i} = head~g_{i}.object.id \, \land second~p_{i} =
-  count(g_{i}) \\\t3 first~p_{j} = head g_{j}.object.id \land
-  second~p_{j} = count(g_{j})\} \\
+  \{\langle processed_{i}\rangle..\langle processed_{j}\rangle\} == \{g_{i}..g_{j}\} @ \\\t3
+  i \leq n \leq j @ \forall g_{n} : g_{i}..g_{j} @ \exists \, p_{n} : p_{i}..p_{j} @ \\\t3
+  first~p_{n} = head~g_{n}.object.id \, \land second~p_{n} =
+  count(g_{n}) \\
   S_{processed}' = S_{processed} \cup processed'
 \end{schema}
 \begin{itemize}
@@ -1173,7 +1171,9 @@ $INCORRECT$ :== $\{false\}$
   which is the output of applying the function $group$ to the set of statements
   $S_{incorrect}$ created by the opperation $FilterForIncorrect$
 \item $grouped'$ is a set of sequences. The elements of those
-  sequences are statements which all have the same $statement.object.id$
+  sequences are statements which all have the same
+  $statement.object.id$
+
 \item The set $S_{grouped}$ is updated to the set $S_{grouped}'$ which
   is the union of $S_{grouped}$ and $grouped'$
 \item the variable $processed$ is a subset of $S_{grouped}'$ which can
@@ -1183,25 +1183,23 @@ $INCORRECT$ :== $\{false\}$
   of the component $id$ and a natural number. $p$ is defined as:
   \begin{itemize}
   \item for all sequences $g_{i}..g_{j}$ within the set $processed$,
-    there exists ordered pairs $p_{i}..p_{j}$ such that:
+    there exists an ordered pair $p_{n}$ such that:
     \begin{itemize}
-    \item the first element of $p_{i}$ is equal to the $object.id$ of the first
-      statement within the sequence $g_{i}$.
-    \item The second element of $p_{i}$ is equal to the value returned
-      when $g_{i}$ is passed to the function $count$.
-    \item The first element of $p_{j}$ is equal to the $object.id$ of the
-      first statement within the sequence $g_{j}$.
-    \item the second element of $p_{j}$ is equal to the value returned
-      when $g_{j}$ is passed to the function $count$
+    \item the first element of $p_{n}$ is equal to the $object.id$ of the first
+      statement within the sequence $g_{n}$.
+    \item The second element of $p_{n}$ is equal to the value returned
+      when $g_{n}$ is passed to the function $count$.
     \end{itemize}
   \end{itemize}
-  \item The set $S_{processed}'$ is the union of the sets
-    $S_{processed}$ and $processed'$
+\item The set $S_{processed}'$ is the union of the sets
+  $S_{processed}$ and $processed'$
 \end{itemize}
 
 \subsubsection{Sequence of Operations}
 
-$ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
+$ProcessedQuestions \defs FilterForIncorrect \semi
+AggregateQuestionStatements$
+
 \begin{itemize}
 \item The schema $ProcessedQuestions$ is the sequential composition
   of operation schemas $FilterForIncorrect$ and
@@ -1227,52 +1225,48 @@ $ProcessedQuestions \defs FilterForIncorrect \semi AggregateQuestionStatements$
 \subsection{Pseudocode}
 
 \begin{algorithm}[H]
-
   \SetAlgoLined
-
-  \KwIn{$S_{all}$, display-n}
-  \KwResult{display}
-  init id-to-count := [] \\
-  init display := [] \\
-  \While{$S_{all}$ is not empty} {
-    for each statement $s$ in $S_{all}$ \\
-    \eIf{$s.result.success$ = $INCORRECT$}
-    {
-      add $s$ to $S_{incorrect}$ \\
-      remove $s$ from $S_{all}$ \\
-      recur
-    }
-    {
-      remove $s$ from $S_{all}$ \\
-      recur
-    }}
-  \While {$S_{incorrect}$ is not empty} {
-    for {each statement $si$ in $S_{incorrect}$} \\
-    \t1 let $si.object.id$ = $id$ \\
-    \eIf{id-to-count is empty}
-    { concat id-to-count [$id$ , 1] \\
-      remove $si$ from $S_{incorrect}$\\
-      recur;}
-    {
-      \eIf{id-to-count contains [$id$ , \#]}
-      { add one to \# \\
-        remove $si$ from $S_{incorrect}$ \\
-        recur}
-    { concat id-to-count [$id$ , 1] \\
-      remove $si$ from $S_{incorrect}$\\
-      recur}
-    }
-  }
-  Sort id-to-count by second value of each subarray (\#) \\
-  take the first display-n subarrays from id-to-count and concat them into display
+  \KwIn{$S_{all}$, $displayN$}
+  \KwResult{$display''$}
+  \emph{context = \{\}}\;
+  \emph{display = []}\;
+  \While{$S_{all} \not = \emptyset$}
+  {\ForEach{$s \in S_{all}$}
+    {\eIf{$s.result.success$ = $INCORRECT$}
+      {\bf do \\
+        $S_{incorrect}' \leftarrow s \cup S_{incorrect}$\;
+        $S_{all}' \leftarrow S_{all} \setminus s$\;
+        recur $S_{all}', S_{incorrect}'$\;}
+      {\bf do \\
+        $S_{all}' \leftarrow S_{all} \setminus s$\;
+        recur $S_{all}'$}}}
+  \While{$S_{incorrect}' \not = \emptyset$}
+  {\ForEach{$si \in S_{incorrect}'$}
+    {$id \leftarrow si.object.id$\;
+      {\eIf{$id \notin context$}
+        {\bf do \\
+          $count = 1$\;
+          $context' \leftarrow \{id : count\}$\;
+          $S_{incorrect}' \leftarrow S_{incorrect} \setminus si$\;
+          recur $context', S_{incorrect}'$\;}
+        {\bf do \\
+          $count' \leftarrow inc(context.id)$\;
+          $context' \leftarrow \{id : count'\}$\;
+          $S_{incorrect}' \leftarrow S_{incorrect} \setminus si$\;
+          recur $context', S_{incorrect}'$\;}}}}
+  \ForEach{$id \in context'$}
+  {$IdToCount \leftarrow [id, context.id]$\;
+    $display' \leftarrow display \cat IdToCount$\;
+    {\bf recur} $display'$}
+  \Return $display'' \leftarrow$ {\bf take(sortBySubArray($display'$), $displayN$)}
   \caption{Most Difficult Assessment Questions}
 \end{algorithm}
 \begin{itemize}
 \item The Z schemas are used within this pseudocode
 \item The return value display is an array of length display-n, where
   each element of display is an array of [$statement.object.id$, \#]
-   where $\#$ representing the number of times $statement.object.id$
-   appeared within $S_{incorrect}$
+  where $\#$ representing the number of times $statement.object.id$
+  appeared within $S_{incorrect}'$
 \end{itemize}
 
 \subsection{JSON Schema}
@@ -1298,27 +1292,29 @@ the visualization.
 \pgfplotstabletypeset[string type]
 
 \begin{tikzpicture}
-\begin{axis}[
+  \begin{axis}[
+    title = Most Difficult Assessment Questions,
+    ylabel = Number of Incorrects,
     symbolic x coords={question1-id,question2-id,question3-id,question4-id},
     xtick=data]
-    \addplot[ybar,fill=blue] coordinates {
-        (question1-id,122)
-        (question2-id,118)
-        (question3-id,156)
-        (question4-id,127)
+    \addplot[ybar,fill=blue] coordinates{
+      (question1-id,122)
+      (question2-id,118)
+      (question3-id,156)
+      (question4-id,127)
     };
-\end{axis}
+  \end{axis}
 \end{tikzpicture}
 
 \subsection{Prototype Improvement Suggestions}
 Additional features may be implemented on top of this base
 specification but they would require adding aditional values to each
 subarray returned by the algorithm. These additional values can be
-retrieved via (1) performing metadata lookup within or independently of the
-algorithm (2) by utilizing additional xAPI statement paramters and/or (3) by
-performing additional computations. The following examples assume the
-metadata is contained within each statement available to the algorithm.
-
+retrieved via (1) performing metadata lookup within or independently
+of the algorithm (2) by utilizing additional xAPI statement paramters
+and/or (3) by performing additional computations. The following
+examples assume the metadata is contained within each statement
+available to the algorithm.
 
 \begin{itemize}
 \item Use the name of the activity for the x-axis label instead of
@@ -1337,21 +1333,21 @@ metadata is contained within each statement available to the algorithm.
     \end{itemize}
   \item Interaction Type
     \begin{itemize}
-      \item $\$.object.definition$ which contains interaction properties
+    \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Answer choices
     \begin{itemize}
-      \item $\$.object.definition$ which contains interaction properties
+    \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Correct answer
     \begin{itemize}
-      \item $\$.object.definition$ which contains interaction properties
+    \item $\$.object.definition$ which contains interaction properties
     \end{itemize}
   \item Most popular incorrect answer
     \begin{itemize}
-      \item This would require an extra step of processing and all
-        statements would need to utilize interaction properties within
-        $\$.object.definition$
+    \item This would require an extra step of processing and all
+      statements would need to utilize interaction properties within
+      $\$.object.definition$
     \end{itemize}
   \item average partial credit earned (if applicable)
     \begin{itemize}
@@ -1366,39 +1362,414 @@ metadata is contained within each statement available to the algorithm.
     \end{itemize}
   \item average number of re-attempts
     \begin{itemize}
-      \item this would require additional steps of processing so that
-        $\$.actor$ is considered as well
-      \item due to the problem of actor unification, ie the same
-        person being identified differently across statements, this
-        metric may not be accurate.
-      \end{itemize}
-    \item average time spent on the question
-      \begin{itemize}
-      \item $\$.result.duration$
-      \item this would require additional steps of processing to
-        extract the duration and average it.
-      \end{itemize}
+    \item this would require additional steps of processing so that
+      $\$.actor$ is considered as well
+    \item due to the problem of actor unification, ie the same
+      person being identified differently across statements, this
+      metric may not be accurate.
     \end{itemize}
-  \item a tooltip containing contextual information about the course
-    and/or assessment the question was within
+  \item average time spent on the question
     \begin{itemize}
-    \item the instructor for the course
-      \begin{itemize}
-      \item $\$.context.instructor$
-      \end{itemize}
-    \item competency associated with the question and/or course
-      \begin{itemize}
-      \item $\$.context.contextActivities$
-      \end{itemize}
-    \item metadata about the learning content associated with the
-      question such as average time spent engaging with associated
-      content before attempting the question.
+    \item $\$.result.duration$
     \item this would require additional steps of processing to
-      retrieve metadata about the content and its usage.
-      \begin{itemize}
-      \item $\$.context.contextActivities$
-      \end{itemize}
+      extract the duration and average it.
     \end{itemize}
   \end{itemize}
+\item a tooltip containing contextual information about the course
+  and/or assessment the question was within
+  \begin{itemize}
+  \item the instructor for the course
+    \begin{itemize}
+    \item $\$.context.instructor$
+    \end{itemize}
+  \item competency associated with the question and/or course
+    \begin{itemize}
+    \item $\$.context.contextActivities$
+    \end{itemize}
+  \item metadata about the learning content associated with the
+    question such as average time spent engaging with associated
+    content before attempting the question.
+  \item this would require additional steps of processing to
+    retrieve metadata about the content and its usage.
+    \begin{itemize}
+    \item $\$.context.contextActivities$
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\section{Rate of Completions}
+
+As learners engage in activities supported by a learning ecosystem, they will build
+up a history of learning experiences. When the digital resources of that learning ecosystem
+adhere to a framework dedicated to supporting and understanding the
+learner, such as the Total Learning Architecture (TLA), it becomes
+possible to retell their learning story through data and data visualization. One important aspect of
+that story is the rate of completion\footnote{\label{defOfCompletion}
+  Completion can be defined by the presence of the verb completed or by the presence of
+  $\$.result.completion$ set equal to true. In this algorithm,
+  completion is defined by the presence of the verb completed
+  regardless of $\$.result.completion$. This decision affects how
+  statements are retrieved and filtered. In the case where completion
+  is defined by $\$.result.completion$, the query to the LRS would not
+  include the verb paramater and there would need to be a filtering
+  process which looks for the presence of $\$.result.completion$ =
+  true} of the various digital resources within the learning
+ecosystem.
+
+\subsection{Ideal Statements}
+
+In order to accurately portray the rates of completion, there
+are a few base requirements of the data produced by a Learning Record
+Provider (LRP). They are as follows:
+\begin{itemize}
+\item statements describing a learner completing an activity
+  should\footnote{\label{verbIRICompletion} it is possible to use
+    another verb but if another is used, that will need to be accounted for
+    in data retrieval}
+  use the verb $http://adlnet.gov/expapi/verbs/completed$
+\item statements describing a learner completing an activity should
+  report if the learner was successful or not via
+  $\$.result.success$
+\item statement describing a learner completing a scored activity
+  should report the learners score via $\$.result.score.raw$,
+  $\$.result.score.min$ and $\$.result.score.max$
+\item activites must be uniquely and consistently identified across
+  all statements
+\item The time at which a learner completed a learning activity must be recorded
+  \begin{itemize}
+  \item The timestamp should contain an appropriate level of specificity.
+  \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
+  \end{itemize}
+\item statements describing a learner completing an activity should
+  report the amount of time taken to complete the activity via $\$.result.duration$
+\end{itemize}
+
+\subsection{Input Data Retrieval}
+
+How to query an LRS via a GET request to the Statements Resource via
+curl. The following section contains the appropriate parameters with
+example values as well as the curl command necessary for making the
+request.\footnote{\label{refMoreLink2} See footnote
+  1.}\footnote{\label{refnoZ2} See footnote
+  2.}\footnote{\label{refallTime2} See footnote 3.}
+
+\begin{lstlisting}[frame=single]
+Verb = "verb=http://adlnet.gov/expapi/verbs/completed"
+
+Since = "since=2018-07-20T12:08:47Z"
+
+Until = "until=2018-07-21T12:08:47Z"
+
+Base = "https://example.endpoint/statements?"
+
+endpoint = Base + Verb + "&" + Since + "&" + Until
+
+Auth = Hash generated from basic auth
+
+S = curl -X GET -H "Authorization: Auth"
+         -H "Content-Type: application/json"
+         -H "X-Experience-API-Version: 1.0.3"
+         Endpoint
+\end{lstlisting}
+
+\subsection{Statement Parameters to Utilize}
+
+The statement parameter locations here are written in
+\href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
+is also compatable with the xAPI Z notation due to the defined
+hierarchy of components. Within the Z specifications, a variable name
+will be used instead of the $\$$
+\begin{itemize}
+\item $\$.timestamp$
+\item $\$.object.id$
+\end{itemize}
+
+\subsection{2018 Pilot TLA Statement Problems}
+
+The initial pilot test data supports the core requirements of this
+algorithm but completion statements only reports completion scores via
+$\$.result.scaled$ instead of $\$.result.score.raw$,
+$\$.result.score.min$ and
+$\$.result.score.max$.\footnote{\label{scaledScores} The one potential
+  issue with using scaled score is the
+  calculation of scaled is not stricly defined by the xAPI
+  specification but is instead up to the authors of the LRP. This
+  results in the inability to reliably compare scaled scores across
+  LRPs. if $\$.result.score.raw$ , $\$.result.score.min$ and
+  $\$.result.score.max$ are reported for all questions, it becomes
+  possible to reliably compare scores across LRPs by generating a
+  scaled score in a consistent way.} Given that the offical 2018 pilot
+test is scheduled to take place on July 27th, 2018, this section may
+require updates pending future data review.
+
+\subsection{Summary}
+
+\begin{enumerate}
+  \item Query an LRS via a GET request to the statemetns endpoint
+    using the paramters verb, since and until.
+  \item group statements by their $\$.object.id$
+  \item select time range unit for use within rate calculation. Will
+    default to day.
+  \item determine the amount of time between the first and last instance of a $\$.object.id$ (in seconds) and divide it by the time unit. ie if the unit is minute, you would divide by 60.
+  \item calculate the rate by dividing the count of a group (2) by the number of time units covered by the statements (4) so that the rate is the number of completions per activity per time unit.
+\end{enumerate}
+
+\subsection{Formal Specification}
+
+\subsubsection{Basic Types}
+
+$TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
+\{week\} | \{month\} | \{year\}$
+
+\subsubsection{System State}
+
+\begin{schema}{RateOfCompletion}
+  Statements \\
+  S_{completions} : \finset_1 \\
+  S_{grouped},S_{timeunit}, S_{processed} : \finset \\
+  \where
+  S_{completions} = statements \\
+  S_{grouped} = \{byId : \seq_1 statement\} \\
+  S_{withRate} = \{byGroup: (\seq_1 statement, \nat)\} \\
+  S_{processed} = \{rate : (id , \nat, TIMEUNIT)\}
+\end{schema}
+\begin{itemize}
+\item The set $S_{completions}$ is a non-empty, finite set and is the
+  component $statements$ which contains the results of the query to
+  the LRS.
+\item The sets $S_{grouped}$, $S_{withRate}$ and $S_{processed}$ are all finite sets
+\item the set $S_{grouped}$ is a finite set of objects $byId$ which
+  are non-empty, finite sequences of the component $statement$
+\item the set $S_{withRate}$ is a finite set of objects $byGroup$ which
+  are ordered pairs of non-empty, finite sequences of the component $statement$ and a natural number
+\item the set $S_{processed}$ is a finite set of objects $rate$ where each
+  contains the component $id$, a natural number and the type $TIMEUNIT$
+\end{itemize}
+
+\subsubsection{Initial System State}
+
+\begin{schema}{InitRateOfCompletion}
+  RateOfCompletion \\
+  T : TIMEUNIT
+  \where
+  S_{completions} \not = \emptyset \\
+  S_{grouped} = \emptyset \\
+  S_{withRate} = \emptyset \\
+  S_{processed} = \emptyset \\
+  T = \{day\}
+\end{schema}
+\begin{itemize}
+\item The set $S_{completions}$ is a non-empty set which contains the results of the GET request(s) to the LRS
+\item The sets $S_{grouped}$ , $S_{withRate}$ and $S_{processed}$ are
+  all initially empty
+\item the variable T has the type $TIMEUNIT$ and the value $\{day\}$
+\end{itemize}
+
+\subsubsection{Calculate Rate}
+
+\begin{schema}{IsoToUnix}
+  convert : \finset_1 \fun \nat\#1 \\
+  c? : \finset_1 \\
+  c! : \nat\#1
+  \where
+  c! = convert(c?)
+\end{schema}
+\begin{itemize}
+  \item The schema $IsoToUnix$ introduces the function $convert$ which
+    takes in a finit set of one thing (a timestamp) and converts it to
+    a single natural number.
+  \item the purpose of this function is to convert an ISO 8601
+    timestamp to the Unix epoch. The concrete definition of the conversion
+    is outside the scope of this document
+    \begin{itemize}
+      \item The Unix epoch is the number of seconds that have elapsed
+        since January 1, 1970 (midnight UTC/GMT), not counting leap seconds.
+    \end{itemize}
+  \end{itemize}
+
+\begin{schema}{CalcRateByUnit}
+  Statement \\
+  IsoToUnix \\
+  CountPerGroup \\
+  unit? : TIMEUNIT \\
+  s?,s! : \finset \\
+  r : \nat \\
+  rate : (\finset, TIMEUNIT) \fun \finset
+  \where
+  unit? \, = \,\{second\} \implies 1 \lor \{minute\} \implies 60
+  \lor \{hour\} \implies 3600 \,\lor \\\t2 \{day\} \implies 86400 \lor
+  \{week\} \implies 604800 \,\lor \\\t2 \{month\} \implies 2629743
+  \lor \{year\} \implies 31556926 \\
+  s? = \{g : seq_1 statement\} \\
+  s! = rate(s?, unit?) \\
+  s! = \{s : (g, r) \,|\, \forall g_{n}: g_{i}..g_{j} @ i \leq n \leq j @
+  \exists \, s_{n} : (g_{n}, r_{n}) @ \\\t1
+  r_{n} = count(g_{n}) \div ((convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?)\}
+\end{schema}
+\begin{itemize}
+\item The schema $CalcRateByUnit$ introduces the function $rate$ where the input $s?$ is a set of objects $g$ which are each a non-empty, finite sequence of statements and the input $unit?$ represents a unit of time.
+\item for every $g_{n}$ within the range $g_{i}..g_{j}$, there exists an associated object $s_{n}$ which is an orderd pair of $(g_{n}, r_{n})$ where $r_{n}$ is equal to the number of items within $g_{n}$ divided by the number of $unit?$s within the time range of $last~g_{n}.timestamp-head~g_{n}.timestamp$
+\item the output of the function $rate$ is $s!$, the set of all $s_{n}$
+\end{itemize}
+$\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
+\subsubsection{Processes Results}
+\begin{schema}{AggergateCompletionStatements}
+  \Delta RateOfCompletion \\
+  GroupByActivityId \\
+  CalcRateByUnit \\
+  grouped,processed,withRate : \finset \\
+  r : \nat \\
+  T? : TIMEUNIT
+  \where
+  T? = \{day\} \\
+  grouped = \emptyset \\
+  grouped' = group(S_{completions}) \\
+  S_{grouped}' = S_{grouped} \cup grouped' \\
+  withRate \subseteq S_{grouped}' \\
+  withRate' = rate(withRate, T?) \\
+  S_{withRate}' = withRate' \cup S_{withRate} \\
+  processed \subseteq S_{withRate}' \\
+  processed' = \{p: (id, r, T?) \,|\,
+  \\\t3 \LET \{processed_{i}..processed_{j}\} == \{b_{i}..b_{j}\} @ \\\t3
+  \forall b_{n} : b_{i}..b_{j} @ i \leq n \leq j @
+  \exists \, p_{n} : (id_{n}, r_{n}, T?) @  \\\t3
+  id_{n} = (head~(first~b_{n})).object.id \, \land \, \\\t3
+  r_{n} = (second~b_{n})\} \\
+  S_{processed}' = processed' \cup S_{processed}
+\end{schema}
+
+\begin{itemize}
+\item The schema $AggergateCompletionStatements$ outlines how to calculate
+  the rate of completion per $\$.object.id$ per $second|minute|hour|day|week|month|year$
+  \begin{enumerate}
+  \item $S_{grouped}'$ is the result of grouping the statements within $S_{completions}$ by their $\$.object.id$
+  \item The groups from (1) are passed to the function $rate$ with the
+    variable $T?$ which controls the unit of time, ie per day vs per week
+  \item the result of (2) is then processed to create a triplet of $\$.object.id$, rate, unit of time for all unique $\$.object.id$ within $S_{completions}$
+\end{enumerate}
+\end{itemize}
+
+\subsubsection{Return}
+
+\begin{schema}{ReturnAggergateCompletionStatements}
+  \Xi RateOfCompletion \\
+  AggergateCompletionStatements \\
+  S_{processed}! : \finset
+  \where
+  S_{processed}! = S_{processed}
+\end{schema}
+\begin{itemize}
+  \item The return value $S_{processed}!$ is equal to $S_{processed}$ after the operation described by $AggergateCompletionStatements$
+\end{itemize}
+
+\subsection{Pseudocode}
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{$S_{completed}$, $timeUnit$}
+  \KwResult{$ratePerObjTu'$}
+  \emph{context = \{\}}\;
+  \emph {ratePerObjTu = []}\;
+  \While{$S_{completion} \not = \emptyset$}
+  {\ForEach{$s \in S_{completion}$}
+    {$id \leftarrow s.object.id$\;
+      $ts \leftarrow convert(s.timestamp)$\;
+      \eIf{$id \notin context$}
+      {\bf do \\
+        $times = [ts]$\;
+        $context' \leftarrow \{id : times \}$\;
+        $S_{completion}' \leftarrow S_{completion} \setminus s$\;
+        recur $context', S_{completion}'$\;}
+      {\bf do \\
+        $times' \leftarrow context.id \cat ts$\;
+        $context' \leftarrow \{id : times'\}$\;
+        $S_{completion}' \leftarrow S_{completion} \setminus s$\;
+        recur $context', S_{completion}'$\;}}}
+  \ForEach {$k \in context'$}
+  {$allTs \leftarrow context'.k$\;
+    $totalDuration \leftarrow max(allTs) - min(allTs)$\;
+    $totalCount \leftarrow count(allTs)$\;
+    $rate \leftarrow totalCount \div (totalDuration \div timeUnit)$\;
+    $subVec = [k, rate, timeUnit]$\;
+    $ratePerObjTu' \leftarrow ratePerObjTu \cat subVec$\;
+    {\bf recur} $ratePerObjTu'$\;}
+ \Return $ratePerObjTu'$
+  \caption{Rate of Completions}
+\end{algorithm}
+\begin{itemize}
+\item Values from Z schemas are used within this pseudocode
+\item the result of the algorithm is an array of arrays where each
+  subarray contains a $statement.object.id$, the $rate$ and the
+  $timeUnit$ used to calculate $rate$.
+\end{itemize}
+
+\subsection{JSON Schema}
+
+\begin{lstlisting}[style=json]
+{"type":"array",
+   "items":{"type":"array",
+      "items":[{"type":"string"}, {"type":"number"}, {"type":"string"}]}}
+\end{lstlisting}
+
+\subsection{Visualization Description}
+
+The \textbf{Rate of Completions} visualization will be
+a bar chart where the domain consists of $statement.object.id$ and the
+range is a number greater than 0 (the rate of completions for that
+$statement.object.id$). Every subarray within the array $ratePerObjTu$
+will be a grouping within the bar chart. The pseudocode specifies an
+input paramter $timeUnit$ which controls the calculation of the rate
+(range of the visualization). $timeUnit$ could be per minute, per day,
+per week, etc.
+
+\subsection{Visualization prototype}
+
+\pgfplotstabletypeset[string type]
+
+\begin{tikzpicture}
+  \begin{axis}[
+    title = Rate of Completions,
+    ylabel = Completions per Time Unit,
+    symbolic x coords={question1-id,question2-id,question3-id},
+    xtick=data]
+    \addplot[ybar,fill=blue] coordinates{
+      (question1-id,18)
+      (question2-id,9)
+      (question3-id,13)
+    };
+  \end{axis}
+\end{tikzpicture}
+
+\subsection{Prototype Improvement Suggestions}
+Additional features may be implemented on top of this base
+specification but they would require adding aditional values to each
+subarray returned by the algorithm. These additional values can be
+retrieved via (1) performing metadata lookup within or independently of the
+algorithm (2) by utilizing additional xAPI statement paramters and/or (3) by
+performing additional computations. The following examples assume the
+metadata is contained within each statement available to the algorithm.
+
+\begin{itemize}
+\item use $statement.object.definition.name$ instead of
+  $statement.object.id$ for x axis label
+\item populate a tooltip with the people who have completed the
+  activity. This could also include the number of times they have
+  completed it.
+\item populate a tooltip with the breakdown of which devices or platforms the
+  activity was completed on. This would require the device type or platform to be
+  reported within $statement.context.platform$
+\item populate a tooltip with the breakdown of percentage successful
+  for all completions of the activty. This would require
+  $statement.result.success$
+\item populate a tooltip with the breakdown of scores earned (if
+  appliciable) for the completions. This would require
+  $statement.result.score.raw$, $statement.result.score.min$ and
+  $statement.result.score.max$
+\item populate a tooltip with the competency assocaited with the
+  completed activities. The competency should be reported
+  via $statement.context.contextActivities$
+\item populate a tooltip with the average duration spent to reach
+  completions. This would require $statement.result.duration$ to be reported.
+\end{itemize}
 
 \end{document}
