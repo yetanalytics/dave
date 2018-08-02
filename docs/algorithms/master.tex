@@ -1691,16 +1691,14 @@ $\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
         $context' \leftarrow \{id : times'\}$\;
         $S_{completion}' \leftarrow S_{completion} \setminus s$\;
         recur $context', S_{completion}'$\;}}}
-  \While{$context \not = \emptyset$}
-  {\ForEach {$k \in context$}
-    {$allTs \leftarrow context.k$\;
-     $totalDuration \leftarrow max(allTs) - min(allTs)$\;
-     $totalCount \leftarrow count(allTs)$\;
-     $rate \leftarrow totalCount \div (totalDuration \div timeUnit)$\;
-     $subVec = [k, rate, timeUnit]$\;
-     $ratePerObjTu' \leftarrow ratePerObjTu \cat subVec$\;
-     $context' \leftarrow context \setminus k$\;
-     {\bf recur} $context', ratePerObjTu'$\;}}
+  \ForEach {$k \in context'$}
+  {$allTs \leftarrow context'.k$\;
+    $totalDuration \leftarrow max(allTs) - min(allTs)$\;
+    $totalCount \leftarrow count(allTs)$\;
+    $rate \leftarrow totalCount \div (totalDuration \div timeUnit)$\;
+    $subVec = [k, rate, timeUnit]$\;
+    $ratePerObjTu' \leftarrow ratePerObjTu \cat subVec$\;
+    {\bf recur} $ratePerObjTu'$\;}
  \Return $ratePerObjTu'$
   \caption{Rate of Completions}
 \end{algorithm}
