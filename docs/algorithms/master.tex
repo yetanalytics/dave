@@ -1262,7 +1262,7 @@ AggregateQuestionStatements$
   {$IdToCount \leftarrow [id, context.id]$\;
     $display' \leftarrow display \cat IdToCount$\;
     {\bf recur} $display'$}
-  \Return $display'' \leftarrow$ {\bf take(sortByCount($display'$), $displayN$)}
+  \Return $display'' \leftarrow$ {\bf take(sortBySubArray($display'$), $displayN$)}
   \caption{Most Difficult Assessment Questions}
 \end{algorithm}
 \begin{itemize}
