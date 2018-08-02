@@ -431,7 +431,7 @@ $\\\\\\\\\\\\$ %%% Header with content
   $timestamp$ and $stored$ respectively. Each are non-empty, finite
   sets containing one value
 \end{itemize}
-$\\ \\$
+
 \subsection{Attachements Schema}
 
 \begin{schema}{Attachments}
@@ -607,7 +607,7 @@ $COMPLETION$ :== \\ $\{http://adlnet.gov/expapi/verbs/passed\} \, | \\
 \{http://adlnet.gov/expapi/verbs/completed$\} \\
 \\
 $SUCCESS$ :== $\{true\}$
-$\\\\\\\\$ %%% header with schema
+
 \subsubsection{System State}
 
 \begin{schema}{TimelineLearnerSuccess}
@@ -646,7 +646,7 @@ $\\\\\\\\$ %%% header with schema
 \item The set $S_{all}$ is a non-empty set
 \item The sets $S_{completion}$,\,$S_{success}$ and $S_{processed}$ are all initially empty
 \end{itemize}
-$\\\\\\\\\\$ %header with schema
+
 \subsubsection{Filter for Completion}
 \begin{schema}{Completion}
   Statement \\
@@ -684,7 +684,7 @@ $\\\\\\\\\\$ %header with schema
 \item the updated set $S'_{completion}$ is the union of the previous
   state of set $S_{completion}$ and the set $completions'$
 \end{itemize}
-$\\\\\\\\$ %%% header with schema
+
 \subsubsection{Filter for Success}
 \begin{schema}{Success}
   Statement \\
@@ -722,7 +722,7 @@ $\\\\\\\\$ %%% header with schema
 \item The updated set $S_{success}'$ is the union of the previous
   state of $S_{success}$ and $successes'$
 \end{itemize}
-$\\\\\\\\$ %%%header with schema
+
 \subsubsection{Processes Results}
 \begin{schema}{Scale}
   scaled! : \nat \\
@@ -1701,7 +1701,7 @@ $\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
   subarray contains a $statement.object.id$, the $rate$ and the
   $timeUnit$ used to calculate $rate$.
 \end{itemize}
-
+$\\$ %% header with text
 \subsection{JSON Schema}
 
 \begin{lstlisting}[style=json]
