@@ -1229,44 +1229,40 @@ AggregateQuestionStatements$
 \subsection{Pseudocode}
 
 \begin{algorithm}[H]
-  %%% TODO: rework notation and rethink data structures
-  %%% see 4.7 for example
   \SetAlgoLined
-  \KwIn{$S_{all}$, display-n}
-  \KwResult{display}
-  init id-to-count := [] \\
-  init display := [] \\
-  \While{$S_{all}$ is not empty} {
-    for each statement $s$ in $S_{all}$ \\
-    \eIf{$s.result.success$ = $INCORRECT$}
-    {
-      add $s$ to $S_{incorrect}$ \\
-      remove $s$ from $S_{all}$ \\
-      recur
-    }
-    {
-      remove $s$ from $S_{all}$ \\
-      recur
-    }}
-  \While {$S_{incorrect}$ is not empty} {
-    for {each statement $si$ in $S_{incorrect}$} \\
-    \t1 let $si.object.id$ = $id$ \\
-    \eIf{id-to-count is empty}
-    { concat id-to-count [$id$ , 1] \\
-      remove $si$ from $S_{incorrect}$\\
-      recur;}
-    {
-      \eIf{id-to-count contains [$id$ , \#]}
-      { add one to \# \\
-        remove $si$ from $S_{incorrect}$ \\
-        recur}
-      { concat id-to-count [$id$ , 1] \\
-        remove $si$ from $S_{incorrect}$\\
-        recur}
-    }
-  }
-  Sort id-to-count by second value of each subarray (\#) \\
-  take the first display-n subarrays from id-to-count and concat them into display
+  \KwIn{$S_{all}$, $displayN$}
+  \KwResult{$display''$}
+  \emph{context = \{\}}\;
+  \emph{display = []}\;
+  \While{$S_{all} \not = \emptyset$}
+  {\ForEach{$s \in S_{all}$}
+    {\eIf{$s.result.success$ = $INCORRECT$}
+      {\bf do \\
+        $S_{incorrect}' \leftarrow s \cup S_{incorrect}$\;
+        $S_{all}' \leftarrow S_{all} \setminus s$\;
+        recur $S_{all}', S_{incorrect}'$\;}
+      {\bf do \\
+        $S_{all}' \leftarrow S_{all} \setminus s$\;
+        recur $S_{all}'$}}}
+  \While{$S_{incorrect}' \not = \emptyset$}
+  {\ForEach{$si \in S_{incorrect}'$}
+    {$id \leftarrow si.object.id$\;
+      {\eIf{$id \notin context$}
+        {\bf do \\
+          $count = 1$\;
+          $context' \leftarrow \{id : count\}$\;
+          $S_{incorrect}' \leftarrow S_{incorrect} \setminus si$\;
+          recur $context', S_{incorrect}'$\;}
+        {\bf do \\
+          $count' \leftarrow inc(context.id)$\;
+          $context' \leftarrow \{id : count'\}$\;
+          $S_{incorrect}' \leftarrow S_{incorrect} \setminus si$\;
+          recur $context', S_{incorrect}'$\;}}}}
+  \ForEach{$id \in context'$}
+  {$IdToCount \leftarrow [id, context.id]$\;
+    $display' \leftarrow display \cat IdToCount$\;
+    {\bf recur} $display'$}
+  \Return $display'' \leftarrow$ {\bf take(sortByCount($display'$), $displayN$)}
   \caption{Most Difficult Assessment Questions}
 \end{algorithm}
 \begin{itemize}
@@ -1274,7 +1270,7 @@ AggregateQuestionStatements$
 \item The return value display is an array of length display-n, where
   each element of display is an array of [$statement.object.id$, \#]
   where $\#$ representing the number of times $statement.object.id$
-  appeared within $S_{incorrect}$
+  appeared within $S_{incorrect}'$
 \end{itemize}
 
 \subsection{JSON Schema}
@@ -1318,11 +1314,11 @@ the visualization.
 Additional features may be implemented on top of this base
 specification but they would require adding aditional values to each
 subarray returned by the algorithm. These additional values can be
-retrieved via (1) performing metadata lookup within or independently of the
-algorithm (2) by utilizing additional xAPI statement paramters and/or (3) by
-performing additional computations. The following examples assume the
-metadata is contained within each statement available to the algorithm.
-
+retrieved via (1) performing metadata lookup within or independently
+of the algorithm (2) by utilizing additional xAPI statement paramters
+and/or (3) by performing additional computations. The following
+examples assume the metadata is contained within each statement
+available to the algorithm.
 
 \begin{itemize}
 \item Use the name of the activity for the x-axis label instead of
@@ -1456,10 +1452,10 @@ Provider (LRP). They are as follows:
 
 How to query an LRS via a GET request to the Statements Resource via
 curl. The following section contains the appropriate parameters with
-example values as well as the curl command necessary for making the request.
-\footnote{\label{refMoreLink2} See footnote 1.}
-\footnote{\label{refnoZ2} See footnote 2.}
-\footnote{\label{refallTime2} See footnote 3.}
+example values as well as the curl command necessary for making the
+request.\footnote{\label{refMoreLink2} See footnote
+  1.}\footnote{\label{refnoZ2} See footnote
+  2.}\footnote{\label{refallTime2} See footnote 3.}
 
 \begin{lstlisting}[frame=single]
 Verb = "verb=http://adlnet.gov/expapi/verbs/completed"
@@ -1497,18 +1493,18 @@ will be used instead of the $\$$
 The initial pilot test data supports the core requirements of this
 algorithm but completion statements only reports completion scores via
 $\$.result.scaled$ instead of $\$.result.score.raw$,
-$\$.result.score.min$ and $\$.result.score.max$.
-\footnote{\label{scaledScores} The one potential issue with using scaled score is the
-calculation of scaled is not stricly defined by the xAPI
-specification but is instead up to the authors of the LRP. This
-results in the inability to reliably compare scaled scores across LRPs.
-if $\$.result.score.raw$ , $\$.result.score.min$ and
-$\$.result.score.max$ are reported for all questions, it becomes
-possible to reliably compare scores across LRPs by generating a scaled
-score in a consistent way.} Given
-that the offical 2018 pilot test is scheduled to take place on July
-27th, 2018, this section may require updates pending future data
-review.
+$\$.result.score.min$ and
+$\$.result.score.max$.\footnote{\label{scaledScores} The one potential
+  issue with using scaled score is the
+  calculation of scaled is not stricly defined by the xAPI
+  specification but is instead up to the authors of the LRP. This
+  results in the inability to reliably compare scaled scores across
+  LRPs. if $\$.result.score.raw$ , $\$.result.score.min$ and
+  $\$.result.score.max$ are reported for all questions, it becomes
+  possible to reliably compare scores across LRPs by generating a
+  scaled score in a consistent way.} Given that the offical 2018 pilot
+test is scheduled to take place on July 27th, 2018, this section may
+require updates pending future data review.
 
 \subsection{Summary}
 
