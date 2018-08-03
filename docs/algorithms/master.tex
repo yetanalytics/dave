@@ -528,14 +528,14 @@ curl. The following section contains the appropriate parameters with
 example values as well as the curl command necessary for making the
 request.\footnote{\label{moreLink} $S$ is the set of all statements
   parsed from the statements array within the HTTP response to the
-  Curl request. It may be possible that multiple Curl requests are
+  Curl request(s). It may be possible that multiple Curl requests are
   needed to retrieve all query results. If multiple requests are
   necessary, $S$ is the result of concatenating the result of each
   request into a single set}\footnote{\label{noZ} Querying an LRS will
   not be defined within the following Z specifications but the results
   of the query will be utilized}\footnote{\label{allTime} If you want
   to query across the entire history of a LRS, omit Since and Until
-  from the endpoint and remove the associated \& symbols.}
+  from the endpoint(s) and remove the associated \& symbols.}
 
 \begin{lstlisting}[frame=single]
 Agent = "agent={"account":
@@ -952,7 +952,7 @@ LRP. They are as follows:
 \item activities must be uniquely and consistently identified across
   all statements
 \item Statements describing a learner answering a question
-  should\footnote{\label{verbIRI} it is possible to use another verb but if another is
+  should\footnote{\label{verbIRI} it is possible to use another verb iri but if another is
     used, that will need to be accounted for in data retrieval} use
   the verb $http://adlnet.gov/expapi/verbs/answered$
 \end{itemize}
@@ -1422,9 +1422,7 @@ are a few base requirements of the data produced by a Learning Record
 Provider (LRP). They are as follows:
 \begin{itemize}
 \item statements describing a learner completing an activity
-  should\footnote{\label{verbIRICompletion} it is possible to use
-    another verb but if another is used, that will need to be accounted for
-    in data retrieval}
+  should\footnote{\label{verbIRICompletion} See footnote 4}
   use the verb $http://adlnet.gov/expapi/verbs/completed$
 \item statements describing a learner completing an activity should
   report if the learner was successful or not via
@@ -1770,5 +1768,112 @@ metadata is contained within each statement available to the algorithm.
 \item populate a tooltip with the average duration spent to reach
   completions. This would require $statement.result.duration$ to be reported.
 \end{itemize}
+
+\section{How Often are Recommendations Followed}
+
+As learners engage in activities supported by a learning ecosystem, they will build
+up a history of learning experiences. When the digital resources of that learning ecosystem
+adhere to a framework dedicated to supporting and understanding the
+learner, such as the Total Learning Architecture (TLA), it becomes
+possible to retell their learning story through data and data
+visualization. One important aspect of that story is the
+recommendations provided to the learner and whether or not the learner
+follows those recommendations.
+
+\subsection{Ideal Statements}
+
+In order to accurately determine if a learner is following
+recommendations, there are a few requirements of the data produced by
+a LRP and the recommender itself. They are as follows:
+
+\begin{itemize}
+\item Every time the recommender makes a recommendation, a statement
+  should be produced which uses the verb
+  $https://w3id.org/xapi/dod-isd/verbs/recommended$\footnote{\label{RecommendedIRI}
+  See footnote 4} and has the
+  recommended piece of content as the object.
+  \begin{itemize}
+    \item the content should be uniquely and consistently identified
+      across all statements.
+    \end{itemize}
+\item When a learner launches recommended content, the resulting
+  launched statement should use the verb
+  $http://adlnet.gov/expapi/verbs/launched$\footnote{\label{LaunchedIRI}
+  See footnote 4} and contain a refrence to the recommened content statement within
+  $\$.context.statement$
+  \begin{itemize}
+    \item If it not possible to refrence the exact recommended content
+      statement, the launch statement should have some indication that
+      it was the result of a recommendation.\footnote{\label{Recommendations} It is
+    possible to determine if recommendations are followed (with some
+    level of error) without this explicit linking of launched to
+    recommended but this severly complicates the algorithm. In this
+    case, in order to optmize for accuracy, the algorithm would need
+    to consider the actor and their general activity within a session,
+    the object of both launched and recommended statements generated
+    within the session, the time lapse between recommendations and
+    launches with a predefined lapse value which determines if a
+    launch was close enough in time to a recommendation to be
+    considered a result of the recommendation. An additonal constraint
+    on the above case is the recommendation statements should contain
+    a reference to to the person recieving the recommendation,
+    otherwise determining the 1:1 relationships between recommendations and
+    launches requires aditional complexity and will still not be 100\%
+    accurate due to the reliance on the time lapse value.}
+  \end{itemize}
+\end{itemize}
+
+\subsection{Input Data Retrieval}
+
+How to query an LRS via a GET request to the Statements Resource via
+curl. The following section contains the appropriate parameters with
+example values as well as the curl commands necessary for making the
+requests.\footnote{\label{refMoreLink2} footnote 1 applies to both S1
+  and S2.}\footnote{\label{refnoZ2} See footnote
+  2.}\footnote{\label{refallTime2} See footnote 3.}
+
+
+\begin{lstlisting}[frame=single]
+R = "verb=https://w3id.org/xapi/dod-isd/verbs/recommended"
+L = "verb=http://adlnet.gov/expapi/verbs/launched"
+
+Since = "since=2018-07-20T12:08:47Z"
+Until = "until=2018-07-21T12:08:47Z"
+
+Base = "https://example.endpoint/statements?"
+
+endpoint1 = Base + R + "&" + Since + "&" + Until
+endpoint2 = Base + L + "&" + Since + "&" + Until
+
+Auth = Hash generated from basic auth
+
+S1 = curl -X GET -H "Authorization: Auth"
+         -H "Content-Type: application/json"
+         -H "X-Experience-API-Version: 1.0.3"
+         endpoint1
+S2 = curl -X GET -H "Authorization: Auth"
+         -H "Content-Type: application/json"
+         -H "X-Experience-API-Version: 1.0.3"
+         endpoint2
+
+S = S1 + S2
+\end{lstlisting}
+
+\subsection{Statement Parameters to Utilize}
+\subsection{2018 Pilot TLA Statement Problems}
+\subsection{Summary}
+\subsection{Formal Specification}
+\subsubsection{Basic Types}
+\subsubsection{System State}
+\subsubsection{Initial System State}
+\subsubsection{Filter for Incorrect}
+\subsubsection{Processes Results}
+\subsubsection{Sequence of Operations}
+\subsubsection{Return}
+\subsection{Pseudocode}
+\subsection{JSON Schema}
+\subsection{Visualization Description}
+\subsection{Visualization prototype}
+\subsection{Prototype Improvement Suggestions}
 
 \end{document}
