@@ -1832,7 +1832,6 @@ requests.\footnote{\label{refMoreLink2} footnote 1 applies to both S1
   and S2.}\footnote{\label{refnoZ2} See footnote
   2.}\footnote{\label{refallTime2} See footnote 3.}
 
-
 \begin{lstlisting}[frame=single]
 R = "verb=https://w3id.org/xapi/dod-isd/verbs/recommended"
 L = "verb=http://adlnet.gov/expapi/verbs/launched"
@@ -1847,20 +1846,34 @@ endpoint2 = Base + L + "&" + Since + "&" + Until
 
 Auth = Hash generated from basic auth
 
-S1 = curl -X GET -H "Authorization: Auth"
+SR = curl -X GET -H "Authorization: Auth"
          -H "Content-Type: application/json"
          -H "X-Experience-API-Version: 1.0.3"
          endpoint1
-S2 = curl -X GET -H "Authorization: Auth"
+SL = curl -X GET -H "Authorization: Auth"
          -H "Content-Type: application/json"
          -H "X-Experience-API-Version: 1.0.3"
          endpoint2
 
-S = S1 + S2
+S = SR + SL
 \end{lstlisting}
 
 \subsection{Statement Parameters to Utilize}
+
+The statement parameter locations here are written in
+\href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
+is also compatable with the xAPI Z notation due to the defined
+hierarchy of components. Within the Z specifications, a variable name
+will be used instead of the $\$$
+\begin{itemize}
+\item $\$.verb.id$
+\item $\$.context.statement$
+\end{itemize}
+
 \subsection{2018 Pilot TLA Statement Problems}
+
+
+
 \subsection{Summary}
 \subsection{Formal Specification}
 \subsubsection{Basic Types}
