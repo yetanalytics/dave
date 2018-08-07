@@ -31,6 +31,7 @@
 \DeclareMarginSet{hangleft}{\setfloatmargins
 {\hskip-\marginparwidth\hskip-\marginparsep}{\hfil}}
 \floatsetup[widefigure]{margins=hangleft}
+%%% ^ Figure formatting within Appendex A
 
 \lstset{literate = {-}{-}1} % get dashs to show up
 
@@ -1815,6 +1816,8 @@ a LRP and the recommender itself. They are as follows:
   See footnote 4} and contain a refrence to the recommened content statement within
   $\$.context.statement$
   \begin{itemize}
+    \item Launching of content should use the above IRI regardless of
+      why the content was launched
     \item If it not possible to refrence the exact recommended content
       statement, the launch statement should have some indication that
       it was the result of a recommendation.\footnote{\label{Recommendations} It is
@@ -1839,9 +1842,7 @@ a LRP and the recommender itself. They are as follows:
 \subsection{Input Data Retrieval}
 
 How to query an LRS via a GET request to the Statements Resource via
-curl. The following section contains the appropriate parameters with
-example values as well as the curl commands necessary for making the
-requests.\footnote{\label{refMoreLink2} footnote 1 applies to both S1
+curl.\footnote{\label{refMoreLink2} footnote 1 applies to both S1
   and S2.}\footnote{\label{refnoZ2} See footnote
   2.}\footnote{\label{refallTime2} See footnote 3.}
 
@@ -1884,8 +1885,21 @@ will be used instead of the $\$$
 \end{itemize}
 
 \subsection{2018 Pilot TLA Statement Problems}
+At the time of writing this document, launched statements do not
+include a statement reference or any indication of a connection
+between recommendations and launches. The authors of this document do
+not have access to the LRS containing the recommended statements and
+thus can not draw any conclusions about any issues which may be
+present within those statements or any aspects of those statements
+which may correlate them to launch statements. The following algorithm
+is going to assume that the input set of statements follow the
+guidlines outlined in section 5.1 as the additional algorithmic
+considerations brought on by non ideal statements, as specified within
+footnote 16, result in an algoirthm which is not optimal for near real
+time visualizations.
 
 \subsection{Summary}
+
 \subsection{Formal Specification}
 \subsubsection{Basic Types}
 \subsubsection{System State}
@@ -2082,8 +2096,6 @@ this document.
       \end{tikzpicture}}
   \end{floatrow}
 \end{figure*}
-
-
 
 \begin{figure}[h]
   \centering
