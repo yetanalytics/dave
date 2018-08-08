@@ -1940,17 +1940,52 @@ time visualizations.
 
 \begin{schema}{FollowedRecommendations}
   Statements \\
-  S_{processed} : \finset_1 \\
-  S_{recommended},S_{launched}, S_{followed} : \finset \\
+  S_{recommended},S_{launched}, S_{processed} : \finset_1 \\
+  S_{followed}, S_{independent}, S_{grouped} : \finset \\
+  G_{followed}, G_{independent}, G_{recommended} : seq \, statement \\
+  N_{launches}, N_{recommendations}, N_{followed}, P_{followed},
+  P_{dueto} : \nat
   \where
   S_{recommended} = statements \\
   S_{launched} = statements \\
-  S_{followed} = statements \\
-  S_{processed} = \{summary : (\nat , \nat, \nat, \nat, \nat, TIMEUNIT)\}
-  %% Total Number of launches, number of recommendations, number
-  %% of followed recommendations, % of recommendations followed, % of
-  %% launches due to recommendations, time range used to group statements
+  S_{followed} \subseteq S_{launched} \\
+  S_{independent} \subseteq S_{launched} \\
+  S_{launched} = S_{followed} \cup S_{independent} \\
+  \emptyset = S_{followed} \cap S_{independent} \\
+  S_{grouped} = \{byTimeUnit : (G_{followed}, G_{independent}, G_{recommended})\} \\
+  S_{processed} = \{summary : (N_{launches}, N_{recommendations},
+  N_{followed}, \\\t6 P_{followed}, P_{dueto}, statement.timestamp,
+  TIMEUNIT)\}
+%% TODO: account for empty sequences of statements at the processing
+%% level not at the count fn level. only pass a seq to count if its non-empty
 \end{schema}
+\begin{itemize}
+\item $S_{recommended}, S_{launched}, S_{processed}$ are each
+  non-empty, finite sets.
+  \begin{itemize}
+  \item $S_{recommended}$ and $S_{launched}$ contain
+    the results of querying an LRS for recommended and launched
+    statements respectively.
+  \item $S_{processed}$ is a set of objects $summary$ which are each a
+    collection of $(N_{launches}, N_{recommendations}, N_{followed},
+    P_{followed}, P_{dueto}, statement.timestamp, TIMEUNIT)$
+  \end{itemize}
+\item $S_{followed}, S_{independent}, S_{grouped}$ are each finite
+  sets
+  \begin{itemize}
+    \item $S_{followed}$ and $S_{independent}$ are both subsets of
+      $S_{launched}$.
+    \item the union of $S_{followed}$ and $S_{independent}$ is the set
+      $S_{launched}$
+    \item $S_{followed}$ and $S_{independent}$ have no overlap
+    \item $S_{grouped}$ is a set of objects $byTimeUnit$ which are
+      each a collection of $G_{followed}, G_{independent}, G_{recommended}$
+    \end{itemize}
+\item $G_{followed}, G_{independent}, G_{recommended}$ are each a
+  finite sequence of statements.
+\item $N_{launches}, N_{recommendations}, N_{followed}, P_{followed},
+  P_{dueto}$ are all natural numbers
+\end{itemize}
 
 \subsubsection{Initial System State}
 \subsubsection{Filter for Incorrect}
