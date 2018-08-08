@@ -1055,7 +1055,6 @@ $INCORRECT$ :== $\{false\}$
 \item the set $S_{processed}$ is a finite set of pairs where each
   contains the component $id$ and a natural number
 \end{itemize}
-
 \subsubsection{Initial System State}
 
 \begin{schema}{InitMostDifficultAssessmentQuestions}
@@ -1618,7 +1617,10 @@ $TIMEUNIT$ :== $\{second\} | \{minute\} | \{hour\} | \{day\} |
   r_{n} = count(g_{n}) \div ((convert(last~g_{n}.timestamp) - convert(head~g_{n}.timestamp)) \div unit?)\}
 \end{schema}
 \begin{itemize}
-\item The schema $CalcRateByUnit$ introduces the function $rate$ where the input $s?$ is a set of objects $g$ which are each a non-empty, finite sequence of statements and the input $unit?$ represents a unit of time.
+\item The schema $CalcRateByUnit$ introduces the function $rate$ where
+  the input $s?$ is a set of objects $g$ which are each a non-empty,
+  finite sequence of statements and the input $unit?$ represents a
+  unit of time.
 \item for every $g_{n}$ within the range $g_{i}..g_{j}$, there exists an associated object $s_{n}$ which is an orderd pair of $(g_{n}, r_{n})$ where $r_{n}$ is equal to the number of items within $g_{n}$ divided by the number of $unit?$s within the time range of $last~g_{n}.timestamp-head~g_{n}.timestamp$
 \item the output of the function $rate$ is $s!$, the set of all $s_{n}$
 \end{itemize}
@@ -1656,7 +1658,9 @@ $\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
   \item $S_{grouped}'$ is the result of grouping the statements within $S_{completions}$ by their $\$.object.id$
   \item The groups from (1) are passed to the function $rate$ with the
     variable $T?$ which controls the unit of time, ie per day vs per week
-  \item the result of (2) is then processed to create a triplet of $\$.object.id$, rate, unit of time for all unique $\$.object.id$ within $S_{completions}$
+  \item the result of (2) is then processed to create a triplet of
+    $\$.object.id$, rate, unit of time for all unique $\$.object.id$
+    within $S_{completions}$
 \end{enumerate}
 \end{itemize}
 
@@ -1899,10 +1903,55 @@ footnote 16, result in an algoirthm which is not optimal for near real
 time visualizations.
 
 \subsection{Summary}
+\begin{enumerate}
+  \item Query an LRS via a GET request to the statements endpoint
+    using the paramters verb, since and until to gather all statements
+    with the verb $http://adlnet.gov/expapi/verbs/launched$.
+  \item Query an LRS via a GET request to the statements endpoint
+    using the paramters verb, since and until to gather all statements
+    with the verb $https://w3id.org/xapi/dod-isd/verbs/recommended$.
+    \footnote{\label{sameSession} If since and until are specified,
+      they should be the same in both requests.}
+  \item seperate the collection of launched statements (1) into a
+    collection of those which were the result of a recommendation and
+    those which were not.
+  \item Group all collections of statements by a $TIMEUNIT$
+  \item Take the count of all groups of statements from (4)
+    \begin{itemize}
+    \item Recommended statements per $TIMEUNIT$
+    \item Launches due to recommendations per $TIMEUNIT$
+    \item Launches not due to recommendations per $TIMEUNIT$
+    \end{itemize}
+  \item Calculate summary statistics for the overall time range and
+    per $TIMEUNIT$
+    \begin{itemize}
+    \item Divide launches due to recommendations by the total number of
+      launches to determine the percentage of launches due to
+      recommendations
+    \item Divide launches due to recommendations by the total number
+      of recommendations to determine the percentage of
+      recommendations which are followed.
+    \end{itemize}
+\end{enumerate}
 
 \subsection{Formal Specification}
-\subsubsection{Basic Types}
+
 \subsubsection{System State}
+
+\begin{schema}{FollowedRecommendations}
+  Statements \\
+  S_{processed} : \finset_1 \\
+  S_{recommended},S_{launched}, S_{followed} : \finset \\
+  \where
+  S_{recommended} = statements \\
+  S_{launched} = statements \\
+  S_{followed} = statements \\
+  S_{processed} = \{summary : (\nat , \nat, \nat, \nat, \nat, TIMEUNIT)\}
+  %% Total Number of launches, number of recommendations, number
+  %% of followed recommendations, % of recommendations followed, % of
+  %% launches due to recommendations, time range used to group statements
+\end{schema}
+
 \subsubsection{Initial System State}
 \subsubsection{Filter for Incorrect}
 \subsubsection{Processes Results}
@@ -1915,11 +1964,10 @@ time visualizations.
 \subsection{Prototype Improvement Suggestions}
 
 \section{Appendex A: Visualization Examplars}
-Appendex A includes a collection of visualization types which can either be
-one to one or one to many in regards to the algorithms defined within
-this document.
+Appendex A includes a typology of data visualizations which may be supported by the DAVE Framework.
+These visualizations can either be one to one or one to many in regards to the algorithms defined within this document.
+Future iterations of this document will increasingly include these typologies within the domain-question template exemplars.
 
-%%%Relative/Absolute Limits, Gant, Heatmap, 3D Box Scatte
 \begin{figure*}[h]
   \centering
   \begin{floatrow}[3]
