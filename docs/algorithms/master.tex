@@ -1940,8 +1940,8 @@ time visualizations.
 
 \begin{schema}{FollowedRecommendations}
   Statements \\
-  S_{recommended},S_{launched}, S_{processed} : \finset_1 \\
-  S_{followed}, S_{independent}, S_{grouped} : \finset \\
+  S_{recommended},S_{launched} : \finset_1 \\
+  S_{processed}, S_{followed}, S_{independent}, S_{grouped} : \finset \\
   G_{followed}, G_{independent}, G_{recommended} : seq \, statement \\
   N_{launches}, N_{recommendations}, N_{followed}, P_{followed},
   P_{dueto} : \nat
@@ -1956,22 +1956,17 @@ time visualizations.
   S_{processed} = \{summary : (N_{launches}, N_{recommendations},
   N_{followed}, \\\t6 P_{followed}, P_{dueto}, statement.timestamp,
   TIMEUNIT)\}
-%% TODO: account for empty sequences of statements at the processing
-%% level not at the count fn level. only pass a seq to count if its non-empty
 \end{schema}
+
 \begin{itemize}
-\item $S_{recommended}, S_{launched}, S_{processed}$ are each
-  non-empty, finite sets.
+\item $S_{recommended}, S_{launched}$ are both non-empty, finite sets.
   \begin{itemize}
   \item $S_{recommended}$ and $S_{launched}$ contain
     the results of querying an LRS for recommended and launched
     statements respectively.
-  \item $S_{processed}$ is a set of objects $summary$ which are each a
-    collection of $(N_{launches}, N_{recommendations}, N_{followed},
-    P_{followed}, P_{dueto}, statement.timestamp, TIMEUNIT)$
   \end{itemize}
-\item $S_{followed}, S_{independent}, S_{grouped}$ are each finite
-  sets
+\item $S_{followed}$, $S_{independent}$, $S_{grouped}$ and $S_{processed}$ are each finite
+  sets.
   \begin{itemize}
     \item $S_{followed}$ and $S_{independent}$ are both subsets of
       $S_{launched}$.
@@ -1979,15 +1974,50 @@ time visualizations.
       $S_{launched}$
     \item $S_{followed}$ and $S_{independent}$ have no overlap
     \item $S_{grouped}$ is a set of objects $byTimeUnit$ which are
-      each a collection of $G_{followed}, G_{independent}, G_{recommended}$
+      each a collection of $G_{followed}, G_{independent},
+      G_{recommended}$
+    \item $S_{processed}$ is a set of objects $summary$ which are each a
+      collection of $N_{launches}$, $N_{recommendations}$,
+      $N_{followed}$, $P_{followed}$, $P_{dueto}$,
+      $statement.timestamp$ and $TIMEUNIT$.
     \end{itemize}
-\item $G_{followed}, G_{independent}, G_{recommended}$ are each a
+\item $G_{followed}$, $G_{independent}$ and $G_{recommended}$ are each a
   finite sequence of statements.
 \item $N_{launches}, N_{recommendations}, N_{followed}, P_{followed},
   P_{dueto}$ are all natural numbers
 \end{itemize}
 
 \subsubsection{Initial System State}
+
+\begin{schema}{InitFollowedRecommendations}
+  FollowedRecommendations \\
+  T : TIMEUNIT
+  \where
+  S_{recommended} \not = \emptyset \\
+  S_{launched} \not = \emptyset \\
+  S_{processed} = \emptyset \\
+  S_{followed} = \emptyset \\
+  S_{independent} = \emptyset \\
+  S_{grouped} = \emptyset \\
+  G_{followed} = \emptyset \\
+  G_{independent} = \emptyset \\
+  G_{recommended} = \emptyset \\
+  N_{launches} = 0 \\
+  N_{recommendations} = 0 \\
+  N_{followed} = 0 \\
+  P_{followed} = 0 \\
+  P_{dueto} = 0 \\
+  T = \{day\}
+\end{schema}
+
+\begin{itemize}
+  \item $S_{recommended}$ and $S_{launched}$ are initially not empty
+    sets
+  \item all other sets are initially empty
+  \item all numbers are initially zero
+  \item the default $TIMEUNIT$ is set to day
+\end{itemize}
+
 \subsubsection{Filter for Incorrect}
 \subsubsection{Processes Results}
 \subsubsection{Sequence of Operations}
