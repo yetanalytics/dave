@@ -1912,11 +1912,11 @@ time visualizations.
     with the verb $https://w3id.org/xapi/dod-isd/verbs/recommended$.
     \footnote{\label{sameSession} If since and until are specified,
       they should be the same in both requests.}
-  \item seperate the collection of launched statements (1) into a
+  \item Group all collections of statements by a $TIMEUNIT$
+  \item seperate the collection of grouped launched statements into a
     collection of those which were the result of a recommendation and
     those which were not.
-  \item Group all collections of statements by a $TIMEUNIT$
-  \item Take the count of all groups of statements from (4)
+  \item Take the count of all groups of statements
     \begin{itemize}
     \item Recommended statements per $TIMEUNIT$
     \item Launches due to recommendations per $TIMEUNIT$
@@ -1940,23 +1940,23 @@ time visualizations.
 
 \begin{schema}{FollowedRecommendations}
   Statements \\
+  CountPerGroup \\
   S_{recommended},S_{launched} : \finset_1 \\
-  %%S_{processed}, S_{followed}, S_{independent}, S_{grouped} : \finset \\
-  %%G_{followed}, G_{independent}, G_{recommended} : seq \, statement \\
-  %%N_{launches}, N_{recommendations}, N_{followed}, P_{followed},
-  %%P_{dueto} : \nat \\
-  T : TIMEUNIT
+  ordered_{L}, ordered_{R}, grouped_{launched}, grouped_{recommended}, \\
+  onlyRecommended, cPerGroup_{launched}, cPerGroup_{recommended}, \\
+  cPerGroup_{followed}, combined : \seq \\
+  t_{start}, N_{launched}, N_{recommended}, N_{followed}, P_{followed}, P_{dueto}  : \nat \\
+  tr_{start}, tr_{end} : \finset \\
+  unit? : TIMEUNIT
   \where
   S_{recommended} = statements \\
   S_{launched} = statements \\
-  %%S_{followed} \subseteq S_{launched} \\
-  %%S_{independent} \subseteq S_{launched} \\
-  %%S_{launched} = S_{followed} \cup S_{independent} \\
-  %%\emptyset = S_{followed} \cap S_{independent} \\
-  %S_{grouped} = \{byTimeUnit : (G_{followed}, G_{independent}, G_{recommended})\} \\
-  %S_{processed} = \{summary : (N_{launches}, N_{recommendations},
-  %N_{followed}, \\\t6 P_{followed}, P_{dueto}, statement.timestamp,
-  %TIMEUNIT)\}
+  combined = \langle (tr_{start}, tr_{end}, N_{launched}, N_{recommended},
+  N_{followed}, P_{followed}, P_{dueto})\rangle \\
+  count(grouped_{launched}) = count(grouped_{recommended}) \\
+  count(onlyRecommended) = count(grouped_{launched}) \implies \\
+  count(onlyRecommended) = count(grouped_{recommended}) \\
+  count(cPerGroup_{launched}) = count(cPerGroup_{followed}) = count(cPerGroup_{recommended})
 \end{schema}
 
 \begin{itemize}
@@ -1966,59 +1966,70 @@ time visualizations.
     the results of querying an LRS for recommended and launched
     statements respectively.
   \end{itemize}
-\item $S_{followed}$, $S_{independent}$, $S_{grouped}$ and $S_{processed}$ are each finite
-  sets.
+\item $ordered_{L}, ordered_{R}, grouped_{launched},
+  grouped_{recommended},$ $onlyRecommended, \\ cPerGroup_{launched},
+  cPerGroup_{recommended}, cPerGroup_{followed}$ and $combined$ are
+  all finite sequences.
   \begin{itemize}
-    \item $S_{followed}$ and $S_{independent}$ are both subsets of
-      $S_{launched}$.
-    \item the union of $S_{followed}$ and $S_{independent}$ is the set
-      $S_{launched}$
-    \item $S_{followed}$ and $S_{independent}$ have no overlap
-    \item $S_{grouped}$ is a set of objects $byTimeUnit$ which are
-      each a collection of $G_{followed}, G_{independent},
-      G_{recommended}$
-    \item $S_{processed}$ is a set of objects $summary$ which are each a
-      collection of $N_{launches}$, $N_{recommendations}$,
-      $N_{followed}$, $P_{followed}$, $P_{dueto}$,
-      $statement.timestamp$ and $TIMEUNIT$.
+    \item $ordered_{L}$ and $ordered_{R}$ are the sequences of
+      statements within $S_{launched}$ and $S_{recommended}$
+      respectively and sorted by timestamp.
+    \item $grouped_{launched}$ is the result of grouping the
+      statements within $ordered_{L}$ by $unit?$.
+    \item $grouped_{recommended}$ is the result of grouping the
+      statements within $ordered_{R}$ by $unit?$.
+    \item $onlyRecommended$ is the result of filtering the statements
+      within the sequence $grouped_{launched}$ to only include
+      statements where $statement.context.statement$ is present
+    \item $cPerGroup_{launched}, cPerGroup_{recommended},
+      cPerGroup_{followed}$ are all sequences of numbers which
+      represent the count within each subsequence of
+      $grouped_{launched}$, $grouped_{recommended}$ and
+      $onlyRecommended$ respectively.
+    \item $combined$ is a sequence of ordered pairs where each pair
+      consists of $tr_{start}$, $tr_{end}$, $N_{launched}$,
+      $N_{recommended}$, $N_{followed}$, $P_{followed}$ and $P_{dueto}$
     \end{itemize}
-\item $G_{followed}$, $G_{independent}$ and $G_{recommended}$ are each a
-  finite sequence of statements.
-\item $N_{launches}, N_{recommendations}, N_{followed}, P_{followed},
-  P_{dueto}$ are all natural numbers
+\item $t_{start}, N_{launched}, N_{recommended}, N_{followed},
+  P_{followed}, P_{dueto}$ are all natural numbers
+\item $tr_{start}, tr_{end}$ are both timestamps which represent the
+  the start and end of the time range for each a group of statements.
+\item $unit?$ is an input representing a time interval, ie day vs
+  month vs hour.
 \end{itemize}
 
 \subsubsection{Initial System State}
 
 \begin{schema}{InitFollowedRecommendations}
   FollowedRecommendations \\
-  T : TIMEUNIT
   \where
   S_{recommended} \not = \emptyset \\
   S_{launched} \not = \emptyset \\
-  S_{processed} = \emptyset \\
- % S_{followed} = \emptyset \\
- % S_{independent} = \emptyset \\
- % S_{grouped} = \emptyset \\
- % G_{followed} = \emptyset \\
- % G_{independent} = \emptyset \\
- % G_{recommended} = \emptyset \\
- % N_{launches} = 0 \\
- % N_{recommendations} = 0 \\
- % N_{followed} = 0 \\
- % P_{followed} = 0 \\
- % P_{dueto} = 0 \\
- % T = \{day\}
+  unit? = \{day\}
+  ordered_{L} = \langle  \rangle \\
+  ordered_{R} = \langle  \rangle \\
+  grouped_{launched} = \langle  \rangle \\
+  grouped_{recommended} = \langle  \rangle \\
+  onlyRecommended = \langle  \rangle \\
+  cPerGroup_{launched} = \langle  \rangle \\
+  cPerGropu_{recommended} = \langle  \rangle \\
+  cPerGroup_{followed} = \langle  \rangle
+  combined = \langle  \rangle \\
+  t_{start} = 0
+  N_{launched} = 0 \\
+  N_{recommended} = 0 \\
+  N_{followed} = 0 \\
+  P_{followed} = 0 \\
+  P_{dueto} = 0 \\
 \end{schema}
 
 \begin{itemize}
   \item $S_{recommended}$ and $S_{launched}$ are initially not empty
     sets
-  \item all other sets are initially empty
+  \item all sequences are initially empty
   \item all numbers are initially zero
   \item the default $TIMEUNIT$ is set to day
 \end{itemize}
-
 
 \subsubsection{Group by Timestamp}
 
@@ -2064,7 +2075,6 @@ time visualizations.
   \where
   g? = \langle g?_{i}..g?_{j} \rangle @ \forall g?_{n} :
   g?_{i}..g?_{j} @ i \leq n \leq j @ g?_{n} = statement \\
-
   g! = groupByTimeUnit(g?, t_{start}? state?, unit?) \\
   g! = \langle g : seq \,|\, \forall g?_{n} :
   g?_{i}..g?_{j} @
@@ -2081,9 +2091,7 @@ time visualizations.
 
 \begin{schema}{OrderStatements}
   \Delta FollowedRecommendations \\
-  SortByTimestamp \\
-  orderedL, orderedR : seq_1 \\
-  t_{start} : \nat
+  SortByTimestamp
   \where
   orderedL = orderByTimestamp(S_{launched}) \\
   orderedR = orderByTimestamp(S_{recommended}) \\
@@ -2094,13 +2102,12 @@ time visualizations.
   \Delta FollowedRecommendations \\
   OrderStatements \\
   GroupByTimeUnit \\
-  CountPerGroup
+  CountPerGroup \\
   \where
   unit? = \{day\} \\
   grouped_{launched} = groupByTimeUnit(orderedL, t_{start}, 0, unit?) \\
   grouped_{recommended} = groupByTimeUnit(orderedR, t_{start}, 0,
-  unit?) \\
-  count(grouped_{launched}) = count(grouped_{recommended})
+  unit?
 \end{schema}
 
 \begin{schema}{OnlyRecommendedLaunches}
@@ -2120,8 +2127,6 @@ time visualizations.
   gl_{i}) \land \\\t5 (\forall o_{jn} : o_{ji}..o_{jj} @
   o_{jn}.context.statement \not = \emptyset \land o_{jn} \inseq
   gl_{j})) \lor \\\t5 \langle o_{n} \rangle = \langle \rangle \rangle \\
-  count(onlyRecommended) = count(grouped_{launched}) = count(grouped_{recommended})
-
 \end{schema}
 
 \begin{schema}{GetCounts}
@@ -2148,7 +2153,6 @@ time visualizations.
   \forall \langle or_{n} \rangle : \langle or_{i} \rangle..\langle or_{j} \rangle @
   \exists_1 c_{n} : \nat @ \\\t5 \IF or_{n} = \langle \rangle \\\t6 \THEN c_{n} =
   0 \\\t6 \ELSE c_{n} = count(\langle or_{n} \rangle) \rangle \\
-  count(cPerGroup_{launched}) = count(cPerGroup_{followed}) = count(cPerGroup_{recommended})
 \end{schema}
 
 \begin{schema}{CombineSequences}
@@ -2172,7 +2176,6 @@ time visualizations.
   \\\t3\:\:\:\:\:\:\: P_{followedn} = cf_{n} \div cr_{n}
   \\\t3\:\:\:\:\:\:\: P_{dueton} = cf_{n} \div cl_{n} \rangle
 \end{schema}
-
 \subsubsection{Return}
 \subsection{Pseudocode}
 \subsection{JSON Schema}
@@ -2180,7 +2183,8 @@ time visualizations.
 \subsection{Visualization prototype}
 \subsection{Prototype Improvement Suggestions}
 
-\section{Appendex A: Visualization Examplars}
+
+\section{Appendex A: Visualization Exemplars}
 Appendex A includes a typology of data visualizations which may be supported by the DAVE Framework.
 These visualizations can either be one to one or one to many in regards to the algorithms defined within this document.
 Future iterations of this document will increasingly include these typologies within the domain-question template exemplars.
@@ -2251,7 +2255,7 @@ Future iterations of this document will increasingly include these typologies wi
             (0.8,0.58) (0.9,0.55)  (1,0.52)};
         \end{axis}
       \end{tikzpicture}}%
-    \ffigbox[\FBwidth*4/3]
+      \ffigbox[\FBwidth*4/3]
     {\caption{Histogram}\label{fig6}}
     {\begin{tikzpicture}
         \begin{axis}[
