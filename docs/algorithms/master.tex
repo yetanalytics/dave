@@ -1723,7 +1723,8 @@ $\\$ %% header with text
 \begin{lstlisting}[style=json]
 {"type":"array",
    "items":{"type":"array",
-      "items":[{"type":"string"}, {"type":"number"}, {"type":"string"}]}}
+      "items":[{"type":"string"}, {"type":"number"},
+{"type":"string"}]}}
 \end{lstlisting}
 
 \subsection{Visualization Description}
@@ -1840,7 +1841,7 @@ a LRP and the recommender itself. They are as follows:
     otherwise determining the 1:1 relationships between recommendations and
     launches requires aditional complexity and will still not be 100\%
     accurate due to the reliance on the time lapse value.}
-  \end{itemize}
+\end{itemize}
 \end{itemize}
 
 \subsection{Input Data Retrieval}
@@ -1909,8 +1910,7 @@ time visualizations.
     with the verb $http://adlnet.gov/expapi/verbs/launched$.
   \item Query an LRS via a GET request to the statements endpoint
     using the paramters verb, since and until to gather all statements
-    with the verb $https://w3id.org/xapi/dod-isd/verbs/recommended$.
-    \footnote{\label{sameSession} If since and until are specified,
+    with the verb $https://w3id.org/xapi/dod-isd/verbs/recommended$.\footnote{\label{sameSession} If since and until are specified,
       they should be the same in both requests.}
   \item Group all collections of statements by a $TIMEUNIT$
   \item seperate the collection of grouped launched statements into a
@@ -1996,6 +1996,9 @@ time visualizations.
   the start and end of the time range for each a group of statements.
 \item $unit?$ is an input representing a time interval, ie day vs
   month vs hour.
+\item all sequences are the same length so that each subsequence
+  represents the same time grouping. In other words, indexes are
+  comparable across sequences.
 \end{itemize}
 
 \subsubsection{Initial System State}
@@ -2005,7 +2008,7 @@ time visualizations.
   \where
   S_{recommended} \not = \emptyset \\
   S_{launched} \not = \emptyset \\
-  unit? = \{day\}
+  unit? = \{day\} \\
   ordered_{L} = \langle  \rangle \\
   ordered_{R} = \langle  \rangle \\
   grouped_{launched} = \langle  \rangle \\
@@ -2013,9 +2016,9 @@ time visualizations.
   onlyRecommended = \langle  \rangle \\
   cPerGroup_{launched} = \langle  \rangle \\
   cPerGropu_{recommended} = \langle  \rangle \\
-  cPerGroup_{followed} = \langle  \rangle
+  cPerGroup_{followed} = \langle  \rangle \\
   combined = \langle  \rangle \\
-  t_{start} = 0
+  t_{start} = 0 \\
   N_{launched} = 0 \\
   N_{recommended} = 0 \\
   N_{followed} = 0 \\
@@ -2141,29 +2144,44 @@ time visualizations.
   \Delta FollowedRecommendations \\
   SortByTimestamp
   \where
-  orderedL = orderByTimestamp(S_{launched}) \\
-  orderedR = orderByTimestamp(S_{recommended}) \\
-  t_{start} = convert((head~orderedL).timestamp) \\
+  ordered_{L}' = orderByTimestamp(S_{launched}) \\
+  ordered_{R}' = orderByTimestamp(S_{recommended}) \\
+  t_{start}' = convert((head~ordered_{L}).timestamp) \\
 \end{schema}
+
+\begin{itemize}
+  \item The schema $OrderStatements$ updates the system state defined
+    by the schema $FollowedRecommendations$.
+  \item $ordered_{L}'$ is the result of ordering the statements contained
+    within the set $S_{launched}$ chronologically.
+  \item $ordered_{R}'$ is the result of ordering the statements contained
+    within the set $S_{recommended}$ chronologically.
+  \item $t_{start}'$ is the timestamp from the first statement within
+    $ordered_{L}'$ converted to unix time.
+\end{itemize}
 
 \begin{schema}{GroupByTime}
   \Delta FollowedRecommendations \\
-  OrderStatements \\
   GroupByTimeUnit \\
-  CountPerGroup \\
   \where
-  unit? = \{day\} \\
-  grouped_{launched} = groupByTimeUnit(orderedL, t_{start}, 0, unit?) \\
-  grouped_{recommended} = groupByTimeUnit(orderedR, t_{start}, 0,
-  unit?
+  grouped_{launched}' = groupByTimeUnit(ordered_{L}', t_{start}', 0, unit?) \\
+  grouped_{recommended}' = groupByTimeUnit(ordered_{R}', t_{start}',
+  0, unit?)
 \end{schema}
 
+\begin{itemize}
+  \item The schema $GroupByTime$ updates the state defined by the schema
+    $FollowedRecommendations$.
+  \item $grouped_{launched}'$ is the result of passing $ordered_{L}'$,
+    $t_{start}'$, 0 and $unit?$ to the function $groupByTimeUnit$.
+  \item $grouped_{recommended}'$ is the result of passing $ordered_{R}'$,
+    $t_{start}'$, 0 and $unit?$ to the function $groupByTimeUnit$.
+\end{itemize}
+
 \begin{schema}{OnlyRecommendedLaunches}
-  \Delta FollowedRecommendations \\
-  GroupByTime \\
-  CountPerGroup
+  \Delta FollowedRecommendations
   \where
-  onlyRecommended = \langle o : seq \,|\, \LET grouped_{launched}==gl
+  onlyRecommended' = \langle o : seq \,|\, \LET grouped_{launched}'==gl
   \implies \\\t5 \langle \langle gl_{i} \rangle..\langle gl_{j}
   \rangle \rangle \implies \langle \langle gl_{ii}..gl_{ij}
   \rangle..\langle gl_{ji}..gl_{jj}\rangle\rangle @ \\\t5
@@ -2177,53 +2195,108 @@ time visualizations.
   gl_{j})) \lor \\\t5 \langle o_{n} \rangle = \langle \rangle \rangle \\
 \end{schema}
 
+\begin{itemize}
+  \item The schema $OnlyRecommendedLaunches$ updates the state defined
+    by the schema $FollowedRecommendations$.
+  \item $onlyRecommended'$ is the sequence of objects $o$ where $o$ is
+    a sequence consisting of statements (or no statements) from the corresponding sequences
+    within  $grouped_{launched}'$ where $statement.context.statement$
+    exists.
+  \item $onlyRecommended'$ maintains the same number and ordering of time groups
+    (subsequences) as $grouped_{launched}'$ and $grouped_{recommended}'$.
+\end{itemize}
+
 \begin{schema}{GetCounts}
-  \Delta FollowedRecommendations
-  CountPerGroup \\
-  OrderStatements \\
-  GroupByTime \\
-  OnlyRecommendedLaunches \\
+  \Delta FollowedRecommendations \\
+  CountPerGroup
   \where
-  cPerGroup_{launched} = \langle c : \nat \,|\, \LET grouped_{launched}==gl \implies
+  cPerGroup_{launched}' = \langle c : \nat \,|\, \LET grouped_{launched}'==gl \implies
   \langle \langle gl_{i} \rangle..\langle gl_{j} \rangle \rangle @ \\\t5
   \forall \langle gl_{n} \rangle : \langle gl_{i} \rangle..\langle gl_{j} \rangle @
   \exists_1 c_{n} : \nat @ \\\t5 \IF gl_{n} = \langle \rangle \\\t6 \THEN c_{n} =
   0 \\\t6 \ELSE c_{n} = count(\langle gl_{n} \rangle)
   \rangle \\
-  cPerGroup_{recommended} = \langle c : \nat \,|\, \LET grouped_{recommended}==gr \implies
+  cPerGroup_{recommended}' = \langle c : \nat \,|\, \LET grouped_{recommended}'==gr \implies
   \langle \langle gr_{i} \rangle..\langle gr_{j} \rangle \rangle @ \\\t6
   \forall \langle gr_{n} \rangle : \langle gr_{i} \rangle..\langle gr_{j} \rangle @
-  \exists_1 c_{n} : \nat @ \\\t5 \IF gr_{n} = \langle \rangle \\\t6 \THEN c_{n} =
-  0 \\\t6 \ELSE c_{n} = count(\langle gr_{n} \rangle)
+  \exists_1 c_{n} : \nat @ \\\t6 \IF gr_{n} = \langle \rangle \\\t7 \THEN c_{n} =
+  0 \\\t7 \ELSE c_{n} = count(\langle gr_{n} \rangle)
   \rangle \\
-  cPerGroup_{followed} = \langle c : \nat \,|\, \LET
-  onlyRecommended==or \implies \langle \langle or_{i} \rangle..\langle or_{j} \rangle \rangle @ \\\t5
+  cPerGroup_{followed}' = \langle c : \nat \,|\, \LET
+  onlyRecommended'==or \implies \langle \langle or_{i} \rangle..\langle or_{j} \rangle \rangle @ \\\t5
   \forall \langle or_{n} \rangle : \langle or_{i} \rangle..\langle or_{j} \rangle @
   \exists_1 c_{n} : \nat @ \\\t5 \IF or_{n} = \langle \rangle \\\t6 \THEN c_{n} =
   0 \\\t6 \ELSE c_{n} = count(\langle or_{n} \rangle) \rangle \\
 \end{schema}
 
+\begin{itemize}
+  \item The schema $GetCounts$ updates the state defined by the schema
+    $FollowedRecommednations$.
+  \item $cPerGroup_{launched}'$ is a sequence of numbers $c$ where
+    each $c$ is either 0 or the result of passing the current
+    subsequence of $grouped_{launched}'$ ($gl_{n}$) to the function
+    $count$.
+  \item  $cPerGroup_{recommended}'$ is a sequence of numbers $c$ where
+    each $c$ is either 0 or the result of passing the current
+    subsequence of $grouped_{recommended}'$ ($gr_{n}$) to the function
+    $count$.
+  \item  $cPerGroup_{followed}'$ is a sequence of numbers $c$ where
+    each $c$ is either 0 or the result of passing the current
+    subsequence of $onlyRecommended'$ ($or_{n}$) to the function
+    $count$.
+\end{itemize}
+
 \begin{schema}{CombineSequences}
-  \Delta FollowedRecommendations \\
-  GetCounts \\
-  GroupByTime
+  \Delta FollowedRecommendations
   \where
-  combined = \langle c : (tr_{start}, tr_{end}, N_{launched},
-  N_{recommended}, N_{followed}, P_{followed}, P_{dueto}) \,|\, \\\t3
-  \LET grouped_{launched}==gl \implies \langle \langle gl_{i}
-  \rangle..\langle gl_{j} \rangle \rangle \\\t3\:\:\:\:\:\:\:
-  cPerGroup_{launched}==cl \implies \langle cl_{i}..cl_{j} \rangle \\\t3\:\:\:\:\:\:\:
-  cPerGroup_{recommended}==cr \implies \langle cr_{i}..cr_{j} \rangle \\\t3\:\:\:\:\:\:\:
-  cPerGroup_{followed}==cf \implies \langle cf_{i}..cf_{j} \rangle \\\t3\:\:\:\:\:\:\:
+  combined' = \langle c : (tr_{start}', tr_{end}', N_{launched}',
+  N_{recommended}', N_{followed}', P_{followed}', P_{dueto}') \,|\, \\\t3
+  \LET grouped_{launched}'==gl \implies \langle \langle gl_{i}
+  \rangle..\langle gl_{n} \rangle .. \langle gl_{j} \rangle \rangle \\\t3\:\:\:\:\:\:\:
+  cPerGroup_{launched}'==cl \implies \langle cl_{i}..cl_{n}..cl_{j} \rangle \\\t3\:\:\:\:\:\:\:
+  cPerGroup_{recommended}'==cr \implies \langle cr_{i}..cr_{n}..cr_{j} \rangle \\\t3\:\:\:\:\:\:\:
+  cPerGroup_{followed}'==cf \implies \langle cf_{i}..cf_{n}..cf_{j} \rangle \\\t3
   @ \forall \langle gl_{n} \rangle : \langle gl_{i} \rangle..\langle
   gl_{j} \rangle @ i \leq n \leq j @
-  \\\t3\:\:\:\:\:\:\: \exists_1 \, c_{n} : (tr_{startn}, tr_{endn},
-  cl_{n}, cr_{n}, cf_{n}, P_{followedn}, P_{dueton}) @
-  \\\t3\:\:\:\:\:\:\: tr_{startn} = (head~gl_{n}).timestamp
-  \\\t3\:\:\:\:\:\:\: tr_{endn} = (last!gl_{n}).timestamp
-  \\\t3\:\:\:\:\:\:\: P_{followedn} = cf_{n} \div cr_{n}
-  \\\t3\:\:\:\:\:\:\: P_{dueton} = cf_{n} \div cl_{n} \rangle
+  \\\t3 \exists_1 \, c_{n} : (tr_{startn}, tr_{endn}, N_{launchedn},
+  N_{recommendedn}, N_{followedn}, P_{followedn}, P_{dueton}) @
+  \\\t3 tr_{startn} = (head~gl_{n}).timestamp
+  \\\t3 tr_{endn} = (last~gl_{n}).timestamp
+  \\\t3 N_{launchedn} = cl_{n}
+  \\\t3 N_{recommendedn} = cr_{n}
+  \\\t3 N_{followedn} = cf_{n}
+  \\\t3 P_{followedn} = cf_{n} \div cr_{n}
+  \\\t3 P_{dueton} = cf_{n} \div cl_{n} \rangle
 \end{schema}
+
+\begin{itemize}
+  \item The schema $CombineSequences$ changes the state defined by the
+    schema $FollowedRecommendations$.
+  \item $combined'$ is a sequence of objects $c$ where each $c$ is an
+    ordered pair of $tr_{start}', tr_{end}', N_{launched}',
+    N_{recommended}', N_{followed}', P_{followed}', P_{dueto}'$.
+  \item for each $c_{n}$:
+    \begin{itemize}
+    \item  $tr_{start}' \bind tr_{startn}$ which is equal to the
+      timestamp for the first statement within $gl_{n}$
+    \item $tr_{end}' \bind tr_{endn}$ which is equal to the timestamp
+      for the last statement within $gl_{n}$.
+    \item $N_{launched}' \bind N_{launchedn}$ which is equal to the
+      current count of launched statements within the nth time
+      grouping aka $cl_{n}$.
+    \item $N_{recommended}' \bind N_{recommendedn}$ which is equal to
+      the current count of recommended statements within the nth time
+      grouping aka $cr_{n}$.
+    \item $N_{followed}' \bind N_{followedn}$ which is equal to the
+      current count of recommended statements within the nth time
+      grouping aka $cf_{n}$.
+    \item $P_{followed}' \bind P_{followedn}$ which is equal to the
+      result of dividing $cf_{n}$ by $cr_{n}$.
+    \item $P_{dueto}' \bind P_{dueton}$ which is equal to the result
+      of dividing $cf_{n}$ by $cl_{n}$.
+    \end{itemize}
+\end{itemize}
+
 \subsubsection{Return}
 \subsection{Pseudocode}
 \subsection{JSON Schema}
