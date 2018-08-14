@@ -2048,6 +2048,14 @@ time visualizations.
   convert(o_{j}.timestamp)
 \end{schema}
 
+\begin{itemize}
+\item The schema $SortByTimestamp$ introduces the function
+  $orderByTimestamp$ which takes in a non-empty, finite set and
+  returns a non-empty, finite sequence.
+\item $orderByTimestamp$ is a sequence of statements ordered from
+  earliest to latest.
+\end{itemize}
+
 \begin{schema}{WithinRange}
   withinRange : (\nat, \nat, \nat, TIMEUNIT) \fun \finset_1\#1 \\
   in?, start?, state? : \nat \\
@@ -2065,6 +2073,17 @@ time visualizations.
   out! = \{FALSE\} \\
 \end{schema}
 
+\begin{itemize}
+\item The schema $WithinRange$ introduces the function $withinRange$
+  which takes in three numbers and a $TIMEUNIT$ and returns either
+  $\{TRUE\}$ or $\{FALSE\}$
+\item $withinRange$ checks to see if $in?$ is less than or equal to a
+  start time $start?$ plus the result of multiplying the numeric
+  conversion for $unit?$ by the $state?$.
+\item $state?$ represents the current group, ie. day 1 vs day 2 vs day
+  3. The $+ 1$ is to account for array indexes starting at 0.
+\end{itemize}
+
 \begin{schema}{GroupByTimeUnit}
   Statement \\
   IsoToUnix \\
@@ -2074,18 +2093,46 @@ time visualizations.
   t_{start}? : \nat
   \where
   g? = \langle g?_{i}..g?_{j} \rangle @ \forall g?_{n} :
-  g?_{i}..g?_{j} @ i \leq n \leq j @ g?_{n} = statement \\
+  g?_{i}..g?_{j} @ i \leq n \leq j @ g?_{n} = statement \,\land \\\t1
+  convert(g?_{i}.timestamp) \leq convert(g?_{n}.timestamp) \leq
+  convert(g?_{j}.timestamp) \\
   g! = groupByTimeUnit(g?, t_{start}? state?, unit?) \\
   g! = \langle g : seq \,|\, \forall g?_{n} :
   g?_{i}..g?_{j} @
   \exists_1 \langle g_{r} \rangle : \langle g_{q} \rangle
   .. \langle g_{s} \rangle @ q \leq r \leq s \land r = state? @
   \\\t3 \IF withinRange(g?_{n}, t_{start}, r, unit?) =
-  \{TRUE\} \\\t4 \THEN g?_{n} \inseq \langle g_{r} \rangle \\\t4 \ELSE
-  \IF \forall g_{n}? : g_{i}?..g_{j}? @ withinRange(g?_{n}, t_{start}, r, unit?) =
-  \{FALSE\} \\\t5 \THEN \langle g_{r} \rangle = \langle \rangle \land
-  groupByTimeUnit(g?, t_{start}? (r + 1), unit?)\rangle
+  \{TRUE\} \\\t4 \THEN g? \extract g?_{n} \,\land\, g?_{n} \inseq
+  \langle g_{r} \rangle \implies \langle g_{r} \rangle = \langle
+  g_{ri}..g_{rn}..g_{rj} \rangle @ ri \leq rn \leq rj @ g_{rn} =
+  g?_{n}  \\\t4 \ELSE \IF \forall g_{n}? : g_{i}?..g_{j}? @
+  withinRange(g?_{n}, t_{start}, r, unit?) = \{FALSE\} \\\t5 \THEN
+  groupByTimeUnit((g? \extract \langle g_{r} \rangle) , t_{start}? (r
+  + 1), unit?) @ \langle g_{r} \rangle = \langle  \rangle \, \lor \not
+  = \langle  \rangle \rangle
 \end{schema}
+
+\begin{itemize}
+\item The schema $GroupByTimeUnit$ intorudces the function
+  $groupByTimeUnit$ which takes as arguments a non-empty, finite
+  sequence, a natural number and a $TIMEUNIT$ and outputs a non-empty,
+  finite sequence of sequences.
+\item For every statement within the input sequence, $groupByTimeUnit$
+  checks to see if the timestamp of that statement is within the range
+  of $t_{start}$ and $unit?$. If it is, that statement is removed from
+  the input sequence $g?$ and added to the current subsequence
+  $\langle g_{r} \rangle$. If none of the remaining statements within
+  the input sequence are within the range of $t_{start}$ and $unit?$,
+  then the variable $state?$ is incremented, the current subsequence
+  $\langle g_{r} \rangle$ either contains matched statements or is an
+  empty sequence and the search for remaining subsequences $\langle
+  g_{r+state?} \rangle$ continues.
+\item because the input sequence $g?$ is orderd chronologically, this
+  implies that once a statement does not fit into a range, the rest of
+  the statements remaining in the input sequence will not fit into
+  that range and $state?$ must be incremented to generate a new
+  subsequence $\langle g_{r + state?} \rangle$ which is the next grouping.
+\end{itemize}
 
 \subsubsection{Processes Results}
 
