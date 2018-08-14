@@ -2295,9 +2295,34 @@ time visualizations.
     \item $P_{dueto}' \bind P_{dueton}$ which is equal to the result
       of dividing $cf_{n}$ by $cl_{n}$.
     \end{itemize}
+  \end{itemize}
+
+\subsubsection{Sequence of Operations}
+  $ProcessFollowedRecommendations \defs \\ OrderStatements \semi
+  GroupByTime \semi OnlyRecommendedLaunches \semi \\ GetCounts \semi
+  CombineSequences$
+\begin{itemize}
+\item The schema $ProcessFollowedRecommendations$ defines the order of
+  operations for the steps within the $FollowedRecommendations$ algorithm.
 \end{itemize}
 
 \subsubsection{Return}
+
+\begin{schema}{ReturnFollowedRecommendations}
+  \Xi FollowedRecommendations \\
+  ProcessFollowedRecommendations \\
+  combined! : \seq
+  \where
+  combined! = combined'
+\end{schema}
+
+\begin{itemize}
+  \item The schema $ReturnFollowedRecommendations$ describes the return
+    value of the system defined by the schema $FollowedRecommendations$
+  \item The return value $combined!$ is the variable $combined'$
+    defined wtihin the schema $CombineSequences$
+\end{itemize}
+
 \subsection{Pseudocode}
 \subsection{JSON Schema}
 \subsection{Visualization Description}
