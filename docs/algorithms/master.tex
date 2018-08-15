@@ -35,49 +35,9 @@
 
 \lstset{literate = {-}{-}1} % get dashs to show up
 
-%%% https://tex.stackexchange.com/questions/195486/how-can-i-highlight-json-string-values-but-not-attributes/195540#195540
-%%% ^ JSON style for lstset
-\newcommand\JSONnumbervaluestyle{\color{blue}}
-\newcommand\JSONstringvaluestyle{\color{red}}
-\newif\ifcolonfoundonthisline
-\makeatletter
-
-\lstdefinestyle{json}
-{
-  showstringspaces    = false,
-  keywords            = {false,true},
-  alsoletter          = 0123456789.,
-  morestring          = [s]{"}{"},
-  stringstyle         = \ifcolonfoundonthisline\JSONstringvaluestyle\fi,
-  MoreSelectCharTable =%
-  \lst@DefSaveDef{`:}\colon@json{\processColon@json},
-  basicstyle          = \ttfamily,
-  keywordstyle        = \ttfamily\bfseries,
-}
-
-\newcommand\processColon@json{%
-  \colon@json%
-  \ifnum\lst@mode=\lst@Pmode%
-  \global\colonfoundonthislinetrue%
-  \fi
-}
-
-\lst@AddToHook{Output}{%
-  \ifcolonfoundonthisline%
-  \ifnum\lst@mode=\lst@Pmode%
-  \def\lst@thestyle{\JSONnumbervaluestyle}%
-  \fi
-  \fi
-  % override by keyword style if a keyword is detected!
-  \lsthk@DetectKeywords%
-}
-
-% reset the switch at the end of line
-\lst@AddToHook{EOL}%
-{\global\colonfoundonthislinefalse}
-
-\makeatother
 \pgfplotsset{compat=1.15}
+
+\SetKw{KwBy}{by}
 
 \title{Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture: DAVE Learning Analytics Algorithms}
 \author{Yet Analytics}
@@ -867,7 +827,7 @@ $ProcessedStatements \defs FilterStatements \semi ProcessStatements$
 \end{itemize}
 
 \subsection{JSON Schema}
-\begin{lstlisting}[style=json]
+\begin{lstlisting}[]
 {"type":"array",
    "items":{"type":"array",
       "items":[{"type":"string"}, {"type":"number"}]}}
@@ -1284,7 +1244,7 @@ AggregateQuestionStatements$
 
 \subsection{JSON Schema}
 
-\begin{lstlisting}[style=json]
+\begin{lstlisting}[]
 {"type":"array",
    "items":{"type":"array",
       "items":[{"type":"string"}, {"type":"number"}]}}
@@ -1720,7 +1680,7 @@ $\\\\\\\\\\\\\\\\\\\\\\\\\\$ %%% keep header with z-schema
 $\\$ %% header with text
 \subsection{JSON Schema}
 
-\begin{lstlisting}[style=json]
+\begin{lstlisting}[]
 {"type":"array",
    "items":{"type":"array",
       "items":[{"type":"string"}, {"type":"number"},
@@ -1789,7 +1749,6 @@ metadata is contained within each statement available to the algorithm.
 \end{itemize}
 
 \section{How Often are Recommendations Followed}
-
 As learners engage in activities supported by a learning ecosystem, they will build
 up a history of learning experiences. When the digital resources of that learning ecosystem
 adhere to a framework dedicated to supporting and understanding the
@@ -1800,11 +1759,9 @@ recommendations provided to the learner and whether or not the learner
 follows those recommendations.
 
 \subsection{Ideal Statements}
-
 In order to accurately determine if a learner is following
 recommendations, there are a few requirements of the data produced by
 a LRP and the recommender itself. They are as follows:
-
 \begin{itemize}
 \item Every time the recommender makes a recommendation, a statement
   should be produced which uses the verb
@@ -1819,7 +1776,7 @@ a LRP and the recommender itself. They are as follows:
   launched statement should use the verb
   $http://adlnet.gov/expapi/verbs/launched$\footnote{\label{LaunchedIRI}
   See footnote 4} and contain a refrence to the recommened content statement within
-  $\$.context.statement$
+$\$.context.statement$
   \begin{itemize}
     \item Launching of content should use the above IRI regardless of
       why the content was launched
@@ -1845,7 +1802,6 @@ a LRP and the recommender itself. They are as follows:
 \end{itemize}
 
 \subsection{Input Data Retrieval}
-
 How to query an LRS via a GET request to the Statements Resource via
 curl.\footnote{\label{refMoreLink2} footnote 1 applies to both S1
   and S2.}\footnote{\label{refnoZ2} See footnote
@@ -1857,7 +1813,6 @@ L = "verb=http://adlnet.gov/expapi/verbs/launched"
 
 Since = "since=2018-07-20T12:08:47Z"
 Until = "until=2018-07-21T12:08:47Z"
-
 Base = "https://example.endpoint/statements?"
 
 endpoint1 = Base + R + "&" + Since + "&" + Until
@@ -1878,7 +1833,6 @@ S = SR + SL
 \end{lstlisting}
 
 \subsection{Statement Parameters to Utilize}
-
 The statement parameter locations here are written in
 \href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
 is also compatable with the xAPI Z notation due to the defined
@@ -2104,7 +2058,7 @@ time visualizations.
   g?_{i}..g?_{j} @
   \exists_1 \langle g_{r} \rangle : \langle g_{q} \rangle
   .. \langle g_{s} \rangle @ q \leq r \leq s \land r = state? @
-  \\\t3 \IF withinRange(g?_{n}, t_{start}, r, unit?) =
+  \\\t3 \IF withinRange(convert(g?_{n}.timestamp), t_{start}, r, unit?) =
   \{TRUE\} \\\t4 \THEN g? \extract g?_{n} \,\land\, g?_{n} \inseq
   \langle g_{r} \rangle \implies \langle g_{r} \rangle = \langle
   g_{ri}..g_{rn}..g_{rj} \rangle @ ri \leq rn \leq rj @ g_{rn} =
@@ -2137,7 +2091,7 @@ time visualizations.
   subsequence $\langle g_{r + state?} \rangle$ so that the remaining
   statements can be grouped.
 \end{itemize}
-
+$\\$ %header with text
 \subsubsection{Processes Results}
 
 \begin{schema}{OrderStatements}
@@ -2146,7 +2100,7 @@ time visualizations.
   \where
   ordered_{L}' = orderByTimestamp(S_{launched}) \\
   ordered_{R}' = orderByTimestamp(S_{recommended}) \\
-  t_{start}' = convert((head~ordered_{L}).timestamp) \\
+  t_{start}' = convert((head~ordered_{L}').timestamp) \\
 \end{schema}
 
 \begin{itemize}
@@ -2203,7 +2157,8 @@ time visualizations.
     within  $grouped_{launched}'$ where $statement.context.statement$
     exists.
   \item $onlyRecommended'$ maintains the same number and ordering of time groups
-    (subsequences) as $grouped_{launched}'$ and $grouped_{recommended}'$.
+    (subsequences) as $grouped_{launched}'$ and
+    $grouped_{recommended}'$.
 \end{itemize}
 
 \begin{schema}{GetCounts}
@@ -2318,17 +2273,128 @@ time visualizations.
 
 \begin{itemize}
   \item The schema $ReturnFollowedRecommendations$ describes the return
-    value of the system defined by the schema $FollowedRecommendations$
+    value of the system defined by the schema
+    $FollowedRecommendations$
   \item The return value $combined!$ is the variable $combined'$
     defined wtihin the schema $CombineSequences$
 \end{itemize}
 
 \subsection{Pseudocode}
-\subsection{JSON Schema}
-\subsection{Visualization Description}
-\subsection{Visualization prototype}
-\subsection{Prototype Improvement Suggestions}
 
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{$S_{recommended}$, $S_{launched}$ $timeUnit$}
+  \KwResult{$combined'$}
+  $ordered_{L}' \leftarrow orderByTimestamp(S_{launched})$; \\
+  $ordered_{R}' \leftarrow orderByTimestamp(S_{recommended})$; \\
+  $t_{start}' \leftarrow convert((head~ordered_{L}').timestamp)$;\\
+  $grouped_{launched}' \leftarrow groupByTimeUnit(ordered_{L}',
+   t_{start}', 0, timeUnit)$;\\
+  $grouped_{recommended}' \leftarrow groupByTimeUnit(ordered_{R}',
+   t_{start}', 0, timeUnit)$;\\
+  $grouped_{followed} \leftarrow []$;\\
+   \ForEach{$G \inseq grouped_{launched}'$}
+   {$curGrouping \leftarrow []$;\\
+     \ForEach{$G_{n} \inseq G$}
+     {\eIf{$G_{n}.context.statement \not = nil$}
+       {\bf do \\
+         $curGrouping' \leftarrow curGrouping \cat G_{n}$;\\
+         recur curGrouping'}
+       {\bf recur curGrouping'}}
+   {\bf $grouped_{followed}' \leftarrow grouped_{followed} \cat
+   curGrouping'$;\\
+   recur $grouped_{followed}'$}}
+   $C_{launched} \leftarrow {\bf map \, count() \,
+     grouped_{launched}'}$;\\
+   $C_{recommended} \leftarrow {\bf map \, count() \,
+     grouped_{recommended}'}$;\\
+   $C_{followed} \leftarrow {\bf map \, count() \,
+     grouped_{followed}'}$;\\
+   $combined \leftarrow []$;\\
+   \For{$i\gets0$ \KwTo $count(c_{launched})$ \KwBy $1$}{
+     $tr_{starti} \leftarrow (first(nth(grouped_{launched}',
+     i))).timestamp$;\\
+     $tr_{endi} \leftarrow (last(nth(grouped_{launched}',
+     i))).timestamp$;\\
+     $N_{Li} \leftarrow nth(C_{launched}, i)$;\\
+     $N_{Ri} \leftarrow nth(C_{recommended}, i)$;\\
+     $N_{Fi} \leftarrow nth(C_{followed}, i)$; \\
+     $P_{Fi} \leftarrow N_{fi} \div N_{Ri}$;\\
+     $P_{duetoi} \leftarrow N_{fi} \div N_{Li}$;\\
+     $subVec_{i} \leftarrow [tr_{starti}, tr_{endi}, N_{Li}, N_{Ri},
+     N_{Fi}, P_{Fi}, P_{duetoi}]$;\\
+     $combined' \leftarrow combined \cat subVec_{i}$}
+   \Return $combined'$
+  \caption{Followed Recommendations}
+\end{algorithm}
+\begin{itemize}
+\item {\bf map count() $grouped_{...}'$} means apply the function {\bf
+  count()} to every sequence within the sequence $grouped_{...}$ and
+put all results into a single array.
+\end{itemize}
+
+\subsection{JSON Schema}
+\begin{lstlisting}[]
+{"type":"array",
+   "items":{"type":"array",
+      "items":[{"type":"string"}, {"type":"string"},
+               {"type":"number"}, {"type":"number"},
+               {"type":"number"}, {"type":"number"},
+               {"type":"number"}]}}
+\end{lstlisting}
+\subsection{Visualization Description}
+
+The {\bf Followed Recommendations} visualization can be a bar chart
+where the domain is time ranges and the range is a number
+representing the total count of statements recorded. For each time
+range, there will be three groups: 1) the number of launched
+statements 2) the number of recommended statements 3) the number of
+launches which are due to recommendations. Above each grouping or on
+hover, summary statistics can be desplayed which describe the
+percentage of launches due to recommendations and the percentage of
+recommendations which were followed.
+
+\subsection{Visualization prototype}
+
+\begin{tikzpicture}
+  \begin{axis}[
+    ybar,
+    enlargelimits=0.15,
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+    ylabel={\# statements},
+    symbolic x coords={8/13-8/14,8/14-8/15,8/15-8/16},
+    xtick=data,
+    nodes near coords,
+    nodes near coords align={vertical},]
+    \addplot coordinates {(8/13-8/14,25) (8/14-8/15,27) (8/15-8/16,26)};
+    \addplot coordinates {(8/13-8/14,16) (8/14-8/15,18) (8/15-8/16,17)};
+    \addplot coordinates {(8/13-8/14,9) (8/14-8/15,7) (8/15-8/16,13)};
+    \legend{Launches,Recommendations,Follows}
+  \end{axis}
+\end{tikzpicture}
+\begin{itemize}
+\item The percentages described in section 5.9 are not displayed here.
+\end{itemize}
+
+\subsection{Prototype Improvement Suggestions}
+Additional features may be implemented on top of this base
+specification but they would require adding aditional values to each
+subarray returned by the algorithm. These additional values can be
+retrieved via (1) performing metadata lookup within or independently
+of the algorithm (2) by utilizing additional xAPI statement paramters
+and/or (3) by performing additional computations. The following
+examples assume the metadata is contained within each statement
+available to the algorithm.
+
+\begin{itemize}
+\item populate a tooltip with the most popular launched, recommended
+  and followed activity.
+\item populate a tooltip with the number of actors associated with the
+  launches and follows.
+\item populate a tooltip with the actor who most often and the actor
+  who lease often follows recommendations.
+\end{itemize}
 
 \section{Appendex A: Visualization Exemplars}
 Appendex A includes a typology of data visualizations which may be supported by the DAVE Framework.
@@ -2512,36 +2578,34 @@ Future iterations of this document will increasingly include these typologies wi
   \end{floatrow}
 \end{figure*}
 
-\begin{figure}[h]
+\begin{figure*}[h]
   \centering
-  \begin{tikzpicture}
-    \begin{axis}[
-      xtick=\empty, ytick=\empty, ztick=\empty,
-      unbounded coords=jump,
-      % A technical filter to cut out
-      % the x<0 and y<0 edge.
-      filter point/.code={%
-        \pgfmathparse
-        {\pgfkeysvalueof{/data point/x}<0}%
-        \ifpgfmathfloatcomparison
-        \pgfmathparse
-        {\pgfkeysvalueof{/data point/y}<0}%
-        \ifpgfmathfloatcomparison
-        \pgfkeyssetvalue{/data point/x}{nan}%
-        \fi
-        \fi
-      },
-      ]
-      \addplot3[surf] {exp(-sqrt(x^2 + y^2))};
-    \end{axis}
-  \end{tikzpicture}
-  \caption{3D Plot}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[page=1]{/Users/will/projects/dave/resources/plots/gradient.pdf}
-  \caption{Gradient plot}
-\end{figure}
+  \begin{floatrow}[3]
+    \ffigbox[\FBwidth+4cm]{\caption{3D Plot}\label{fig12}}
+    {\begin{tikzpicture}
+        \begin{axis}[
+          xtick=\empty, ytick=\empty, ztick=\empty,
+          unbounded coords=jump,
+          % A technical filter to cut out
+          % the x<0 and y<0 edge.
+          filter point/.code={%
+            \pgfmathparse
+            {\pgfkeysvalueof{/data point/x}<0}%
+            \ifpgfmathfloatcomparison
+            \pgfmathparse
+            {\pgfkeysvalueof{/data point/y}<0}%
+            \ifpgfmathfloatcomparison
+            \pgfkeyssetvalue{/data point/x}{nan}%
+            \fi
+            \fi
+          },
+          ]
+          \addplot3[surf] {exp(-sqrt(x^2 + y^2))};
+        \end{axis}
+      \end{tikzpicture}}
+    \ffigbox[\FBwidth+3cm]{\caption{Gradient Plot}\label{fig13}}
+    {\includegraphics[page=1]{/Users/will/projects/dave/resources/plots/gradient.pdf}}
+  \end{floatrow}
+\end{figure*}
 
 \end{document}
