@@ -1,5 +1,5 @@
 # DAVE
-The Data Analytics Visualization Efficiency Framework for xAPI and the Total Learning Architecture
+*The Data Analytics Visualization Efficiency Framework for xAPI and the Total Learning Architecture*
 
 Quickstart: Click on "Projects" above to see the current status of issues. Feel free to start working on the issues of your choice.
 
