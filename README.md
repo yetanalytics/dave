@@ -7,7 +7,7 @@
 
 The DAVE Framework will provide an open source means of creating domain-based xAPI learning data dashboards. It is extendable to new learning problems, instructional strategies, technological realities, and metrics objectives and will provide a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA).
 
-**The framework will feature**
+**The Framework Will Feature**
 
 * a suite of prototype analytics algorithms and data visualization templates
 * open source dashboard prototypes for TLA data analytics and visualization
@@ -15,7 +15,9 @@ The DAVE Framework will provide an open source means of creating domain-based xA
 
 Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.S. Department of Defense.
 
-**Take part**
+**Take Part**
+
+Here is a quick link to the master doc for review of the template: https://github.com/yetanalytics/dave/blob/master/docs/algorithms/master.pdf 
 
 Please join the Google Group to keep up with DAVE-related conversation and notifications: https://groups.google.com/forum/#!forum/project-dave 
 
