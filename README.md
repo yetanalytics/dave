@@ -1,6 +1,8 @@
 # DAVE
 The Data Analytics Visualization Efficiency Framework for xAPI and the Total Learning Architecture
 
+Quickstart: Click on "Projects" above to see the current status of issues. Feel free to start working on the issues of your choice.
+
 What is DAVE?
 
 The DAVE Framework will provide an open source means of creating domain-based xAPI learning data dashboards. It is extendable to new learning problems, instructional strategies, technological realities, and metrics objectives and will provide a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA).
