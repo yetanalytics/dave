@@ -13,6 +13,8 @@ The framework will feature
 
 Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.S. Department of Defense.
 
+Please join the Google Group to keep up with DAVE-related conversation and notifications: https://groups.google.com/forum/#!forum/project-dave 
+
 ## License
 Copyright © 2018 Yet Analytics Inc
 
