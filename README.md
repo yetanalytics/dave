@@ -1,6 +1,8 @@
 # DAVE
 ## The Data Analytics Visualization Efficiency Framework for xAPI and the Total Learning Architecture
 
+*[How to contribute to Project DAVE] (https://github.com/yetanalytics/dave/wiki/Contributing) (including workflow requirements).*
+
 *Quickstart: Click on "Projects" above to see the current status of issues. Feel free to start working on the issues of your choice.*
 
 **What is DAVE?**
