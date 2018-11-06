@@ -18,7 +18,6 @@ pom.xml.asc
 *.aux
 *.log
 *.out
-*.el
 .DS_Store
 /resources/public/css/*.css
 /resources/public/css/*.css.map
