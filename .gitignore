@@ -20,3 +20,7 @@ pom.xml.asc
 *.out
 *.el
 .DS_Store
+/resources/public/css/*.css
+/resources/public/css/*.css.map
+
+

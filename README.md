@@ -19,9 +19,44 @@ Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.
 
 **Take Part**
 
-Here is a quick link to the master doc for review of the template: https://github.com/yetanalytics/dave/blob/master/docs/algorithms/master.pdf 
+Here is a quick link to the master doc for review of the template: https://github.com/yetanalytics/dave/blob/master/docs/algorithms/master.pdf
 
-Please join the Google Group to keep up with DAVE-related conversation and notifications: https://groups.google.com/forum/#!forum/project-dave 
+Please join the Google Group to keep up with DAVE-related conversation and notifications: https://groups.google.com/forum/#!forum/project-dave
+
+## For Developers: Running the Interactive Workbooks
+
+DAVE's interactive workbooks are written in [ClojureScript](https://clojurescript.org/)
+which is compiled to Javascript to run in a browser. To get started, you'll need
+the Java JDK version 1.8 or later, and a working installation of the [Clojure CLI](https://clojure.org/guides/getting_started).
+
+To get an interactive development environment run:
+
+    clojure -A:fig:build
+
+A browser window will open automatically.
+
+To live-compile SASS files to CSS (do this in another shell):
+
+    clojure -A:watch-sass
+
+The root SASS file can be found at `/resources/sass/style.scss`
+
+This will auto compile and send all changes to the browser without the
+need to reload. After the compilation process is complete, you will
+get a Browser Connected REPL. An easy way to try it is:
+
+    (js/alert "Am I connected?")
+
+and you should see an alert in the browser window.
+
+To clean all compiled files:
+
+    rm -rf target/public
+
+To create a production build run:
+
+	rm -rf target/public
+	clojure -A:fig:min
 
 ## License
 Copyright © 2018 Yet Analytics Inc

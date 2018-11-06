@@ -6,6 +6,13 @@
                   {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                    com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
                  :extra-paths ["target" "test"]}
+           :watch-sass {:extra-deps
+                        {com.yetanalytics/sassenach {:mvn/version "0.1.0"}}
+                        :main-opts ["-m" "com.yetanalytics.sassenach"
+                                    ;; input path
+                                    "resources/sass/style.scss"
+                                    ;; output path
+                                    "resources/public/css/style.css"]}
            :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
            :min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
            :test  {:main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.test-runner]}}}
