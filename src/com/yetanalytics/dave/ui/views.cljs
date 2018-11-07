@@ -3,4 +3,5 @@
 
 (defn app []
   [:div
-   [:h3 "Hello DAVE!"]])
+   [:h3 "Hello DAVE!"]
+   [:a {:href "/#/foo"} "foo"]])
