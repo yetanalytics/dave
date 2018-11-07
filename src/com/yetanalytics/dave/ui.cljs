@@ -1,5 +1,6 @@
 (ns ^:figwheel-hooks com.yetanalytics.dave.ui
   (:require
+   [cljsjs.material-components] ;; Enable MDC JS
    [re-frame.core :refer [dispatch dispatch-sync]]
    [com.yetanalytics.dave.ui.events :as events]
    [com.yetanalytics.dave.ui.subs]
