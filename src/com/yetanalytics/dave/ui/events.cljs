@@ -1,8 +1,8 @@
-(ns com.yetanalytics.dave.events
+(ns com.yetanalytics.dave.ui.events
   (:require
    [re-frame.core :as re-frame]
-   [com.yetanalytics.dave.events.db :as db]
-   [com.yetanalytics.dave.events.dom :as dom]))
+   [com.yetanalytics.dave.ui.events.db :as db]
+   [com.yetanalytics.dave.ui.events.dom :as dom]))
 
 (re-frame/reg-event-fx
  ::init ;; initialize the entire application.

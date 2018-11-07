@@ -1,4 +1,4 @@
-(ns com.yetanalytics.dave.views
+(ns com.yetanalytics.dave.ui.views
   (:require [reagent.core :as reagent]))
 
 (defn app []

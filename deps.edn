@@ -12,7 +12,7 @@
                         {com.yetanalytics/sassenach {:mvn/version "0.1.0"}}
                         :main-opts ["-m" "com.yetanalytics.sassenach"
                                     ;; input path
-                                    "resources/sass/style.scss"
+                                    "resources/dave/ui/sass/style.scss"
                                     ;; output path
                                     "resources/public/css/style.css"]}
            :build {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}

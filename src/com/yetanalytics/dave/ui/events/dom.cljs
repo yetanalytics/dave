@@ -1,8 +1,8 @@
-(ns com.yetanalytics.dave.events.dom
+(ns com.yetanalytics.dave.ui.events.dom
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]
             [re-frame.core :as re-frame]
-            [com.yetanalytics.dave.views :as views]))
+            [com.yetanalytics.dave.ui.views :as views]))
 
 (re-frame/reg-cofx
  ::app-element
