@@ -31,7 +31,7 @@ the Java JDK version 1.8 or later, and a working installation of the [Clojure CL
 
 To get an interactive development environment run:
 
-    clojure -A:fig:build
+    clj -A:fig:build
 
 A browser window will open automatically.
 

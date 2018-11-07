@@ -3,7 +3,6 @@
         reagent {:mvn/version "0.8.1"}
         cljsjs/material-components {:mvn/version "0.34.1-0"}
         re-frame {:mvn/version "0.10.6"}
-        secretary {:mvn/version "1.2.3"}
         com.yetanalytics/xapi-schema {:mvn/version "1.0.0-alpha19-SNAPSHOT"}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
