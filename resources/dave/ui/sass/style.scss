@@ -1,7 +1,8 @@
 /* root sass file for project */
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import "dave/ui/sass/mdc.scss";
+@import url('https://fonts.googleapis.com/css?family=Lato');
 
 body {
   margin: 0 0 0 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Lato', sans-serif;
 }
