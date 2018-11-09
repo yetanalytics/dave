@@ -21,6 +21,7 @@
 
 (defn cell [workbook]
   [:div
+   [:h4 (:title workbook)]
    [:a {:href (str "#/workbooks/" (:id workbook))}
     (str "workbook cell for " (:id workbook))]])
 
