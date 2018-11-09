@@ -5,7 +5,7 @@
             [com.yetanalytics.dave.util.spec :as su]))
 
 (s/def ::id
-  su/string-not-empty-spec)
+  uuid?)
 
 (def visualization-spec
   (s/keys :req-un [::id]))

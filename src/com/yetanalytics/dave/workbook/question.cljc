@@ -7,7 +7,7 @@
             [com.yetanalytics.dave.workbook.question.visualization :as v]))
 
 (s/def ::id
-  su/string-not-empty-spec)
+  uuid?)
 
 (s/def ::text
   su/string-not-empty-spec)
