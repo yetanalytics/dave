@@ -4,9 +4,15 @@
             [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.ui.events.nav :as nav]
             [cognitect.transit :as t]
-            [com.yetanalytics.dave.workbook :as workbook])
+            [com.yetanalytics.dave.workbook :as workbook]
+            [com.yetanalytics.dave.ui.interceptor :as i]
+            [com.cognitect.transit.types :as ty])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
+
+;; Make transit UUIDs work with the uuid? spec pred
+(extend-type ty/UUID
+  cljs.core/IUUID)
 
 ;; Persistence
 (defonce w (t/writer :json))
@@ -62,12 +68,15 @@
  (fn [cofx]
    (let [saved (storage-get "dave.ui.db")]
      (cond
-       (and saved
-                (s/valid? db-state-spec saved))
+       (and (not-empty saved)
+            (s/valid? db-state-spec saved))
        (assoc cofx :saved saved)
 
-       saved ;; it must not be valid. Let's delete it
-       (do (storage-remove "dave.ui.db")
+       (some? saved) ;; it must not be valid. Let's delete it
+       (do
+         (.warn js/console "DB invalid! %o" saved)
+         (s/explain db-state-spec saved)
+         (storage-remove "dave.ui.db")
            cofx)
        ;; otherwise, doesn't add any cofx
        :else cofx))))
@@ -90,25 +99,24 @@
 
 (re-frame/reg-event-fx
  :db/init
- [(re-frame/inject-cofx ::load)]
+ [(re-frame/inject-cofx ::load)
+  i/persist-interceptor]
  (fn [{:keys [saved
               db] :as ctx} [_ instance-id]]
-   (let [new-db (merge
-                 db ;; merge DB so it works with reset!
-                 saved
-                 (when-not saved
-                   (println "New db")
-                   db-default)
-                 {:id instance-id})]
-     {:db new-db
-      :db/save! new-db})))
+   {:db (merge
+         db ;; merge DB so it works with reset!
+         saved
+         (when-not saved
+           (.log js/console "Creating new DAVE ui DB...")
+           db-default)
+         {:id instance-id})}))
 
 (re-frame/reg-event-fx
  :db/reset!
- (fn [{{:keys [instance-id]} :db
+ (fn [{{:keys [id]} :db
        :as ctx} _]
    {:db/destroy! true
-    :dispatch [:db/init instance-id]}))
+    :dispatch [:db/init id]}))
 
 (re-frame/reg-sub
  :db/debug
