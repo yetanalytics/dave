@@ -4,7 +4,8 @@
    [com.yetanalytics.dave.ui.events.nav :as nav]
    [com.yetanalytics.dave.ui.events.db :as db]
    [com.yetanalytics.dave.ui.events.dom :as dom]
-   [com.yetanalytics.dave.ui.events.notify]))
+   [com.yetanalytics.dave.ui.events.notify]
+   [com.yetanalytics.dave.ui.events.workbook]))
 
 (defn init!
   "Synchronously initialize the application:
