@@ -23,9 +23,9 @@
   #_(make-history)
   (delay
    (doto (make-history)
-     (events/listen EventType.NAVIGATE (fn [x]
-                                         (re-frame/dispatch [:nav/dispatch (.-token x)])))
-     )))
+     (events/listen EventType.NAVIGATE
+                    (fn [x]
+                      (re-frame/dispatch [:nav/dispatch (.-token x)]))))))
 
 (defn get-token []
   (.getToken @history))
