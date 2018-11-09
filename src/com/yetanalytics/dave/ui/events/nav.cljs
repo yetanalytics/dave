@@ -55,14 +55,14 @@
     (s/?
      (s/cat
       :type #{:workbooks}
-      :workbook-id string?
+      :workbook-id uuid?
       :questions
       (s/?
        (s/cat :type #{:questions}
-              :question-id string?
+              :question-id uuid?
               :visualizations (s/? (s/cat :type #{:visualizations}
                                           :visualization-id
-                                          string?)))))))))
+                                          uuid?)))))))))
 
 ;; This enumerates all possible contexts in the app
 (s/def ::context
@@ -89,7 +89,7 @@
             (fn [idx token-part]
               (if (even? idx)
                 (keyword token-part)
-                token-part))
+                (uuid token-part)))
             (remove empty?
                     (cs/split token #"/")))))
 ;; Handlers
@@ -154,10 +154,41 @@
      nil :loading
      [] :root
      ;; singularized path resource
-     (apply str
-            (butlast
-             (last
-              (filter #{:workbooks
-                        :questions
-                        :visualizations}
-                      path)))))))
+     (keyword
+      (apply str
+             (butlast
+              (name
+               (last
+                (filter #{:workbooks
+                          :questions
+                          :visualizations}
+                        path)))))))))
+
+(re-frame/reg-sub
+ :nav/focus
+ (fn [_ _]
+   [(re-frame/subscribe [:dave/db])
+    (re-frame/subscribe [:nav/path])])
+ (fn [[db path] _]
+   (get-in db path)))
+
+(re-frame/reg-sub
+ :nav/focus-id
+ (fn [_ _]
+   (re-frame/subscribe [:nav/focus]))
+ (fn [focus _]
+   (:id focus)))
+
+(re-frame/reg-sub
+ :nav/focus-children
+ (fn [_ _]
+   [(re-frame/subscribe [:nav/focus])
+    (re-frame/subscribe [:nav/context])])
+ (fn [[focus context] _]
+   (if-let [child-key (case context
+                        :root :workbooks
+                        :workbook :questions
+                        :question :visualizations
+                        nil)]
+     (mapv second (get focus child-key))
+     [])))

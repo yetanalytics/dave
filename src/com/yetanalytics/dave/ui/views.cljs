@@ -4,6 +4,10 @@
             [com.yetanalytics.dave.ui.views.debug :as debug]
             [com.yetanalytics.dave.ui.views.snackbar :refer [snackbar]]
             [com.yetanalytics.dave.ui.views.root :as root]
+            [com.yetanalytics.dave.ui.views.workbook :as workbook]
+            [com.yetanalytics.dave.ui.views.workbook.question :as question]
+            [com.yetanalytics.dave.ui.views.workbook.question.visualization
+             :as visualization]
             [cljs.pprint :refer [pprint]]))
 
 (defmulti page
@@ -16,6 +20,15 @@
 
 (defmethod page :root [_]
   [root/page])
+
+(defmethod page :workbook [_]
+  [workbook/page])
+
+(defmethod page :question [_]
+  [question/page])
+
+(defmethod page :visualization [_]
+  [visualization/page])
 
 (defn loading-bar [loading?]
   [:div.mdc-linear-progress.mdc-linear-progress--indeterminate

@@ -118,7 +118,13 @@
    {:db/destroy! true
     :dispatch [:db/init id]}))
 
+;; Top-level sub for form-2 subs
+(re-frame/reg-sub
+ :dave/db
+ (fn [db _]
+   db))
+
 (re-frame/reg-sub
  :db/debug
- (fn [db]
+ (fn [db _]
    db))
