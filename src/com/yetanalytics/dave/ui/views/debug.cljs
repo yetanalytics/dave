@@ -1,5 +1,7 @@
 (ns com.yetanalytics.dave.ui.views.debug
-  (:require [re-frame.core :refer [dispatch subscribe]]))
+  (:require [re-frame.core :refer [dispatch subscribe]]
+            [goog.string :refer [format]]
+            [goog.string.format]))
 
 (defn debug-bar
   []
@@ -13,4 +15,9 @@
       {:aria-label "Reset DB"
        :alt "Reset DB"
        :on-click #(dispatch [:db/reset!])}
-      "refresh"]]]])
+      "refresh"]
+     [:span (format "path: %s context: %s"
+                    @(subscribe [:nav/path])
+                    @(subscribe [:nav/context]))
+
+      ]]]])

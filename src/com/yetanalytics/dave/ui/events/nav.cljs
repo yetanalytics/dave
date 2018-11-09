@@ -48,15 +48,29 @@
 ;; Master spec for all paths in App
 ;; TODO: plug in actual ID specs
 (s/def ::path
-  (s/and vector?
-         (s/cat :workbooks
-                (s/? (s/cat :type #{:workbooks}
-                            :workbook-id string?
-                            :questions (s/? (s/cat :type #{:questions}
-                                                   :question-id string?
-                                                   :visualizations (s/? (s/cat :type #{:visualizations}
-                                                                               :visualization-id
-                                                                               string?)))))))))
+  (s/and
+   vector?
+   (s/cat
+    :workbooks
+    (s/?
+     (s/cat
+      :type #{:workbooks}
+      :workbook-id string?
+      :questions
+      (s/?
+       (s/cat :type #{:questions}
+              :question-id string?
+              :visualizations (s/? (s/cat :type #{:visualizations}
+                                          :visualization-id
+                                          string?)))))))))
+
+;; This enumerates all possible contexts in the app
+(s/def ::context
+  #{:loading
+    :root
+    :workbook
+    :question
+    :visualization})
 
 (def nav-spec
   (s/keys :opt-un [::token
@@ -95,11 +109,55 @@
  (fn [listen?]
    (.setEnabled @history listen?)))
 
+(re-frame/reg-fx
+ ::nav!
+ (fn [token]
+   (.replaceToken @history "/")
+   #_(nav! token)))
+
 ;; Receive events from the history API and dispatch accordingly
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :nav/dispatch
- (fn [db [_ token]]
+ (fn [{:keys [db] :as ctx} [_ token]]
    (let [token (or (not-empty token)
-                   "/")]
-     (assoc db :nav {:token token
-                     :path (token->path token)}))))
+                   "/")
+         path (token->path token)]
+     (if (and
+          ;; is the path valid?
+          (s/valid? ::path path)
+          ;; is something at the path?
+          (get-in db path))
+       {:db (assoc db :nav {:token token
+                            :path path})}
+       {:notify/snackbar
+        {:message "Page not found!"
+         :timeout 1000}
+        ::nav! ""}))))
+
+;; Subs
+(re-frame/reg-sub
+ :nav/state
+ (fn [db _]
+   (:nav db)))
+
+(re-frame/reg-sub
+ :nav/path
+ (fn [_ _] (re-frame/subscribe [:nav/state]))
+ (fn [state _]
+   (:path state)))
+
+(re-frame/reg-sub
+ :nav/context
+ (fn [_ _] (re-frame/subscribe [:nav/path]))
+ (fn [path _]
+   (case path
+     nil :loading
+     [] :root
+     ;; singularized path resource
+     (apply str
+            (butlast
+             (last
+              (filter #{:workbooks
+                        :questions
+                        :visualizations}
+                      path)))))))
