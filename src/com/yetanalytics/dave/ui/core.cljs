@@ -1,4 +1,4 @@
-(ns ^:figwheel-hooks com.yetanalytics.dave.ui
+(ns ^:figwheel-hooks com.yetanalytics.dave.ui.core
   (:require
    [cljsjs.material-components] ;; Enable MDC JS
    [re-frame.core :refer [dispatch dispatch-sync]]
@@ -17,4 +17,4 @@
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  )

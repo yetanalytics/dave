@@ -3,4 +3,4 @@
   :auto-testing true}
 {:closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
  :preloads             [day8.re-frame-10x.preload]
- :main com.yetanalytics.dave.ui}
+ :main com.yetanalytics.dave.ui.core}
