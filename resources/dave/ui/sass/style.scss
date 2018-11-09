@@ -7,3 +7,26 @@ body {
   margin: 0 0 0 0;
   font-family: 'Lato', sans-serif;
 }
+
+/* example of applying mdc mixins */
+@import "cljsjs/material-components/development/packages/mdc-layout-grid/_mixins.scss";
+
+.page {
+  @include mdc-layout-grid('desktop', 16px);
+  > div {
+    @include mdc-layout-grid-inner('desktop', 8px, 4px);
+    > div {
+      @include mdc-layout-grid-cell('desktop', 12, 4px)
+    }
+  }
+}
+
+.list {
+  @include mdc-layout-grid('desktop', 8px);
+  > div {
+    @include mdc-layout-grid-inner('desktop', 4px, 2px);
+    > div {
+      @include mdc-layout-grid-cell('desktop', 4, 2px)
+    }
+  }
+}
