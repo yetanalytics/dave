@@ -22,25 +22,25 @@
     (fn []
       (sgen/fmap (fn [[?w ?q ?v]]
                    (str (when ?w
-                          (format "/workbook/%s" ?w))
+                          (format "/workbooks/%s" ?w))
                         (when ?q
-                          (format "/question/%s" ?q))
+                          (format "/questions/%s" ?q))
                         (when ?v
-                          (format "/vis/%s" ?v))))
+                          (format "/visualizations/%s" ?v))))
                  (sgen/vector (sgen/string-alphanumeric) 0 3)))))
 
 ;; Master spec for all paths in App
 ;; TODO: plug in actual ID specs
 (s/def ::path
   (s/and vector?
-         (s/cat :workbook
-                (s/? (s/cat :type #{:workbook}
+         (s/cat :workbooks
+                (s/? (s/cat :type #{:workbooks}
                             :workbook-id string?
-                            :question (s/? (s/cat :type #{:question}
-                                                  :question-id string?
-                                                  :vis (s/? (s/cat :type #{:vis}
-                                                                   :vis-id
-                                                                   string?)))))))))
+                            :questions (s/? (s/cat :type #{:questions}
+                                                   :question-id string?
+                                                   :visualizations (s/? (s/cat :type #{:visualizations}
+                                                                               :visualization-id
+                                                                               string?)))))))))
 
 (s/def ::state
   (s/keys :opt-un [::token
@@ -48,9 +48,9 @@
 
 
 (s/fdef token->path
-    :args (s/cat :token ::token)
-    ;; TODO: make ret more detailed
-    :ret ::path)
+  :args (s/cat :token ::token)
+  ;; TODO: make ret more detailed
+  :ret ::path)
 
 (defn token->path
   "Given a token, return a path vector"
