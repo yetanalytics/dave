@@ -23,7 +23,7 @@
   #_(make-history)
   (delay
    (doto (make-history)
-     (events/listen EventType.NAVIGATE (fn [x] (println "event")
+     (events/listen EventType.NAVIGATE (fn [x]
                                          (re-frame/dispatch [:nav/dispatch (.-token x)])))
      )))
 
@@ -88,14 +88,12 @@
 (re-frame/reg-event-fx
  :nav/init
  (fn [_ _]
-   {#_:db #_(assoc db :nav {:token token
-                        :path (token->path token)})
-    ::listen true}))
+   {::listen true}))
 
 (re-frame/reg-fx
  ::listen
- (fn [_]
-   (.setEnabled @history true)))
+ (fn [listen?]
+   (.setEnabled @history listen?)))
 
 ;; Receive events from the history API and dispatch accordingly
 (re-frame/reg-event-db
@@ -103,6 +101,5 @@
  (fn [db [_ token]]
    (let [token (or (not-empty token)
                    "/")]
-     (println "disp" token)
      (assoc db :nav {:token token
                      :path (token->path token)}))))
