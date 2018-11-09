@@ -16,7 +16,7 @@
    (reagent/render-component component element)))
 
 (re-frame/reg-event-fx
- ::render-app
+ :dom/render-app
  [(re-frame/inject-cofx ::app-element)]
  (fn [{element ::app-element
        db :db} _]

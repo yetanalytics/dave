@@ -17,8 +17,7 @@
                                     "resources/dave/ui/sass/style.scss"
                                     ;; output path
                                     "resources/public/css/style.css"]}
-           :build {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
-                   :main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+           :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
            :min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
            :test  {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
                    :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.test-runner]}}}

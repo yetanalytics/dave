@@ -8,14 +8,30 @@
             [goog.string.format])
   (:import [goog.history Html5History EventType]))
 
+
+;; a la https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
+
+(defn make-history []
+  (doto (Html5History.)
+    ;; for SPA use
+    #_(.setPathPrefix (str js/window.location.protocol
+                           "//"
+                           js/window.location.host))
+    #_(.setUseFragment false)))
+
+(defonce history
+  #_(make-history)
+  (delay
+   (doto (make-history)
+     (events/listen EventType.NAVIGATE (fn [x] (println "event")
+                                         (re-frame/dispatch [:nav/dispatch (.-token x)])))
+     )))
+
 (defn get-token []
-  (str js/window.location.pathname js/window.location.search))
-
-
-(declare history)
+  (.getToken @history))
 
 (defn nav! [token]
-  (.setToken history token))
+  (.setToken @history token))
 
 (s/def ::token
   (s/with-gen string?
@@ -42,7 +58,7 @@
                                                                                :visualization-id
                                                                                string?)))))))))
 
-(s/def ::state
+(def nav-spec
   (s/keys :opt-un [::token
                    ::path]))
 
@@ -62,26 +78,31 @@
                 token-part))
             (remove empty?
                     (cs/split token #"/")))))
+;; Handlers
+
+(re-frame/reg-cofx
+ ::token
+ (fn [cofx]
+   (assoc cofx :token (get-token))))
+
+(re-frame/reg-event-fx
+ :nav/init
+ (fn [_ _]
+   {#_:db #_(assoc db :nav {:token token
+                        :path (token->path token)})
+    ::listen true}))
+
+(re-frame/reg-fx
+ ::listen
+ (fn [_]
+   (.setEnabled @history true)))
 
 ;; Receive events from the history API and dispatch accordingly
-(re-frame/reg-event-fx
- ::dispatch
- (fn [{:keys [db] :as ctx} [_ token]]
-   (.log js/console "dispatch" token)
-   {:db (assoc db ::state {:token token
-                           :path (token->path token)})}))
-
-;; a la https://lispcast.com/mastering-client-side-routing-with-secretary-and-goog-history/
-
-(defn make-history []
-  (doto (Html5History.)
-    ;; for SPA use
-    #_(.setPathPrefix (str js/window.location.protocol
-                           "//"
-                           js/window.location.host))
-    #_(.setUseFragment false)))
-
-(defonce history
-  (doto (make-history)
-    (events/listen EventType.NAVIGATE (fn [x] (re-frame/dispatch [::dispatch (.-token x)])))
-    (.setEnabled true)))
+(re-frame/reg-event-db
+ :nav/dispatch
+ (fn [db [_ token]]
+   (let [token (or (not-empty token)
+                   "/")]
+     (println "disp" token)
+     (assoc db :nav {:token token
+                     :path (token->path token)}))))
