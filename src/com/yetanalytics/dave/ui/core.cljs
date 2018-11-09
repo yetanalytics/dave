@@ -12,8 +12,13 @@
 
 (println "This text is printed from src/com/yetanalytics/dave/ui.cljs. Go ahead and edit it and see reloading in action.")
 
+;; The instance ID identifies this instance of the app.
+;; If multiple tabs are run in the same browser, they will have different ids.
+(defonce instance-id
+  (random-uuid))
+
 (defonce bootstrap
-  (events/init!))
+  (events/init! instance-id))
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []

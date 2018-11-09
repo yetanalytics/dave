@@ -10,7 +10,7 @@
     * Initialize/deserialize the DB
     * Start the nav listener
     * Render the application"
-  []
-  (re-frame/dispatch-sync [:db/init])
+  [instance-id]
+  (re-frame/dispatch-sync [:db/init instance-id])
   (re-frame/dispatch-sync [:nav/init])
   (re-frame/dispatch-sync [:dom/render-app]))
