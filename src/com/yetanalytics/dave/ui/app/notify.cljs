@@ -1,4 +1,4 @@
-(ns com.yetanalytics.dave.ui.events.notify
+(ns com.yetanalytics.dave.ui.app.notify
   (:require [cljsjs.material-components]
             [clojure.spec.alpha :as s]
             [re-frame.core :as re-frame]))

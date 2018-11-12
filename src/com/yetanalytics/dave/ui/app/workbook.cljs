@@ -1,4 +1,4 @@
-(ns com.yetanalytics.dave.ui.events.workbook
+(ns com.yetanalytics.dave.ui.app.workbook
   (:require [re-frame.core :as re-frame]
             ))
 

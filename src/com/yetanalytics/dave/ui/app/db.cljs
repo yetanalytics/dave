@@ -1,8 +1,8 @@
-(ns com.yetanalytics.dave.ui.events.db
+(ns com.yetanalytics.dave.ui.app.db
   "Handle top-level app state & persistence"
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
-            [com.yetanalytics.dave.ui.events.nav :as nav]
+            [com.yetanalytics.dave.ui.app.nav :as nav]
             [cognitect.transit :as t]
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.ui.interceptor :as i]

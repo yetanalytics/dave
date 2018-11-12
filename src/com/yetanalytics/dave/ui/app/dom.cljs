@@ -1,4 +1,4 @@
-(ns com.yetanalytics.dave.ui.events.dom
+(ns com.yetanalytics.dave.ui.app.dom
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]
             [re-frame.core :as re-frame]

@@ -1,4 +1,4 @@
-(ns com.yetanalytics.dave.ui.events.nav
+(ns com.yetanalytics.dave.ui.app.nav
   (:require [re-frame.core :as re-frame]
             [goog.events :as events]
             [clojure.string :as cs]
