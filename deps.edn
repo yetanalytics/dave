@@ -4,7 +4,8 @@
         cljsjs/material-components {:mvn/version "0.34.1-0"}
         re-frame {:mvn/version "0.10.6"}
         com.yetanalytics/xapi-schema {:mvn/version "1.0.0-alpha19-SNAPSHOT"}
-        com.cognitect/transit-cljs {:mvn/version "0.8.256"}}
+        com.cognitect/transit-cljs {:mvn/version "0.8.256"}
+        cljsjs/vega {:mvn/version "4.3.0-0"}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                   {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}

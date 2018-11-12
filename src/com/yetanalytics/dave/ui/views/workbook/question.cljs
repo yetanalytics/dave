@@ -13,8 +13,8 @@
       [:div.splash
        [:h2 text]]
       ;; TODO: Nav/Breadcrumb
-      [visualization/grid-list visualizations]
-      ]]))
+      [visualization/grid-list
+       visualizations]]]))
 
 (defn cell [{:keys [id text] :as question}]
   [:div

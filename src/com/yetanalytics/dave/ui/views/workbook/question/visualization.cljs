@@ -1,5 +1,7 @@
 (ns com.yetanalytics.dave.ui.views.workbook.question.visualization
-  (:require [re-frame.core :refer [dispatch subscribe]]))
+  (:require [re-frame.core :refer [dispatch subscribe]]
+            [com.yetanalytics.dave.ui.views.vega :as v :refer [vega]]
+            [reagent.core :as r]))
 
 (defn page []
   (let [{:keys [id]
@@ -9,9 +11,7 @@
       [:div.splash
        [:h2 id]]
       ;; TODO: Nav/Breadcrumb
-      ;; TODO: Visualization list
-
-      ]]))
+      [vega v/bar-spec-demo]]]))
 
 (defn cell [{:keys [id] :as visualization}]
   (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]
