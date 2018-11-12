@@ -5,7 +5,8 @@
    [com.yetanalytics.dave.ui.app.db :as db]
    [com.yetanalytics.dave.ui.app.dom :as dom]
    [com.yetanalytics.dave.ui.app.notify]
-   [com.yetanalytics.dave.ui.app.workbook]))
+   [com.yetanalytics.dave.ui.app.workbook]
+   [com.yetanalytics.dave.ui.app.debug]))
 
 (defn init!
   "Synchronously initialize the application:
