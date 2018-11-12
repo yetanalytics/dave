@@ -3,6 +3,13 @@
             [goog.string :refer [format]]
             [goog.string.format]))
 
+(defn textfile-dump
+  [label text]
+  [:a {:href (format
+              "data:application/octet-stream;charset=utf-16;base64,%s"
+              (js/btoa text))}
+   label])
+
 (defn debug-bar
   []
   (let [expand? @(subscribe [:debug/expand?])]
@@ -43,4 +50,10 @@
          [:section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
           [:span (format "focus: %s"
                          @(subscribe [:nav/focus-id])
-                         )]]]]))))
+                         )]]]
+        [:div.mdc-top-app-bar__row
+         [:section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
+          [textfile-dump "Dump EDN" @(subscribe [:db/edn-str])]]]
+        [:div.mdc-top-app-bar__row
+         [:section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
+          [textfile-dump "Dump Transit" @(subscribe [:db/transit-str])]]]]))))

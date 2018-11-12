@@ -134,3 +134,13 @@
  :db/debug
  (fn [db _]
    db))
+
+(re-frame/reg-sub
+ :db/transit-str
+ (fn [db _]
+   (t/write w db)))
+
+(re-frame/reg-sub
+ :db/edn-str
+ (fn [db _]
+   (pr-str db)))
