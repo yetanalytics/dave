@@ -1,4 +1,20 @@
 (ns com.yetanalytics.dave.ui.views.vega
+  "Render Vega charts from specifications + options.
+  Main component is com.yetanalytics.dave.ui.views.vega/vega.
+
+  In a reagent component, it can be used like:
+  [vega <vega spec + data>
+    :signals-in {\"bar_color\" [:debug/bar-color]} ;; signals in from subs
+    ;; signals out to handlers
+    :signals-out {\"tooltip\" [:debug/log \"tooltip state:\"]
+                  \"bar_color\" [:debug/log \"bar color out:\"]}
+    ;; dom + vega events out to handlers
+    :events-out {\"click\" [:debug/log \"click event:\"]}
+    ;; Other options:
+    :renderer \"canvas\" ;; use canvas rather than SVG
+    :hover? false ;; don't initialize hovering
+    :log-level :debug ;; set log level (default is :warn)
+  ]"
   (:require
    [cljsjs.vega]
    [reagent.core :as r]
