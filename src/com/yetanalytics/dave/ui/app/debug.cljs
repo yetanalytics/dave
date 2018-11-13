@@ -12,6 +12,16 @@
  (fn [db _]
    (update-in db [:debug :expand?] not)))
 
+(re-frame/reg-fx
+ ::log
+ (fn [args]
+   (apply (.-log js/console) args)))
+
+(re-frame/reg-event-fx
+ :debug/log
+ (fn [_ [_ & args]]
+   {::log args}))
+
 (re-frame/reg-sub
  ::state
  (fn [db _]
