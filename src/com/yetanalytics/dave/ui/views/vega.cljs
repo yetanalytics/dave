@@ -1,7 +1,311 @@
 (ns com.yetanalytics.dave.ui.views.vega
-  (:require [reagent.core :as r]))
+  (:require
+   [cljsjs.vega]
+   [reagent.core :as r]
+   [reagent.ratom :as ratom]
+   [re-frame.core :refer [dispatch subscribe]]
+   [clojure.spec.alpha :as s]))
 
-;; TODO: remove
+(s/def ::chart
+  #(instance? js/vega.View %))
+
+(def re-frame-vec-spec
+  (s/and vector?
+         (s/cat :id qualified-keyword?
+                :restv (s/* identity))))
+
+(s/def ::qvec
+  re-frame-vec-spec)
+
+(s/def ::hvec
+  re-frame-vec-spec)
+
+(s/def ::signal-name string?)
+(s/def ::event-type string?)
+
+
+(s/def ::signals-in
+  (s/nilable
+   (s/map-of ::signal-name
+             ::qvec)))
+
+(s/def ::signal-trackers
+  (s/every
+   #(instance? reagent.ratom.Reaction %)
+   :kind vector?
+   :into []))
+
+
+(s/fdef signal-trackers-init
+  :args (s/cat :chart ::chart
+               :signals-in ::signals-in)
+  :ret ::signal-trackers)
+
+(defn signal-trackers-init
+  "Given a Vega View (chart) and a map of signal names to re-frame subscription
+  query vectors, subscribe to each sub and create a tracker that sets the
+  signal value from that of the sub. Returns a vector of trackers."
+  [chart signals-in]
+  (into []
+        (for [[signal-name qvec] signals-in
+              :let [sub (subscribe qvec)]]
+
+          (r/track! (fn []
+                      (let [v @sub]
+                        (.signal chart
+                                 signal-name
+                                 v)
+                        (.run chart)))))))
+
+(s/fdef signal-trackers-cleanup
+  :args (s/cat :signal-trackers ::signal-trackers)
+  :ret nil?)
+
+(defn signal-trackers-cleanup
+  "Given a vector of trackers, dispose of them all."
+  [signal-trackers]
+  (doseq [tracker signal-trackers]
+    (r/dispose! tracker)))
+
+(s/def ::signals-out
+  (s/nilable
+   (s/map-of ::signal-name
+             ::hvec)))
+
+(s/fdef signal-listeners-init!
+  :args (s/cat :chart ::chart
+               :signals-out ::signals-out)
+  :ret nil?)
+
+(defn signal-listeners-init!
+  "Given a Vega View (chart) and a map of signal names to partial re-frame
+  handler vectors, add a listener for each signal that calls the handler with
+  the signal name and value appended."
+  [chart signals-out]
+  (doseq [[signal-name hvec] signals-out]
+    (.addSignalListener chart
+                        signal-name
+                        (fn [n v]
+                          (dispatch (conj hvec n v))))))
+
+(s/def ::events-out
+  (s/nilable
+   (s/map-of ::event-type
+             ::hvec)))
+
+(s/fdef event-listeners-init!
+  :args (s/cat :chart ::chart
+               :events-out
+               ::events-out)
+  :ret nil?)
+
+(defn event-listeners-init!
+  "Given a Vega View (chart) and a map of event types to partial re-frame
+  handler vectors, add a listener for each event that calls the handler with
+  the event type, event, and Vega scenegraph item (if applicable)."
+  [chart events-out]
+  (doseq [[event-type hvec] events-out]
+    (.addEventListener
+     chart
+     event-type
+     (fn [event scenegraph-item]
+       (dispatch (conj hvec
+                       event-type
+                       event
+                       scenegraph-item))))))
+
+(s/fdef cleanup!
+  :args (s/cat :component #(instance? js/Object %))
+  :ret nil?)
+
+(defn cleanup!
+  "Clean up a component's chart and associated listeners."
+  [component]
+  (let [{:keys [chart
+                signal-trackers]}
+        (r/state component)]
+    (signal-trackers-cleanup signal-trackers)
+    (.finalize chart)
+    nil))
+
+(s/def :vega.dataset/name
+  (s/and string?
+         not-empty))
+
+(s/def :vega.dataset/values
+  (s/or :maps (s/every map?
+                       :kind vector?
+                       :into [])
+        :bare-numbers
+        (s/every number?
+                 :kind vector?
+                 :into [])))
+
+(s/def :vega/dataset
+  (s/keys :req-un [:vega.dataset/name
+                   :vega.dataset/values]))
+(s/def ::data
+  (s/every
+   :vega/dataset
+   :kind vector?
+   :into []))
+
+(s/def ::dset-map
+  (s/map-of :vega.dataset/name
+            :vega/dataset))
+
+(s/fdef dset-map
+  :args (s/cat :data
+               ::data)
+  :ret ::dset-map)
+
+(defn- dset-map
+  "Coerce a vector of Vega datasets into a map by dataset name."
+  [data]
+  (into {}
+        (map (fn [{dataset-name :name
+                   :as dataset}]
+               [dataset-name
+                dataset]))
+        data))
+
+(s/fdef did-mount
+  :args (s/cat :this #(instance? js/Object %)))
+
+(s/def ::log-level
+  (s/and
+   (s/conformer
+    (fn [x]
+      (if (keyword? x)
+        (get {:error js/vega.Error
+              :warn js/vega.Warn
+              :info js/vega.Info
+              :debug js/vega.Debug}
+             x
+             ::s/invalid)
+        x))
+    (fn [x]
+      (get {js/vega.Error :error
+            js/vega.Warn :warn
+            js/vega.Info :info
+            js/vega.Debug :debug} x)))
+   #{js/vega.Error
+     js/vega.Warn
+     js/vega.Info
+     js/vega.Debug}))
+
+(defn did-mount
+  "React lifecycle handler: set up a vega chart and any requested signal/event
+  ports."
+  [this]
+  (let [[_ spec & {:keys [signals-in
+                          signals-out
+                          events-out
+                          renderer
+                          hover?
+                          log-level]
+                   :or {renderer "svg"
+                        hover? true
+                        log-level :warn}}] (r/argv this)
+        el (r/dom-node this)
+        runtime (.parse js/vega (clj->js spec))
+        chart (-> (js/vega.View. runtime)
+                  (.logLevel (s/conform ::log-level
+                                        log-level))
+                  (.renderer renderer)
+                  (.initialize el)
+                  (cond-> hover? .hover))]
+    (signal-listeners-init! chart signals-out)
+    (event-listeners-init! chart events-out)
+    (r/set-state this
+                 {:signal-trackers
+                  (signal-trackers-init
+                   chart
+                   signals-in)
+                  :chart (.run chart)})))
+
+(s/fdef did-update
+  :args (s/cat :this #(instance? js/Object %)))
+
+(defn did-update
+  "React lifecycle handler: given new data (and possibly other attributes),
+  attempt to update the chart. If non-data changes are made, will clean up and
+  call the mount handler."
+  [this old-argv]
+  (let [{:keys [chart]} (r/state this)
+        new-spec (-> this r/argv second)
+        old-spec (second old-argv)]
+    (if (= (dissoc new-spec :data) ;; if the only thing that changed is data
+           (dissoc old-spec :data))
+      (let [new-data-map (dset-map (:data new-spec))
+            old-data-map (dset-map (:data old-spec))]
+        ;; Detect series changes, dumb updates
+        (doseq [[dataset-name
+                 new-dataset] new-data-map
+                :when (not= new-dataset (get old-data-map dataset-name))
+                :let [changeset (-> (.changeset js/vega)
+                                    (.remove (constantly true))
+                                    (.insert (clj->js
+                                              (:values new-dataset))))]]
+          (.change chart
+                   dataset-name
+                   changeset))
+        (.run chart))
+      ;; Otherwise, vega doesn't provide a good solution. Sooo, we completely
+      ;; re-render the chart. Takes 2-3 ms for a simple bar chart.
+      (do
+        ;; Clean up Listeners, etc.
+        (cleanup! this)
+        (did-mount this)))))
+
+;; vega spec
+;; TODO: maybe a spec that reaches out to json schema?
+(s/def ::spec
+  map?)
+
+(s/def ::renderer
+  #{"svg" "canvas"})
+
+(s/def ::hover?
+  boolean?)
+
+(s/def ::options
+  (s/keys* :opt-un [::signals-in
+                    ::signals-out
+                    ::events-out
+                    ::renderer
+                    ::hover?
+                    ::log-level
+                    ]))
+
+;; Main component
+(s/fdef vega-render
+  :args (s/cat :spec ::spec
+               :options ::options))
+
+(defn vega-render
+  "Dummy render fn for vega charts"
+  [spec & {:keys [signals-in
+                  signals-out
+                  events-out
+                  renderer
+                  hover?
+                  log-level]}]
+  [:div])
+
+(def vega
+  (r/create-class
+   {:reagent-render
+    vega-render
+    :component-did-mount
+    did-mount
+    :component-did-update
+    did-update
+    :component-will-unmount
+    cleanup!}))
+
+
+;; TODO: remove, demo stuff only
 (def bar-spec-demo
   {:axes
    [{:orient "bottom", :scale "xscale"}
@@ -28,7 +332,7 @@
        :width {:scale "xscale", :band 1},
        :y {:scale "yscale", :field "amount"},
        :y2 {:scale "yscale", :value 0}},
-      :update {:fill {:value "steelblue"}},
+      :update {:fill {:signal "bar_color"}},
       :hover {:fill {:value "red"}}}}
     {:type "text",
      :encode
@@ -48,7 +352,9 @@
      :value {},
      :on
      [{:events "rect:mouseover", :update "datum"}
-      {:events "rect:mouseout", :update "{}"}]}],
+      {:events "rect:mouseout", :update "{}"}]}
+    {:name "bar_color"
+     :value "steelblue"}],
    :height 200,
    :data
    [{:name "table",
@@ -61,62 +367,3 @@
       {:category "F", :amount 53}
       {:category "G", :amount 19}
       {:category "H", :amount 87}]}]})
-
-(defn- dset-map [data]
-  (into {}
-        (map (fn [{dataset-name :name
-                   :as dataset}]
-               [dataset-name
-                dataset]))
-        data))
-
-(defn- did-mount
-  [this]
-  (let [spec (-> this r/argv second)
-        el (r/dom-node this)
-        runtime (.parse js/vega (clj->js spec))]
-    (r/set-state this
-                 {:chart (-> (js/vega.View. runtime)
-                             (.logLevel js/vega.Warn)
-                             (.renderer "svg")
-                             (.initialize el)
-                             .hover
-                             .run)})))
-
-(defn- did-update
-  [this old-argv]
-  (let [{:keys [chart]} (r/state this)
-        new-spec (-> this r/argv second)
-        old-spec (second old-argv)]
-    (if (= (dissoc new-spec :data) ;; if the only thing that changed is data
-           (dissoc old-spec :data))
-      (let [new-data-map (dset-map (:data new-spec))
-            old-data-map (dset-map (:data old-spec))]
-        ;; Detect series changes, dumb updates
-        (doseq [[dataset-name
-                 new-dataset] new-data-map
-                :when (not= new-dataset (get old-data-map dataset-name))
-                :let [changeset (-> (.changeset js/vega)
-                                    (.remove (constantly true))
-                                    (.insert (clj->js
-                                              (:values new-dataset))))]]
-          (.change chart
-                   dataset-name
-                   changeset))
-        (.run chart))
-      ;; Otherwise, vega doesn't provide a good solution. Sooo, we completely
-      ;; re-render the chart. Takes 2-3 ms for a simple bar chart.
-      (do
-        ;; Clean up Listeners, etc.
-        (.finalize chart)
-        (did-mount this)))))
-
-(def vega
-  (r/create-class
-   {:reagent-render
-    (fn [spec]
-      [:div])
-    :component-did-mount
-    did-mount
-    :component-did-update
-    did-update}))
