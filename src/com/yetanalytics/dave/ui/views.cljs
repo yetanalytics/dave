@@ -1,7 +1,6 @@
 (ns com.yetanalytics.dave.ui.views
   (:require [reagent.core :as reagent]
             [re-frame.core :refer [dispatch subscribe]]
-            [com.yetanalytics.dave.ui.views.debug :as debug]
             [com.yetanalytics.dave.ui.views.snackbar :refer [snackbar]]
             [com.yetanalytics.dave.ui.views.root :as root]
             [com.yetanalytics.dave.ui.views.workbook :as workbook]
@@ -41,11 +40,14 @@
    [:div.mdc-linear-progress__bar.mdc-linear-progress__secondary-bar
     [:span.mdc-linear-progress__bar-inner]]])
 
+(when ^boolean goog.DEBUG
+  (require 'dave.debug))
+
 (defn app []
   (let [context @(subscribe [:nav/context])]
     [:div.dave-app
      (when ^boolean goog.DEBUG
-       [debug/debug-bar])
+       [dave.debug/debug-bar])
      ;; TODO: Title/top bar
      ;; TODO: nav/breadcrumbs
      [loading-bar (contains? #{:loading} context)]

@@ -1,7 +1,47 @@
-(ns com.yetanalytics.dave.ui.views.debug
-  (:require [re-frame.core :refer [dispatch subscribe]]
-            [goog.string :refer [format]]
-            [goog.string.format]))
+(ns ^:figwheel-load dave.debug
+  (:require
+   [clojure.spec.alpha :as s]
+   [clojure.spec.test.alpha :as stest]
+   [re-frame.core :as re-frame :refer [dispatch subscribe]]
+   [goog.string :refer [format]]
+   [goog.string.format]))
+
+(defonce instrument!
+  (do (.log js/console "Instrumenting dave..."
+            (stest/instrumentable-syms))
+      (stest/instrument)))
+
+(s/def ::expand? boolean?)
+
+(def debug-state-spec
+  (s/keys :opt-un [::expand?]))
+
+(re-frame/reg-event-db
+ :debug/toggle!
+ (fn [db _]
+   (update-in db [:debug :expand?] not)))
+
+(re-frame/reg-fx
+ ::log
+ (fn [args]
+   (apply (.-log js/console) args)))
+
+(re-frame/reg-event-fx
+ :debug/log
+ (fn [_ [_ & args]]
+   {::log args}))
+
+(re-frame/reg-sub
+ ::state
+ (fn [db _]
+   (:debug db)))
+
+(re-frame/reg-sub
+ :debug/expand?
+ (fn [_ _]
+   (re-frame/subscribe [::state]))
+ (fn [state _]
+   (:expand? state false)))
 
 (defn textfile-dump
   [label text]

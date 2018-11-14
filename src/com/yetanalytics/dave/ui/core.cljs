@@ -28,3 +28,6 @@
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
   )
+
+(when ^boolean goog.DEBUG
+  (require '[dave.debug]))

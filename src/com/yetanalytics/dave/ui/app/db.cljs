@@ -3,7 +3,6 @@
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.ui.app.nav :as nav]
-            [com.yetanalytics.dave.ui.app.debug :as debug]
             [cognitect.transit :as t]
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.ui.interceptor :as i]
@@ -46,14 +45,11 @@
   (s/map-of ::workbook/id
             workbook/workbook-spec))
 
-(s/def ::debug
-  debug/debug-state-spec)
-
 (def db-state-spec
   (s/keys :opt-un [::id
                    ::nav
                    ::workbooks
-                   ::debug]))
+                   ]))
 
 ;; This will include the default workbooks for DAVE
 (def db-default
@@ -96,6 +92,7 @@
                         ;; Dissoc nav, as this would force navigation in
                         ;; multi-tab situations
                         :nav
+                        ;; Don't save dave.debug state, as it might be huge
                         :debug))))
 
 (re-frame/reg-fx

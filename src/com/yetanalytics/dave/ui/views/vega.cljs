@@ -285,20 +285,6 @@
 (s/def ::hover?
   boolean?)
 
-(s/def ::options
-  (s/keys* :opt-un [::signals-in
-                    ::signals-out
-                    ::events-out
-                    ::renderer
-                    ::hover?
-                    ::log-level
-                    ]))
-
-;; Main component
-(s/fdef vega-render
-  :args (s/cat :spec ::spec
-               :options ::options))
-
 (defn vega-render
   "Dummy render fn for vega charts"
   [spec & {:keys [signals-in
@@ -306,8 +292,20 @@
                   events-out
                   renderer
                   hover?
-                  log-level]}]
+                  log-level] :as options}]
   [:div])
+
+;; Main component
+#_(s/fdef vega
+  :args (s/cat :spec ::spec
+               :options (s/keys* :opt-un [::signals-in
+                                          ::signals-out
+                                          ::events-out
+                                          ::renderer
+                                          ::hover?
+                                          ::log-level
+                                          ])))
+
 
 (def vega
   (r/create-class
