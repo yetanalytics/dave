@@ -7,5 +7,9 @@
 (s/def ::id
   uuid?)
 
+(s/def ::index
+  su/index-spec)
+
 (def visualization-spec
-  (s/keys :req-un [::id]))
+  (s/keys :req-un [::id
+                   ::index]))

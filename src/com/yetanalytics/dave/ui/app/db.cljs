@@ -6,7 +6,8 @@
             [cognitect.transit :as t]
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.ui.interceptor :as i]
-            [com.cognitect.transit.types :as ty])
+            [com.cognitect.transit.types :as ty]
+            [com.yetanalytics.dave.util.spec :as su])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -41,9 +42,17 @@
 ;; compose state specs
 (s/def ::id uuid?)
 (s/def ::nav nav/nav-spec)
+
+;; Install an index on workbook
+;; These are not present in the base spec so workbooks can stand on their own.
+(s/def ::workbook/index
+  su/index-spec)
+
 (s/def ::workbooks
-  (s/map-of ::workbook/id
-            workbook/workbook-spec))
+  (s/and (s/map-of ::workbook/id
+                   (s/merge workbook/workbook-spec
+                            (s/keys :req-un [::workbook/index])))
+         (comp su/sequential-indices? vals)))
 
 (def db-state-spec
   (s/keys :opt-un [::id
@@ -57,12 +66,15 @@
                {:id #uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
                 :title "Test Workbook"
                 :description "A dummy workbook for dev/testing"
+                :index 0
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                              :text "What makes a good automaton?"
+                             :index 0
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                              {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"}}}}}}})
+                              {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
+                               :index 0}}}}}}})
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))

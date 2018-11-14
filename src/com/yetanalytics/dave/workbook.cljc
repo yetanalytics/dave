@@ -15,12 +15,14 @@
   su/string-not-empty-spec)
 
 (s/def ::questions
-  (s/map-of
-   ::question/id
-   question/question-spec))
+  (s/and (s/map-of
+          ::question/id
+          question/question-spec)
+         (comp su/sequential-indices? vals)))
 
 (def workbook-spec
   (s/keys :req-un [::id
                    ::title
                    ::description
-                   ::questions]))
+                   ::questions
+                   ]))

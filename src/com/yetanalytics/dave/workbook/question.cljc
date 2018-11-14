@@ -13,10 +13,15 @@
   su/string-not-empty-spec)
 
 (s/def ::visualizations
-  (s/map-of ::v/id
-            v/visualization-spec))
+  (s/and (s/map-of ::v/id
+                   v/visualization-spec)
+         (comp su/sequential-indices? vals)))
+
+(s/def ::index
+  su/index-spec)
 
 (def question-spec
   (s/keys :req-un [::id
                    ::text
-                   ::visualizations]))
+                   ::visualizations
+                   ::index]))
