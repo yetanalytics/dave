@@ -15,7 +15,7 @@ body {
   > div {
     @include mdc-layout-grid-inner('desktop', 8px, 4px);
     > div {
-      @include mdc-layout-grid-cell('desktop', 12, 4px)
+      @include mdc-layout-grid-cell('desktop', 12, 4px);
     }
   }
 }
