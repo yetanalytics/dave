@@ -147,6 +147,23 @@
    (:path state)))
 
 (re-frame/reg-sub
+ :nav/path-items
+ (fn [_ _]
+   [(re-frame/subscribe [:dave/db])
+    (re-frame/subscribe [:nav/path])])
+ (fn [[db
+       path] _]
+   (:result (reduce (fn [{:keys [db result] :as m} sub-path]
+                      (let [item (get-in db sub-path)]
+                        (-> m
+                            (update :result conj item)
+                            (assoc :db item))))
+                    {:result []
+                     :db db}
+                    (partition 2 path)))))
+
+
+(re-frame/reg-sub
  :nav/context
  (fn [_ _] (re-frame/subscribe [:nav/path]))
  (fn [path _]
