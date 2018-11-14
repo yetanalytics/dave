@@ -64,36 +64,51 @@
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"}}}}}}})
 
+(s/def ::saved
+  (s/keys :req-un [::workbooks]))
+
+(s/fdef load-cofx
+  :args (s/cat :cofx
+               map?)
+  :ret (s/keys ::opt-un [::saved]))
+
+(defn- load-cofx [cofx]
+  (let [saved (storage-get "dave.ui.db")]
+    (cond
+      (and (not-empty saved)
+           (s/valid? db-state-spec saved))
+      (assoc cofx :saved saved)
+
+      (some? saved) ;; it must not be valid. Let's delete it
+      (do
+        (.warn js/console "DB invalid! %o" saved)
+        (s/explain db-state-spec saved)
+        (storage-remove "dave.ui.db")
+        cofx)
+      ;; otherwise, doesn't add any cofx
+      :else cofx)))
+
 (re-frame/reg-cofx
  ::load
- (fn [cofx]
-   (let [saved (storage-get "dave.ui.db")]
-     (cond
-       (and (not-empty saved)
-            (s/valid? db-state-spec saved))
-       (assoc cofx :saved saved)
+ load-cofx)
 
-       (some? saved) ;; it must not be valid. Let's delete it
-       (do
-         (.warn js/console "DB invalid! %o" saved)
-         (s/explain db-state-spec saved)
-         (storage-remove "dave.ui.db")
-           cofx)
-       ;; otherwise, doesn't add any cofx
-       :else cofx))))
+(s/fdef save!-fx
+  :args (s/cat :db-state db-state-spec))
 
+(defn- save!-fx
+  [db-state]
+  (storage-set "dave.ui.db"
+               (dissoc db-state
+                       ;; Dissoc ID
+                       :id
+                       ;; Dissoc nav, as this would force navigation in
+                       ;; multi-tab situations
+                       :nav
+                       ;; Don't save dave.debug state, as it might be huge
+                       :debug)))
 (re-frame/reg-fx
  :db/save!
- (fn [db-state]
-   (storage-set "dave.ui.db"
-                (dissoc db-state
-                        ;; Dissoc ID
-                        :id
-                        ;; Dissoc nav, as this would force navigation in
-                        ;; multi-tab situations
-                        :nav
-                        ;; Don't save dave.debug state, as it might be huge
-                        :debug))))
+ save!-fx)
 
 (re-frame/reg-fx
  :db/destroy!
