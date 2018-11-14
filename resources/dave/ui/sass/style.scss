@@ -1,7 +1,6 @@
 /* root sass file for project */
 @import "dave/ui/sass/mdc.scss";
-@import url('https://fonts.googleapis.com/css?family=Lato');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import "dave/ui/sass/fonts.scss";
 
 body {
   margin: 0 0 0 0;
