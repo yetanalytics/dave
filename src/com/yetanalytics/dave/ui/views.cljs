@@ -7,6 +7,7 @@
             [com.yetanalytics.dave.ui.views.workbook.question :as question]
             [com.yetanalytics.dave.ui.views.workbook.question.visualization
              :as visualization]
+            [com.yetanalytics.dave.ui.views.nav :as nav]
             [cljs.pprint :refer [pprint]]))
 
 (defmulti page
@@ -51,6 +52,7 @@
      ;; TODO: Title/top bar
      ;; TODO: nav/breadcrumbs
      [loading-bar (contains? #{:loading} context)]
+     #_[nav/breadcrumbs]
      [page context]
      [snackbar]
      ]))

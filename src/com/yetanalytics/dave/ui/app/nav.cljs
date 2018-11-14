@@ -156,7 +156,12 @@
    (:result (reduce (fn [{:keys [db result] :as m} sub-path]
                       (let [item (get-in db sub-path)]
                         (-> m
-                            (update :result conj item)
+                            (update :result
+                                    conj
+                                    ;; remove children
+                                    (dissoc item
+                                            :questions
+                                            :visualizations))
                             (assoc :db item))))
                     {:result []
                      :db db}
