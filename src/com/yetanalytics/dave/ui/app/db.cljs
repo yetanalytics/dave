@@ -64,16 +64,29 @@
 (def db-default
   {:workbooks {#uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
                {:id #uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
-                :title "Test Workbook"
+                :title "Test Workbook 1"
                 :description "A dummy workbook for dev/testing"
                 :index 0
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
-                             :text "What makes a good automaton?"
+                             :text "What content is completed the most?"
                              :index 0
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
+                               :index 0}}}}}
+               #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
+               {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
+                :title "Test Workbook 2"
+                :description "Another dummy workbook for dev/testing"
+                :index 1
+                :questions {#uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
+                            {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
+                             :text "Who are my best performers?"
+                             :index 0
+                             :visualizations
+                             {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
+                              {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                                :index 0}}}}}}})
 
 (s/def ::saved

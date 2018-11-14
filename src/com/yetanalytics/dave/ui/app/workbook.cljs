@@ -15,5 +15,7 @@
  (fn [_ _] (re-frame/subscribe [:workbook/map]))
  (fn [workbooks _]
    (->> workbooks
-        (sort-by first)
+        (sort-by (comp
+                  :index
+                  second))
         (mapv second))))
