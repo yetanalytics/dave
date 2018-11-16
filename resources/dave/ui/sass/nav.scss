@@ -20,3 +20,14 @@ header.top-bar {
     }
   }
 }
+
+footer {
+  height: 128px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  background-image: url("/img/dev/white_text_logo.png"), linear-gradient(to right top, #1e3e8e, #21449d, #234bad, #2751bd, #2a58cd);
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: white;
+}

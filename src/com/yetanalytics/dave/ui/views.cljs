@@ -55,5 +55,6 @@
      [loading-bar (contains? #{:loading} context)]
      #_[nav/breadcrumbs]
      [page context]
+     [nav/footer]
      [snackbar]
      ]))

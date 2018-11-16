@@ -32,3 +32,8 @@
      [:a {:href "#/"}
       "Google Group"]
      ]]])
+
+(defn footer
+  []
+  [:footer
+   ])
