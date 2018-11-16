@@ -12,8 +12,13 @@
 (s/def ::statements
   (s/every ::xs/statement))
 
+(s/def ::title
+  string?)
+
 (def data-common-spec
-  (s/keys :opt-un [::statements]))
+  (s/keys
+   :req-un [::title]
+   :opt-un [::statements]))
 
 (defmulti data-type :type)
 
