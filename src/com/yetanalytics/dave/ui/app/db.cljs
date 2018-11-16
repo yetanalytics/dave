@@ -69,7 +69,8 @@
                 :index 0
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
-                       :uri "/data/kokea/rate_of_completions_16.json"}
+                       :uri "/data/kokea/rate_of_completions_16.json"
+                       :built-in? true}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                              :text "What content is completed the most?"
@@ -85,7 +86,8 @@
                 :index 1
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
-                       :uri "/data/kokea/rate_of_completions_16.json"}
+                       :uri "/data/kokea/rate_of_completions_16.json"
+                       :built-in? true}
                 :questions {#uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                             {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                              :text "Who are my best performers?"

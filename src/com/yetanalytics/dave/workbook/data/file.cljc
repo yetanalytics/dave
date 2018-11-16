@@ -7,5 +7,11 @@
   (s/and string?
          not-empty))
 
+;; If this is a dataset included with DAVE, it is expected to be there and
+;; doesn't need to be saved.
+(s/def ::built-in?
+  boolean?)
+
 (def partial-spec
-  (s/keys :req-un [::uri]))
+  (s/keys :req-un [::uri]
+          :opt-un [::built-in?]))
