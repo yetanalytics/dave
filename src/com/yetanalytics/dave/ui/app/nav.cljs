@@ -121,14 +121,22 @@
  (fn [{:keys [db] :as ctx} [_ token]]
    (let [token (or (not-empty token)
                    "/")
-         path (token->path token)]
+         [_ workbook-id
+          _ question-id
+          _ visualization-id
+          :as path] (token->path token)]
      (if (and
           ;; is the path valid?
           (s/valid? ::path path)
           ;; is something at the path?
           (get-in db path))
        {:db (assoc db :nav {:token token
-                            :path path})}
+                            :path path})
+        ;; Queue nav dispatch stuff
+        :dispatch-n (cond-> []
+                      workbook-id
+                      (conj [:com.yetanalytics.dave.ui.app.workbook.data/ensure
+                             workbook-id]))}
        {:notify/snackbar
         {:message "Page not found!"
          :timeout 1000}

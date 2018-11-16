@@ -4,8 +4,10 @@
    [com.yetanalytics.dave.ui.app.nav :as nav]
    [com.yetanalytics.dave.ui.app.db :as db]
    [com.yetanalytics.dave.ui.app.dom :as dom]
+   [com.yetanalytics.dave.ui.app.http]
    [com.yetanalytics.dave.ui.app.notify]
-   [com.yetanalytics.dave.ui.app.workbook]))
+   [com.yetanalytics.dave.ui.app.workbook]
+   [com.yetanalytics.dave.ui.app.workbook.data]))
 
 (defn init!
   "Synchronously initialize the application:
