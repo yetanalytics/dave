@@ -6,7 +6,7 @@
 (defn page []
   [:div.page.root
    [:div ;; inner
-    [:div.splash
+    #_[:div.splash
      [:h1 "DAVE"]]
     ;; TODO: Nav/breadcrumbs
     [workbook/grid-list]

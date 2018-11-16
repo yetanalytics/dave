@@ -15,3 +15,20 @@
             [:div
              [:pre (with-out-str
                      (pprint item))]]))))
+
+(defn top-bar
+  []
+  [:header.top-bar
+   [:div ;row
+    [:section
+     [:a {:href "#/"}
+      ]
+     [:a {:href "#/"}
+      "Menu"]
+     [:a {:href "#/"}
+      "More Info"]
+     [:a {:href "#/"}
+      "Contribute"]
+     [:a {:href "#/"}
+      "Google Group"]
+     ]]])

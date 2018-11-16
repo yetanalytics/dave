@@ -50,7 +50,7 @@
     [:div.dave-app
      (when ^boolean goog.DEBUG
        [dave.debug/debug-bar])
-     ;; TODO: Title/top bar
+     [nav/top-bar]
      ;; TODO: nav/breadcrumbs
      [loading-bar (contains? #{:loading} context)]
      #_[nav/breadcrumbs]

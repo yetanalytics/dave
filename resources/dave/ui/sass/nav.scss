@@ -1,0 +1,22 @@
+@import "dave/ui/sass/mdc.scss";
+
+header.top-bar {
+  @extend .mdc-top-app-bar;
+  @extend .mdc-top-app-bar--prominent;
+  background-color: rgba(255,255,255,0);
+  background-image: url("/img/dev/dave_logo.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  // @include mdc-top-app-bar-fill-color('red');
+  > div {
+    @extend .mdc-top-app-bar__row;
+    > section {
+      @extend .mdc-top-app-bar__section;
+      @extend .mdc-top-app-bar__section--align-start;
+      > a {
+        /* TODO: Style */
+        color: #313131;
+      }
+    }
+  }
+}
