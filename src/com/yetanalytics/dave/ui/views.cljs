@@ -8,7 +8,8 @@
             [com.yetanalytics.dave.ui.views.workbook.question.visualization
              :as visualization]
             [com.yetanalytics.dave.ui.views.nav :as nav]
-            [cljs.pprint :refer [pprint]]))
+            [cljs.pprint :refer [pprint]]
+            [com.yetanalytics.dave.ui.views.picker :as picker]))
 
 (defmulti page
   "Main dispatch component for full-page context.

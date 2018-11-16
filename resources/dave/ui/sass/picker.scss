@@ -1,0 +1,24 @@
+@import "dave/ui/sass/mdc.scss";
+@import "cljsjs/material-components/development/packages/mdc-image-list/_mixins.scss";
+
+ul.image-list {
+  @extend .mdc-image-list;
+  @extend .mdc-image-list--with-text-protection;
+  @include mdc-image-list-standard-columns(5);
+  max-width: 960px;
+  > li {
+    @extend .mdc-image-list__item;
+    > div:nth-child(1) {
+      @extend .mdc-image-list__image-aspect-container;
+      > img {
+        @extend .mdc-image-list__image;
+      }
+    }
+    > div:nth-child(2) {
+      @extend .mdc-image-list__supporting;
+      > span {
+        @extend .mdc-image-list__label;
+      }
+    }
+  }
+}
