@@ -10,7 +10,7 @@ body {
 }
 
 /* example of applying mdc mixins */
-@import "cljsjs/material-components/development/packages/mdc-layout-grid/_mixins.scss";
+@import "@material/layout-grid/_mixins";
 
 .page {
   @include mdc-layout-grid('desktop', 16px);

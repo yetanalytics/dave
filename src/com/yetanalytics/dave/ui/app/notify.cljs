@@ -1,10 +1,11 @@
 (ns com.yetanalytics.dave.ui.app.notify
-  (:require [cljsjs.material-components]
-            [clojure.spec.alpha :as s]
-            [re-frame.core :as re-frame]))
+  (:require
+   ["@material/snackbar" :refer [MDCSnackbar]]
+   [clojure.spec.alpha :as s]
+   [re-frame.core :as re-frame]))
 
 (defonce snackbar
-  (delay (js/mdc.snackbar.MDCSnackbar.
+  (delay (MDCSnackbar.
           (.querySelector js/document ".mdc-snackbar"))))
 
 (s/def ::message

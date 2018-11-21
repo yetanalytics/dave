@@ -1,5 +1,5 @@
 @import "dave/ui/sass/mdc.scss";
-@import "cljsjs/material-components/development/packages/mdc-image-list/_mixins.scss";
+@import "@material/image-list/_mixins";
 
 ul.image-list {
   @extend .mdc-image-list;

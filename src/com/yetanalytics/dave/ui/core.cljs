@@ -4,7 +4,6 @@
     * Public/API handlers - :<short name>/<event/sub>, ie. :nav/dispatch
     * Private handlers - :<fq ns>/<event/fx/cofx>"
   (:require
-   [cljsjs.material-components] ;; Enable MDC JS
    [cljsjs.vega] ;; vega
    [re-frame.core :refer [dispatch dispatch-sync]]
    [com.yetanalytics.dave.ui.events :as events]

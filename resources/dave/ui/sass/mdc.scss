@@ -1,7 +1,7 @@
-@import "cljsjs/material-components/development/material-components.inc";
+@import "material-components-web/material-components-web";
 
 $mdc-theme-primary: #2A58CD;
 $mdc-theme-secondary: #4E6C91;
 $mdc-theme-background: #fff;
 
-@import "cljsjs/material-components/development/packages/mdc-theme/mdc-theme";
+@import "@material/theme/mdc-theme";
