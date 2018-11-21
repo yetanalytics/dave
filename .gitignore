@@ -21,5 +21,8 @@ pom.xml.asc
 .DS_Store
 /resources/public/css/*.css
 /resources/public/css/*.css.map
+/node_modules/
+package.json
+package-lock.json
 
 
