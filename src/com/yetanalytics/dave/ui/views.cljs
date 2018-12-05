@@ -48,12 +48,14 @@
 (defn app []
   (let [context @(subscribe [:nav/context])]
     [:div.dave-app
-     (when ^boolean goog.DEBUG
-       [dave.debug/debug-bar])
+     #_(when ^boolean goog.DEBUG
+         [dave.debug/debug-bar])
+     [nav/app-description]
      [nav/top-bar]
      ;; TODO: nav/breadcrumbs
      [loading-bar (contains? #{:loading} context)]
      [nav/breadcrumbs]
+
      [page context]
      [nav/footer]
      [snackbar]

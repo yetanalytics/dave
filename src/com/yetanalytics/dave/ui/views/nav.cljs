@@ -8,8 +8,21 @@
             [cljs.pprint :refer [pprint]]
             ))
 
-(defn crumb [{:keys [title text active?
-                     href]}]
+(defn app-description
+  "Small description of the app that appears on every page and allows the user
+   to launch the new work wizard."
+  []
+  [:div.app-description
+   [:h2.title
+    "Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture"]
+   [:p.description
+    "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
+   [:button "Create Your Own Report"]])
+
+(defn crumb
+  "A single breadcrumb box"
+  [{:keys [title text active?
+           href]}]
   [:div
    {:class (when active? "active")}
    [:a {:href (when href
@@ -71,6 +84,7 @@
                         (:id ?visualization)))}]]]))
 
 (defn top-bar-links
+  "The links in the top app bar"
   []
   (into [:ul.top-bar-links]
         (for [[title href] [["Menu" "#/"]
@@ -81,6 +95,7 @@
                 title]])))
 
 (defn top-bar
+  "The top bar of the application"
   []
   [:header.top-bar
    [:div ;row
@@ -88,6 +103,7 @@
      [top-bar-links]]]])
 
 (defn footer
+  "The footer at the bottom of the app."
   []
   [:footer
    ])

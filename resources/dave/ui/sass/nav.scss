@@ -2,6 +2,7 @@
 @import "@material/top-app-bar/_mixins";
 
 header.top-bar {
+  min-height: 256px !important;
   // @extend .mdc-top-app-bar;
   @extend .mdc-top-app-bar--prominent;
   background-color: rgba(255,255,255,0);
@@ -27,6 +28,21 @@ ul.top-bar-links {
       text-decoration: none;
       color: black;
     }
+  }
+}
+
+div.app-description {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 2em;
+  text-align: right;
+  max-width: 25em;
+  > h2.title {
+
+  }
+  > p.description {
+    font-size: 12px
   }
 }
 
