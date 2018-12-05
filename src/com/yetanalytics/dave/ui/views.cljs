@@ -53,7 +53,7 @@
      [nav/top-bar]
      ;; TODO: nav/breadcrumbs
      [loading-bar (contains? #{:loading} context)]
-     #_[nav/breadcrumbs]
+     [nav/breadcrumbs]
      [page context]
      [nav/footer]
      [snackbar]

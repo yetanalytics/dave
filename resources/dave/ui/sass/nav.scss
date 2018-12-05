@@ -1,6 +1,4 @@
 @import "dave/ui/sass/mdc.scss";
-
-
 @import "@material/top-app-bar/_mixins";
 
 header.top-bar {
@@ -28,6 +26,35 @@ ul.top-bar-links {
     > a {
       text-decoration: none;
       color: black;
+    }
+  }
+}
+
+@import "@material/layout-grid/_mixins";
+@import "@material/card/_mixins";
+
+.breadcrumbs {
+  /* the top crumb element */
+  @include mdc-layout-grid('desktop', 8px);
+  > div {
+    /* the breadcrumbs inner div */
+    @include mdc-layout-grid-inner('desktop', 4px, 2px);
+    /* all breadcrumbs, inner styling */
+    > div {
+      @include mdc-layout-grid-cell('desktop', 2, 2px);
+      @extend .mdc-card;
+      .title {
+        font-weight: bold;
+      }
+    }
+    /* the active breadcrumb (that matches current context) */
+    > div.active {
+      @include mdc-layout-grid-cell('desktop', 6, 2px);
+    }
+    /* the breadcrumbs to the right of the active one can't really do anything, so we should indicate that visually */
+    div.active ~ div {
+      /* TODO: this is just a placeholder to show difference, needs styling */
+      @extend .mdc-card--outlined;
     }
   }
 }
