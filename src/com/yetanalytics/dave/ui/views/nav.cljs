@@ -16,22 +16,23 @@
              [:pre (with-out-str
                      (pprint item))]]))))
 
+(defn top-bar-links
+  []
+
+  (into [:ul.top-bar-links]
+        (for [[title href] [["Menu" "#/"]
+                            ["More Info" "#/"]
+                            ["Contribute" "#/"]
+                            ["Google Group" "#/"]]]
+          [:li [:a {:href href}
+                title]])))
+
 (defn top-bar
   []
   [:header.top-bar
    [:div ;row
     [:section
-     [:a {:href "#/"}
-      ]
-     [:a {:href "#/"}
-      "Menu"]
-     [:a {:href "#/"}
-      "More Info"]
-     [:a {:href "#/"}
-      "Contribute"]
-     [:a {:href "#/"}
-      "Google Group"]
-     ]]])
+     [top-bar-links]]]])
 
 (defn footer
   []
