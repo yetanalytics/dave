@@ -44,6 +44,7 @@ ul.top-bar-links {
       @include mdc-layout-grid-cell('desktop', 2, 2px);
       @extend .mdc-card;
       > a {
+        min-height: 128px;
         text-decoration: none;
         color: black; // TODO: ink color var
         .title {

@@ -33,15 +33,24 @@
         :active? (= :root context)
         :href "#/"}]
       [crumb
-       {:title "Workbook"
-        :text "Some text about workbooks"
+       {:title (if ?workbook
+                 (format "Workbook: %s" (:title ?workbook))
+                 "Workbooks")
+        :text (if ?workbook
+                (:description ?workbook)
+                "Some text about workbooks")
         :active? (= :workbook context)
         :href (when ?workbook
                 (format "#/workbooks/%s" (:id ?workbook)))}
        ]
+      ;; TODO: figure out contextual behaviour for questions/vis
       [crumb
-       {:title "Question"
-        :text "Some text about questions"
+       {:title (if ?question
+                 (format "Question %d" (inc (:index ?question)))
+                 "Questions")
+        :text (if ?question
+                (:text ?question)
+                "Some text about questions")
         :active? (= :question context)
         :href (when ?question
                 ;; We know that if a question is there, a workbook is too
@@ -49,7 +58,10 @@
                         (:id ?workbook)
                         (:id ?question)))}]
       [crumb
-       {:title "Visualization"
+       {:title (if ?visualization
+                 (format "Visualization %d" (inc (:index ?visualization)))
+                 "Visualizations")
+        ;; TODO: something
         :text "Some text about visualizations"
         :active? (= :visualization context)
         :href (when ?visualization
