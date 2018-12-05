@@ -43,8 +43,12 @@ ul.top-bar-links {
     > div {
       @include mdc-layout-grid-cell('desktop', 2, 2px);
       @extend .mdc-card;
-      .title {
-        font-weight: bold;
+      > a {
+        text-decoration: none;
+        color: black; // TODO: ink color var
+        .title {
+          font-weight: bold;
+        }
       }
     }
     /* the active breadcrumb (that matches current context) */
