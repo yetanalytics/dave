@@ -15,9 +15,14 @@
   [:div.app-description
    [:h2.title
     "Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture"]
-   [:p.description
+   [:p.description.appbutton
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    [:button "Create Your Own Report"]])
+
+(defn top-image
+  "Main group image that is on the home page"
+  []
+  [:img {:src "test.png"}]) ;; FIXME: No image will show in DAVE
 
 (defn crumb
   "A single breadcrumb box"
@@ -42,7 +47,7 @@
      [:div ;; inner
       [crumb
        {:title "DAVE"
-        :text "Some text about the workbook list"
+        :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations."
         :active? (= :root context)
         :href "#/"}]
       [crumb
@@ -51,7 +56,7 @@
                  "Workbooks")
         :text (if ?workbook
                 (:description ?workbook)
-                "Some text about workbooks")
+                "Workbooks wrap your functions and visualizations into an easily accessible space. ")
         :active? (= :workbook context)
         :href (when ?workbook
                 (format "#/workbooks/%s" (:id ?workbook)))}
@@ -63,7 +68,7 @@
                  "Questions")
         :text (if ?question
                 (:text ?question)
-                "Some text about questions")
+                "Questions feature learning-domain problems. ")
         :active? (= :question context)
         :href (when ?question
                 ;; We know that if a question is there, a workbook is too
@@ -75,7 +80,7 @@
                  (format "Visualization %d" (inc (:index ?visualization)))
                  "Visualizations")
         ;; TODO: something
-        :text "Some text about visualizations"
+        :text "Visualizations make insights accessible to a wide audience."
         :active? (= :visualization context)
         :href (when ?visualization
                 (format "#/workbooks/%s/questions/%s/visualizations/%s"
@@ -83,11 +88,13 @@
                         (:id ?question)
                         (:id ?visualization)))}]]]))
 
+
 (defn top-bar-links
   "The links in the top app bar"
   []
   (into [:ul.top-bar-links]
-        (for [[title href] [["Menu" "#/"]
+        (for [[title href] [
+                            ["Menu" "#/"]
                             ["More Info" "#/"]
                             ["Contribute" "#/"]
                             ["Google Group" "#/"]]]

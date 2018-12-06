@@ -39,10 +39,31 @@ div.app-description {
   text-align: right;
   max-width: 25em;
   > h2.title {
-
+  color: #1D419E;
   }
   > p.description {
-    font-size: 12px
+    font-size: 13px;
+    color: #2E2E2E;
+  }
+  > button{
+    padding: 7px 80px;
+    border-radius: 20px;
+    background-color: #4449A6;
+    color:white;
+    font-size: 15px;
+    font-weight:lighter;
+    outline: none;
+    border:none;
+    -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
+    -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
+    box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
+    transition-duration: .1s;
+  }
+  > button:active{
+    -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
+    -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
+    box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
+    transition-duration: .1s;
   }
 }
 
@@ -50,7 +71,7 @@ div.app-description {
 @import "@material/card/_mixins";
 
 .breadcrumbs {
-  /* the top crumb element */
+    /* the top crumb element */
   @include mdc-layout-grid('desktop', 8px);
   > div {
     /* the breadcrumbs inner div */
@@ -64,7 +85,15 @@ div.app-description {
         text-decoration: none;
         color: black; // TODO: ink color var
         .title {
-          font-weight: bold;
+          font-weight: 400;
+          padding:10px;
+          background-color: #2A58CD;
+          color:#ffffff;
+        }
+        .text{
+          padding: 10px;
+          color:#373737;
+          font-size: .7em;
         }
       }
     }
@@ -87,4 +116,6 @@ footer {
   background-repeat: no-repeat;
   background-size: contain;
   color: white;
-}
+  position: absolute;
+  bottom: 0;
+  }
