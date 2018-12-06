@@ -3,12 +3,32 @@
             [clojure.spec.gen.alpha :as sgen]
             [xapi-schema.spec :as xs]
             [com.yetanalytics.dave.func.common :as common]
-            [com.yetanalytics.dave.func.util :as util]))
+            [com.yetanalytics.dave.func.util :as util]
+            [clojure.walk :as w]))
 
 (s/fdef success-timeline
   :args (s/cat
          :statements
-         (s/every ::xs/statement))
+         (s/every (s/with-gen ::xs/lrs-statement
+                    (fn []
+                      (sgen/fmap (fn [[s act id score]]
+                                   (assoc-in
+                                    (assoc-in (assoc s "object" act)
+                                              ["object" "id"]
+                                              id)
+                                    ["result" "score"] score))
+                                 (sgen/tuple
+                                  (s/gen ::xs/lrs-statement)
+                                  (s/gen ::xs/activity)
+                                  (sgen/elements ["http://adlnet.gov/expapi/verbs/passed"
+                                                  "https://w3id.org/xapi/dod-isd/verbs/answered"
+                                                  "http://adlnet.gov/expapi/verbs/completed"])
+                                  (sgen/fmap
+                                   w/stringify-keys
+                                   (s/gen (s/keys :req-un
+                                                  [:score/min
+                                                   :score/max
+                                                   :score/raw])))))))))
   :ret (s/every
         (s/tuple ::xs/timestamp
                  (s/double-in
@@ -33,7 +53,7 @@
 (s/fdef difficult-questions
   :args (s/cat
          :statements
-         (s/every ::xs/statement))
+         (s/every ::xs/lrs-statement))
   :ret (s/every
         (s/tuple :activity/id
                  pos-int?)))
@@ -41,25 +61,22 @@
 (defn difficult-questions
   "DAVE Section 3"
   [statements]
-  (seq
-   (group-by
-    #(get-in % ["object" "id"])
-    (filter (fn [{{o-type "objectType"
-                   {a-type "type"} "definition"} "object"
-                  {success "success"} "result"}]
-              (and
-               ;; An activity
-               (contains? #{"Activity" nil}
-                          o-type)
-               ;; An interaction activity
-               (= a-type "http://adlnet.gov/expapi/activities/cmi.interaction")
-               ;; Failure
-               (false? success)))
-            statements))))
-
-
-
-
+  (for [[activity-id ss]
+        (group-by
+         #(get-in % ["object" "id"])
+         (filter (fn [{{o-type "objectType"
+                        {a-type "type"} "definition"} "object"
+                       {success "success"} "result"}]
+                   (and
+                    ;; An activity
+                    (contains? #{"Activity" nil}
+                               o-type)
+                    ;; An interaction activity
+                    (= a-type "http://adlnet.gov/expapi/activities/cmi.interaction")
+                    ;; Failure
+                    (false? success)))
+                 statements))]
+    [activity-id (count ss)]))
 
 (s/fdef completion-rate
   :args (s/cat
