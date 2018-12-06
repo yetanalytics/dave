@@ -7,7 +7,8 @@
    [com.yetanalytics.dave.ui.app.http]
    [com.yetanalytics.dave.ui.app.notify]
    [com.yetanalytics.dave.ui.app.workbook]
-   [com.yetanalytics.dave.ui.app.workbook.data]))
+   [com.yetanalytics.dave.ui.app.workbook.data]
+   [com.yetanalytics.dave.ui.app.picker]))
 
 (defn init!
   "Synchronously initialize the application:
