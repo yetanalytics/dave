@@ -1,0 +1,10 @@
+^{:watch-dirs ["test" "src" "dev"]
+  :css-dirs ["resources/public/css"]
+  :auto-testing true}
+{:closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
+ :preloads             [day8.re-frame-10x.preload]
+ :main com.yetanalytics.dave.ui.core
+ :install-deps true
+ :source-map true
+ :npm-deps {"material-components-web" "0.41.1"
+            "source-map-support" "0.5.9"}}
