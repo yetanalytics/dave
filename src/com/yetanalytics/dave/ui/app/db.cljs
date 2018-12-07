@@ -65,8 +65,8 @@
 (def db-default
   {:workbooks {#uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
                {:id #uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
-                :title "Test Workbook 1"
-                :description "A dummy workbook for dev/testing"
+                :title "Test Workbook"
+                :description "A dummyderere workbook for dev/testing"
                 :index 0
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
