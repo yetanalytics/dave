@@ -24,5 +24,6 @@ pom.xml.asc
 /node_modules/
 package.json
 package-lock.json
-
-
+*.el
+*.dat
+*.script
