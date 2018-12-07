@@ -1,24 +1,44 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/image-list/_mixins";
 
-ul.image-list {
-  @extend .mdc-image-list;
-  @extend .mdc-image-list--with-text-protection;
-  @include mdc-image-list-standard-columns(5);
-  max-width: 960px;
-  > li {
-    @extend .mdc-image-list__item;
-    > div:nth-child(1) {
-      @extend .mdc-image-list__image-aspect-container;
-      > img {
-        @extend .mdc-image-list__image;
+
+
+div.picker {
+  @extend .mdc-card;
+  position: fixed;
+  bottom: 0;
+  width: 100vw;
+  max-height: 0px;
+  overflow-y: scroll;
+  transition: max-height 1s;
+  > ul {
+    @extend .mdc-image-list;
+    @extend .mdc-image-list--with-text-protection;
+    @include mdc-image-list-standard-columns(5);
+    min-width: 100%;
+    > li {
+      @extend .mdc-image-list__item;
+      > div:nth-child(1) {
+        @extend .mdc-image-list__image-aspect-container;
+        > img {
+          @extend .mdc-image-list__image;
+        }
       }
-    }
-    > div:nth-child(2) {
-      @extend .mdc-image-list__supporting;
-      > span {
-        @extend .mdc-image-list__label;
+      > div:nth-child(2) {
+        @extend .mdc-image-list__supporting;
+        > span {
+          @extend .mdc-image-list__label;
+        }
       }
     }
   }
+  i.dismiss {
+    position: absolute;
+    top: .5em;
+    right: .5em;
+  }
+}
+
+div.picker.active {
+  max-height: 256px;
 }

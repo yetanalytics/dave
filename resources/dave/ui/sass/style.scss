@@ -14,6 +14,7 @@ body {
 @import "@material/layout-grid/_mixins";
 
 .page {
+  min-height: 50vh;
   @include mdc-layout-grid('desktop', 16px);
   > div {
     @include mdc-layout-grid-inner('desktop', 8px, 4px);

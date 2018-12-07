@@ -3,6 +3,7 @@
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.ui.app.nav :as nav]
+            [com.yetanalytics.dave.ui.app.picker :as picker]
             [cognitect.transit :as t]
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.ui.interceptor :as i]
@@ -42,7 +43,7 @@
 ;; compose state specs
 (s/def ::id uuid?)
 (s/def ::nav nav/nav-spec)
-
+(s/def ::picker picker/picker-spec)
 ;; Install an index on workbook
 ;; These are not present in the base spec so workbooks can stand on their own.
 (s/def ::workbook/index
@@ -137,6 +138,8 @@
                        ;; Dissoc nav, as this would force navigation in
                        ;; multi-tab situations
                        :nav
+                       ;; picker is ephemeral
+                       :picker
                        ;; Don't save dave.debug state, as it might be huge
                        :debug)))
 (re-frame/reg-fx
