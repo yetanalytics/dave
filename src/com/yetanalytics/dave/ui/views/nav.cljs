@@ -22,7 +22,7 @@
 (defn top-image
   "Main group image that is on the home page"
   []
-  [:img {:src "test.png"}]) ;; FIXME: No image will show in DAVE
+  [:img {:src "/img/dev/top_image.png"}]) ;; FIXME: No image will show in DAVE
 
 (defn crumb
   "A single breadcrumb box"
