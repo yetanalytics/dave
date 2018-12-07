@@ -15,7 +15,7 @@
   [:div.app-description
    [:h2.title
     "Data Analytics and Visualization Efficiency Framework for xAPI and the Total Learning Architecture"]
-   [:p.description.appbutton
+   [:p.description
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    [:button "Create Your Own Report"]])
 
