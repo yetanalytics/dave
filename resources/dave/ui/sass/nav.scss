@@ -1,6 +1,8 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+
+
 header.top-bar {
   min-height: 256px !important;
   // @extend .mdc-top-app-bar;
@@ -109,6 +111,35 @@ div.app-description {
   }
 }
 
+.workbookinfo{
+margin-left: 2em;
+width: 40em;
+background-color: #FBFBFB;
+padding-left: 20px;
+padding-top: 0px;
+padding-bottom: .5em;
+border-radius: 20px;
+-webkit-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+-moz-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+> .hometitle{
+  padding-top: 10px;
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 0em;
+  }
+> .workbookdesc{
+  font-size: 1em;
+}
+> .tag {
+  background-color: #9E44A6;
+  border-radius: 5px;
+  color:white;
+  width: 140px;
+  font-size: .9em;
+}
+}
+
 footer {
   height: 128px;
   width: 100%;
@@ -116,6 +147,22 @@ footer {
   background-repeat: no-repeat;
   background-size: contain;
   color: white;
-  position: absolute;
+  position: absolute; /* change position to fixed*/
   bottom: 0;
+  }
+
+  .quick-guide{
+
+    max-width: 50%;
+    margin-left: 2em;
+    > .heading-text{
+      background-color:#2A58CD;
+      color:white;
+      font-weight: 400;
+      padding:10px;
+    }
+    > .detail-text{
+        font-size: 13px;
+      padding: 1em;
+    }
   }
