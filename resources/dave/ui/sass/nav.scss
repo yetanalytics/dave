@@ -73,6 +73,7 @@ div.app-description {
 @import "@material/card/_mixins";
 
 .breadcrumbs {
+
     /* the top crumb element */
   @include mdc-layout-grid('desktop', 8px);
   > div {
@@ -82,6 +83,7 @@ div.app-description {
     > div {
       @include mdc-layout-grid-cell('desktop', 2, 2px);
       @extend .mdc-card;
+        border-radius: 10px;
       > a {
         min-height: 128px;
         text-decoration: none;
@@ -137,8 +139,7 @@ box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
   color:white;
   width: 140px;
   font-size: .9em;
-}
-}
+}}
 
 footer {
   height: 128px;
