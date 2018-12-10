@@ -140,18 +140,30 @@
 (s/def ::ret-spec
   qualified-keyword?)
 
+(s/def ::fspec
+  s/spec?)
+
 (def func-spec
   (s/keys :req-un [::function
+                   ::fspec
                    ::ret-spec]))
 
 (def registry
-  "A map of function keyword to implementation."
+  "A map of function keyword to implementation. Each function is a map
+  containing:
+    * :function - a reference to the function
+    * :fspec - the function spec, used to extract specs + introspect
+    * :ret-spec - the keyword under which the return spec is registered. Useful
+      for matching functions to vis."
   {::success-timeline
    {:function success-timeline
+    :fspec (s/get-spec `success-timeline)
     :ret-spec ::ret/time-score}
    ::difficult-questions
    {:function difficult-questions
+    :fspec (s/get-spec `difficult-questions)
     :ret-spec ::ret/category-count}
    ::completion-rate
    {:function completion-rate
+    :fspec (s/get-spec `completion-rate)
     :ret-spec ::ret/category-rate}})
