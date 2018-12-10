@@ -201,7 +201,7 @@
 
 (s/fdef get-func-ret-spec
   :args (s/cat :func-k ::func-k)
-  :ret spec?)
+  :ret s/spec?)
 
 (defn get-func-ret-spec
   "Get the ret spec for a given DAVE function."
