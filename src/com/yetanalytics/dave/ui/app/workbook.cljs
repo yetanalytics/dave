@@ -19,3 +19,20 @@
                   :index
                   second))
         (mapv second))))
+
+(re-frame/reg-sub
+ :workbook/current
+ (fn [_ _]
+   [(re-frame/subscribe [:nav/path])
+    (re-frame/subscribe [:workbook/map])])
+ (fn [[[p0 ?workbook-id & _]
+       workbook-map] _]
+   (when (= p0 :workbooks)
+     (get workbook-map ?workbook-id))))
+
+(re-frame/reg-sub
+ :workbook/lookup
+ (fn [_ _]
+   (re-frame/subscribe [:workbook/map]))
+ (fn [workbook-map [_ workbook-id]]
+   (get workbook-map workbook-id)))

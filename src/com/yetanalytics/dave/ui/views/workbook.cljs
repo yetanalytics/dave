@@ -1,6 +1,7 @@
 (ns com.yetanalytics.dave.ui.views.workbook
   (:require [re-frame.core :refer [dispatch subscribe]]
-            [com.yetanalytics.dave.ui.views.workbook.question :as question]))
+            [com.yetanalytics.dave.ui.views.workbook.question :as question]
+            [com.yetanalytics.dave.ui.views.workbook.data :as data]))
 
 (defn page []
   (let [{:keys [id
@@ -15,8 +16,7 @@
        [:p.workbookdesc description]
        [:div.tag
         [:p "Questions: " (count questions)]]]
-      ;; TODO: Nav/Breadcrumb
-      ;; TODO: Question list
+      [data/info id]
       [question/grid-list questions]
       ]]))
 
