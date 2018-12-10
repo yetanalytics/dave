@@ -74,7 +74,8 @@
                        :built-in? true}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
-                             :text "What content is completed the most?"
+                             :text "When do learners do their best work?"
+                             :function {:id :com.yetanalytics.dave.func/success-timeline}
                              :index 0
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
@@ -91,12 +92,31 @@
                        :built-in? true}
                 :questions {#uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                             {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
-                             :text "Who are my best performers?"
+                             :text "What activities are most difficult?"
+                             :function {:id :com.yetanalytics.dave.func/difficult-questions}
                              :index 0
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                               {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                               :index 0}}}}}}})
+                               :index 0}}}}}
+               #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
+               {:id #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
+                :title "Test Workbook 3"
+                :description "A third test workbook"
+                :index 2
+                :data {:title "test dataset"
+                       :type :com.yetanalytics.dave.workbook.data/file
+                       :uri "/data/kokea/rate_of_completions_16.json"
+                       :built-in? true}
+                :questions {#uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
+                            {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
+                             :text "What activities are completed the most?"
+                             :function {:id :com.yetanalytics.dave.func/completion-rate
+                                        :args {:time-unit :day}}
+                             :index 0
+                             :visualizations {}}}}
+
+               }})
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))
