@@ -159,36 +159,36 @@
    {:function completion-rate
     :fspec (s/get-spec `completion-rate)}})
 
-(s/def ::func-k
+(s/def ::id
   (s/with-gen qualified-keyword?
     (fn []
       (sgen/elements (keys registry)))))
 
 (s/fdef get-func
-  :args (s/cat :func-k ::func-k)
+  :args (s/cat :id ::id)
   :ret func-spec)
 
 (defn get-func
   "Gets a DAVE function map for the specified keyword or throws."
-  [func-k]
-  (if-let [func (get registry func-k)]
+  [id]
+  (if-let [func (get registry id)]
     func
     (throw (ex-info "DAVE Function not found"
                     {:type ::func-not-found
-                     :func-k func-k}))))
+                     :id id}))))
 
 (comment
   (get-func ::difficult-questions) ;; => {:function ..., :fspec ...}
   )
 
 (s/fdef get-func-args-spec
-  :args (s/cat :func-k ::func-k)
+  :args (s/cat :id ::id)
   :ret s/spec?)
 
 (defn get-func-args-spec
   "Get the spec of a DAVE function's arguments"
-  [func-k]
-  (-> (get-func func-k)
+  [id]
+  (-> (get-func id)
       :fspec
       :args))
 
@@ -197,13 +197,13 @@
   )
 
 (s/fdef get-func-ret-spec
-  :args (s/cat :func-k ::func-k)
+  :args (s/cat :id ::id)
   :ret s/spec?)
 
 (defn get-func-ret-spec
   "Get the ret spec for a given DAVE function."
-  [func-k]
-  (-> (get-func func-k)
+  [id]
+  (-> (get-func id)
       :fspec
       :ret))
 
@@ -212,13 +212,13 @@
   )
 
 (s/fdef get-func-ret-spec-k
-  :args (s/cat :func-k ::func-k)
+  :args (s/cat :id ::id)
   :ret qualified-keyword?)
 
 (defn get-func-ret-spec-k
   "Get the keyword of the registered ret spec for a given DAVE function."
-  [func-k]
-  (-> (get-func-ret-spec func-k)
+  [id]
+  (-> (get-func-ret-spec id)
       meta
       ::s/name))
 
@@ -245,15 +245,15 @@
                                 args-map)))))
 
 (s/fdef explain-args
-  :args (s/cat :func-k ::func-k
+  :args (s/cat :id ::id
                :args-map ::args)
   :ret (s/nilable map?))
 
 (defn explain-args
   "Check a supplied args map against a DAVE function, returns nil if OK, or a
-  spec error map if there are problems. If func-k is not found, throws."
-  [func-k args-map]
-  (explain-args* (get-func func-k) args-map))
+  spec error map if there are problems. If id is not found, throws."
+  [id args-map]
+  (explain-args* (get-func id) args-map))
 
 (comment
   (explain-args ::completion-rate {:time-unit :parsec}) ;; => {:cljs.spec.alpha/problems [{:path [:time-unit], :pred #{:day :hour :week :second :month :year :minute} ... ;; failed
@@ -261,15 +261,15 @@
   )
 
 (s/fdef apply-func
-  :args (s/cat :func-k ::func-k
+  :args (s/cat :id ::id
                :args-map map?
                :statements (s/every ::xs/lrs-statement)))
 
 (defn apply-func
   "Apply a DAVE function given a function key, args map (maybe nil) and a
   coll of statements"
-  [func-k args-map statements]
-  (let [func (get-func func-k)
+  [id args-map statements]
+  (let [func (get-func id)
         fspec (:fspec func)]
     (apply
      (:function func)
