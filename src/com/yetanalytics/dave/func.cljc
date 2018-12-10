@@ -160,12 +160,11 @@
     :fspec (s/get-spec `completion-rate)}})
 
 (s/def ::func-k
-  (s/and qualified-keyword?
-         ;; in the registry, but let's make it static so that generative tests
-         ;; are more useful
-         #{::success-timeline
-           ::difficult-questions
-           ::completion-rate}))
+  (s/with-gen qualified-keyword?
+    (fn []
+      (sgen/elements [::success-timeline
+                      ::difficult-questions
+                      ::completion-rate]))))
 
 (s/fdef get-func
   :args (s/cat :func-k ::func-k)
