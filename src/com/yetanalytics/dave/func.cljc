@@ -2,6 +2,7 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as sgen]
             [xapi-schema.spec :as xs]
+            [com.yetanalytics.dave.func.ret :as ret]
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
             [clojure.walk :as w]))
@@ -29,11 +30,7 @@
                                                   [:score/min
                                                    :score/max
                                                    :score/raw])))))))))
-  :ret (s/every
-        (s/tuple ::xs/timestamp
-                 (s/double-in
-                  :min 0.0
-                  :max 100.0))))
+  :ret ::ret/time-score)
 
 (defn success-timeline
   "DAVE Section 2"
@@ -54,9 +51,7 @@
   :args (s/cat
          :statements
          (s/every ::xs/lrs-statement))
-  :ret (s/every
-        (s/tuple :activity/id
-                 pos-int?)))
+  :ret ::ret/category-count)
 
 (defn difficult-questions
   "DAVE Section 3"
@@ -100,11 +95,7 @@
                       :week
                       :month
                       :year})
-  :ret (s/every
-        (s/tuple :activity/id
-                 (s/double-in :min 0.0
-                              :infinite? false
-                              :NaN? false))))
+  :ret ::ret/category-rate)
 
 (defn completion-rate
   "DAVE Section 4"
@@ -142,3 +133,146 @@
               rate (double (/ s-count
                               units))]]
     [activity-id rate]))
+
+(s/def ::function
+  ifn?)
+
+(s/def ::fspec
+  s/spec?)
+
+(def func-spec
+  (s/keys :req-un [::function
+                   ::fspec]))
+
+(def registry
+  "A map of function keyword to implementation. Each function is a map
+  containing:
+    * :function - a reference to the function
+    * :fspec - the function spec, used to extract specs + introspect."
+  {::success-timeline
+   {:function success-timeline
+    :fspec (s/get-spec `success-timeline)}
+   ::difficult-questions
+   {:function difficult-questions
+    :fspec (s/get-spec `difficult-questions)}
+   ::completion-rate
+   {:function completion-rate
+    :fspec (s/get-spec `completion-rate)}})
+
+(s/def ::id
+  (s/with-gen qualified-keyword?
+    (fn []
+      (sgen/elements (keys registry)))))
+
+(s/fdef get-func
+  :args (s/cat :id ::id)
+  :ret func-spec)
+
+(defn get-func
+  "Gets a DAVE function map for the specified keyword or throws."
+  [id]
+  (if-let [func (get registry id)]
+    func
+    (throw (ex-info "DAVE Function not found"
+                    {:type ::func-not-found
+                     :id id}))))
+
+(comment
+  (get-func ::difficult-questions) ;; => {:function ..., :fspec ...}
+  )
+
+(s/fdef get-func-args-spec
+  :args (s/cat :id ::id)
+  :ret s/spec?)
+
+(defn get-func-args-spec
+  "Get the spec of a DAVE function's arguments"
+  [id]
+  (-> (get-func id)
+      :fspec
+      :args))
+
+(comment
+  (get-func-args-spec ::difficult-questions) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9474]
+  )
+
+(s/fdef get-func-ret-spec
+  :args (s/cat :id ::id)
+  :ret s/spec?)
+
+(defn get-func-ret-spec
+  "Get the ret spec for a given DAVE function."
+  [id]
+  (-> (get-func id)
+      :fspec
+      :ret))
+
+(comment
+  (get-func-ret-spec ::difficult-questions) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9300]
+  )
+
+(s/fdef get-func-ret-spec-k
+  :args (s/cat :id ::id)
+  :ret qualified-keyword?)
+
+(defn get-func-ret-spec-k
+  "Get the keyword of the registered ret spec for a given DAVE function."
+  [id]
+  (-> (get-func-ret-spec id)
+      meta
+      ::s/name))
+
+(comment
+  (get-func-ret-spec-k ::difficult-questions) ;; => :com.yetanalytics.dave.func.ret/category-count
+  )
+
+;; Function arg maps are attached to questions, and applied to the function.
+;; They are expected to be suitable for use with s/unform
+(s/def ::args
+  map?)
+
+(s/fdef explain-args*
+  :args (s/cat :func func-spec
+               :args-map ::args)
+  :ret (s/nilable map?))
+
+(defn explain-args*
+  [{:keys [fspec] :as func} args-map]
+  (let [args-spec (:args fspec)]
+    (s/explain-data
+     args-spec
+     (s/unform args-spec (merge {:statements []}
+                                args-map)))))
+
+(s/fdef explain-args
+  :args (s/cat :id ::id
+               :args-map ::args)
+  :ret (s/nilable map?))
+
+(defn explain-args
+  "Check a supplied args map against a DAVE function, returns nil if OK, or a
+  spec error map if there are problems. If id is not found, throws."
+  [id args-map]
+  (explain-args* (get-func id) args-map))
+
+(comment
+  (explain-args ::completion-rate {:time-unit :parsec}) ;; => {:cljs.spec.alpha/problems [{:path [:time-unit], :pred #{:day :hour :week :second :month :year :minute} ... ;; failed
+  (explain-args ::completion-rate {:time-unit :minute}) ;; => nil ;; OK!
+  )
+
+(s/fdef apply-func
+  :args (s/cat :id ::id
+               :args-map map?
+               :statements (s/every ::xs/lrs-statement)))
+
+(defn apply-func
+  "Apply a DAVE function given a function key, args map (maybe nil) and a
+  coll of statements"
+  [id args-map statements]
+  (let [func (get-func id)
+        fspec (:fspec func)]
+    (apply
+     (:function func)
+     statements
+     (s/unform (:args fspec)
+               args-map))))

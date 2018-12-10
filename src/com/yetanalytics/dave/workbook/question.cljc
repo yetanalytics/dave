@@ -4,13 +4,22 @@
   requires, and any number of visualizations to represent the result."
   (:require [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.workbook.question.visualization :as v]))
+            [com.yetanalytics.dave.workbook.question.visualization :as v]
+            [com.yetanalytics.dave.func :as func]))
 
 (s/def ::id
   uuid?)
 
 (s/def ::text
   su/string-not-empty-spec)
+
+;; The dave function that this question uses to get its data
+(s/def ::function
+  (s/and (s/keys :req-un [::func/id]
+                 :opt-un [::func/args])
+         ;; Validate that the args are OK
+         (fn valid-args [{:keys [id args]}]
+           (nil? (func/explain-args id args)))))
 
 (s/def ::visualizations
   (s/and (s/map-of ::v/id
@@ -24,4 +33,5 @@
   (s/keys :req-un [::id
                    ::text
                    ::visualizations
-                   ::index]))
+                   ::index]
+          :opt-un [::function]))
