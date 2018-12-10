@@ -8,6 +8,16 @@
             [cljs.pprint :refer [pprint]]
             ))
 
+(defn hometitle
+  []
+  [:div.workbookinfo
+  [:p.hometitle "Workbook"]
+  [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
+  [:div.tag
+  [:p "Total Workbooks 2"]]
+  ])
+
+
 (defn app-description
   "Small description of the app that appears on every page and allows the user
    to launch the new work wizard."
@@ -47,7 +57,7 @@
      [:div ;; inner
       [crumb
        {:title "DAVE"
-        :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations."
+        :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations. Search learning domain problem types and access the relevant information needed to create meaningful data visualizations. Tweak the visualization to meet your needs and issue a report."
         :active? (= :root context)
         :href "#/"}]
       [crumb
@@ -113,4 +123,9 @@
   "The footer at the bottom of the app."
   []
   [:footer
-   ])
+   [:img {:src "/img/dev/white_text_logo.png"}]
+   [:a {:href "#/"} "About"]
+   [:a {:href "#/"} "More Info"]
+   [:a {:href "#/"} "Contribute"]
+   [:a {:href "#/"} "Contact"]
+   [:a {:href "#/"} "Yet Analytics"]])

@@ -1,6 +1,8 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+
+
 header.top-bar {
   min-height: 256px !important;
   // @extend .mdc-top-app-bar;
@@ -71,6 +73,7 @@ div.app-description {
 @import "@material/card/_mixins";
 
 .breadcrumbs {
+
     /* the top crumb element */
   @include mdc-layout-grid('desktop', 8px);
   > div {
@@ -80,6 +83,7 @@ div.app-description {
     > div {
       @include mdc-layout-grid-cell('desktop', 2, 2px);
       @extend .mdc-card;
+        border-radius: 10px;
       > a {
         min-height: 128px;
         text-decoration: none;
@@ -109,13 +113,74 @@ div.app-description {
   }
 }
 
+.workbookinfo{
+margin-left: 2em;
+width: 40em;
+background-color: #FBFBFB;
+padding-left: 20px;
+padding-top: 0px;
+padding-bottom: .5em;
+border-radius: 20px;
+-webkit-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+-moz-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+> .hometitle{
+  padding-top: 10px;
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 0em;
+  }
+> .workbookdesc{
+  font-size: 1em;
+}
+> .tag {
+  background-color: #9E44A6;
+  border-radius: 5px;
+  color:white;
+  width: 140px;
+  font-size: .9em;
+}}
+
 footer {
-  height: 128px;
+  height: auto;
   width: 100%;
-  background-image: url("/img/dev/white_text_logo.png"), linear-gradient(to right top, #1e3e8e, #21449d, #234bad, #2751bd, #2a58cd);
+  background-image: linear-gradient(to right top, #1e3e8e, #21449d, #234bad, #2751bd, #2a58cd);
   background-repeat: no-repeat;
   background-size: contain;
   color: white;
-  position: absolute;
+  position: fixed; /* change position to fixed*/
   bottom: 0;
+  display:flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding:30px;
+  -webkit-box-shadow: 0px -11px 30px -16px rgba(66,66,66,0.93);
+  -moz-box-shadow: 0px -11px 30px -16px rgba(66,66,66,0.93);
+  box-shadow: 0px -11px 30px -16px rgba(66,66,66,0.93);
+  > img{
+    height:100px;
+  }
+  > a{
+    color:white;
+    padding-left: 40px;
+    text-decoration: none;
+    font-weight: lighter;
+    margin:10px;
+  }
+  }
+
+  .quick-guide{
+
+    max-width: 50%;
+    margin-left: 2em;
+    > .heading-text{
+      background-color:#2A58CD;
+      color:white;
+      font-weight: 400;
+      padding:10px;
+    }
+    > .detail-text{
+        font-size: 13px;
+      padding: 1em;
+    }
   }
