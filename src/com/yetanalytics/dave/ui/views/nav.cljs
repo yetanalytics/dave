@@ -11,11 +11,11 @@
 (defn hometitle
   []
   [:div.workbookinfo
-  [:p.hometitle "Workbook"]
-  [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
-  [:div.tag
-  [:p "Total Workbooks 2"]]
-  ])
+   [:p.hometitle "Workbook"]
+   [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
+   [:div.tag
+    [:p "Total Workbooks 2"]]
+   ])
 
 
 (defn app-description

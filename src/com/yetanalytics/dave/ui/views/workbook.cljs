@@ -10,21 +10,25 @@
          :as workbook} @(subscribe [:nav/focus])]
     [:div.page.workbook
      [:div ;; inner
-      [:div.splash
-       [:h2 title]
-       [:p description]
-       ]
+      [:div.workbookinfo
+       [:p.hometitle title]
+       [:p.workbookdesc description]
+       [:div.tag
+        [:p "Questions: " (count questions)]]]
       ;; TODO: Nav/Breadcrumb
       ;; TODO: Question list
       [question/grid-list questions]
       ]]))
 
 
+;; TODO: more formatting specifically for cells
 (defn cell [workbook]
-  [:div
-   [:h4 (:title workbook)]
-   [:a {:href (str "#/workbooks/" (:id workbook))}
-    (str "workbook cell for " (:id workbook))]])
+  [:div.workbookinfo
+   [:p.hometitle [:a {:href (str "#/workbooks/" (:id workbook))}
+                  (:title workbook)]]
+   [:p.workbookdesc (:description workbook)]
+   [:div.tag
+    [:p "Total Workbooks 2"]]])
 
 (defn grid-list
   "A list of workbooks in ye responsive grid"
