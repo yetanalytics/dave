@@ -1,14 +1,29 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
-
+.topmenu{
+  min-height: 256px;
+  display:flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-left: 30px;
+  > img {
+    height:200px;
+  }
+  > a{
+    padding-left: 40px;
+    text-decoration: none;
+    color:black;
+    font-size: 13px;
+    }
+}
 
 header.top-bar {
   min-height: 256px !important;
   // @extend .mdc-top-app-bar;
   @extend .mdc-top-app-bar--prominent;
   background-color: rgba(255,255,255,0);
-  background-image: url("/img/dev/dave_logo.png");
+  /*background-image: url("/img/dev/dave_logo.png");*/
   background-repeat: no-repeat;
   background-size: contain;
   // @include mdc-top-app-bar-fill-color('red');
@@ -19,6 +34,10 @@ header.top-bar {
       @extend .mdc-top-app-bar__section--align-start;
     }
   }
+}
+
+.menuimage img{
+  width: 100px;
 }
 
 ul.top-bar-links {
@@ -140,6 +159,7 @@ box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
   width: 140px;
   font-size: .9em;
 }}
+
 
 footer {
   height: auto;

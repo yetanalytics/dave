@@ -11,11 +11,11 @@
 (defn hometitle
   []
   [:div.workbookinfo
-   [:p.hometitle "Workbook"]
-   [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
-   [:div.tag
-    [:p "Total Workbooks 2"]]
-   ])
+  [:p.hometitle "Workbook"]
+  [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
+  [:div.tag
+  [:p " Total Workbooks 2"]]
+  ])
 
 
 (defn app-description
@@ -99,17 +99,27 @@
                         (:id ?visualization)))}]]]))
 
 
-(defn top-bar-links
-  "The links in the top app bar"
+(defn topmenu
   []
-  (into [:ul.top-bar-links]
-        (for [[title href] [
-                            ["Menu" "#/"]
-                            ["More Info" "#/"]
-                            ["Contribute" "#/"]
-                            ["Google Group" "#/"]]]
-          [:li [:a {:href href}
-                title]])))
+  [:div.topmenu
+  [:img {:src "/img/dev/dave_logo.png"}]
+  [:a {:href "#/"} "About"]
+  [:a {:href "#/"} "Contribute"]
+  [:a {:href "#/"} "Contact"]
+  [:a {:href "#/"} "Yet Analytics"]])
+
+ (defn top-bar-links
+   "The links in the top app bar"
+   []
+   [:div.menuitems
+   (into [:ul.top-bar-links]
+         (for [[title href] [
+                             ["Menu" "#/"]
+                             ["More Info" "#/"]
+                             ["Contribute" "#/"]
+                             ["Google Group" "#/"]]]
+           [:li [:a {:href href}
+                 title]]))])
 
 (defn top-bar
   "The top bar of the application"

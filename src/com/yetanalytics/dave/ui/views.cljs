@@ -53,17 +53,17 @@
      ;; App description floats in the upper right
      [nav/app-description]
      ;; the top bar dominates the header area
-     [nav/top-bar]
+     [nav/topmenu]
      ;; single-line loading bar
      [loading-bar (contains? #{:loading} context)]
      ;; Breadcrumb nav expresses context and allows tree nav
      [nav/breadcrumbs]
      ;; The page changes depending on context
-     #_[nav/hometitle]
+     [nav/hometitle]
      ;;[nav/hometitle]
      [page context]
      ;; Static Footer
-     [nav/footer]
+     ;;[nav/footer]
      ;; Picker overlay
      [picker/picker]
      ;; mdc snackbar overlay
