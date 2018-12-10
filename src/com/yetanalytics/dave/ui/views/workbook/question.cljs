@@ -1,7 +1,8 @@
 (ns com.yetanalytics.dave.ui.views.workbook.question
   (:require [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.workbook.question.visualization
-             :as visualization]))
+             :as visualization]
+            [com.yetanalytics.dave.ui.views.workbook.question.func :as func]))
 
 (defn page []
   (let [{:keys [id
@@ -12,6 +13,7 @@
      [:div ;; inner
       [:div.splash
        [:h2 text]]
+      [func/info]
       ;; TODO: Nav/Breadcrumb
       [visualization/grid-list
        visualizations]]]))
