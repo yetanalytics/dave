@@ -134,6 +134,24 @@
                               units))]]
     [activity-id rate]))
 
+(s/def ::function
+  ifn?)
+
+(s/def ::ret-spec
+  qualified-keyword?)
+
+(def func-spec
+  (s/keys :req-un [::function
+                   ::ret-spec]))
+
 (def registry
   "A map of function keyword to implementation."
-  {})
+  {::success-timeline
+   {:function success-timeline
+    :ret-spec ::ret/time-score}
+   ::difficult-questions
+   {:function difficult-questions
+    :ret-spec ::ret/category-count}
+   ::completion-rate
+   {:function completion-rate
+    :ret-spec ::ret/category-rate}})
