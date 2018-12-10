@@ -162,9 +162,7 @@
 (s/def ::func-k
   (s/with-gen qualified-keyword?
     (fn []
-      (sgen/elements [::success-timeline
-                      ::difficult-questions
-                      ::completion-rate]))))
+      (sgen/elements (keys registry)))))
 
 (s/fdef get-func
   :args (s/cat :func-k ::func-k)
