@@ -14,7 +14,7 @@
   [:p.hometitle "Workbook"]
   [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
   [:div.tag
-  [:p.test "Total Workbooks 2"]]
+  [:p "Total Workbooks 2"]]
   ])
 
 
@@ -123,4 +123,9 @@
   "The footer at the bottom of the app."
   []
   [:footer
-   ])
+   [:img {:src "/img/dev/white_text_logo.png"}]
+   [:a {:href "#/"} "About"]
+   [:a {:href "#/"} "More Info"]
+   [:a {:href "#/"} "Contribute"]
+   [:a {:href "#/"} "Contact"]
+   [:a {:href "#/"} "Yet Analytics"]])

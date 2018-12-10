@@ -142,14 +142,31 @@ box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
 }}
 
 footer {
-  height: 128px;
+  height: auto;
   width: 100%;
-  background-image: url("/img/dev/white_text_logo.png"), linear-gradient(to right top, #1e3e8e, #21449d, #234bad, #2751bd, #2a58cd);
+  background-image: linear-gradient(to right top, #1e3e8e, #21449d, #234bad, #2751bd, #2a58cd);
   background-repeat: no-repeat;
   background-size: contain;
   color: white;
   position: fixed; /* change position to fixed*/
   bottom: 0;
+  display:flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding:30px;
+  -webkit-box-shadow: 0px -11px 30px -16px rgba(66,66,66,0.93);
+  -moz-box-shadow: 0px -11px 30px -16px rgba(66,66,66,0.93);
+  box-shadow: 0px -11px 30px -16px rgba(66,66,66,0.93);
+  > img{
+    height:100px;
+  }
+  > a{
+    color:white;
+    padding-left: 40px;
+    text-decoration: none;
+    font-weight: lighter;
+    margin:10px;
+  }
   }
 
   .quick-guide{
