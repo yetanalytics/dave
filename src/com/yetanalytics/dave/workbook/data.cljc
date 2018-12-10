@@ -15,10 +15,24 @@
 (s/def ::title
   string?)
 
+(s/def :error/message
+  string?)
+
+(s/def :error/type
+  qualified-keyword?)
+
+(s/def ::error
+  (s/keys :req-un [:error/message
+                   :error/type]))
+
+(s/def ::errors
+  (s/every ::error))
+
 (def data-common-spec
   (s/keys
    :req-un [::title]
-   :opt-un [::statements]))
+   :opt-un [::statements
+            ::errors]))
 
 (defmulti data-type :type)
 
