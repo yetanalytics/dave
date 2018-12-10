@@ -2,6 +2,7 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as sgen]
             [xapi-schema.spec :as xs]
+            [com.yetanalytics.dave.func.ret :as ret]
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
             [clojure.walk :as w]))
@@ -29,11 +30,7 @@
                                                   [:score/min
                                                    :score/max
                                                    :score/raw])))))))))
-  :ret (s/every
-        (s/tuple ::xs/timestamp
-                 (s/double-in
-                  :min 0.0
-                  :max 100.0))))
+  :ret ::ret/time-score)
 
 (defn success-timeline
   "DAVE Section 2"
@@ -54,9 +51,7 @@
   :args (s/cat
          :statements
          (s/every ::xs/lrs-statement))
-  :ret (s/every
-        (s/tuple :activity/id
-                 pos-int?)))
+  :ret ::ret/category-count)
 
 (defn difficult-questions
   "DAVE Section 3"
@@ -100,11 +95,7 @@
                       :week
                       :month
                       :year})
-  :ret (s/every
-        (s/tuple :activity/id
-                 (s/double-in :min 0.0
-                              :infinite? false
-                              :NaN? false))))
+  :ret ::ret/category-rate)
 
 (defn completion-rate
   "DAVE Section 4"
@@ -142,3 +133,7 @@
               rate (double (/ s-count
                               units))]]
     [activity-id rate]))
+
+(def registry
+  "A map of function keyword to implementation."
+  {})
