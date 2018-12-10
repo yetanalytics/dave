@@ -137,36 +137,39 @@
 (s/def ::function
   ifn?)
 
-(s/def ::ret-spec
-  qualified-keyword?)
-
 (s/def ::fspec
   s/spec?)
 
 (def func-spec
   (s/keys :req-un [::function
-                   ::fspec
-                   ::ret-spec]))
+                   ::fspec]))
 
 (def registry
   "A map of function keyword to implementation. Each function is a map
   containing:
     * :function - a reference to the function
-    * :fspec - the function spec, used to extract specs + introspect
-    * :ret-spec - the keyword under which the return spec is registered. Useful
-      for matching functions to vis."
+    * :fspec - the function spec, used to extract specs + introspect."
   {::success-timeline
    {:function success-timeline
-    :fspec (s/get-spec `success-timeline)
-    :ret-spec ::ret/time-score}
+    :fspec (s/get-spec `success-timeline)}
    ::difficult-questions
    {:function difficult-questions
-    :fspec (s/get-spec `difficult-questions)
-    :ret-spec ::ret/category-count}
+    :fspec (s/get-spec `difficult-questions)}
    ::completion-rate
    {:function completion-rate
-    :fspec (s/get-spec `completion-rate)
-    :ret-spec ::ret/category-rate}})
+    :fspec (s/get-spec `completion-rate)}})
+
+(s/def ::func-k
+  (s/and qualified-keyword?
+         ;; in the registry, but let's make it static so that generative tests
+         ;; are more useful
+         #{::success-timeline
+           ::difficult-questions
+           ::completion-rate}))
+
+(s/fdef get-func
+  :args (s/cat :func-k ::func-k)
+  :ret func-spec)
 
 (defn get-func
   "Gets a DAVE function map for the specified keyword or throws."
@@ -176,6 +179,55 @@
     (throw (ex-info "DAVE Function not found"
                     {:type ::func-not-found
                      :func-k func-k}))))
+
+(comment
+  (get-func ::difficult-questions) ;; => {:function ..., :fspec ...}
+  )
+
+(s/fdef get-func-args-spec
+  :args (s/cat :func-k ::func-k)
+  :ret s/spec?)
+
+(defn get-func-args-spec
+  "Get the spec of a DAVE function's arguments"
+  [func-k]
+  (-> (get-func func-k)
+      :fspec
+      :args))
+
+(comment
+  (get-func-args-spec ::difficult-questions) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9474]
+  )
+
+(s/fdef get-func-ret-spec
+  :args (s/cat :func-k ::func-k)
+  :ret spec?)
+
+(defn get-func-ret-spec
+  "Get the ret spec for a given DAVE function."
+  [func-k]
+  (-> (get-func func-k)
+      :fspec
+      :ret))
+
+(comment
+  (get-func-ret-spec ::difficult-questions) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9300]
+  )
+
+(s/fdef get-func-ret-spec-k
+  :args (s/cat :func-k ::func-k)
+  :ret qualified-keyword?)
+
+(defn get-func-ret-spec-k
+  "Get the keyword of the registered ret spec for a given DAVE function."
+  [func-k]
+  (-> (get-func-ret-spec func-k)
+      meta
+      ::s/name))
+
+(comment
+  (get-func-ret-spec-k ::difficult-questions) ;; => :com.yetanalytics.dave.func.ret/category-count
+  )
 
 ;; Function arg maps are attached to questions, and applied to the function.
 ;; They are expected to be suitable for use with s/unform
@@ -196,7 +248,7 @@
                                 args-map)))))
 
 (s/fdef explain-args
-  :args (s/cat :func-k qualified-keyword?
+  :args (s/cat :func-k ::func-k
                :args-map ::args)
   :ret (s/nilable map?))
 
@@ -205,6 +257,16 @@
   spec error map if there are problems. If func-k is not found, throws."
   [func-k args-map]
   (explain-args* (get-func func-k) args-map))
+
+(comment
+  (explain-args ::completion-rate {:time-unit :parsec}) ;; => {:cljs.spec.alpha/problems [{:path [:time-unit], :pred #{:day :hour :week :second :month :year :minute} ... ;; failed
+  (explain-args ::completion-rate {:time-unit :minute}) ;; => nil ;; OK!
+  )
+
+(s/fdef apply-func
+  :args (s/cat :func-k ::func-k
+               :args-map map?
+               :statements (s/every ::xs/lrs-statement)))
 
 (defn apply-func
   "Apply a DAVE function given a function key, args map (maybe nil) and a

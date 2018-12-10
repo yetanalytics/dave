@@ -4,7 +4,6 @@
             [com.yetanalytics.dave.func :as func]))
 
 ;; TODO: remove this boiler
-(println "This text is printed from src/com/yetanalytics/dave.cljs. Go ahead and edit it and see reloading in action.")
 (defn multiply [a b] (* a b))
 
 
