@@ -24,11 +24,17 @@
 ;; TODO: more formatting specifically for cells
 (defn cell [workbook]
   [:div.workbookinfo
+  [:div.sectiontitle
+   [:p "Workbook"]]
    [:p.hometitle [:a {:href (str "#/workbooks/" (:id workbook))}
                   (:title workbook)]]
    [:p.workbookdesc (:description workbook)]
    [:div.tag
-    [:p "Total Workbooks 2"]]])
+    [:p "Total Questions: 1"]]
+  [:div.tag.visualtag
+    [:p "Total Visualizations: 1"]]
+
+])
 
 (defn grid-list
   "A list of workbooks in ye responsive grid"

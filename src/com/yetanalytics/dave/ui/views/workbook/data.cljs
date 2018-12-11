@@ -2,15 +2,17 @@
   (:require [re-frame.core :refer [dispatch subscribe]]))
 
 (defn details [?workbook-id]
-  (let [{stamp-min :min
+    (let [{stamp-min :min
          stamp-max :max} @(subscribe [:workbook.data/timestamp-range ?workbook-id])]
+
     [:dl.details
      [:dt "Statements"]
      [:dd (str @(subscribe [:workbook.data/statement-count ?workbook-id]))]
      [:dt "First Timestamp"]
      [:dd stamp-min]
      [:dt "Last Timestamp"]
-     [:dd stamp-max]]))
+     [:dd stamp-max]]
+        ))
 
 (defn errors [?workbook-id]
   (let [errors @(subscribe [:workbook.data/errors ?workbook-id])]
