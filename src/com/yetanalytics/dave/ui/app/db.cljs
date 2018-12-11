@@ -82,7 +82,8 @@
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                               :index 0}}}}}
+                               :index 0
+                               :tags #{}}}}}}
                #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
                {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
                 :title "Test Workbook 2"
@@ -102,7 +103,8 @@
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                               {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                               :index 0}}}}}
+                               :index 0
+                               :tags #{}}}}}}
                #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
                {:id #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
                 :title "Test Workbook 3"
