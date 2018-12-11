@@ -268,6 +268,19 @@
                              :day
                              :week
                              :month
+                             :year}}}
+   ::followed-recommendations
+   {:title "Followed Recommendations"
+    :doc "Buckets statements into periods (time ranges) by statement timestamp. Within each bucket, counts the number of recommendations, launches and follows expressed."
+    :function followed-recommendations
+    :fspec (s/get-spec `followed-recommendations)
+    :args-default {:time-unit :month}
+    :args-enum {:time-unit #{:second
+                             :minute
+                             :hour
+                             :day
+                             :week
+                             :month
                              :year}}}})
 
 (s/def ::id
