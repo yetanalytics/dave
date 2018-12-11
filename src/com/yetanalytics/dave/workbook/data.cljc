@@ -3,7 +3,8 @@
             [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.workbook.data.file :as file]
             [com.yetanalytics.dave.workbook.data.lrs :as lrs]
-            [xapi-schema.spec :as xs]))
+            [xapi-schema.spec :as xs]
+            [dave.tag :as tag]))
 
 (s/def ::type
   #{::file
@@ -30,7 +31,8 @@
 
 (def data-common-spec
   (s/keys
-   :req-un [::title]
+   :req-un [::title
+            ::tag/tags]
    :opt-un [::statements
             ::errors]))
 

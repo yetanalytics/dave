@@ -72,7 +72,8 @@
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "/data/kokea/rate_of_completions_16.json"
-                       :built-in? true}
+                       :built-in? true
+                       :tags #{}}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                              :text "When do learners do their best work?"
@@ -93,7 +94,8 @@
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "/data/kokea/rate_of_completions_16.json"
-                       :built-in? true}
+                       :built-in? true
+                       :tags #{}}
                 :questions {#uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                             {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                              :text "What activities are most difficult?"
@@ -114,7 +116,8 @@
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "/data/kokea/rate_of_completions_16.json"
-                       :built-in? true}
+                       :built-in? true
+                       :tags #{}}
                 :questions {#uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                             {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                              :text "What activities are completed the most?"
