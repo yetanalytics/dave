@@ -4,7 +4,8 @@
   (:require [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.workbook.question :as question]
             [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.workbook.data :as data]))
+            [com.yetanalytics.dave.workbook.data :as data]
+            [dave.tag :as tag]))
 
 (s/def ::id
   uuid?)
@@ -29,5 +30,5 @@
                    ::title
                    ::description
                    ::questions
-                   ]
+                   ::tag/tags]
           :opt-un [::data]))

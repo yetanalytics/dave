@@ -68,6 +68,7 @@
                 :title "Test Workbook"
                 :description "A dummy workbook for dev/testing"
                 :index 0
+                :tags #{}
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "/data/kokea/rate_of_completions_16.json"
@@ -86,6 +87,7 @@
                 :title "Test Workbook 2"
                 :description "Another dummy workbook for dev/testing"
                 :index 1
+                :tags #{}
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "/data/kokea/rate_of_completions_16.json"
@@ -103,6 +105,7 @@
                {:id #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
                 :title "Test Workbook 3"
                 :description "A third test workbook"
+                :tags #{}
                 :index 2
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
