@@ -59,8 +59,6 @@
      ;; Breadcrumb nav expresses context and allows tree nav
      [nav/breadcrumbs]
      ;; The page changes depending on context
-     #_[nav/hometitle]
-     ;;[nav/hometitle]
      [page context]
      ;; Static Footer
      ;;[nav/footer]

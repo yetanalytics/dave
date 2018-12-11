@@ -91,8 +91,10 @@ div.app-description {
 @import "@material/layout-grid/_mixins";
 @import "@material/card/_mixins";
 
-.breadcrumbs {
 
+
+
+.breadcrumbs {
     /* the top crumb element */
   @include mdc-layout-grid('desktop', 8px);
   > div {
@@ -113,6 +115,8 @@ div.app-description {
           padding:10px;
           background-color: #2A58CD;
           color:#ffffff;
+          border-radius: 5px 5px 0px 0px;
+
         }
         .text{
           padding: 10px;
@@ -148,10 +152,9 @@ border-radius: 20px;
 -webkit-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
 -moz-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
 box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
->.sectiontitle{
+>.sectiontitle {
   color: #26A699;
   margin-bottom: 0px;
-
 }
 > .hometitle{
   font-size: 1.5em;
@@ -231,10 +234,9 @@ footer {
     }
   }
 .data{
-  background:#fbfbfb;
-  border-radius: 20px;
-  box-shadow: rgb(189, 189, 189) 0px 0px 20px -2px;
- padding-left: 20px;
+  // background:#fbfbfb;
+  // border-radius: 20px;
+  // box-shadow: rgb(189, 189, 189) 0px 0px 20px -2px;
     > h3.title {
     color:#4449A6;
     text-transform: capitalize;

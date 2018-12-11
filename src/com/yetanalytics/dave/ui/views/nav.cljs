@@ -29,10 +29,8 @@
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    [:button "Create Your Own Report"]])
 
-(defn top-image
-  "Main group image that is on the home page"
-  []
-  [:img {:src "/img/dev/top_image.png"}]) ;; FIXME: No image will show in DAVE
+
+
 
 (defn crumb
   "A single breadcrumb box"
@@ -54,7 +52,7 @@
          ?question
          ?visualization] @(subscribe [:nav/path-items])]
     [:div.breadcrumbs
-     [:div ;; inner
+     [:div.breadcrumbcorner ;; inner
       [crumb
        {:title "DAVE"
         :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations. Search learning domain problem types and access the relevant information needed to create meaningful data visualizations. Tweak the visualization to meet your needs and issue a report."

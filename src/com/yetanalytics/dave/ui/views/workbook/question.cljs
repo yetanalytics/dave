@@ -19,6 +19,7 @@
 (defn cell [{:keys [id text] :as question}]
   [:div
    [:h4 text]
+   [:questiondesc]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
     (str "question cell for " id)]])
