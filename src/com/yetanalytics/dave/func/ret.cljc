@@ -39,3 +39,11 @@
   (s/every
    (s/tuple ::category
             ::rate)))
+
+;; Time bucketed data w/n labeled y values
+(s/def ::time-bucket-category-counts
+  (s/every
+   (s/tuple ::xs/timestamp ;; start
+            ::xs/timestamp ;; end
+            (s/map-of ::category
+                      ::count))))

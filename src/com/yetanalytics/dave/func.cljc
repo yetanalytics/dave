@@ -134,6 +134,72 @@
                               units))]]
     [activity-id rate]))
 
+
+(s/fdef followed-recommendations
+  :args (s/cat
+         :statements
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[s act v-id follow?]]
+                           (-> s
+                               (assoc "verb"
+                                      {"id" v-id})
+                               (assoc "object" act)
+                               (cond->
+                                   (and follow?
+                                        (= "http://adlnet.gov/expapi/verbs/launched"))
+                                 (assoc-in ["context" "statement"]
+                                           #?(:clj (str (java.util.UUID/randomUUID))
+                                              :cljs (str (random-uuid)))))))
+                         (sgen/tuple
+                          (s/gen ::xs/lrs-statement)
+                          (s/gen ::xs/activity)
+                          (sgen/elements ["http://adlnet.gov/expapi/verbs/launched"
+                                          "https://w3id.org/xapi/dod-isd/verbs/recommended"])
+                          (sgen/boolean))))))
+         :time-unit #{:second
+                      :minute
+                      :hour
+                      :day
+                      :week
+                      :month
+                      :year})
+
+  :ret ::ret/time-bucket-category-counts)
+
+(defn followed-recommendations
+  "Dave Section 5"
+  [statements time-unit]
+  (let [buckets (util/time-bucket-statements statements time-unit)]
+    (into []
+          (for [{:keys [period-start
+                        period-end
+                        statements]
+                 :as bucket} buckets]
+            [period-start
+             period-end
+             (reduce
+              (fn [m {{v-id "verb-id"} "verb"
+                      {context-ref "statement"} "context"
+                      :as statement}]
+                (case v-id
+                  ;; if this is a launch
+                  "http://adlnet.gov/expapi/verbs/launched"
+                  (-> m
+                      (update "launches" inc)
+                      (cond->
+                          context-ref (update "follows" inc)))
+                  ;; if this is a recommendation
+                  "https://w3id.org/xapi/dod-isd/verbs/recommended"
+                  (update m "recommendations" inc)
+                  ;; if neither, ignore
+                  m))
+              {"launches"        0
+               "recommendations" 0
+               "follows"         0}
+              statements)]))))
+
 (s/def ::function
   ifn?)
 
@@ -196,6 +262,19 @@
     :function completion-rate
     :fspec (s/get-spec `completion-rate)
     :args-default {:time-unit :day}
+    :args-enum {:time-unit #{:second
+                             :minute
+                             :hour
+                             :day
+                             :week
+                             :month
+                             :year}}}
+   ::followed-recommendations
+   {:title "Followed Recommendations"
+    :doc "Buckets statements into periods (time ranges) by statement timestamp. Within each bucket, counts the number of recommendations, launches and follows expressed."
+    :function followed-recommendations
+    :fspec (s/get-spec `followed-recommendations)
+    :args-default {:time-unit :month}
     :args-enum {:time-unit #{:second
                              :minute
                              :hour
