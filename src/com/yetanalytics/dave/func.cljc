@@ -5,7 +5,8 @@
             [com.yetanalytics.dave.func.ret :as ret]
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
-            [clojure.walk :as w]))
+            [clojure.walk :as w]
+            [dave.tag :as tag]))
 
 (s/fdef success-timeline
   :args (s/cat
@@ -232,7 +233,8 @@
                    ::fspec
                    ::title
                    ::args-default
-                   ::args-enum]
+                   ::args-enum
+                   ::tag/tags]
           :opt-un [::doc]))
 
 (def registry
@@ -241,21 +243,25 @@
     * :function - a reference to the function
     * :fspec - the function spec, used to extract specs + introspect.
     * :title - a human-readable name for the function
-    * :doc - a longer human-readable description of what the function does"
+    * :doc - a longer human-readable description of what the function does
+    * :tags - a set of tag slugs"
   {::success-timeline
    {:title "Success Timeline"
     :doc "Plots the timestamp of successful statements against the score of their result."
     :function success-timeline
     :fspec (s/get-spec `success-timeline)
     :args-default {}
-    :args-enum {}}
+    :args-enum {}
+    :tags #{}
+    }
    ::difficult-questions
    {:title "Difficult Questions"
     :doc "Plots interaction activity ids against the number of failed attempts for that activity."
     :function difficult-questions
     :fspec (s/get-spec `difficult-questions)
     :args-default {}
-    :args-enum {}}
+    :args-enum {}
+    :tags #{}}
    ::completion-rate
    {:title "Completion Rate"
     :doc "Plots activity ids against the rate of failed attempts per given time unit."
@@ -268,7 +274,8 @@
                              :day
                              :week
                              :month
-                             :year}}}
+                             :year}}
+    :tags #{}}
    ::followed-recommendations
    {:title "Followed Recommendations"
     :doc "Buckets statements into periods (time ranges) by statement timestamp. Within each bucket, counts the number of recommendations, launches and follows expressed."
@@ -281,7 +288,8 @@
                              :day
                              :week
                              :month
-                             :year}}}})
+                             :year}}
+    :tags #{}}})
 
 (s/def ::id
   (s/with-gen qualified-keyword?
