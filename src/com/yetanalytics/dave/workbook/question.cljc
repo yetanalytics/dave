@@ -5,7 +5,8 @@
   (:require [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.workbook.question.visualization :as v]
-            [com.yetanalytics.dave.func :as func]))
+            [com.yetanalytics.dave.func :as func]
+            [dave.tag :as tag]))
 
 (s/def ::id
   uuid?)
@@ -33,5 +34,6 @@
   (s/keys :req-un [::id
                    ::text
                    ::visualizations
-                   ::index]
+                   ::index
+                   ::tag/tags]
           :opt-un [::function]))

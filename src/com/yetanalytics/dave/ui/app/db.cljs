@@ -78,6 +78,7 @@
                              :text "When do learners do their best work?"
                              :function {:id :com.yetanalytics.dave.func/success-timeline}
                              :index 0
+                             :tags #{}
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
@@ -97,6 +98,7 @@
                              :text "What activities are most difficult?"
                              :function {:id :com.yetanalytics.dave.func/difficult-questions}
                              :index 0
+                             :tags #{}
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                               {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
@@ -117,6 +119,7 @@
                              :function {:id :com.yetanalytics.dave.func/completion-rate
                                         :args {:time-unit :day}}
                              :index 0
+                             :tags #{}
                              :visualizations {}}}}
 
                }})
