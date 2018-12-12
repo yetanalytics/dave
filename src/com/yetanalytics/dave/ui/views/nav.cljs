@@ -17,7 +17,6 @@
   [:p " Total Workbooks 2"]]
   ])
 
-
 (defn app-description
   "Small description of the app that appears on every page and allows the user
    to launch the new work wizard."
@@ -29,10 +28,8 @@
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    [:button "Create Your Own Report"]])
 
-(defn top-image
-  "Main group image that is on the home page"
-  []
-  [:img {:src "/img/dev/top_image.png"}]) ;; FIXME: No image will show in DAVE
+
+
 
 (defn crumb
   "A single breadcrumb box"
