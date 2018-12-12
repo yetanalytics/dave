@@ -65,5 +65,4 @@
      ;; Picker overlay
      [picker/picker]
      ;; mdc snackbar overlay
-     [snackbar]
-     ]))
+     [snackbar]]))

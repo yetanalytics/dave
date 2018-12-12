@@ -58,8 +58,8 @@
 (def db-state-spec
   (s/keys :opt-un [::id
                    ::nav
-                   ::workbooks
-                   ]))
+                   ::workbooks]))
+
 
 ;; This will include the default workbooks for DAVE
 (def db-default
@@ -114,9 +114,9 @@
                              :function {:id :com.yetanalytics.dave.func/completion-rate
                                         :args {:time-unit :day}}
                              :index 0
-                             :visualizations {}}}}
+                             :visualizations {}}}}}})
 
-               }})
+
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))

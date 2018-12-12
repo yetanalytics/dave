@@ -17,13 +17,13 @@
        :signals-out {"tooltip" [:debug/log "tooltip state:"]
                      "bar_color" [:debug/log "bar color out:"]}
        ;; dom + vega events out to handlers
-       :events-out {"click" [:debug/log "click event:"]}
+       :events-out {"click" [:debug/log "click event:"]}]]]))
        ;; Other options:
        ;; :renderer "canvas" ;; use canvas rather than SVG
        ;; :hover? false ;; don't initialize hovering
        ;; :log-level :debug ;; set log level (default is :warn)
 
-       ]]]))
+
 
 (defn cell [{:keys [id] :as visualization}]
   (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]
@@ -38,8 +38,8 @@
   "A list of Visualizations"
   [visualizations]
   [:div.visualization.list
-  [:div.locationtitle
-   "Visualizations"]
+   [:div.locationtitle
+    "Visualizations"]
    (into [:div] ;; inner
          (for [[id visualization] visualizations
                :let [k (str "visualization-list-cell-" id)]]

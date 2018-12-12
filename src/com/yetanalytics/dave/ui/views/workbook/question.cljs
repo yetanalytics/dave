@@ -23,6 +23,7 @@
 
 (defn cell [{:keys [id text] :as question}]
   [:div
+   [:p "Below is a list of your questions"]
    [:div.locationtitle
     "Questions"]
    [:h4 text]

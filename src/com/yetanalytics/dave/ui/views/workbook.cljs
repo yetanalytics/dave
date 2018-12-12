@@ -20,8 +20,8 @@
        [:div.tag.visualtag
         [:p "Total Visualizations: 1"]]
        [data/info id]]
-      [question/grid-list questions]
-      ]]))
+      [question/grid-list questions]]]))
+
 
 ;; TODO: more formatting specifically for cells
 (defn cell [workbook]
@@ -34,9 +34,9 @@
    [:div.tag
     [:p "Total Questions: 1"]]
    [:div.tag.visualtag
-    [:p "Total Visualizations: 1"]]
+    [:p "Total Visualizations: 1"]]])
 
-   ])
+
 
 (defn grid-list
   "A list of workbooks in ye responsive grid"
