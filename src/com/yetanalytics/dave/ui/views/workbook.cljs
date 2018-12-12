@@ -9,7 +9,7 @@
                 description
                 questions]
          :as workbook} @(subscribe [:nav/focus])]
-    [:div.page.workbook
+    [:div.page.question
      [:div ;; inner
       [:div.workbookinfo
        [:p.hometitle title]

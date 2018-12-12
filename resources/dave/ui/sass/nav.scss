@@ -1,6 +1,10 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+.splash h2{
+  margin-top: 0px;
+}
+
 .locationtitle {
   color: #353535;
   margin-top: 10px;

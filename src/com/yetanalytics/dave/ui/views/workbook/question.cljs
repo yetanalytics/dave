@@ -10,6 +10,8 @@
          :as question} @(subscribe [:nav/focus])]
     [:div.page.question
      [:div ;; inner
+     [:div.locationtitle
+      "Visualization"]
       [:div.splash
        [:h2 text]]
       ;; TODO: Nav/Breadcrumb
@@ -19,7 +21,7 @@
 (defn cell [{:keys [id text] :as question}]
   [:div
   [:div.locationtitle
-   "Question Selection"]
+   "Question"]
    [:h4 text]
    [:questiondesc]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
