@@ -1,8 +1,7 @@
 (ns com.yetanalytics.dave.ui.views.workbook.question.visualization
   (:require [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.vega :as v :refer [vega]]
-            [reagent.core :as r]
-            [com.yetanalytics.dave.vis.bar :as bar]))
+            [reagent.core :as r]))
 
 (defn page []
   (let [{:keys [id]
@@ -14,7 +13,7 @@
        [:h2 id]]
       (when-let [vega-spec @(subscribe [:workbook.question.visualization/vega-spec
                                         workbook-id question-id id])]
-        [vega vega-spec #_v/bar-spec-demo
+        [vega vega-spec
          ;; :signals-in {"bar_color" [:debug/bar-color]} ;; signals in from subs
          ;; signals out to handlers
          #_:signals-out #_{"tooltip" [:debug/log "tooltip state:"]
