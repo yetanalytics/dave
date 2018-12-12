@@ -10,16 +10,24 @@
                 visualizations]
          :as question} @(subscribe [:nav/focus])]
     [:div.page.question
-     [:div ;; inner
-      [:div.splash
-       [:h2 text]]
-      [func/info]
+      [:div.splash]
+      [:div ;; inner
+       [:div.workbookinfo
+        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
+        [:div.tag.visualtag
+         [:p "Total Visualizations: " (count visualizations)]]
+
+        [func/info]]]
+       [:div.locationtitle
+        "Visualization"]
       ;; TODO: Nav/Breadcrumb
       [visualization/grid-list
-       visualizations]]]))
+       visualizations]]))
 
 (defn cell [{:keys [id text] :as question}]
   [:div
+   [:div.locationtitle
+    "Question"]
    [:h4 text]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
