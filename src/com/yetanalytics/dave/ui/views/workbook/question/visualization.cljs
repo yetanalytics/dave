@@ -5,25 +5,27 @@
 
 (defn page []
   (let [{:keys [id]
-         :as question} @(subscribe [:nav/focus])]
-    [:div.page.question
+         :as visualization} @(subscribe [:nav/focus])
+        [_ workbook-id _ question-id] @(subscribe [:nav/path])]
+    [:div.page.visualization
      [:div ;; inner
       [:div.splash
        [:h2 id]]
-      ;; TODO: Nav/Breadcrumb
-      [vega v/bar-spec-demo
-       ;; :signals-in {"bar_color" [:debug/bar-color]} ;; signals in from subs
-       ;; signals out to handlers
-       :signals-out {"tooltip" [:debug/log "tooltip state:"]
-                     "bar_color" [:debug/log "bar color out:"]}
-       ;; dom + vega events out to handlers
-       :events-out {"click" [:debug/log "click event:"]}
-       ;; Other options:
-       ;; :renderer "canvas" ;; use canvas rather than SVG
-       ;; :hover? false ;; don't initialize hovering
-       ;; :log-level :debug ;; set log level (default is :warn)
+      (when-let [vega-spec @(subscribe [:workbook.question.visualization/vega-spec
+                                        workbook-id question-id id])]
+        [vega vega-spec
+         ;; :signals-in {"bar_color" [:debug/bar-color]} ;; signals in from subs
+         ;; signals out to handlers
+         #_:signals-out #_{"tooltip" [:debug/log "tooltip state:"]
+                           "bar_color" [:debug/log "bar color out:"]}
+         ;; dom + vega events out to handlers
+         #_:events-out #_{"click" [:debug/log "click event:"]}
+         ;; Other options:
+         ;; :renderer "canvas" ;; use canvas rather than SVG
+         ;; :hover? false ;; don't initialize hovering
+         ;; :log-level :debug ;; set log level (default is :warn)
 
-       ]]]))
+         ])]]))
 
 (defn cell [{:keys [id] :as visualization}]
   (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]

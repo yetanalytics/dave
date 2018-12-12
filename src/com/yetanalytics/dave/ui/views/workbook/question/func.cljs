@@ -9,4 +9,8 @@
                               ?workbook-id ?question-id])]
    [:p.doc
     @(subscribe [:workbook.question.function.func/doc
-                 ?workbook-id ?question-id])]])
+                 ?workbook-id ?question-id])]
+   [:div (str @(subscribe [:workbook.question.function.result/count
+                           ?workbook-id
+                           ?question-id])
+              " results with current dataset")]])

@@ -65,12 +65,12 @@
 (def db-default
   {:workbooks {#uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
                {:id #uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
-                :title "Test Workbook"
-                :description "A dummy workbook for dev/testing"
+                :title "DAVE Alpha Demo"
+                :description "A tour of DAVE Alpha features."
                 :index 0
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
-                       :uri "/data/kokea/rate_of_completions_16.json"
+                       :uri "/data/dave/ds.json"
                        :built-in? true}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
@@ -80,43 +80,36 @@
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                               :index 0}}}}}
-               #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
-               {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
-                :title "Test Workbook 2"
-                :description "Another dummy workbook for dev/testing"
-                :index 1
-                :data {:title "test dataset"
-                       :type :com.yetanalytics.dave.workbook.data/file
-                       :uri "/data/kokea/rate_of_completions_16.json"
-                       :built-in? true}
-                :questions {#uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
+                               :vis {:id :com.yetanalytics.dave.vis.line/timeline
+                                     :args {}}
+                               :index 0}}}
+                            #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                             {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                              :text "What activities are most difficult?"
                              :function {:id :com.yetanalytics.dave.func/difficult-questions}
-                             :index 0
+                             :index 1
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                               {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                               :index 0}}}}}
-               #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
-               {:id #uuid "0a79f205-b4eb-4500-98f1-0d7920d4ef3e"
-                :title "Test Workbook 3"
-                :description "A third test workbook"
-                :index 2
-                :data {:title "test dataset"
-                       :type :com.yetanalytics.dave.workbook.data/file
-                       :uri "/data/kokea/rate_of_completions_16.json"
-                       :built-in? true}
-                :questions {#uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
+                               :vis {:id :com.yetanalytics.dave.vis.bar/base
+                                     :args {}}
+                               :index 0}}}
+                            #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                             {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                              :text "What activities are completed the most?"
                              :function {:id :com.yetanalytics.dave.func/completion-rate
                                         :args {:time-unit :day}}
-                             :index 0
-                             :visualizations {}}}}
-
-               }})
+                             :index 2
+                             :visualizations {}}
+                            #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
+                            {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
+                             :text "How often are recommendations followed?"
+                             :function {:id :com.yetanalytics.dave.func/followed-recommendations
+                                        :args {:time-unit :day}}
+                             :index 3
+                             :visualizations {}
+                             }
+                            }}}})
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))
