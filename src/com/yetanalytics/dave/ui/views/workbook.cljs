@@ -14,6 +14,7 @@
       [:div.workbookinfo
        [:p.hometitle title]
        [:p.workbookdesc description]
+       ;; TODO: subscriptions for counts
        [:div.tag
         [:p "Questions: " (count questions)]]
        [:div.tag.visualtag
