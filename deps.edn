@@ -6,7 +6,9 @@
         com.yetanalytics/xapi-schema {:mvn/version "1.0.0-alpha19-SNAPSHOT"}
         com.cognitect/transit-cljs {:mvn/version "0.8.256"}
         cljsjs/vega {:mvn/version "4.3.0-0"}
-        cljs-http {:mvn/version "0.1.45"}}
+        cljs-http {:mvn/version "0.1.45"}
+        com.andrewmcveigh/cljs-time {:mvn/version "0.5.2"}
+        clj-time {:mvn/version "0.15.0"}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                   {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}

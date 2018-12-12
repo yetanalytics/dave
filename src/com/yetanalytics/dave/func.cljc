@@ -134,30 +134,154 @@
                               units))]]
     [activity-id rate]))
 
+
+(s/fdef followed-recommendations
+  :args (s/cat
+         :statements
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[s act v-id follow?]]
+                           (-> s
+                               (assoc "verb"
+                                      {"id" v-id})
+                               (assoc "object" act)
+                               (cond->
+                                   (and follow?
+                                        (= "http://adlnet.gov/expapi/verbs/launched"))
+                                 (assoc-in ["context" "statement"]
+                                           #?(:clj (str (java.util.UUID/randomUUID))
+                                              :cljs (str (random-uuid)))))))
+                         (sgen/tuple
+                          (s/gen ::xs/lrs-statement)
+                          (s/gen ::xs/activity)
+                          (sgen/elements ["http://adlnet.gov/expapi/verbs/launched"
+                                          "https://w3id.org/xapi/dod-isd/verbs/recommended"])
+                          (sgen/boolean))))))
+         :time-unit #{:second
+                      :minute
+                      :hour
+                      :day
+                      :week
+                      :month
+                      :year})
+
+  :ret ::ret/time-bucket-category-counts)
+
+(defn followed-recommendations
+  "Dave Section 5"
+  [statements time-unit]
+  (let [buckets (util/time-bucket-statements statements time-unit)]
+    (into []
+          (for [{:keys [period-start
+                        period-end
+                        statements]
+                 :as bucket} buckets]
+            [period-start
+             period-end
+             (reduce
+              (fn [m {{v-id "verb-id"} "verb"
+                      {context-ref "statement"} "context"
+                      :as statement}]
+                (case v-id
+                  ;; if this is a launch
+                  "http://adlnet.gov/expapi/verbs/launched"
+                  (-> m
+                      (update "launches" inc)
+                      (cond->
+                          context-ref (update "follows" inc)))
+                  ;; if this is a recommendation
+                  "https://w3id.org/xapi/dod-isd/verbs/recommended"
+                  (update m "recommendations" inc)
+                  ;; if neither, ignore
+                  m))
+              {"launches"        0
+               "recommendations" 0
+               "follows"         0}
+              statements)]))))
+
 (s/def ::function
   ifn?)
 
 (s/def ::fspec
   s/spec?)
 
+(s/def ::title
+  (s/and string?
+         not-empty))
+
+(s/def ::doc
+  (s/and string?
+         not-empty))
+
+;; default args get merged with the provided ones.
+(s/def ::args-default
+  (s/map-of keyword?
+            (s/with-gen identity
+              (fn []
+                (sgen/keyword-ns)))))
+
+;; Some args have predefined choices, list them here
+(s/def ::args-enum
+  (s/map-of keyword?
+            (s/every
+             keyword?)))
+
 (def func-spec
   (s/keys :req-un [::function
-                   ::fspec]))
+                   ::fspec
+                   ::title
+                   ::args-default
+                   ::args-enum]
+          :opt-un [::doc]))
 
 (def registry
   "A map of function keyword to implementation. Each function is a map
   containing:
     * :function - a reference to the function
-    * :fspec - the function spec, used to extract specs + introspect."
+    * :fspec - the function spec, used to extract specs + introspect.
+    * :title - a human-readable name for the function
+    * :doc - a longer human-readable description of what the function does"
   {::success-timeline
-   {:function success-timeline
-    :fspec (s/get-spec `success-timeline)}
+   {:title "Success Timeline"
+    :doc "Plots the timestamp of successful statements against the score of their result."
+    :function success-timeline
+    :fspec (s/get-spec `success-timeline)
+    :args-default {}
+    :args-enum {}}
    ::difficult-questions
-   {:function difficult-questions
-    :fspec (s/get-spec `difficult-questions)}
+   {:title "Difficult Questions"
+    :doc "Plots interaction activity ids against the number of failed attempts for that activity."
+    :function difficult-questions
+    :fspec (s/get-spec `difficult-questions)
+    :args-default {}
+    :args-enum {}}
    ::completion-rate
-   {:function completion-rate
-    :fspec (s/get-spec `completion-rate)}})
+   {:title "Completion Rate"
+    :doc "Plots activity ids against the rate of failed attempts per given time unit."
+    :function completion-rate
+    :fspec (s/get-spec `completion-rate)
+    :args-default {:time-unit :day}
+    :args-enum {:time-unit #{:second
+                             :minute
+                             :hour
+                             :day
+                             :week
+                             :month
+                             :year}}}
+   ::followed-recommendations
+   {:title "Followed Recommendations"
+    :doc "Buckets statements into periods (time ranges) by statement timestamp. Within each bucket, counts the number of recommendations, launches and follows expressed."
+    :function followed-recommendations
+    :fspec (s/get-spec `followed-recommendations)
+    :args-default {:time-unit :month}
+    :args-enum {:time-unit #{:second
+                             :minute
+                             :hour
+                             :day
+                             :week
+                             :month
+                             :year}}}})
 
 (s/def ::id
   (s/with-gen qualified-keyword?
@@ -237,12 +361,14 @@
   :ret (s/nilable map?))
 
 (defn explain-args*
-  [{:keys [fspec] :as func} args-map]
+  [{:keys [fspec args-default] :as func} args-map]
   (let [args-spec (:args fspec)]
     (s/explain-data
      args-spec
-     (s/unform args-spec (merge {:statements []}
-                                args-map)))))
+     (s/unform args-spec
+               (merge {:statements []}
+                      args-default
+                      args-map)))))
 
 (s/fdef explain-args
   :args (s/cat :id ::id
@@ -258,6 +384,7 @@
 (comment
   (explain-args ::completion-rate {:time-unit :parsec}) ;; => {:cljs.spec.alpha/problems [{:path [:time-unit], :pred #{:day :hour :week :second :month :year :minute} ... ;; failed
   (explain-args ::completion-rate {:time-unit :minute}) ;; => nil ;; OK!
+  (explain-args ::completion-rate) ;; => nil ;; OK, because the default arg (:day) was added
   )
 
 (s/fdef apply-func
