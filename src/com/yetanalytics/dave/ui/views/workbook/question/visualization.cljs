@@ -38,6 +38,8 @@
   "A list of Visualizations"
   [visualizations]
   [:div.visualization.list
+  [:div.locationtitle
+   "Visualizations"]
    (into [:div] ;; inner
          (for [[id visualization] visualizations
                :let [k (str "visualization-list-cell-" id)]]

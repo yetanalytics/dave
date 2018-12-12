@@ -16,10 +16,7 @@
         [:p.hometitle (str "Question: " text)] ;;The question from the previous page
         [:div.tag.visualtag
          [:p "Total Visualizations: " (count visualizations)]]
-
         [func/info]]]
-       [:div.locationtitle
-        "Visualization"]
       ;; TODO: Nav/Breadcrumb
       [visualization/grid-list
        visualizations]]))
@@ -27,7 +24,7 @@
 (defn cell [{:keys [id text] :as question}]
   [:div
    [:div.locationtitle
-    "Question"]
+    "Questions"]
    [:h4 text]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
