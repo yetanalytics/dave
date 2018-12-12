@@ -11,14 +11,13 @@
          :as question} @(subscribe [:nav/focus])]
     [:div.page.question
       [:div.splash]
-
       [:div ;; inner
        [:div.workbookinfo
         [:p.hometitle (str "Question: " text)] ;;The question from the previous page
         [:div.tag.visualtag
-         [:p "Total Visualizations: " (count visualizations)]]]
-       ]
-       [func/info]
+         [:p "Total Visualizations: " (count visualizations)]]
+
+        [func/info]]]
        [:div.locationtitle
         "Visualization"]
       ;; TODO: Nav/Breadcrumb
