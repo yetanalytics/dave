@@ -17,7 +17,6 @@
   [:p " Total Workbooks 2"]]
   ])
 
-
 (defn app-description
   "Small description of the app that appears on every page and allows the user
    to launch the new work wizard."

@@ -15,8 +15,10 @@
        [:p.hometitle title]
        [:p.workbookdesc description]
        [:div.tag
-        [:p "Questions: " (count questions)]]]
-      [data/info id]
+        [:p "Questions: " (count questions)]]
+        [:div.tag.visualtag
+          [:p "Total Visualizations: 1"]]
+        [data/info id]]
       [question/grid-list questions]
       ]]))
 

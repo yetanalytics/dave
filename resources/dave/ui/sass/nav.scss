@@ -1,6 +1,14 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+.locationtitle {
+  color: #353535;
+  margin-top: 10px;
+  font-size: 2em;
+  font-weight:900;
+}
+
+
 .topmenu{
   min-height: 256px;
   display:flex;
@@ -93,7 +101,6 @@ div.app-description {
 
 
 
-
 .breadcrumbs {
     /* the top crumb element */
   @include mdc-layout-grid('desktop', 8px);
@@ -116,7 +123,6 @@ div.app-description {
           background-color: #2A58CD;
           color:#ffffff;
           border-radius: 5px 5px 0px 0px;
-
         }
         .text{
           padding: 10px;
@@ -160,6 +166,7 @@ box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
   font-size: 1.5em;
   font-weight: bold;
   margin-bottom: 0em;
+  color: #353535;
   > a{
     text-decoration: none;
     color: #353535;
@@ -188,6 +195,7 @@ box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
   background-color: #189366;
 }
 }
+
 
 
 footer {

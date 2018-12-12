@@ -18,6 +18,8 @@
 
 (defn cell [{:keys [id text] :as question}]
   [:div
+  [:div.locationtitle
+   "Question Selection"]
    [:h4 text]
    [:questiondesc]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
