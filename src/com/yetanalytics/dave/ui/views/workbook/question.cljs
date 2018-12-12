@@ -5,7 +5,6 @@
 
 (defn page []
   (let [{:keys [id
-
                 text
                 visualizations]
          :as question} @(subscribe [:nav/focus])]
@@ -14,12 +13,9 @@
 
       [:div ;; inner
        [:div.workbookinfo
-        [:p.hometitle ] ;;The question from the previous page
-        [:p.workbookdesc ] ;;The description from the previous page
-        [:div.tag
-         [:p "Questions: 1" ]]
-         [:div.tag.visualtag
-           [:p "Total Visualizations: 1"]]]
+        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
+        [:div.tag.visualtag
+         [:p "Total Visualizations: " (count visualizations)]]]
        ]
        [:div.locationtitle
         "Visualization"]
@@ -29,8 +25,8 @@
 
 (defn cell [{:keys [id text] :as question}]
   [:div
-  [:div.locationtitle
-   "Question"]
+   [:div.locationtitle
+    "Question"]
    [:h4 text]
    [:questiondesc]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
