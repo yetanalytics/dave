@@ -51,7 +51,7 @@
          ?question
          ?visualization] @(subscribe [:nav/path-items])]
     [:div.breadcrumbs
-     [:div.breadcrumbcorner ;; inner
+     [:div ;; inner
       [crumb
        {:title "DAVE"
         :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations. Search learning domain problem types and access the relevant information needed to create meaningful data visualizations. Tweak the visualization to meet your needs and issue a report."
