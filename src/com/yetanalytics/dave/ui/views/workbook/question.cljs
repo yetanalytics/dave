@@ -5,18 +5,27 @@
 
 (defn page []
   (let [{:keys [id
+
                 text
                 visualizations]
          :as question} @(subscribe [:nav/focus])]
     [:div.page.question
-     [:div ;; inner
-     [:div.locationtitle
-      "Visualization"]
-      [:div.splash
-       [:h2 text]]
+      [:div.splash]
+
+      [:div ;; inner
+       [:div.workbookinfo
+        [:p.hometitle ] ;;The question from the previous page
+        [:p.workbookdesc ] ;;The description from the previous page
+        [:div.tag
+         [:p "Questions: 1" ]]
+         [:div.tag.visualtag
+           [:p "Total Visualizations: 1"]]]
+       ]
+       [:div.locationtitle
+        "Visualization"]
       ;; TODO: Nav/Breadcrumb
       [visualization/grid-list
-       visualizations]]]))
+       visualizations]]))
 
 (defn cell [{:keys [id text] :as question}]
   [:div

@@ -22,9 +22,6 @@
       [question/grid-list questions]
       ]]))
 
-
-
-
 ;; TODO: more formatting specifically for cells
 (defn cell [workbook]
   [:div.workbookinfo
