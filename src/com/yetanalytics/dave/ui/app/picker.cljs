@@ -1,7 +1,7 @@
 (ns com.yetanalytics.dave.ui.app.picker
   (:require [re-frame.core :as re-frame]
-            [clojure.spec.alpha :as s]
-            ))
+            [clojure.spec.alpha :as s]))
+
 
 (s/def :choice/label
   string?)
@@ -38,8 +38,8 @@
      ;; TODO: DO something with choice
      {
       ;; dismiss the picker
-      :dispatch [:picker/dismiss]
-      }
+      :dispatch [:picker/dismiss]}
+
      {:notify/snackbar
       {:message "Choice not found!"
        :timeout 1000}})))

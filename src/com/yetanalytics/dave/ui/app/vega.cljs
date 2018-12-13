@@ -18,15 +18,10 @@
                                            "<api key secret>")))}})
       (.then (fn [data]
                (.log js/console (.read js/vega data #js {:type "json"
-                                                         :property "statements"
-                                                         })))))
+                                                         :property "statements"})))))
+
   ;; From a local relative source
   (-> loader
       (.load "/data/kokea/rate_of_completions_16.json")
       (.then (fn [data]
-               (.log js/console (.read js/vega data #js {:type "json"
-                                                         })))))
-
-
-
-  )
+               (.log js/console (.read js/vega data #js {:type "json"}))))))

@@ -297,14 +297,14 @@
 
 ;; Main component
 #_(s/fdef vega
-  :args (s/cat :spec ::spec
-               :options (s/keys* :opt-un [::signals-in
-                                          ::signals-out
-                                          ::events-out
-                                          ::renderer
-                                          ::hover?
-                                          ::log-level
-                                          ])))
+   :args (s/cat :spec ::spec
+                :options (s/keys* :opt-un [::signals-in
+                                           ::signals-out
+                                           ::events-out
+                                           ::renderer
+                                           ::hover?
+                                           ::log-level])))
+
 
 
 (def vega

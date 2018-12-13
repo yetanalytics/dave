@@ -26,8 +26,8 @@
        [data/info id]]
       [:div
        [:h1 "Questions"]]
-      [question/grid-list id questions]
-      ]]))
+      [question/grid-list id questions]]]))
+
 
 
 ;; TODO: more formatting specifically for cells

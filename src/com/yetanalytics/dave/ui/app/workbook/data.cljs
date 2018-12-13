@@ -35,7 +35,7 @@
   :ret data/data-spec)
 
 (defmulti load (fn [data _]
-                    (:type data)))
+                   (:type data)))
 
 (defmethod load :default [_ _]
   {})

@@ -34,8 +34,8 @@
   :args (s/cat :result ::ret/result
                :vis-id ::vis/id
                :vis-args :vis/args)
-  :ret map? ;; vega spec map
-  )
+  :ret map?) ;; vega spec map
+
 
 
 ;; TODO: do stuff w/specification

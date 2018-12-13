@@ -35,8 +35,8 @@
   #{:decimal ;; show places
     :count ;; show as int
     :category ;; use to group, etc outside of normal :c
-    :time ;; let vis know it is timestamps
-    })
+    :time}) ;; let vis know it is timestamps
+
 
 (s/def ::specification
   (s/map-of #{:x :y :c}
@@ -96,5 +96,4 @@
      (s/tuple ::xs/timestamp ;; start
               ::xs/timestamp ;; end
               (s/map-of ::category
-                        ::count))))
-  )
+                        ::count)))))
