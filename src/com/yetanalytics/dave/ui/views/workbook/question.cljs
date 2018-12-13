@@ -10,15 +10,17 @@
                 visualizations]
          :as question} @(subscribe [:nav/focus])
         [workbook-id & _] @(subscribe [:nav/path-ids])]
+
     [:div.page.question
      [:div.splash]
      [:div ;; inner
-      [:div.workbookinfo
+      [:div.workbookinfo.testdatasetblock
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
        [:div.descendant-counts
         [:div.tag.visualtag
-         [:p "Total Visualizations: " (count visualizations)]]]
-       [func/info workbook-id id]]]
+         [:p "Total Visualizations: " (count visualizations)]]] ] [:div.testdatasetblock [func/info workbook-id id]]]
+
+
      [:div.locationtitle
       [:h1 "Visualizations"]]
      [visualization/grid-list
