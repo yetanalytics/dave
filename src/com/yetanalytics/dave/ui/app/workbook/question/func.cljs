@@ -2,6 +2,26 @@
   (:require [re-frame.core :as re-frame]
             [com.yetanalytics.dave.func :as func]))
 
+;; Set an arg
+(re-frame/reg-event-fx
+ :workbook.question.function/set-arg!
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id
+                            arg-key
+                            arg-val :as call]]
+   (let [new-db (assoc-in db
+                          [:workbooks
+                           workbook-id
+                           :questions
+                           question-id
+                           :function
+                           :args
+                           arg-key]
+                          arg-val)]
+     {:db new-db
+      :db/save! new-db
+      })))
 
 ;; Subs
 (re-frame/reg-sub
@@ -28,6 +48,13 @@
    (:args function)))
 
 (re-frame/reg-sub
+ :workbook.question.function/arg
+ (fn [[_ workbook-id question-id arg-k] _]
+   (re-frame/subscribe [:workbook.question.function/args workbook-id question-id]))
+ (fn [args [_ _ _ arg-k]]
+   (get args arg-k)))
+
+(re-frame/reg-sub
  :workbook.question.function/func
  (fn [[_ & args] _]
    (re-frame/subscribe (into [:workbook.question.function/id] args)))
@@ -49,6 +76,12 @@
  func-sub-base
  (fn [func _]
    (:doc func)))
+
+(re-frame/reg-sub
+ :workbook.question.function.func/args-enum
+ func-sub-base
+ (fn [func _]
+   (:args-enum func)))
 
 (re-frame/reg-sub
  :workbook.question.function/result

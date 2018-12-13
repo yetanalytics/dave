@@ -81,7 +81,7 @@
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                                :title "Scores of Successful Statements"
-                               :vis {:id :com.yetanalytics.dave.vis.line/timeline
+                               :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter
                                      :args {}}
                                :index 0}}}
                             #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"

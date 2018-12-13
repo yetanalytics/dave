@@ -2,6 +2,7 @@
   "Specifications of DAVE visualiazation prototypes"
   (:require [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.vis.line :as line]
+            [com.yetanalytics.dave.vis.scatter :as scatter]
             [com.yetanalytics.dave.vis.bar :as bar]
             [com.yetanalytics.dave.vis.pie :as pie]
             ;; call in the fn return specs
@@ -35,7 +36,18 @@
                                  (fn no-category
                                    [datum]
                                    (not (contains? datum :c))))}
-   })
+   ::scatter/base {:vega-spec scatter/base
+                   :datum-spec (s/keys :req-un
+                                       [:datum/x
+                                        :datum/y]
+                                       :opt-un
+                                       [:datum/c])}
+   ::scatter/time-scatter {:vega-spec scatter/time-scatter
+                           :datum-spec (s/keys :req-un
+                                               [:datum/x
+                                                :datum/y]
+                                               :opt-un
+                                               [:datum/c])}})
 
 (s/def ::id
   (s/and qualified-keyword?
