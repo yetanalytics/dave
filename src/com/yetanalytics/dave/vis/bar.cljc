@@ -59,11 +59,12 @@
        :from {:data "bars"}
        :encode
        {:enter {:x {:field "x" :offset {:field "width" :mult 0.5}}
-                :y {:field "y2" :offset -5}
-                :fill {:value "white"}
-                :align {:value "right"}
+                :y {:field "y" :offset -10}
+                :fill {:value "black"}
+                :align {:value "center"}
                 :baseline {:value "middle"}
-                :text {:field "datum.y"}}}}]}],
+                :text {:field "datum.y"
+                       :round true}}}}]}],
    :$schema "https://vega.github.io/schema/vega/v4.json",
    #_:signals
    #_[{:name "tooltip",
@@ -74,6 +75,7 @@
     {:name "bar_color"
      :value "steelblue"}],
    :height 200,
+   :legends [{:fill "color"}]
    :data
    [{:name "table",
      :values
