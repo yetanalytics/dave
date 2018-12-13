@@ -23,7 +23,7 @@
        [:p.hometitle title]
        [:p.workbookdesc description]
        [descendant-counts id]]
-      [:div.testdatasetblock
+      [:div.workbookinfo.testdatasetblock
        [data/info id]]
       [:div
        [:h1 "Questions"]]
