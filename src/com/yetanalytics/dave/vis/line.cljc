@@ -41,8 +41,8 @@
    :signals
    [{:name "interpolate",
      :value "linear",
-     :bind
-     {:input "select",
+     #_:bind
+     #_{:input "select",
       :options
       ["basis"
        "cardinal"
