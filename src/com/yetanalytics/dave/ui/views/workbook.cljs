@@ -3,6 +3,14 @@
             [com.yetanalytics.dave.ui.views.workbook.question :as question]
             [com.yetanalytics.dave.ui.views.workbook.data :as data]))
 
+(defn descendant-counts
+  [id]
+  [:div.descendant-counts
+   [:div.tag
+    [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
+   [:div.tag.visualtag
+    [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])
+
 (defn page []
   (let [{:keys [id
                 title
@@ -14,11 +22,7 @@
       [:div.workbookinfo
        [:p.hometitle title]
        [:p.workbookdesc description]
-       ;; TODO: subscriptions for counts
-       [:div.tag
-        [:p "Questions: " (count questions)]]
-       [:div.tag.visualtag
-        [:p "Total Visualizations: 1"]]
+       [descendant-counts id]
        [data/info id]]
       [question/grid-list questions]
       ]]))
@@ -31,10 +35,7 @@
    [:p.hometitle [:a {:href (str "#/workbooks/" id)}
                   (:title workbook)]]
    [:p.workbookdesc (:description workbook)]
-   [:div.tag
-    [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
-   [:div.tag.visualtag
-    [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]
+   [descendant-counts id]
 
    ])
 
