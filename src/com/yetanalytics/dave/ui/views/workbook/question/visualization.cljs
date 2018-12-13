@@ -26,20 +26,22 @@
      ]))
 
 (defn page []
-  (let [{:keys [id]
+  (let [{:keys [id
+                title]
          :as visualization} @(subscribe [:nav/focus])
         [_ workbook-id _ question-id] @(subscribe [:nav/path])]
     [:div.page.visualization
      [:div ;; inner
       [:div.splash
-       [:h2 id]
+       [:h2 title]
        [display workbook-id question-id id]]
       ]]))
 
-(defn cell [{:keys [id] :as visualization}]
+(defn cell [{:keys [id
+                    title] :as visualization}]
   (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]
     [:div
-     [:h4 id]
+     [:h4 title]
      [:a {:href (str "#/workbooks/" workbook-id
                      "/questions/" question-id
                      "/visualizations/" id)}

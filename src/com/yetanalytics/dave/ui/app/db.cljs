@@ -80,6 +80,7 @@
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
                               {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
+                               :title "Scores of Successful Statements"
                                :vis {:id :com.yetanalytics.dave.vis.line/timeline
                                      :args {}}
                                :index 0}}}
@@ -91,6 +92,7 @@
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                               {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
+                               :title "Failed Attempts"
                                :vis {:id :com.yetanalytics.dave.vis.bar/base
                                      :args {}}
                                :index 0}}}
@@ -103,6 +105,7 @@
                              :visualizations
                              {#uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
                               {:id #uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
+                               :title "Rate of Activity Completion"
                                :vis {:id :com.yetanalytics.dave.vis.bar/base
                                      :args {}}
                                :index 0}}}
@@ -115,6 +118,7 @@
                              :visualizations
                              {#uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
                               {:id #uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
+                               :title "Recommendations, Launches and Follows"
                                :vis {:id :com.yetanalytics.dave.vis.bar/base
                                      :args {}}
                                :index 0}}
