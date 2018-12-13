@@ -74,9 +74,9 @@
          {:aria-label "Reset DB"
           :alt "Reset DB"
           :on-click #(dispatch [:db/reset!])}
-         "refresh"]
-        ]]
-      ]
+         "refresh"]]]]
+
+
      (when expand?
        [[:div.mdc-top-app-bar__row
          [:section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
@@ -89,8 +89,8 @@
         [:div.mdc-top-app-bar__row
          [:section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
           [:span (format "focus: %s"
-                         @(subscribe [:nav/focus-id])
-                         )]]]
+                         @(subscribe [:nav/focus-id]))]]]
+
         [:div.mdc-top-app-bar__row
          [:section.mdc-top-app-bar__section.mdc-top-app-bar__section--align-start
           [textfile-dump "Dump EDN" @(subscribe [:db/edn-str])]]]

@@ -41,47 +41,33 @@
   (clojure.pprint/pprint rate-of-completions-statements)
 
 
-(defn rate-of-completions
-  [stmts]
-  (let [c-per-obj (loop [accum {}
-                         src stmts]
-                    (if (empty? src)
-                      accum
-                      (let [cur-stmt (first src)
-                            {{{{obj-name :en-US} :name} :definition
-                               obj-id :id} :object} cur-stmt]
-                        (recur
-                         (update-in accum [obj-id]
-                                    (fn [old]
-                                      (if (nil? old)
-                                        {:name obj-name
-                                         :count 1}
-                                        (let [{c :count} old
-                                              updated-c (inc c)]
-                                          {:name obj-name
-                                           :count updated-c}))))
-                         (rest src)))))]
-    (loop [accum []
-           src c-per-obj]
-      (if (empty? src)
-        accum
-        (let [[obj-id obj-info] (first src)
-              {obj-n :name
-               obj-c :count} obj-info]
-          (recur (conj accum [obj-id obj-n obj-c]) (rest src)))))))
+ (defn rate-of-completions
+   [stmts]
+   (let [c-per-obj (loop [accum {}
+                          src stmts]
+                     (if (empty? src)
+                       accum
+                       (let [cur-stmt (first src)
+                             {{{{obj-name :en-US} :name} :definition
+                                obj-id :id} :object} cur-stmt]
+                         (recur
+                          (update-in accum [obj-id]
+                                     (fn [old]
+                                       (if (nil? old)
+                                         {:name obj-name
+                                          :count 1}
+                                         (let [{c :count} old
+                                               updated-c (inc c)]
+                                           {:name obj-name
+                                            :count updated-c}))))
+                          (rest src)))))]
+     (loop [accum []
+            src c-per-obj]
+       (if (empty? src)
+         accum
+         (let [[obj-id obj-info] (first src)
+               {obj-n :name
+                obj-c :count} obj-info]
+           (recur (conj accum [obj-id obj-n obj-c]) (rest src)))))))
 
-(count (rate-of-completions rate-of-completions-statements))
-
-
-
-
-
-
-
-
-
-
-
-
-
-  )
+ (count (rate-of-completions rate-of-completions-statements)))

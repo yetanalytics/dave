@@ -20,7 +20,12 @@
        [:div.tag.visualtag
         [:p "Total Visualizations: 1"]]
        [data/info id]]
+      [:div
+       [:h1 "Workbooks"]]
       [question/grid-list questions]]]))
+
+
+
 
 
 ;; TODO: more formatting specifically for cells

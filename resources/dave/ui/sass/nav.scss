@@ -1,6 +1,14 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+.workbook {
+  >  div h1 {
+    margin-left: 40px;
+    margin-bottom: 0px;
+    color: #353535;
+  }
+}
+
 .boxselection{
   background-color: #FBFBFB;
   padding:20px;
