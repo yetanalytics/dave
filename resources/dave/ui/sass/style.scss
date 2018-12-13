@@ -25,6 +25,15 @@ body {
   }
 }
 
+.page {
+>  div .gridblock {
+  @include mdc-layout-grid-cell('desktop', 6, 2px)
+}
+  .testdatasetblock {
+    @include mdc-layout-grid-cell('desktop', 6, 2px)
+  }
+}
+
 .list {
   @include mdc-layout-grid('desktop', 8px);
   > div {
