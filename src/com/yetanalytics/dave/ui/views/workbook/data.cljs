@@ -11,8 +11,8 @@
      [:dt "First Timestamp"]
      [:dd stamp-min]
      [:dt "Last Timestamp"]
-     [:dd stamp-max]]
-    ))
+     [:dd stamp-max]]))
+
 
 (defn errors [?workbook-id]
   (let [errors @(subscribe [:workbook.data/errors ?workbook-id])]

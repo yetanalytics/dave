@@ -1,15 +1,16 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+
 .splash h2{
   margin-top: 0px;
 }
 
-.locationtitle {
-  color: #353535;
+.cardtitle {
+  color: #26A699;
   margin-top: 10px;
-  font-size: 2em;
-  font-weight:900;
+  font-size: 1em;
+  font-weight:400;
 }
 
 
@@ -249,10 +250,8 @@ footer {
       padding: 1em;
     }
   }
+
 .data{
-  // background:#fbfbfb;
-  // border-radius: 20px;
-  // box-shadow: rgb(189, 189, 189) 0px 0px 20px -2px;
     > h3.title {
     color:#4449A6;
     text-transform: capitalize;

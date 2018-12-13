@@ -22,14 +22,14 @@
        visualizations]]))
 
 (defn cell [{:keys [id text] :as question}]
-  [:div
-   [:p "Below is a list of your questions"]
-   [:div.locationtitle
-    "Questions"]
+  [:div.boxselection
+   [:div.cardtitle
+    "Question"]
    [:h4 text]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
     (str "question cell for " id)]])
+
 
 (defn grid-list
   "A list of Questions"

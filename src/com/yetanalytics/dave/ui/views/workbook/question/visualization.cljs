@@ -27,7 +27,9 @@
 
 (defn cell [{:keys [id] :as visualization}]
   (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]
-    [:div
+    [:div.boxselection
+     [:div.cardtitle
+      "Visualizations"]
      [:h4 id]
      [:a {:href (str "#/workbooks/" workbook-id
                      "/questions/" question-id
@@ -38,8 +40,8 @@
   "A list of Visualizations"
   [visualizations]
   [:div.visualization.list
-   [:div.locationtitle
-    "Visualizations"]
+   ; [:div.cardtitle
+   ;  "Visualizations"]
    (into [:div] ;; inner
          (for [[id visualization] visualizations
                :let [k (str "visualization-list-cell-" id)]]
