@@ -6,6 +6,7 @@
   {:$schema "https://vega.github.io/schema/vega/v4.json",
    :width 400,
    :height 400,
+   :autosize "pad"
    :signals
    [{:name "startAngle", :value 0}
     {:name "endAngle", :value 6.29}
