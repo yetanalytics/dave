@@ -14,9 +14,9 @@
       [:div ;; inner
        [:div.workbookinfo
         [:p.hometitle (str "Question: " text)] ;;The question from the previous page
-        [:div.tag.visualtag
-         [:p "Total Visualizations: " (count visualizations)]]
-
+        [:div.descendant-counts
+         [:div.tag.visualtag
+          [:p "Total Visualizations: " (count visualizations)]]]
         [func/info]]]
        [:div.locationtitle
         "Visualization"]
