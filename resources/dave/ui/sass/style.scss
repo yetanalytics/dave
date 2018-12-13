@@ -29,7 +29,7 @@ body {
 >  div .gridblock {
   @include mdc-layout-grid-cell('desktop', 6, 2px)
 }
-  .testdatasetblock {
+   div .testdatasetblock {
     @include mdc-layout-grid-cell('desktop', 6, 2px)
   }
 }
