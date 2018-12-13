@@ -31,3 +31,17 @@
    (re-frame/subscribe (into [:workbook/question] args)))
  (fn [question _]
    (:visualizations question)))
+
+(re-frame/reg-sub
+ :workbook.question/first-visualization
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook.question/visualizations] args)))
+ (fn [vs _]
+   (first (sort-by :index (vals vs)))))
+
+(re-frame/reg-sub
+ :workbook.question/first-visualization-id
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook.question/first-visualization] args)))
+ (fn [v _]
+   (:id v)))

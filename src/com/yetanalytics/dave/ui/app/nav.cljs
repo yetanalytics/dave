@@ -155,6 +155,12 @@
    (:path state)))
 
 (re-frame/reg-sub
+ :nav/path-ids
+ (fn [_ _] (re-frame/subscribe [:nav/path]))
+ (fn [path _]
+   (take-nth 2 (drop 1 path))))
+
+(re-frame/reg-sub
  :nav/path-items
  (fn [_ _]
    [(re-frame/subscribe [:dave/db])

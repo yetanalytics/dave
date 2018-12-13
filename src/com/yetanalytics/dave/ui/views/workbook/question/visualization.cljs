@@ -37,24 +37,25 @@
        [display workbook-id question-id id]]
       ]]))
 
-(defn cell [{:keys [id
+(defn cell [workbook-id
+            question-id
+            {:keys [id
                     title] :as visualization}]
-  (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]
-    [:div
-     [:h4 title]
-     [:a {:href (str "#/workbooks/" workbook-id
-                     "/questions/" question-id
-                     "/visualizations/" id)}
+  [:div
+   [:h4 title]
+   [:a {:href (str "#/workbooks/" workbook-id
+                   "/questions/" question-id
+                   "/visualizations/" id)}
 
-      [display workbook-id question-id id
-       :vega-override {:width 200}]]]))
+    [display workbook-id question-id id
+     :vega-override {:width 200}]]])
 
 (defn grid-list
   "A list of Visualizations"
-  [visualizations]
+  [workbook-id question-id visualizations]
   [:div.visualization.list
    (into [:div] ;; inner
          (for [[id visualization] visualizations
                :let [k (str "visualization-list-cell-" id)]]
            ^{:key k}
-           [cell visualization]))])
+           [cell workbook-id question-id visualization]))])

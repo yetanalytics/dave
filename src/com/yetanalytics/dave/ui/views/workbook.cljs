@@ -24,7 +24,7 @@
        [:p.workbookdesc description]
        [descendant-counts id]
        [data/info id]]
-      [question/grid-list questions]
+      [question/grid-list id questions]
       ]]))
 
 ;; TODO: more formatting specifically for cells
