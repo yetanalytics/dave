@@ -88,7 +88,8 @@
  (fn [[_ ?workbook-id ?question-id] _]
    [(re-frame/subscribe [:workbook.data/statements ?workbook-id])
     (re-frame/subscribe [:workbook.question/function ?workbook-id ?question-id])])
-
+ ;; TODO: this gets disposed if you navigate away, and thus it might be better
+ ;; to do this with events and then cache the last result for a given fn.
  (fn [[statements
        {:keys [id args] :as function}] _]
    (when (seq statements)
