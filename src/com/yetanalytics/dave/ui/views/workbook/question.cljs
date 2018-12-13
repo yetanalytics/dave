@@ -20,7 +20,7 @@
          [:p "Total Visualizations: " (count visualizations)]]]
        [func/info workbook-id id]]]
      [:div.locationtitle
-      "Visualizations"]
+      [:h1 "Visualizations"]]
      [visualization/grid-list
       workbook-id id visualizations]]))
 
