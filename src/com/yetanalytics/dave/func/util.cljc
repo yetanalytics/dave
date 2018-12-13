@@ -123,3 +123,30 @@
                           [statements-sorted []]
                           pseq)]
     buckets))
+
+(s/fdef format-time-unit
+  :args (s/cat :d (s/or :inst inst?
+                        :stamp ::xs/timestamp)
+               :time-unit #{:second
+                            :minute
+                            :hour
+                            :day
+                            :week
+                            :month
+                            :year})
+  :ret string?)
+
+(defn format-time-unit
+  "Format a date object for the given time-unit"
+  [d
+   time-unit]
+  (tf/unparse (tf/formatters
+               (case time-unit
+                 :second :date-hour-minute-second
+                 :minute :date-hour-minute
+                 :hour   :date-hour
+                 :day    :date
+                 :week   :week-date
+                 :month  :year-month
+                 :year   :year))
+              (tc/to-date-time d)))

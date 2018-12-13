@@ -206,9 +206,8 @@
   [statements time-unit]
   (let [buckets (util/time-bucket-statements statements time-unit)]
     {:specification
-     {:x {:type :time
-          :label "Period"
-          :format (case time-unit
+     {:x {:label "Period"
+          #_:format #_(case time-unit
                     :second
                     "%Y-%m-%dT%H:%M:%S"
                     :minute
@@ -233,7 +232,13 @@
                          statements]
                   :as bucket} buckets
                  vtype [:recommended :launched :followed]]
-             {:x (.getTime (util/timestamp->inst period-start))
+             {:x (str (util/format-time-unit
+                       period-start
+                       time-unit)
+                      " - "
+                      (util/format-time-unit
+                       period-end
+                       time-unit))
               :y (count
                   (filter
                    (case vtype
