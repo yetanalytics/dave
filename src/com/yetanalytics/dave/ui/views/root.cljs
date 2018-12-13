@@ -7,7 +7,6 @@
   [:div.page.root
    [:div ;; inner
     #_[:div.splash
-     [:h1 "DAVE"]]
+       [:h1 "DAVE"]]
     ;; TODO: Nav/breadcrumbs
-    [workbook/grid-list]
-    ]])
+    [workbook/grid-list]]])

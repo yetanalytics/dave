@@ -22,11 +22,11 @@
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
-  (dispatch [:dom/render-app])
+  (dispatch [:dom/render-app]))
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  )
+
 
 (when ^boolean goog.DEBUG
   (require '[dave.debug]))

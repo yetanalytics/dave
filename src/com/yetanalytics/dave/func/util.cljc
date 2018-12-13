@@ -8,8 +8,8 @@
             [#?(:clj clj-time.coerce
                 :cljs cljs-time.coerce) :as tc]
             [#?(:clj clj-time.periodic
-                :cljs cljs-time.periodic) :as tp]
-            )
+                :cljs cljs-time.periodic) :as tp])
+
   #?(:clj (:import [java.util Date TimeZone]
                    [java.time
                     Instant

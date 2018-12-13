@@ -54,8 +54,8 @@
  :workbook.question.function/result
  (fn [[_ ?workbook-id ?question-id] _]
    [(re-frame/subscribe [:workbook.data/statements ?workbook-id])
-    (re-frame/subscribe [:workbook.question/function ?workbook-id ?question-id])
-    ])
+    (re-frame/subscribe [:workbook.question/function ?workbook-id ?question-id])])
+
  (fn [[statements
        {:keys [id args] :as function}] _]
    (when (seq statements)

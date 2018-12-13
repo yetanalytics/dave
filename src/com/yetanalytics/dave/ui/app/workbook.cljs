@@ -1,6 +1,6 @@
 (ns com.yetanalytics.dave.ui.app.workbook
-  (:require [re-frame.core :as re-frame]
-            ))
+  (:require [re-frame.core :as re-frame]))
+
 
 ;; Subs
 (re-frame/reg-sub

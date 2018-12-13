@@ -208,20 +208,20 @@
     {:specification
      {:x {:label "Period"
           #_:format #_(case time-unit
-                    :second
-                    "%Y-%m-%dT%H:%M:%S"
-                    :minute
-                    "%Y-%m-%dT%H:%M"
-                    :hour
-                    "%Y-%m-%dT%H"
-                    :day
-                    "%Y-%m-%d"
-                    :week
-                    "%YW%V"
-                    :month
-                    "%Y-%m"
-                    :year
-                    "%Y")}
+                       :second
+                       "%Y-%m-%dT%H:%M:%S"
+                       :minute
+                       "%Y-%m-%dT%H:%M"
+                       :hour
+                       "%Y-%m-%dT%H"
+                       :day
+                       "%Y-%m-%d"
+                       :week
+                       "%YW%V"
+                       :month
+                       "%Y-%m"
+                       :year
+                       "%Y")}
       :y {:type :count
           :label "Statement Count"}
       :c {:type :category}}
@@ -359,8 +359,8 @@
                      :id id}))))
 
 (comment
-  (get-func ::difficult-questions) ;; => {:function ..., :fspec ...}
-  )
+  (get-func ::difficult-questions)) ;; => {:function ..., :fspec ...}
+
 
 (s/fdef get-func-args-spec
   :args (s/cat :id ::id)
@@ -374,8 +374,8 @@
       :args))
 
 (comment
-  (get-func-args-spec ::difficult-questions) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9474]
-  )
+  (get-func-args-spec ::difficult-questions)) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9474]
+
 
 (s/fdef get-func-ret-spec
   :args (s/cat :id ::id)
@@ -389,8 +389,8 @@
       :ret))
 
 (comment
-  (get-func-ret-spec ::difficult-questions) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9300]
-  )
+  (get-func-ret-spec ::difficult-questions)) ;; => #object[cljs.spec.alpha.t_cljs$spec$alpha9300]
+
 
 (s/fdef get-func-ret-spec-k
   :args (s/cat :id ::id)
@@ -404,8 +404,8 @@
       ::s/name))
 
 (comment
-  (get-func-ret-spec-k ::difficult-questions) ;; => :com.yetanalytics.dave.func.ret/category-count
-  )
+  (get-func-ret-spec-k ::difficult-questions)) ;; => :com.yetanalytics.dave.func.ret/category-count
+
 
 ;; Function arg maps are attached to questions, and applied to the function.
 ;; They are expected to be suitable for use with s/unform
@@ -441,8 +441,8 @@
 (comment
   (explain-args ::completion-rate {:time-unit :parsec}) ;; => {:cljs.spec.alpha/problems [{:path [:time-unit], :pred #{:day :hour :week :second :month :year :minute} ... ;; failed
   (explain-args ::completion-rate {:time-unit :minute}) ;; => nil ;; OK!
-  (explain-args ::completion-rate) ;; => nil ;; OK, because the default arg (:day) was added
-  )
+  (explain-args ::completion-rate)) ;; => nil ;; OK, because the default arg (:day) was added
+
 
 (s/fdef apply-func
   :args (s/cat :id ::id

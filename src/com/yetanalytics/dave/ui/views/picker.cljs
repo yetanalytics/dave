@@ -47,5 +47,4 @@
     [:span "Label"]]]
 
   (dispatch [:picker/offer {:title "Pick something" :choices [{:label "Label"
-                                                               :img-src "https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/1.jpg"}]}])
-  )
+                                                               :img-src "https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/1.jpg"}]}]))

@@ -34,8 +34,8 @@
      [:div ;; inner
       [:div.splash
        [:h2 title]
-       [display workbook-id question-id id]]
-      ]]))
+       [display workbook-id question-id id]]]]))
+
 
 (defn cell [workbook-id
             question-id
@@ -56,8 +56,6 @@
   "A list of Visualizations"
   [workbook-id question-id visualizations]
   [:div.visualization.list
-   ; [:div.cardtitle
-   ;  "Visualizations"]
    (into [:div] ;; inner
          (for [[id visualization] visualizations
                :let [k (str "visualization-list-cell-" id)]]

@@ -1,6 +1,16 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+.title {
+  color: #4449A6;
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+
+.doc{
+  margin: 0px 0px;
+}
+
 .workbook {
   >  div h1 {
     margin-left: 40px;
