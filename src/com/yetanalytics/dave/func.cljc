@@ -46,16 +46,34 @@
    :values
    (->> statements
         (filter (fn [{{:strs [id]} "verb"
-                      {success "success"} "result"}]
+                      {success "success"
+                       {score-min "min"
+                        score-max "max"
+                        score-raw "raw"} "score"} "result"}]
                   (and (contains? #{"http://adlnet.gov/expapi/verbs/passed"
                                     "https://w3id.org/xapi/dod-isd/verbs/answered"
                                     "http://adlnet.gov/expapi/verbs/completed"}
                                   id)
-                       (boolean? success))))
+                       (true? success)
+                       (and score-min score-max score-raw)
+                       )))
         (map (fn [{timestamp "timestamp"
-                   {{:strs [raw min max]} "score"} "result"}]
+                   {{:strs [raw min max]} "score"} "result"
+                   {actor-name "name"
+                    actor-mbox "mbox"
+                    actor-mbox-s1s "mbox_sha1sum"
+                    actor-openid "openid"
+                    {aa-name "name"
+                     aa-home-page "homePage"
+                     :as actor-account} "account"} "actor"}]
                {:x (.getTime (util/timestamp->inst timestamp))
-                :y (common/scale raw min max)}))
+                :y (common/scale raw min max)
+                :c (or actor-name
+                       actor-mbox
+                       actor-mbox-s1s
+                       actor-openid
+                       aa-name
+                       "unidentified")}))
         (into []))})
 
 
