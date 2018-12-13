@@ -24,17 +24,17 @@
       ]]))
 
 ;; TODO: more formatting specifically for cells
-(defn cell [workbook]
+(defn cell [{:keys [id] :as workbook}]
   [:div.workbookinfo
    [:div.sectiontitle
     [:p "Workbook"]]
-   [:p.hometitle [:a {:href (str "#/workbooks/" (:id workbook))}
+   [:p.hometitle [:a {:href (str "#/workbooks/" id)}
                   (:title workbook)]]
    [:p.workbookdesc (:description workbook)]
    [:div.tag
-    [:p "Total Questions: 1"]]
+    [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
    [:div.tag.visualtag
-    [:p "Total Visualizations: 1"]]
+    [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]
 
    ])
 
