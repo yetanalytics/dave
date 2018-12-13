@@ -10,6 +10,7 @@
    [com.yetanalytics.dave.ui.app.workbook.data]
    [com.yetanalytics.dave.ui.app.workbook.question]
    [com.yetanalytics.dave.ui.app.workbook.question.func]
+   [com.yetanalytics.dave.ui.app.workbook.question.visualization]
    [com.yetanalytics.dave.ui.app.picker]))
 
 (defn init!

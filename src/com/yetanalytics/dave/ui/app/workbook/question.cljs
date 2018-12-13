@@ -24,3 +24,10 @@
    (re-frame/subscribe (into [:workbook/question] args)))
  (fn [question _]
    (:text question)))
+
+(re-frame/reg-sub
+ :workbook.question/visualizations
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/question] args)))
+ (fn [question _]
+   (:visualizations question)))
