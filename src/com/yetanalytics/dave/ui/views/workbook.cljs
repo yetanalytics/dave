@@ -19,10 +19,11 @@
          :as workbook} @(subscribe [:nav/focus])]
     [:div.page.workbook
      [:div ;; inner
-      [:div.workbookinfo
+      [:div.workbookinfo.gridblock
        [:p.hometitle title]
        [:p.workbookdesc description]
-       [descendant-counts id]
+       [descendant-counts id]]
+      [:div.testdatasetblock
        [data/info id]]
       [:div
        [:h1 "Questions"]]
