@@ -21,7 +21,7 @@
         [:p "Total Visualizations: 1"]]
        [data/info id]]
       [:div
-       [:h1 "Workbooks"]]
+       [:h1 "Questions"]]
       [question/grid-list questions]]]))
 
 

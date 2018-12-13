@@ -49,3 +49,21 @@
  func-sub-base
  (fn [func _]
    (:doc func)))
+
+(re-frame/reg-sub
+ :workbook.question.function/result
+ (fn [[_ ?workbook-id ?question-id] _]
+   [(re-frame/subscribe [:workbook.data/statements ?workbook-id])
+    (re-frame/subscribe [:workbook.question/function ?workbook-id ?question-id])
+    ])
+ (fn [[statements
+       {:keys [id args] :as function}] _]
+   (when (seq statements)
+     (func/apply-func id args statements))))
+
+(re-frame/reg-sub
+ :workbook.question.function.result/count
+ (fn [[_ ?workbook-id ?question-id] _]
+   (re-frame/subscribe [:workbook.question.function/result ?workbook-id ?question-id]))
+ (fn [{:keys [values]} _]
+   (count values)))
