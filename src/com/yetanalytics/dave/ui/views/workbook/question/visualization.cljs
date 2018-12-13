@@ -29,7 +29,7 @@
   (let [[_ workbook-id _ question-id] @(subscribe [:nav/path])]
     [:div.boxselection
      [:div.cardtitle
-      "Visualizations"]
+      "Visualization"]
      [:h4 id]
      [:a {:href (str "#/workbooks/" workbook-id
                      "/questions/" question-id
