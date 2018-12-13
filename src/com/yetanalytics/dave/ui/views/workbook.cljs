@@ -1,7 +1,8 @@
 (ns com.yetanalytics.dave.ui.views.workbook
   (:require [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.workbook.question :as question]
-            [com.yetanalytics.dave.ui.views.workbook.data :as data]))
+            [com.yetanalytics.dave.ui.views.workbook.data :as data]
+            [com.yetanalytics.dave.ui.views.form :as form]))
 
 (defn descendant-counts
   [id]
@@ -10,6 +11,13 @@
     [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
    [:div.tag.visualtag
     [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])
+
+(defn form
+  "The form to define/edit a workbook"
+  []
+  [:form
+   [form/text-field]
+   [form/text-area]])
 
 (defn page []
   (let [{:keys [id
@@ -20,10 +28,12 @@
     [:div.page.workbook
      [:div ;; inner
       [:div.workbookinfo
-       [:p.hometitle title]
+       [:p.hometitle
+        title]
        [:p.workbookdesc description]
        [descendant-counts id]
        [data/info id]]
+      #_[form]
       [:div
        [:h1 "Questions"]]
       [question/grid-list id questions]
