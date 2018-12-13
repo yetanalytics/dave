@@ -100,14 +100,24 @@
                              :function {:id :com.yetanalytics.dave.func/completion-rate
                                         :args {:time-unit :day}}
                              :index 2
-                             :visualizations {}}
+                             :visualizations
+                             {#uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
+                              {:id #uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
+                               :vis {:id :com.yetanalytics.dave.vis.bar/base
+                                     :args {}}
+                               :index 0}}}
                             #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
                             {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
                              :text "How often are recommendations followed?"
                              :function {:id :com.yetanalytics.dave.func/followed-recommendations
                                         :args {:time-unit :day}}
                              :index 3
-                             :visualizations {}
+                             :visualizations
+                             {#uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
+                              {:id #uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
+                               :vis {:id :com.yetanalytics.dave.vis.bar/base
+                                     :args {}}
+                               :index 0}}
                              }
                             }}}})
 
