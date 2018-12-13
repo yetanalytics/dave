@@ -41,19 +41,23 @@
             question-id
             {:keys [id
                     title] :as visualization}]
-  [:div
+  [:div.boxselection
+   [:div.cardtitle
+    "Visualization"]
    [:h4 title]
+   [display workbook-id question-id id
+    :vega-override {:width 200}]
    [:a {:href (str "#/workbooks/" workbook-id
                    "/questions/" question-id
                    "/visualizations/" id)}
-
-    [display workbook-id question-id id
-     :vega-override {:width 200}]]])
+    (str "Select Visualization")]])
 
 (defn grid-list
   "A list of Visualizations"
   [workbook-id question-id visualizations]
   [:div.visualization.list
+   ; [:div.cardtitle
+   ;  "Visualizations"]
    (into [:div] ;; inner
          (for [[id visualization] visualizations
                :let [k (str "visualization-list-cell-" id)]]

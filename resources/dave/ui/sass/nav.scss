@@ -1,15 +1,38 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+.workbook {
+  >  div h1 {
+    margin-left: 40px;
+    margin-bottom: 0px;
+    color: #353535;
+  }
+}
+
+.boxselection{
+  background-color: #FBFBFB;
+  padding:20px;
+  border-radius: 20px;
+  -webkit-box-shadow: 0px 0px 14px -2px rgba(207,207,207,1);
+  -moz-box-shadow: 0px 0px 14px -2px rgba(207,207,207,1);
+  box-shadow: 0px 0px 14px -2px rgba(207,207,207,1);
+  > a {
+    background-color: #EB8603;
+    color: #ffffff;
+    text-decoration: none;
+    padding:5px 13px;
+    border-radius: 10px;
+  }
+}
+
 .splash h2{
   margin-top: 0px;
 }
 
-.locationtitle {
-  color: #353535;
-  margin-top: 10px;
-  font-size: 2em;
-  font-weight:900;
+.cardtitle {
+  color: #26A699;
+  font-size: 1em;
+  font-weight:400;
 }
 
 
@@ -171,20 +194,24 @@ div.app-description {
     color: #26A699;
     margin-bottom: 0px;
   }
-  > .hometitle{
+  > .hometitle {
     font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 0em;
+    margin-bottom: .5em;
     color: #353535;
     > a{
       text-decoration: none;
       color: #353535;
+      > a{
+        text-decoration: none;
+        color: #353535;
+      }
     }
-  }
-  > .workbookdesc{
-    font-size: 1em;
-  }
+    > .workbookdesc{
+      font-size: 1em;
+    }
 
+  }
 }
 
 div.descendant-counts {
@@ -253,10 +280,8 @@ footer {
       padding: 1em;
     }
   }
+
 .data{
-  // background:#fbfbfb;
-  // border-radius: 20px;
-  // box-shadow: rgb(189, 189, 189) 0px 0px 20px -2px;
     > h3.title {
     color:#4449A6;
     text-transform: capitalize;

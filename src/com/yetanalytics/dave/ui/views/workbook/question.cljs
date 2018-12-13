@@ -11,23 +11,22 @@
          :as question} @(subscribe [:nav/focus])
         [workbook-id & _] @(subscribe [:nav/path-ids])]
     [:div.page.question
-      [:div.splash]
-      [:div ;; inner
-       [:div.workbookinfo
-        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
-        [:div.descendant-counts
-         [:div.tag.visualtag
-          [:p "Total Visualizations: " (count visualizations)]]]
-        [func/info workbook-id id]]]
-       [:div.locationtitle
-        "Visualizations"]
-      ;; TODO: Nav/Breadcrumb
-      [visualization/grid-list
-       workbook-id id visualizations]]))
+     [:div.splash]
+     [:div ;; inner
+      [:div.workbookinfo
+       [:p.hometitle (str "Question: " text)] ;;The question from the previous page
+       [:div.descendant-counts
+        [:div.tag.visualtag
+         [:p "Total Visualizations: " (count visualizations)]]]
+       [func/info workbook-id id]]]
+     [:div.locationtitle
+      "Visualizations"]
+     [visualization/grid-list
+      workbook-id id visualizations]]))
 
 (defn cell [workbook-id {:keys [id text] :as question}]
-  [:div
-   [:div.locationtitle
+  [:div.boxselection
+   [:div.cardtitle
     "Question"]
    [:h4 text]
    [visualization/display
@@ -38,7 +37,7 @@
                     :width 200}]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
-    "View..."]])
+    "Select"]])
 
 (defn grid-list
   "A list of Questions"

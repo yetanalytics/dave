@@ -24,8 +24,11 @@
        [:p.workbookdesc description]
        [descendant-counts id]
        [data/info id]]
+      [:div
+       [:h1 "Questions"]]
       [question/grid-list id questions]
       ]]))
+
 
 ;; TODO: more formatting specifically for cells
 (defn cell [{:keys [id] :as workbook}]
@@ -35,9 +38,7 @@
    [:p.hometitle [:a {:href (str "#/workbooks/" id)}
                   (:title workbook)]]
    [:p.workbookdesc (:description workbook)]
-   [descendant-counts id]
-
-   ])
+   [descendant-counts id]])
 
 (defn grid-list
   "A list of workbooks in ye responsive grid"

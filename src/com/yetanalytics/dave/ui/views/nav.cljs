@@ -5,17 +5,17 @@
             [goog.string :refer [format]]
             [goog.string.format]
             ;; TODO: remove
-            [cljs.pprint :refer [pprint]]
-            ))
+            [cljs.pprint :refer [pprint]]))
+
 
 (defn hometitle
   []
   [:div.workbookinfo
-  [:p.hometitle "Workbook"]
-  [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
-  [:div.tag
-  [:p " Total Workbooks 2"]]
-  ])
+   [:p.hometitle "Workbook"]
+   [:p.workbookdesc "Workbooks wrap your data in a group so they can be broken down into more informal details. Select one workbook to get started, and next select the specific question you want answered."]
+   [:div.tag
+    [:p " Total Workbooks 2"]]])
+
 
 (defn app-description
   "Small description of the app that appears on every page and allows the user
@@ -51,10 +51,10 @@
          ?question
          ?visualization] @(subscribe [:nav/path-items])]
     [:div.breadcrumbs
-     [:div ;; inner
+     [:div.breadcrumbcorner ;; inner
       [crumb
        {:title "DAVE"
-        :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations. Search learning domain problem types and access the relevant information needed to create meaningful data visualizations. Tweak the visualization to meet your needs and issue a report."
+        :text "DAVE provides a framework for increasing the efficiency of implementing learning analytics and creating data visualizations. "
         :active? (= :root context)
         :href "#/"}]
       [crumb
@@ -66,8 +66,8 @@
                 "Workbooks wrap your functions and visualizations into an easily accessible space. ")
         :active? (= :workbook context)
         :href (when ?workbook
-                (format "#/workbooks/%s" (:id ?workbook)))}
-       ]
+                (format "#/workbooks/%s" (:id ?workbook)))}]
+
       ;; TODO: figure out contextual behaviour for questions/vis
       [crumb
        {:title (if ?question
@@ -99,16 +99,16 @@
 (defn topmenu
   []
   [:div.topmenu
-  [:img {:src "/img/dev/dave_logo.png"}]
-  [:a {:href "#/"} "About"]
-  [:a {:href "#/"} "Contribute"]
-  [:a {:href "#/"} "Contact"]
-  [:a {:href "#/"} "Yet Analytics"]])
+   [:img {:src "/img/dev/dave_logo.png"}]
+   [:a {:href "#/"} "About"]
+   [:a {:href "#/"} "Contribute"]
+   [:a {:href "#/"} "Contact"]
+   [:a {:href "#/"} "Yet Analytics"]])
 
- (defn top-bar-links
-   "The links in the top app bar"
-   []
-   [:div.menuitems
+(defn top-bar-links
+  "The links in the top app bar"
+  []
+  [:div.menuitems
    (into [:ul.top-bar-links]
          (for [[title href] [
                              ["Menu" "#/"]
