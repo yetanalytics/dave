@@ -28,7 +28,7 @@
    [:h4 text]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
-    (str "question cell for " id)]])
+    (str "Select")]])
 
 
 (defn grid-list
