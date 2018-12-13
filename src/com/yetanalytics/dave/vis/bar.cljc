@@ -11,6 +11,7 @@
      :labelAlign "left"}
     {:orient "left", :scale "yscale"}],
    :width 500,
+   :autosize "fit"
    :scales
    [{:name "xscale",
      :type "band",
