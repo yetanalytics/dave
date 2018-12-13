@@ -224,10 +224,16 @@
                         hover? true
                         log-level :warn}}] (r/argv this)
         el (r/dom-node this)
+        el-width (.-offsetWidth el)
+        el-height (.-offsetHeight el)
         runtime (.parse js/vega (clj->js spec))
         chart (-> (js/vega.View. runtime)
                   (.logLevel (s/conform ::log-level
                                         log-level))
+                  (.width (-> el-width
+                              (* 0.9)
+                              int))
+                  (.height el-height)
                   (.renderer renderer)
                   (.initialize el)
                   (cond-> hover? .hover))]
@@ -293,19 +299,7 @@
                   renderer
                   hover?
                   log-level] :as options}]
-  [:div])
-
-;; Main component
-#_(s/fdef vega
-   :args (s/cat :spec ::spec
-                :options (s/keys* :opt-un [::signals-in
-                                           ::signals-out
-                                           ::events-out
-                                           ::renderer
-                                           ::hover?
-                                           ::log-level])))
-
-
+  [:div.dave-vega-container])
 
 (def vega
   (r/create-class
