@@ -75,9 +75,11 @@
         :label "Success Count"}}
    :values
    (into []
-         (for [[activity-id ss]
+         (for [[[activity-id
+                 activity-name] ss]
                (group-by
-                #(get-in % ["object" "id"])
+                (juxt #(get-in % ["object" "id"])
+                      #(get-in % ["object" "definition" "name" "en-US"]))
                 (filter (fn [{{o-type "objectType"
                                {a-type "type"} "definition"} "object"
                               {success "success"} "result"}]
@@ -90,7 +92,7 @@
                            ;; Failure
                            (false? success)))
                         statements))]
-           {:x activity-id
+           {:x (or activity-name activity-id)
             :y (count ss)}))})
 
 (s/fdef completion-rate
@@ -127,13 +129,16 @@
         :label (format "Completions per %s" (name time-unit))}}
    :values
    (into []
-         (for [[activity-id ss] (group-by #(get-in % ["object" "id"])
-                                          (filter
-                                           (fn [s]
-                                             (let [otype (get-in s ["object" "objectType"])]
-                                               (contains? #{"Activity" nil}
-                                                          otype)))
-                                           statements))
+         (for [[[activity-id activity-name] ss]
+               (group-by
+                (juxt #(get-in % ["object" "id"])
+                      #(get-in % ["object" "definition" "name" "en-US"]))
+                (filter
+                 (fn [s]
+                   (let [otype (get-in s ["object" "objectType"])]
+                     (contains? #{"Activity" nil}
+                                otype)))
+                 statements))
                :let [s-count (count ss)]
                :when (< 1 s-count)
                :let [stamps (map #(.getTime
@@ -159,7 +164,9 @@
                                 :year 31536000))
                      rate (double (/ s-count
                                      units))]]
-           {:x activity-id :y rate}))})
+           {:x (or activity-name
+                   activity-id)
+            :y rate}))})
 
 (s/fdef followed-recommendations
   :args (s/cat
@@ -199,9 +206,8 @@
   [statements time-unit]
   (let [buckets (util/time-bucket-statements statements time-unit)]
     {:specification
-     {:x {:type :time
-          :label "Period"
-          :format (case time-unit
+     {:x {:label "Period"
+          #_:format #_(case time-unit
                     :second
                     "%Y-%m-%dT%H:%M:%S"
                     :minute
@@ -226,7 +232,13 @@
                          statements]
                   :as bucket} buckets
                  vtype [:recommended :launched :followed]]
-             {:x (.getTime (util/timestamp->inst period-start))
+             {:x (str (util/format-time-unit
+                       period-start
+                       time-unit)
+                      " - "
+                      (util/format-time-unit
+                       period-end
+                       time-unit))
               :y (count
                   (filter
                    (case vtype

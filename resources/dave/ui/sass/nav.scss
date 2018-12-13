@@ -170,6 +170,7 @@ div.app-description {
   }
 }
 
+/* TODO: move this workbook/chart specific stuff out of nav */
  .chartimage img {
   height: 100px;
   display:inline-block;
@@ -180,53 +181,60 @@ div.app-description {
 }
 
 .workbookinfo{
-margin-left: 2em;
-background-color: #FBFBFB;
-padding-left: 20px;
-padding-top: 0px;
-padding-bottom: .5em;
-border-radius: 20px;
--webkit-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
--moz-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
->.sectiontitle {
-  color: #26A699;
-  margin-bottom: 0px;
-}
-> .hometitle{
-  font-size: 1.5em;
-  font-weight: bold;
-  margin-bottom: .5em;
-  color: #353535;
-  > a{
-    text-decoration: none;
-    color: #353535;
-  }
-  }
-> .workbookdesc{
-  font-size: 1em;
-}
-> .tag {
-  background-color: #9E44A6;
-  border-radius: 2px;
-  color:white;
-  max-width: 160px;
-  font-size: .9em;
-  display: inline-block;
-  margin-right: 15px;
-  margin-bottom: 10px;
-  > p{
-    padding-left:8px;
-    padding-right: 8px;
-    margin-top: 0px;
+  margin-left: 2em;
+  background-color: #FBFBFB;
+  padding-left: 20px;
+  padding-top: 0px;
+  padding-bottom: .5em;
+  border-radius: 20px;
+  -webkit-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+  -moz-box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+  box-shadow: 0px 0px 20px -2px rgba(189,189,189,1);
+  >.sectiontitle {
+    color: #26A699;
     margin-bottom: 0px;
   }
-}
-> .visualtag{
-  background-color: #189366;
-}
+  > .hometitle {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: .5em;
+    color: #353535;
+    > a{
+      text-decoration: none;
+      color: #353535;
+      > a{
+        text-decoration: none;
+        color: #353535;
+      }
+    }
+    > .workbookdesc{
+      font-size: 1em;
+    }
+
+  }
 }
 
+div.descendant-counts {
+  > .tag {
+    background-color: #9E44A6;
+    border-radius: 2px;
+    color:white;
+    max-width: 160px;
+    font-size: .9em;
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    > p{
+      padding-left:8px;
+      padding-right: 8px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+  }
+  > .visualtag{
+    background-color: #189366;
+  }
+}
 
 
 footer {

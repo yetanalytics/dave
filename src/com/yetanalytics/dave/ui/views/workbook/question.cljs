@@ -8,35 +8,43 @@
   (let [{:keys [id
                 text
                 visualizations]
-         :as question} @(subscribe [:nav/focus])]
+         :as question} @(subscribe [:nav/focus])
+        [workbook-id & _] @(subscribe [:nav/path-ids])]
     [:div.page.question
-      [:div.splash]
-      [:div ;; inner
-       [:div.workbookinfo
-        [:p.hometitle (str "Question: " text)]
+     [:div.splash]
+     [:div ;; inner
+      [:div.workbookinfo
+       [:p.hometitle (str "Question: " text)] ;;The question from the previous page
+       [:div.descendant-counts
         [:div.tag.visualtag
-         [:p "Total Visualizations: " (count visualizations)]]
-        [func/info]]]
-      ;; TODO: Nav/Breadcrumb
-      [visualization/grid-list
-       visualizations]]))
+         [:p "Total Visualizations: " (count visualizations)]]]
+       [func/info workbook-id id]]]
+     [:div.locationtitle
+      "Visualizations"]
+     [visualization/grid-list
+      workbook-id id visualizations]]))
 
-(defn cell [{:keys [id text] :as question}]
+(defn cell [workbook-id {:keys [id text] :as question}]
   [:div.boxselection
    [:div.cardtitle
     "Question"]
    [:h4 text]
+   [visualization/display
+    workbook-id id
+    @(subscribe [:workbook.question/first-visualization-id
+                 workbook-id id])
+    :vega-override {:height 200
+                    :width 200}]
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
-    (str "Select")]])
-
+    "Select"]])
 
 (defn grid-list
   "A list of Questions"
-  [questions]
+  [workbook-id questions]
   [:div.question.list
    (into [:div] ;; inner
          (for [[id question] questions
                :let [k (str "question-list-cell-" id)]]
            ^{:key k}
-           [cell question]))])
+           [cell workbook-id question]))])

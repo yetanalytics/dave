@@ -6,7 +6,9 @@
   "Basic vega vertical bar w/optional category grouping"
   {:axes
    [{:orient "bottom", :scale "xscale"
-     :tickSize 0 :labelPadding 4 :zindex 1}
+     :tickSize 0 :labelPadding 4 :zindex 1
+     :labelAngle 60
+     :labelAlign "left"}
     {:orient "left", :scale "yscale"}],
    :width 500,
    :scales

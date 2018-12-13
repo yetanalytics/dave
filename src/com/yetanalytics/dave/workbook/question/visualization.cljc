@@ -9,6 +9,9 @@
 (s/def ::id
   uuid?)
 
+(s/def ::title
+  string?)
+
 (s/def ::index
   su/index-spec)
 
@@ -24,7 +27,7 @@
 (def visualization-spec
   (s/keys :req-un [::id
                    ::index
-                   ]
+                   ::title]
           :opt-un [::vis]))
 
 (s/fdef prepare-vega-spec

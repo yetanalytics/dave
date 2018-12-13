@@ -3,6 +3,14 @@
             [com.yetanalytics.dave.ui.views.workbook.question :as question]
             [com.yetanalytics.dave.ui.views.workbook.data :as data]))
 
+(defn descendant-counts
+  [id]
+  [:div.descendant-counts
+   [:div.tag
+    [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
+   [:div.tag.visualtag
+    [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])
+
 (defn page []
   (let [{:keys [id
                 title
@@ -14,34 +22,23 @@
       [:div.workbookinfo
        [:p.hometitle title]
        [:p.workbookdesc description]
-       ;; TODO: subscriptions for counts
-       [:div.tag
-        [:p "Questions: " (count questions)]]
-       [:div.tag.visualtag
-        [:p "Total Visualizations: 1"]]
+       [descendant-counts id]
        [data/info id]]
       [:div
        [:h1 "Questions"]]
-      [question/grid-list questions]]]))
-
-
-
+      [question/grid-list id questions]
+      ]]))
 
 
 ;; TODO: more formatting specifically for cells
-(defn cell [workbook]
+(defn cell [{:keys [id] :as workbook}]
   [:div.workbookinfo
    [:div.sectiontitle
     [:p "Workbook"]]
-   [:p.hometitle [:a {:href (str "#/workbooks/" (:id workbook))}
+   [:p.hometitle [:a {:href (str "#/workbooks/" id)}
                   (:title workbook)]]
    [:p.workbookdesc (:description workbook)]
-   [:div.tag
-    [:p "Total Questions: 1"]]
-   [:div.tag.visualtag
-    [:p "Total Visualizations: 1"]]])
-
-
+   [descendant-counts id]])
 
 (defn grid-list
   "A list of workbooks in ye responsive grid"
