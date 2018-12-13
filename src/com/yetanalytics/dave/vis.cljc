@@ -3,6 +3,7 @@
   (:require [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.vis.line :as line]
             [com.yetanalytics.dave.vis.bar :as bar]
+            [com.yetanalytics.dave.vis.pie :as pie]
             ;; call in the fn return specs
             [com.yetanalytics.dave.func.ret :as func-ret]))
 
@@ -25,7 +26,16 @@
                                         [:datum/x
                                          :datum/y]
                                         :opt-un
-                                        [:datum/c])}})
+                                        [:datum/c])}
+   ::pie/base      {:vega-spec pie/base
+                    :datum-spec (s/and
+                                 (s/keys :req-un
+                                         [:datum/x
+                                          :datum/y])
+                                 (fn no-category
+                                   [datum]
+                                   (not (contains? datum :c))))}
+   })
 
 (s/def ::id
   (s/and qualified-keyword?

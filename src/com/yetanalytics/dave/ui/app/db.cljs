@@ -92,10 +92,16 @@
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
                               {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                               :title "Failed Attempts"
+                               :title "Failed Attempts Bar"
                                :vis {:id :com.yetanalytics.dave.vis.bar/base
                                      :args {}}
-                               :index 0}}}
+                               :index 0}
+                              #uuid "5147c763-7e77-4e1b-80e1-1054d2225ec5"
+                              {:id #uuid "5147c763-7e77-4e1b-80e1-1054d2225ec5"
+                               :title "Failed Attempts Pie"
+                               :vis {:id :com.yetanalytics.dave.vis.pie/base
+                                     :args {}}
+                               :index 1}}}
                             #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                             {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                              :text "What activities are completed the most?"
