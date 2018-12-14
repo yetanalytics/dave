@@ -24,7 +24,12 @@
        [:div.descendant-counts
         [:div.tag.visualtag
          [:p "Total Visualizations: " (count visualizations)]]] ]
-      [:div.testdatasetblock (when function [func/info workbook-id id])]]
+      [:div.testdatasetblock (if function
+                               [func/info workbook-id id]
+                               [:button
+                                {:on-click #(dispatch [:workbook.question.function/offer-picker
+                                                       workbook-id id])}
+                                "Select Function"])]]
 
      [:div.locationtitle
       [:h1 "Visualizations"]
