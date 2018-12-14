@@ -27,7 +27,11 @@
       [:div.testdatasetblock (when function [func/info workbook-id id])]]
 
      [:div.locationtitle
-      [:h1 "Visualizations"]]
+      [:h1 "Visualizations"]
+      ]
+     [:div [:button {:on-click #(dispatch [:workbook.question.visualization/new
+                                           workbook-id id])}
+            "New Visualization"]]
      [visualization/grid-list
       workbook-id id visualizations]]))
 

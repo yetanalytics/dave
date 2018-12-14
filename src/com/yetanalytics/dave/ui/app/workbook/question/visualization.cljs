@@ -1,7 +1,42 @@
 (ns com.yetanalytics.dave.ui.app.workbook.question.visualization
   (:require [re-frame.core :as re-frame]
+            [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.workbook.question.visualization :as vis]
             [com.yetanalytics.dave.vis :as v]))
+
+;; Handlers
+(re-frame/reg-event-fx
+ :workbook.question.visualization/new
+ (fn [{:keys [db] :as ctx} [_ workbook-id question-id]]
+   {:dispatch
+    [:dialog.form/offer
+     {:title "New Visualization"
+      :mode :com.yetanalytics.dave.ui.app.dialog/form
+      :dispatch-save [:workbook.question.visualization/create workbook-id question-id]
+      :fields [{:key :title
+                :label "Title"}]
+      :form {}}]}))
+
+(re-frame/reg-event-fx
+ :workbook.question.visualization/create
+ (fn [{:keys [db] :as ctx} [_ workbook-id question-id form-map]]
+   (let [{:keys [id]
+          :as new-visualization} (merge form-map
+                                        {:id (random-uuid)
+                                         :index 0})]
+     (if-let [spec-error (s/explain-data vis/visualization-spec
+                                         new-visualization)]
+       {:notify/snackbar
+        ;; TODO: human readable spec errors
+        {:message "Invalid Visualization"}}
+       {:dispatch-n [[:dialog/dismiss]
+                     [:crud/create!
+                      new-visualization
+                      workbook-id
+                      question-id
+                      id
+                      ]]}))))
+
 
 (re-frame/reg-event-fx
  :workbook.question.visualization/set-vis!
