@@ -1,5 +1,41 @@
 (ns com.yetanalytics.dave.ui.app.workbook.question
-  (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as re-frame]
+            [clojure.spec.alpha :as s]
+            [com.yetanalytics.dave.workbook.question :as question]))
+
+
+;; Handlers
+(re-frame/reg-event-fx
+ :workbook.question/new
+ (fn [{:keys [db] :as ctx} [_ workbook-id]]
+   {:dispatch
+    [:dialog.form/offer
+     {:title "New Question"
+      :mode :com.yetanalytics.dave.ui.app.dialog/form
+      :dispatch-save [:workbook.question/create workbook-id]
+      :fields [{:key :text
+                :label "Question Text"}]
+      :form {}}]}))
+
+(re-frame/reg-event-fx
+ :workbook.question/create
+ (fn [{:keys [db] :as ctx} [_ workbook-id form-map]]
+   (let [{:keys [id]
+          :as new-question} (merge form-map
+                                   {:id (random-uuid)
+                                    :index 0
+                                    :visualizations {}})]
+     (if-let [spec-error (s/explain-data question/question-spec
+                                         new-question)]
+       {:notify/snackbar
+        ;; TODO: human readable spec errors
+        {:message "Invalid Question"}}
+       {:dispatch-n [[:dialog/dismiss]
+                     [:crud/create!
+                      new-question
+                      workbook-id
+                      id
+                      ]]}))))
 
 ;; Subs
 

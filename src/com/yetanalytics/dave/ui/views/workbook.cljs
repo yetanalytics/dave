@@ -32,7 +32,10 @@
        (when data
          [data/info id])]
       [:div
-       [:h1 "Questions"]]
+       [:h1 "Questions"]
+       [:button
+        {:on-click #(dispatch [:workbook.question/new id])}
+        "New Question"]]
       [question/grid-list id questions]]]))
 
 
