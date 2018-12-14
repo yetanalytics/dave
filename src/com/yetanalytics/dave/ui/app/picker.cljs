@@ -13,9 +13,13 @@
   (s/cat :event-id qualified-keyword?
          :args (s/* identity)))
 
+(s/def :choice/vega-spec
+  map?)
+
 (s/def ::choice
   (s/keys :req-un [:choice/label
-                   :choice/img-src
+                   (or :choice/img-src
+                       :choice/vega-spec)
                    :choice/dispatch]))
 
 (s/def ::choices
