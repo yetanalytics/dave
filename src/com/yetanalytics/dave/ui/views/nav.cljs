@@ -130,7 +130,7 @@
   "The footer at the bottom of the app."
   []
   [:footer
-   [:img {:src "/img/dev/white_text_logo.png"}]
+   ; [:img {:src "/img/dev/white_text_logo.png"}]
    [:a {:href "#/"} "About"]
    [:a {:href "#/"} "More Info"]
    [:a {:href "#/"} "Contribute"]

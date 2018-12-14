@@ -61,7 +61,7 @@
      ;; The page changes depending on context
      [page context]
      ;; Static Footer
-     ;;[nav/footer]
+     [nav/footer]
      ;; Picker overlay
      [picker/picker]
      ;; mdc snackbar overlay
