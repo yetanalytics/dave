@@ -1,5 +1,13 @@
 /* css for function stuff */
 
-.function .args > div {
-  min-width: 15em;
+.function {
+  img.title-img {
+    display: inline;
+    max-height: 32px;
+    max-width: 32px;
+    vertical-align: middle;
+  }
+  .args > div {
+    min-width: 15em;
+  }
 }

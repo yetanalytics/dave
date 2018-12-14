@@ -28,7 +28,7 @@
 (defn info [?workbook-id ?question-id]
   [:div.function
    [:h3.title
-    [:i.material-icons "functions"]
+    [:img.title-img {:src "/img/lambda.svg"}]
     "Function: " @(subscribe [:workbook.question.function.func/title
                               ?workbook-id ?question-id])]
    [:p.doc
