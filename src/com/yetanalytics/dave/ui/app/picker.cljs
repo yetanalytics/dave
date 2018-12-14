@@ -9,9 +9,14 @@
 (s/def :choice/img-src
   string?)
 
+(s/def :choice/dispatch
+  (s/cat :event-id qualified-keyword?
+         :args (s/* identity)))
+
 (s/def ::choice
   (s/keys :req-un [:choice/label
-                   :choice/img-src]))
+                   :choice/img-src
+                   :choice/dispatch]))
 
 (s/def ::choices
   (s/every ::choice))
@@ -34,11 +39,12 @@
 (re-frame/reg-event-fx
  :picker/pick
  (fn [{:keys [db] :as ctx} [_ choice-idx]]
-   (if-let [choice (get-in db [:picker :choices choice-idx])]
+   (if-let [{:keys [dispatch] :as choice} (get-in db [:picker :choices choice-idx])]
      ;; TODO: DO something with choice
      {
       ;; dismiss the picker
-      :dispatch [:picker/dismiss]}
+      :dispatch-n [[:picker/dismiss]
+                   dispatch]}
 
      {:notify/snackbar
       {:message "Choice not found!"

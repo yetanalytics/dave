@@ -471,10 +471,12 @@
   "Apply a DAVE function given a function key, args map (maybe nil) and a
   coll of statements"
   [id args-map statements]
-  (let [func (get-func id)
-        fspec (:fspec func)]
+  (let [{:keys [function fspec
+                args-default]} (get-func id)
+        ]
     (apply
-     (:function func)
+     function
      statements
      (s/unform (:args fspec)
-               args-map))))
+               (merge args-default
+                      args-map)))))

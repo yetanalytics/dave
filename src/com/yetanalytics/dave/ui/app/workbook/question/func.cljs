@@ -2,6 +2,43 @@
   (:require [re-frame.core :as re-frame]
             [com.yetanalytics.dave.func :as func]))
 
+(re-frame/reg-event-fx
+ :workbook.question.function/set-func!
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id
+                            func-id
+                            ?args]]
+   (let [new-db (assoc-in db
+                          [:workbooks
+                           workbook-id
+                           :questions
+                           question-id
+                           :function]
+                          {:id func-id
+                           :args (or ?args
+                                     {})})]
+     {:db new-db
+      :db/save! new-db})))
+
+;; Offer function picker
+(re-frame/reg-event-fx
+ :workbook.question.function/offer-picker
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id]]
+   {:dispatch [:picker/offer
+               {:title "Choose a DAVE Function"
+                :choices (into []
+                               (for [[id {:keys [title
+                                                 doc]}] func/registry]
+                                 {:label title
+                                  :img-src "img/lambda.svg"
+                                  :dispatch [:workbook.question.function/set-func!
+                                             workbook-id
+                                             question-id
+                                             id]}))}]}))
+
 ;; Set an arg
 (re-frame/reg-event-fx
  :workbook.question.function/set-arg!
@@ -50,9 +87,12 @@
 (re-frame/reg-sub
  :workbook.question.function/arg
  (fn [[_ workbook-id question-id arg-k] _]
-   (re-frame/subscribe [:workbook.question.function/args workbook-id question-id]))
- (fn [args [_ _ _ arg-k]]
-   (get args arg-k)))
+   [(re-frame/subscribe [:workbook.question.function/args workbook-id question-id])
+    (re-frame/subscribe [:workbook.question.function.func/args-default workbook-id question-id])])
+ (fn [[args
+       args-default] [_ _ _ arg-k]]
+   (get (merge args-default
+               args) arg-k)))
 
 (re-frame/reg-sub
  :workbook.question.function/func
@@ -82,6 +122,12 @@
  func-sub-base
  (fn [func _]
    (:args-enum func)))
+
+(re-frame/reg-sub
+ :workbook.question.function.func/args-default
+ func-sub-base
+ (fn [func _]
+   (:args-default func)))
 
 (re-frame/reg-sub
  :workbook.question.function/result

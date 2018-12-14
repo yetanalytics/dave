@@ -18,8 +18,8 @@
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
        [:div.descendant-counts
         [:div.tag.visualtag
-         [:p "Total Visualizations: " (count visualizations)]]] ] [:div.testdatasetblock [func/info workbook-id id]]]
-
+         [:p "Total Visualizations: " (count visualizations)]]] ]
+      [:div.testdatasetblock [func/info workbook-id id]]]
 
      [:div.locationtitle
       [:h1 "Visualizations"]]

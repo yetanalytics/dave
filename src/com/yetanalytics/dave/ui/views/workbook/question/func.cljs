@@ -25,15 +25,19 @@
                          dispatch)])))
 
 
-(defn info [?workbook-id ?question-id]
+(defn info [workbook-id question-id]
   [:div.function
    [:h3.title
     [:img.title-img {:src "/img/lambda.svg"}]
     "Function: " @(subscribe [:workbook.question.function.func/title
-                              ?workbook-id ?question-id])]
+                              workbook-id question-id])
+    [:button
+     {:on-click #(dispatch [:workbook.question.function/offer-picker
+                            workbook-id question-id])}
+     "Change Function"]]
    [:p.doc
     @(subscribe [:workbook.question.function.func/doc
-                 ?workbook-id ?question-id])]
+                 workbook-id question-id])]
 
    #_(str @(subscribe [:workbook.question.function/result
                      ?workbook-id
@@ -41,8 +45,8 @@
    #_(str @(subscribe [:workbook.question.function/func
                      ?workbook-id
                      ?question-id]))
-   [args ?workbook-id ?question-id]
+   [args workbook-id question-id]
    [:div (str @(subscribe [:workbook.question.function.result/count
-                           ?workbook-id
-                           ?question-id])
+                           workbook-id
+                           question-id])
               " results with current dataset")]])
