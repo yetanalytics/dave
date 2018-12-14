@@ -92,6 +92,23 @@
                 (uuid token-part)))
             (remove empty?
                     (cs/split token #"/")))))
+
+(s/fdef path->token
+  :args (s/cat :path ::path)
+  ;; TODO: make ret more detailed
+  :ret ::token)
+
+(defn path->token
+  "Given a path vector, return a token string"
+  [path]
+  (str "/"
+       (cs/join "/"
+                (map (fn [x]
+                       (if (keyword? x)
+                         (name x)
+                         (str x)))
+                     path))))
+
 ;; Handlers
 
 (re-frame/reg-cofx
@@ -113,6 +130,12 @@
  ::nav!
  (fn [token]
    (.replaceToken @history "/")
+   #_(nav! token)))
+
+(re-frame/reg-fx
+ ::nav-path!
+ (fn [path]
+   (.replaceToken @history (path->token path))
    #_(nav! token)))
 
 ;; Receive events from the history API and dispatch accordingly

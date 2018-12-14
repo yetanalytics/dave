@@ -22,6 +22,10 @@
       [:div.workbookinfo.gridblock
        [:p.hometitle title]
        [:p.workbookdesc description]
+       [:button
+        {:on-click #(dispatch
+                     [:crud/delete-confirm id])}
+        "Delete"]
        [descendant-counts id]]
       [:div.workbookinfo.testdatasetblock
        [data/info id]]

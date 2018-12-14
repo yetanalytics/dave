@@ -39,6 +39,10 @@
         {:on-click #(dispatch [:workbook.question.visualization/offer-picker
                                workbook-id question-id id])}
         "Change Visualization"]
+       [:button
+        {:on-click #(dispatch
+                     [:crud/delete-confirm workbook-id question-id id])}
+        "Delete"]
        [display workbook-id question-id id]
        [download/download-text
         "Download Vega JSON..."

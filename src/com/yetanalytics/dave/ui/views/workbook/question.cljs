@@ -16,6 +16,10 @@
      [:div ;; inner
       [:div.workbookinfo.testdatasetblock
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
+       [:button
+        {:on-click #(dispatch
+                     [:crud/delete-confirm workbook-id id])}
+        "Delete"]
        [:div.descendant-counts
         [:div.tag.visualtag
          [:p "Total Visualizations: " (count visualizations)]]] ]
