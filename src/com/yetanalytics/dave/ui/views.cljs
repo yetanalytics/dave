@@ -9,7 +9,8 @@
              :as visualization]
             [com.yetanalytics.dave.ui.views.nav :as nav]
             [cljs.pprint :refer [pprint]]
-            [com.yetanalytics.dave.ui.views.picker :as picker]))
+            [com.yetanalytics.dave.ui.views.picker :as picker]
+            [com.yetanalytics.dave.ui.views.dialog :as dialog]))
 
 (defmulti page
   "Main dispatch component for full-page context.
@@ -60,6 +61,7 @@
      [nav/breadcrumbs]
      ;; The page changes depending on context
      [page context]
+     [dialog/dialog-container]
      ;; Static Footer
      ;;[nav/footer]
      ;; Picker overlay

@@ -8,7 +8,8 @@
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.ui.interceptor :as i]
             [com.cognitect.transit.types :as ty]
-            [com.yetanalytics.dave.util.spec :as su])
+            [com.yetanalytics.dave.util.spec :as su]
+            [com.yetanalytics.dave.ui.app.dialog :as dialog])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -44,6 +45,7 @@
 (s/def ::id uuid?)
 (s/def ::nav nav/nav-spec)
 (s/def ::picker picker/picker-spec)
+(s/def ::dialog dialog/dialog-spec)
 ;; Install an index on workbook
 ;; These are not present in the base spec so workbooks can stand on their own.
 (s/def ::workbook/index
@@ -58,7 +60,8 @@
 (def db-state-spec
   (s/keys :opt-un [::id
                    ::nav
-                   ::workbooks]))
+                   ::workbooks
+                   ::dialog]))
 
 
 ;; This will include the default workbooks for DAVE
@@ -173,6 +176,8 @@
                        :nav
                        ;; picker is ephemeral
                        :picker
+                       ;; so is the dialog
+                       :dialog
                        ;; Don't save dave.debug state, as it might be huge
                        :debug)))
 (re-frame/reg-fx
