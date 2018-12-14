@@ -25,6 +25,11 @@
           :as new-workbook} (merge form-map
                                    {:id (random-uuid)
                                     :index 0
+                                    ;; TODO: remove the auto test dataset
+                                    :data {:title "test dataset"
+                                           :type :com.yetanalytics.dave.workbook.data/file
+                                           :uri "/data/dave/ds.json"
+                                           :built-in? true}
                                     :questions {}})]
      (if-let [spec-error (s/explain-data workbook/workbook-spec
                                          new-workbook)]
