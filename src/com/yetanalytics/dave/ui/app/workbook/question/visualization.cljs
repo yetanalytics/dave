@@ -27,3 +27,20 @@
        result] _]
    (when (and result id args)
      (vis/prepare-vega-spec result id args))))
+
+(re-frame/reg-sub
+ :workbook.question.visualization/vega-spec-json
+ (fn [[_ w q v] _]
+   (re-frame/subscribe [:workbook.question.visualization/vega-spec
+                        w q v]))
+ (fn [vega-spec _]
+   (clj->js vega-spec)))
+
+(re-frame/reg-sub
+ :workbook.question.visualization/vega-spec-json-pp
+ (fn [[_ w q v] _]
+   (re-frame/subscribe [:workbook.question.visualization/vega-spec-json
+                        w q v]))
+ (fn [vega-spec-json _]
+   (when vega-spec-json
+     (.stringify js/JSON vega-spec-json nil 2))))

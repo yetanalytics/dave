@@ -1,7 +1,8 @@
 (ns com.yetanalytics.dave.ui.views.workbook.question.visualization
   (:require [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.vega :as v :refer [vega]]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [com.yetanalytics.dave.ui.views.download :as download]))
 
 (defn display
   [workbook-id
@@ -34,7 +35,11 @@
      [:div ;; inner
       [:div.splash
        [:h2 title]
-       [display workbook-id question-id id]]]]))
+       [display workbook-id question-id id]
+       [download/download-text
+        "Download Vega JSON..."
+        @(subscribe [:workbook.question.visualization/vega-spec-json-pp
+                     workbook-id question-id id])]]]]))
 
 
 (defn cell [workbook-id
