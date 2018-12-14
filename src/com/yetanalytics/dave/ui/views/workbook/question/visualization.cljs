@@ -36,10 +36,10 @@
       [:div.splash
        [:h2 title]
        [display workbook-id question-id id]
-       [download/download-text
+       [:button [download/download-text
         "Download Vega JSON..."
         @(subscribe [:workbook.question.visualization/vega-spec-json-pp
-                     workbook-id question-id id])]]]]))
+                     workbook-id question-id id])]]]]]))
 
 
 (defn cell [workbook-id
