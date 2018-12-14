@@ -1,13 +1,23 @@
 (ns com.yetanalytics.dave.ui.views.picker
   (:require [reagent.core :as r]
-            [re-frame.core :refer [dispatch subscribe]]))
+            [re-frame.core :refer [dispatch subscribe]]
+            [com.yetanalytics.dave.ui.views.vega :as vega]))
 
 (defn choice
-  [idx {:keys [label img-src] :as choice}]
+  [idx {:keys [label
+               img-src
+               vega-spec] :as choice}]
   [:li
    {:on-click #(dispatch [:picker/pick idx])}
-   [:div
-    [:img {:src img-src}]]
+   (cond
+     img-src
+     [:div
+      [:img {:src img-src}]]
+     vega-spec
+     [vega/vega vega-spec]
+     :else (throw (ex-info "No image or vega spec provided!"
+                           {:type ::no-image
+                            :choice choice})))
    [:div
     [:span label]]])
 
@@ -31,20 +41,3 @@
       title (conj
              [:h2 title]
              [choice-list]))))
-
-
-(defn debug-button
-  []
-  [:button
-   {:on-click #(dispatch [:picker/offer {:title "Pick something" :choices [{:label "Label"
-                                                                            :img-src "https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/1.jpg"}]}])}
-   "Picker debug"])
-(comment
-  [:li
-   [:div
-    [:img {:src "https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/1.jpg"}]]
-   [:div
-    [:span "Label"]]]
-
-  (dispatch [:picker/offer {:title "Pick something" :choices [{:label "Label"
-                                                               :img-src "https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/1.jpg"}]}]))

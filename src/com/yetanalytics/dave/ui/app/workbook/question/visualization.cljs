@@ -1,6 +1,53 @@
 (ns com.yetanalytics.dave.ui.app.workbook.question.visualization
   (:require [re-frame.core :as re-frame]
-            [com.yetanalytics.dave.workbook.question.visualization :as vis]))
+            [com.yetanalytics.dave.workbook.question.visualization :as vis]
+            [com.yetanalytics.dave.vis :as v]))
+
+(re-frame/reg-event-fx
+ :workbook.question.visualization/set-vis!
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id
+                            visualization-id
+                            vis-id
+                            ?args :as call]]
+   (let [new-db (update-in db
+                           [:workbooks
+                            workbook-id
+                            :questions
+                            question-id
+                            :visualizations
+                            visualization-id]
+                           merge
+                           {:vis
+                            {:id vis-id
+                             :args (or ?args
+                                       {})}
+                            :title (get-in v/registry [vis-id :title]
+                                           "Unnamed Chart")})]
+     {:db new-db
+      :db/save! new-db})))
+
+;; Offer vis picker
+(re-frame/reg-event-fx
+ :workbook.question.visualization/offer-picker
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id
+                            visualization-id]]
+   {:dispatch [:picker/offer
+               {:title "Choose a DAVE Chart Prototype"
+                :choices (into []
+                               (for [[id {:keys [title
+                                                 vega-spec]}] v/registry]
+                                 {:label title
+                                  :vega-spec vega-spec
+                                  :dispatch [:workbook.question.visualization/set-vis!
+                                             workbook-id
+                                             question-id
+                                             visualization-id
+                                             id]}))}]}))
+
 
 (re-frame/reg-sub
  :workbook.question/visualization

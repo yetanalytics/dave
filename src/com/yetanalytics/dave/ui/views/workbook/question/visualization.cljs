@@ -35,6 +35,10 @@
      [:div ;; inner
       [:div.splash
        [:h2 title]
+       [:button
+        {:on-click #(dispatch [:workbook.question.visualization/offer-picker
+                               workbook-id question-id id])}
+        "Change Visualization"]
        [display workbook-id question-id id]
        [download/download-text
         "Download Vega JSON..."

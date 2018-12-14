@@ -10,25 +10,29 @@
 
 (def registry
   ;; map of vis ids (keywords) to vega specs and other vis information
-  {::line/base     {:vega-spec line/base
+  {::line/base     {:title "Line"
+                    :vega-spec line/base
                     :datum-spec (s/keys :req-un
                                         [:datum/x
                                          :datum/y]
                                         :opt-un
                                         [:datum/c])}
-   ::line/timeline {:vega-spec line/timeline
+   ::line/timeline {:title "Timeline"
+                    :vega-spec line/timeline
                     :datum-spec (s/keys :req-un
                                         [:datum/x
                                          :datum/y]
                                         :opt-un
                                         [:datum/c])}
-   ::bar/base      {:vega-spec bar/base
+   ::bar/base      {:title "Bar"
+                    :vega-spec bar/base
                     :datum-spec (s/keys :req-un
                                         [:datum/x
                                          :datum/y]
                                         :opt-un
                                         [:datum/c])}
-   ::pie/base      {:vega-spec pie/base
+   ::pie/base      {:title "Pie"
+                    :vega-spec pie/base
                     :datum-spec (s/and
                                  (s/keys :req-un
                                          [:datum/x
@@ -36,13 +40,15 @@
                                  (fn no-category
                                    [datum]
                                    (not (contains? datum :c))))}
-   ::scatter/base {:vega-spec scatter/base
+   ::scatter/base {:title "Scatter"
+                   :vega-spec scatter/base
                    :datum-spec (s/keys :req-un
                                        [:datum/x
                                         :datum/y]
                                        :opt-un
                                        [:datum/c])}
-   ::scatter/time-scatter {:vega-spec scatter/time-scatter
+   ::scatter/time-scatter {:title "Time Scatter"
+                           :vega-spec scatter/time-scatter
                            :datum-spec (s/keys :req-un
                                                [:datum/x
                                                 :datum/y]

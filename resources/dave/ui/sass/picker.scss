@@ -20,7 +20,7 @@ div.picker {
       @extend .mdc-image-list__item;
       > div:nth-child(1) {
         @extend .mdc-image-list__image-aspect-container;
-        > img {
+        > img, svg {
           @extend .mdc-image-list__image;
         }
       }
