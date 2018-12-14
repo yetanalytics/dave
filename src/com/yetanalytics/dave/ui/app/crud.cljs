@@ -38,3 +38,19 @@
       :notify/snackbar
       {:message "Deleted!"}
       :com.yetanalytics.dave.ui.app.nav/nav-path! parent-path})))
+
+(re-frame/reg-event-fx
+ :crud/create!
+ (fn [{:keys [db] :as ctx} [_ item & object-path]]
+   (let [db-path (interleave [:workbooks :questions :visualizations]
+                             object-path)
+         parent-map-path (butlast db-path)
+         new-db (-> db
+                    (assoc-in db-path
+                              item)
+                    (update-in parent-map-path
+                               re-index))]
+     {:db new-db
+      :db/save! new-db
+      :notify/snackbar
+      {:message "Success"}})))

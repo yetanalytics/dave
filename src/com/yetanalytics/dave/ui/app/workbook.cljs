@@ -1,6 +1,43 @@
 (ns com.yetanalytics.dave.ui.app.workbook
-  (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as re-frame]
+            [com.yetanalytics.dave.workbook :as workbook]
+            [clojure.spec.alpha :as s]))
 
+;; Handlers
+(re-frame/reg-event-fx
+ :workbook/new
+ (fn [{:keys [db] :as ctx} _]
+   {:dispatch
+    [:dialog.form/offer
+     {:title "New Workbook"
+      :mode :com.yetanalytics.dave.ui.app.dialog/form
+      :dispatch-save [:workbook/create]
+      :fields [{:key :title
+                :label "Title"}
+               {:key :description
+                :label "Description"}]
+      :form {}}]}))
+
+(re-frame/reg-event-fx
+ :workbook/create
+ (fn [{:keys [db] :as ctx} [_ form-map]]
+   (let [{:keys [id]
+          :as new-workbook} (merge form-map
+                                   {:id (random-uuid)
+                                    :index 0
+                                    :questions {}})]
+     (if-let [spec-error (s/explain-data workbook/workbook-spec
+                                         new-workbook)]
+       ;; it's invalid, need to inform the user
+       {:notify/snackbar
+        ;; TODO: human readable spec errors
+        {:message "Invalid Workbook"}}
+       ;; it's valid, dismiss the dialog and pass it off to CRUD
+       {:dispatch-n [[:dialog/dismiss]
+                     [:crud/create!
+                      new-workbook
+                      id
+                      ]]}))))
 
 ;; Subs
 (re-frame/reg-sub

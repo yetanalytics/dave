@@ -15,7 +15,8 @@
   (let [{:keys [id
                 title
                 description
-                questions]
+                questions
+                data]
          :as workbook} @(subscribe [:nav/focus])]
     [:div.page.workbook
      [:div ;; inner
@@ -28,7 +29,8 @@
         "Delete"]
        [descendant-counts id]]
       [:div.workbookinfo.testdatasetblock
-       [data/info id]]
+       (when data
+         [data/info id])]
       [:div
        [:h1 "Questions"]]
       [question/grid-list id questions]]]))
