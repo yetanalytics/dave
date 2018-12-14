@@ -26,31 +26,22 @@
     margin-top: 40px;
     margin-left: 40px;
   }
-  > div button{
-    margin-top: 20px;
-    padding: 7px 80px;
-    border-radius: 20px;
-    background-color: #4449A6;
-    font-size: 15px;
-    font-weight:lighter;
-    outline: none;
-    border:none;
-    -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
-    -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
-    box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
-    transition-duration: .1s;
-    > a{
-      color:white;
-      text-decoration: none;
-    }
-  }
-  > div button:active{
-    -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-    -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-    box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-    transition-duration: .1s;
-  }
+ > div .downloadbutton a{
+   padding: 7px 80px;
+   border-radius: 20px;
+   background-color: #4449A6;
+   color:white;
+   font-size: 15px;
+   outline: none;
+   border:none;
+   -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
+   -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
+   box-shadow: 0px 4px 16px -3px rgba(0,0,0,0.35);
+   transition-duration: .1s;
+   text-decoration: none;
 }
+  }
+
 
 .boxselection{
   background-color: #FBFBFB;
