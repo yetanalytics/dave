@@ -63,7 +63,7 @@
                  "Workbooks")
         :text (if ?workbook
                 (:description ?workbook)
-                "Workbooks wrap your functions and visualizations into an easily accessible space. ")
+                "Workbooks wrap your questions and visualizations into an easily accessible space. ")
         :active? (= :workbook context)
         :href (when ?workbook
                 (format "#/workbooks/%s" (:id ?workbook)))}]
