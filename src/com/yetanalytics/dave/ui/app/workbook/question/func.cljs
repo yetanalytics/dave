@@ -138,7 +138,7 @@
  ;; to do this with events and then cache the last result for a given fn.
  (fn [[statements
        {:keys [id args] :as function}] _]
-   (when (seq statements)
+   (when (and function (seq statements))
      (func/apply-func id args statements))))
 
 (re-frame/reg-sub

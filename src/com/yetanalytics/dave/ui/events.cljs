@@ -11,6 +11,8 @@
    [com.yetanalytics.dave.ui.app.workbook.question]
    [com.yetanalytics.dave.ui.app.workbook.question.func]
    [com.yetanalytics.dave.ui.app.workbook.question.visualization]
+   [com.yetanalytics.dave.ui.app.crud]
+   [com.yetanalytics.dave.ui.app.dialog]
    [com.yetanalytics.dave.ui.app.picker]))
 
 (defn init!

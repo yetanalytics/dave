@@ -15,18 +15,31 @@
   (let [{:keys [id
                 title
                 description
-                questions]
+                questions
+                data]
          :as workbook} @(subscribe [:nav/focus])]
     [:div.page.workbook
      [:div ;; inner
       [:div.workbookinfo.gridblock
        [:p.hometitle title]
        [:p.workbookdesc description]
+       [:button
+        {:on-click #(dispatch
+                     [:workbook/edit id])}
+        "Edit"]
+       [:button
+        {:on-click #(dispatch
+                     [:crud/delete-confirm id])}
+        "Delete"]
        [descendant-counts id]]
       [:div.workbookinfo.testdatasetblock
-       [data/info id]]
+       (when data
+         [data/info id])]
       [:div
-       [:h1 "Questions"]]
+       [:h1 "Questions"]
+       [:button
+        {:on-click #(dispatch [:workbook.question/new id])}
+        "New Question"]]
       [question/grid-list id questions]]]))
 
 
