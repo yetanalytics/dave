@@ -27,3 +27,4 @@ package-lock.json
 *.el
 *.dat
 *.script
+/gh_pages/
