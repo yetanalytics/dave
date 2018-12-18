@@ -27,11 +27,18 @@
                                     "resources/public/css/style.css"
                                     "node_modules"]}
            :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+
+           :test  {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
+                   :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.test-runner]}
+           ;; for building a static html/js page
            :build-prod
            {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
             :main-opts ["-m" "figwheel.main" "-O" "simple" "-bo" "prod"]}
+           ;; same as build-prod, but launches a figwheel server to debug/preview
            :build-prod-server
            {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
             :main-opts ["-m" "figwheel.main" "-O" "simple" "-bo" "prod" "-s"]}
-           :test  {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
-                   :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.test-runner]}}}
+           ;; run sass compilation once, sans source-map
+           :build-sass
+           {:extra-deps {deraen/sass4clj {:mvn/version "0.3.1"}}
+            :main-opts ["-e" "(require,'sass4clj.core),(sass4clj.core/sass-compile-to-file,\"resources/dave/ui/sass/style.scss\",\"resources/public/css/style.css\",{:source-map,false,:source-paths,[\"node_modules\"]})"]}}}
