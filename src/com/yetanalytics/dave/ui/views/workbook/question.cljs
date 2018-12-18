@@ -4,6 +4,20 @@
              :as visualization]
             [com.yetanalytics.dave.ui.views.workbook.question.func :as func]))
 
+(defn edit-button
+  [workbook-id question-id]
+  [:button
+   {:on-click #(dispatch
+                [:workbook.question/edit workbook-id question-id])}
+   "Edit"])
+
+(defn delete-button
+  [workbook-id question-id]
+  [:button
+   {:on-click #(dispatch
+                [:crud/delete-confirm workbook-id question-id])}
+   "Delete"])
+
 (defn page []
   (let [{:keys [id
                 text
@@ -17,14 +31,8 @@
      [:div ;; inner
       [:div.workbookinfo.testdatasetblock
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
-       [:button
-        {:on-click #(dispatch
-                     [:workbook.question/edit workbook-id id])}
-        "Edit"]
-       [:button
-        {:on-click #(dispatch
-                     [:crud/delete-confirm workbook-id id])}
-        "Delete"]
+       [edit-button workbook-id id]
+       [delete-button workbook-id id]
        [:div.descendant-counts
         [:div.tag.visualtag
          [:p "Total Visualizations: " (count visualizations)]]] ]

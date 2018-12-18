@@ -26,6 +26,21 @@
 
      ]))
 
+(defn edit-button
+  [workbook-id question-id visualization-id]
+  [:button
+   {:on-click #(dispatch
+                [:workbook.question.visualization/edit
+                 workbook-id question-id visualization-id])}
+   "Edit"])
+
+(defn delete-button
+  [workbook-id question-id visualization-id]
+  [:button
+   {:on-click #(dispatch
+                [:crud/delete-confirm workbook-id question-id visualization-id])}
+   "Delete"])
+
 (defn page []
   (let [{:keys [id
                 title]
@@ -39,15 +54,8 @@
         {:on-click #(dispatch [:workbook.question.visualization/offer-picker
                                workbook-id question-id id])}
         "Change Visualization"]
-       [:button
-        {:on-click #(dispatch
-                     [:workbook.question.visualization/edit
-                      workbook-id question-id id])}
-        "Edit"]
-       [:button
-        {:on-click #(dispatch
-                     [:crud/delete-confirm workbook-id question-id id])}
-        "Delete"]
+       [edit-button workbook-id question-id id]
+       [delete-button workbook-id question-id id]
        [display workbook-id question-id id]
        [download/download-text
         "Download Vega JSON..."

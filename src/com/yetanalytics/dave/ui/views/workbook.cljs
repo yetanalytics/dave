@@ -11,6 +11,18 @@
    [:div.tag.visualtag
     [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])
 
+(defn edit-button [workbook-id]
+  [:button
+   {:on-click #(dispatch
+                [:workbook/edit workbook-id])}
+   "Edit"])
+
+(defn delete-button [workbook-id]
+  [:button
+   {:on-click #(dispatch
+                [:crud/delete-confirm workbook-id])}
+   "Delete"])
+
 (defn page []
   (let [{:keys [id
                 title
@@ -23,14 +35,8 @@
       [:div.workbookinfo.gridblock
        [:p.hometitle title]
        [:p.workbookdesc description]
-       [:button
-        {:on-click #(dispatch
-                     [:workbook/edit id])}
-        "Edit"]
-       [:button
-        {:on-click #(dispatch
-                     [:crud/delete-confirm id])}
-        "Delete"]
+       [edit-button id]
+       [delete-button id]
        [descendant-counts id]]
       [:div.workbookinfo.testdatasetblock
        (when data
