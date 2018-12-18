@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: SASS
-
 # clean everything up
 rm -rf target node_modules package* gh_pages
 
