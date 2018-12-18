@@ -54,7 +54,14 @@
       :component-did-mount
       (fn [c]
         (let [d (MDCDialog. (r/dom-node c))]
-          #_(.listen d "MDCDialog:closed" #(dispatch [:dialog/cancel]))
+          (.listen d "MDCDialog:closed"
+                   (fn [e]
+                     ;; If the dialog closes or is cancelled, we should
+                     ;; also reflect this back to app state
+                     (when (contains? #{"close"
+                                        "cancel"}
+                                      (-> e .-detail .-action))
+                       (dispatch [:dialog/cancel]))))
           (.open (reset! dialog-ref d))))
       :component-will-unmount
       (fn [c]
