@@ -19,6 +19,10 @@
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
        [:button
         {:on-click #(dispatch
+                     [:workbook.question/edit workbook-id id])}
+        "Edit"]
+       [:button
+        {:on-click #(dispatch
                      [:crud/delete-confirm workbook-id id])}
         "Delete"]
        [:div.descendant-counts

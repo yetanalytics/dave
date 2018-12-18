@@ -44,6 +44,46 @@
                       id
                       ]]}))))
 
+(re-frame/reg-event-fx
+ :workbook/edit
+ (fn [{:keys [db] :as ctx} [_ workbook-id]]
+   (let [workbook (get-in db [:workbooks
+                              workbook-id])]
+     {:dispatch
+      [:dialog.form/offer
+       {:title "Edit Workbook"
+        :mode :com.yetanalytics.dave.ui.app.dialog/form
+        :dispatch-save [:workbook/update
+                        workbook-id]
+        :fields [{:key :title
+                  :label "Title"}
+                 {:key :description
+                  :label "Description"}]
+        :form (select-keys workbook [:title :description])}]})))
+
+(re-frame/reg-event-fx
+ :workbook/update
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            form-map]]
+   (let [workbook (get-in db [:workbooks
+                              workbook-id])
+         updated-workbook (merge
+                           workbook
+                           form-map)]
+     (if-let [spec-error (s/explain-data workbook/workbook-spec
+                                         updated-workbook)]
+       ;; it's invalid, need to inform the user
+       {:notify/snackbar
+        ;; TODO: human readable spec errors
+        {:message "Invalid Workbook"}}
+       ;; it's valid, dismiss the dialog and pass it off to CRUD
+       {:dispatch-n [[:dialog/dismiss]
+                     [:crud/update!
+                      updated-workbook
+                      workbook-id
+                      ]]}))))
+
 ;; Subs
 (re-frame/reg-sub
  :workbook/map

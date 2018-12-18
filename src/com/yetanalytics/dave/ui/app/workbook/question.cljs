@@ -37,6 +37,53 @@
                       id
                       ]]}))))
 
+(re-frame/reg-event-fx
+ :workbook.question/edit
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id]]
+   (let [question (get-in db [:workbooks
+                              workbook-id
+                              :questions
+                              question-id])]
+     {:dispatch
+      [:dialog.form/offer
+       {:title "Edit Question"
+        :mode :com.yetanalytics.dave.ui.app.dialog/form
+        :dispatch-save [:workbook.question/update
+                        workbook-id
+                        question-id]
+        :fields [{:key :text
+                  :label "Question Text"}]
+        :form (select-keys question [:text])}]})))
+
+(re-frame/reg-event-fx
+ :workbook.question/update
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id
+                            form-map]]
+   (let [question (get-in db [:workbooks
+                              workbook-id
+                              :questions
+                              question-id])
+         updated-question (merge
+                           question
+                           form-map)]
+     (if-let [spec-error (s/explain-data question/question-spec
+                                         updated-question)]
+       ;; it's invalid, need to inform the user
+       {:notify/snackbar
+        ;; TODO: human readable spec errors
+        {:message "Invalid Question"}}
+       ;; it's valid, dismiss the dialog and pass it off to CRUD
+       {:dispatch-n [[:dialog/dismiss]
+                     [:crud/update!
+                      updated-question
+                      workbook-id
+                      question-id
+                      ]]}))))
+
 ;; Subs
 
 (re-frame/reg-sub

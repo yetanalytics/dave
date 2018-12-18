@@ -25,6 +25,10 @@
        [:p.workbookdesc description]
        [:button
         {:on-click #(dispatch
+                     [:workbook/edit id])}
+        "Edit"]
+       [:button
+        {:on-click #(dispatch
                      [:crud/delete-confirm id])}
         "Delete"]
        [descendant-counts id]]

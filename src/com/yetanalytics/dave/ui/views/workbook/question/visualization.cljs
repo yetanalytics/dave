@@ -41,6 +41,11 @@
         "Change Visualization"]
        [:button
         {:on-click #(dispatch
+                     [:workbook.question.visualization/edit
+                      workbook-id question-id id])}
+        "Edit"]
+       [:button
+        {:on-click #(dispatch
                      [:crud/delete-confirm workbook-id question-id id])}
         "Delete"]
        [display workbook-id question-id id]
