@@ -5,7 +5,7 @@
             [goog.string :refer [format]]
             [goog.string.format]
             ;; TODO: remove
-            [cljs.pprint :refer [pprint]]))
+            #_[cljs.pprint :refer [pprint]]))
 
 
 (defn hometitle
