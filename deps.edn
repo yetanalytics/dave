@@ -27,6 +27,8 @@
                                     "resources/public/css/style.css"
                                     "node_modules"]}
            :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
-           :min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
+           :build-prod
+           {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
+            :main-opts ["-m" "figwheel.main" "-O" "simple" "-bo" "prod" "-s"]}
            :test  {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
                    :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.test-runner]}}}
