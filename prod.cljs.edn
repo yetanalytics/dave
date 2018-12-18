@@ -1,0 +1,5 @@
+^{:open-url "http://localhost:[[server-port]]/prod_index.html"}
+{:closure-defines      {"goog.DEBUG" false}
+ :main com.yetanalytics.dave.ui.core
+ :install-deps true
+ :npm-deps {"material-components-web" "0.41.1"}}

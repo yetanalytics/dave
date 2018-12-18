@@ -8,7 +8,7 @@
             [com.yetanalytics.dave.ui.views.workbook.question.visualization
              :as visualization]
             [com.yetanalytics.dave.ui.views.nav :as nav]
-            [cljs.pprint :refer [pprint]]
+            ;; [cljs.pprint :refer [pprint]]
             [com.yetanalytics.dave.ui.views.picker :as picker]
             [com.yetanalytics.dave.ui.views.dialog :as dialog]))
 
@@ -43,7 +43,7 @@
    [:div.mdc-linear-progress__bar.mdc-linear-progress__secondary-bar
     [:span.mdc-linear-progress__bar-inner]]])
 
-(when ^boolean goog.DEBUG
+#_(when ^boolean goog.DEBUG
   (require 'dave.debug))
 
 (defn app []

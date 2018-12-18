@@ -5,7 +5,7 @@
             [goog.string :refer [format]]
             [goog.string.format]
             ;; TODO: remove
-            [cljs.pprint :refer [pprint]]))
+            #_[cljs.pprint :refer [pprint]]))
 
 
 (defn hometitle
@@ -99,7 +99,7 @@
 (defn topmenu
   []
   [:div.topmenu
-   [:img {:src "/img/dev/dave_logo.png"}]
+   [:img {:src "img/dev/dave_logo.png"}]
    [:a {:href "#/"} "About"]
    [:a {:href "#/"} "Contribute"]
    [:a {:href "#/"} "Contact"]
@@ -130,7 +130,7 @@
   "The footer at the bottom of the app."
   []
   [:footer
-   [:img {:src "/img/dev/white_text_logo.png"}]
+   [:img {:src "img/dev/white_text_logo.png"}]
    [:a {:href "#/"} "About"]
    [:a {:href "#/"} "More Info"]
    [:a {:href "#/"} "Contribute"]
