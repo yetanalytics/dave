@@ -46,7 +46,7 @@
      [:div.locationtitle
       [:h1 "Visualizations"]
       ]
-     [:div [:button {:on-click #(dispatch [:workbook.question.visualization/new
+     [:div [:button.newblock {:on-click #(dispatch [:workbook.question.visualization/new
                                            workbook-id id])}
             "New Visualization"]]
      [visualization/grid-list
