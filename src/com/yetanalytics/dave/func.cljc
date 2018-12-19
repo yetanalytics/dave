@@ -192,23 +192,47 @@
          (s/every
           (s/with-gen ::xs/lrs-statement
             (fn []
-              (sgen/fmap (fn [[s act v-id follow?]]
-                           (-> s
-                               (assoc "verb"
-                                      {"id" v-id})
-                               (assoc "object" act)
-                               (cond->
-                                   (and follow?
-                                        (= "http://adlnet.gov/expapi/verbs/launched"))
-                                 (assoc-in ["context" "statement"]
-                                           #?(:clj (str (java.util.UUID/randomUUID))
-                                              :cljs (str (random-uuid)))))))
+              (sgen/fmap (fn [[id stamp [act-id act-name] vtype ref-id]]
+                           (cond-> {"id" id
+                                    "actor" {"objectType" "Agent"
+                                             "mbox" "mailto:xapi@example.com"}
+                                    "verb" {"id" (if (= vtype :recommended)
+                                                   "https://w3id.org/xapi/dod-isd/verbs/recommended"
+                                                   "http://adlnet.gov/expapi/verbs/launched")}
+                                    "object" {"objectType" "Activity"
+                                              "id" act-id
+                                              "definition" {"name" {"en-US" act-name}}}
+                                    "timestamp" stamp
+                                    "stored" stamp
+                                    "authority" {"objectType" "Agent"
+                                                 "account" {"homePage" "https://example.com"
+                                                            "name" "username"}}
+                                    "version" "1.0.3"}
+                             (= vtype
+                                :followed)
+                             (assoc "context" {"statement" ref-id})))
                          (sgen/tuple
-                          (s/gen ::xs/lrs-statement)
-                          (s/gen ::xs/activity)
-                          (sgen/elements ["http://adlnet.gov/expapi/verbs/launched"
-                                          "https://w3id.org/xapi/dod-isd/verbs/recommended"])
-                          (sgen/boolean))))))
+                          ;; id
+                          (sgen/fmap str (sgen/uuid))
+                          ;; timestamp/stored
+                          (sgen/fmap (fn [i]
+                                       (util/inst->timestamp
+                                        #?(:clj (java.util.Date. i)
+                                           :cljs (js/Date. i))))
+                                     ;; one year span
+                                     (sgen/large-integer*
+                                      {:min 1546300800000
+                                       :max 1577836800000}))
+                          ;; activity id/name tuple
+                          (sgen/fmap (fn [x]
+                                       [(str "https://example.com/activities/" x)
+                                        (str "Activity " x)])
+                                     (sgen/elements ["a" "b" "c"]))
+                          ;; vtype
+                          (sgen/elements [:recommended :launched :followed])
+
+                          ;; ref-id
+                          (sgen/fmap str (sgen/uuid)))))))
          :time-unit #{:second
                       :minute
                       :hour
@@ -222,64 +246,67 @@
 (defn followed-recommendations
   "Dave Section 5"
   [statements time-unit]
-  (let [buckets (util/time-bucket-statements statements time-unit)]
-    {:specification
-     {:x {:label "Period"
-          #_:format #_(case time-unit
-                       :second
-                       "%Y-%m-%dT%H:%M:%S"
-                       :minute
-                       "%Y-%m-%dT%H:%M"
-                       :hour
-                       "%Y-%m-%dT%H"
-                       :day
-                       "%Y-%m-%d"
-                       :week
-                       "%YW%V"
-                       :month
-                       "%Y-%m"
-                       :year
-                       "%Y")}
-      :y {:type :count
-          :label "Statement Count"}
-      :c {:type :category}}
-     :values
-     (into []
-           (for [{:keys [period-start
-                         period-end
-                         statements]
-                  :as bucket} buckets
-                 vtype [:recommended :launched :followed]]
-             {:x (str (util/format-time-unit
-                       period-start
-                       time-unit)
-                      " - "
-                      (util/format-time-unit
+  {:specification
+   {:x {:label "Period"
+        #_:format #_(case time-unit
+                      :second
+                      "%Y-%m-%dT%H:%M:%S"
+                      :minute
+                      "%Y-%m-%dT%H:%M"
+                      :hour
+                      "%Y-%m-%dT%H"
+                      :day
+                      "%Y-%m-%d"
+                      :week
+                      "%YW%V"
+                      :month
+                      "%Y-%m"
+                      :year
+                      "%Y")}
+    :y {:type :count
+        :label "Statement Count"}
+    :c {:type :category}}
+   :values
+   (into []
+         (for [{:keys [period-start
                        period-end
-                       time-unit))
-              :y (count
-                  (filter
-                   (case vtype
-                     :recommended
-                     #(= "https://w3id.org/xapi/dod-isd/verbs/recommended"
-                         (get-in % ["verb" "id"]))
-                     :launched
-                     #(= "http://adlnet.gov/expapi/verbs/launched"
-                         (get-in % ["verb" "id"]))
-                     :followed
-                     #(and (= "http://adlnet.gov/expapi/verbs/launched"
-                              (get-in % ["verb" "id"]))
-                           ;; a statement ref exists (assumed to be recommendation)
-                           (get-in % ["context" "statement"])))
-                   statements))
-              :c (name vtype)}))}))
+                       statements]
+                :as bucket} (util/time-bucket-statements statements time-unit)
+               vtype [:recommended :launched :followed]]
+           {:x (str (util/format-time-unit
+                     period-start
+                     time-unit)
+                    " - "
+                    (util/format-time-unit
+                     period-end
+                     time-unit))
+            :y (count
+                (filter
+                 (case vtype
+                   :recommended
+                   #(= "https://w3id.org/xapi/dod-isd/verbs/recommended"
+                       (get-in % ["verb" "id"]))
+                   :launched
+                   #(= "http://adlnet.gov/expapi/verbs/launched"
+                       (get-in % ["verb" "id"]))
+                   :followed
+                   #(and (= "http://adlnet.gov/expapi/verbs/launched"
+                            (get-in % ["verb" "id"]))
+                         ;; a statement ref exists (assumed to be recommendation)
+                         (get-in % ["context" "statement"])))
+                 statements))
+            :c (name vtype)}))})
 
 
 (s/def ::function
-  ifn?)
+  (s/with-gen ifn?
+    (fn []
+      (sgen/return identity))))
 
 (s/def ::fspec
-  s/spec?)
+  (s/with-gen s/spec?
+    (fn []
+      (sgen/return (s/get-spec `success-timeline)))))
 
 (s/def ::title
   (s/and string?
@@ -301,14 +328,6 @@
   (s/map-of keyword?
             (s/every
              keyword?)))
-
-(def func-spec
-  (s/keys :req-un [::function
-                   ::fspec
-                   ::title
-                   ::args-default
-                   ::args-enum]
-          :opt-un [::doc]))
 
 (def registry
   "A map of function keyword to implementation. Each function is a map
@@ -357,6 +376,17 @@
                              :week
                              :month
                              :year}}}})
+
+(def func-spec
+  (s/with-gen
+    (s/keys :req-un [::function
+                     ::fspec
+                     ::title
+                     ::args-default
+                     ::args-enum]
+            :opt-un [::doc])
+    (fn []
+      (sgen/elements (vals registry)))))
 
 (s/def ::id
   (s/with-gen qualified-keyword?
