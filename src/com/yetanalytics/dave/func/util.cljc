@@ -82,47 +82,49 @@
       the given period."
   [statements time-unit & {:keys [elide?]
                            :or {elide? false}}]
-  (let [time-unit-like (case time-unit
-                         :second (t/seconds 1)
-                         :minute (t/minutes 1)
-                         :hour   (t/hours 1)
-                         :day    (t/days 1)
-                         :week   (t/weeks 1)
-                         :month  (t/months 1)
-                         :year   (t/years 1))
-        statements-sorted
-        (sort-by #(-> % (get "timestamp") timestamp->inst)
-                 statements)
-        [stamp-min
-         stamp-max
-         :as domain] ((juxt (comp #(get % "timestamp") first)
-                            (comp #(get % "timestamp") last))
-                      statements-sorted)
-        ;; Pad and make a seq from the domain
-        pseq (tp/periodic-seq (t/minus (tc/to-date-time stamp-min)
-                                       time-unit-like)
-                              (t/plus (tc/to-date-time stamp-max)
-                                      time-unit-like)
-                              time-unit-like)
-        [rest-s buckets] (reduce
-                          (fn [[ss buckets] start]
-                            (let [end (t/plus start time-unit-like)
-                                  interval (t/interval start end)
-                                  [in-period rest-ss] (split-with (comp
-                                                                   (partial t/within? interval)
-                                                                   tc/to-date-time
-                                                                   #(get % "timestamp"))
-                                                                  ss)]
-                              (if (and elide? (empty? in-period))
-                                [rest-ss buckets]
-                                [rest-ss
-                                 (conj buckets
-                                       {:period-start (tf/unparse (tf/formatters :date-time) start)
-                                        :period-end   (tf/unparse (tf/formatters :date-time) end)
-                                        :statements (into [] in-period)})])))
-                          [statements-sorted []]
-                          pseq)]
-    buckets))
+  (if (seq statements)
+    (let [time-unit-like (case time-unit
+                           :second (t/seconds 1)
+                           :minute (t/minutes 1)
+                           :hour   (t/hours 1)
+                           :day    (t/days 1)
+                           :week   (t/weeks 1)
+                           :month  (t/months 1)
+                           :year   (t/years 1))
+          statements-sorted
+          (sort-by #(-> % (get "timestamp") timestamp->inst)
+                   statements)
+          [stamp-min
+           stamp-max
+           :as domain] ((juxt (comp #(get % "timestamp") first)
+                              (comp #(get % "timestamp") last))
+                        statements-sorted)
+          ;; Pad and make a seq from the domain
+          pseq (tp/periodic-seq (t/minus (tc/to-date-time stamp-min)
+                                         time-unit-like)
+                                (t/plus (tc/to-date-time stamp-max)
+                                        time-unit-like)
+                                time-unit-like)
+          [rest-s buckets] (reduce
+                            (fn [[ss buckets] start]
+                              (let [end (t/plus start time-unit-like)
+                                    interval (t/interval start end)
+                                    [in-period rest-ss] (split-with (comp
+                                                                     (partial t/within? interval)
+                                                                     tc/to-date-time
+                                                                     #(get % "timestamp"))
+                                                                    ss)]
+                                (if (and elide? (empty? in-period))
+                                  [rest-ss buckets]
+                                  [rest-ss
+                                   (conj buckets
+                                         {:period-start (tf/unparse (tf/formatters :date-time) start)
+                                          :period-end   (tf/unparse (tf/formatters :date-time) end)
+                                          :statements (into [] in-period)})])))
+                            [statements-sorted []]
+                            pseq)]
+      buckets)
+    []))
 
 (s/fdef format-time-unit
   :args (s/cat :d (s/or :inst inst?
