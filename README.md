@@ -23,7 +23,9 @@ Here is a quick link to the master doc for review of the template: https://githu
 
 Please join the Google Group to keep up with DAVE-related conversation and notifications: https://groups.google.com/forum/#!forum/project-dave
 
-## For Developers: Running the Interactive Workbooks
+## For Developers: Running the Interactive Workbooks & Testing
+
+### Interactive Workbooks
 
 DAVE's interactive workbooks are written in [ClojureScript](https://clojurescript.org/)
 which is compiled to Javascript to run in a browser. To get started, you'll need
@@ -33,30 +35,25 @@ To get an interactive development environment run:
 
     clj -A:fig:build
 
-A browser window will open automatically.
+A browser window will open automatically to `http://localhost:9500`
 
 To live-compile SASS files to CSS (do this in another shell):
 
     clojure -A:watch-sass
 
-The root SASS file can be found at `/resources/sass/style.scss`
+The root SASS file can be found at `/resources/dave/ui/sass/style.scss`
 
-This will auto compile and send all changes to the browser without the
-need to reload. After the compilation process is complete, you will
-get a Browser Connected REPL. An easy way to try it is:
+### Testing
 
-    (js/alert "Am I connected?")
+The ClojureScript tests will run automatically while Figwheel is running, to view their output navigate to `http://localhost:9500/figwheel-extra-main/auto-testing`.
 
-and you should see an alert in the browser window.
+To run the ClojureScript tests outside of figwheel:
 
-To clean all compiled files:
+    clojure -Afig:test-cljs
 
-    rm -rf target/public
+To run Clojure tests on the JVM:
 
-To create a production build run:
-
-	rm -rf target/public
-	clojure -A:fig:min
+    clojure -Atest-clj
 
 ## License
 Copyright © 2018 Yet Analytics Inc
