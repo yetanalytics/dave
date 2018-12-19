@@ -12,26 +12,59 @@
 (s/fdef success-timeline
   :args (s/cat
          :statements
-         (s/every (s/with-gen ::xs/lrs-statement
-                    (fn []
-                      (sgen/fmap (fn [[s act id score]]
-                                   (assoc-in
-                                    (assoc-in (assoc s "object" act)
-                                              ["object" "id"]
-                                              id)
-                                    ["result" "score"] score))
-                                 (sgen/tuple
-                                  (s/gen ::xs/lrs-statement)
-                                  (s/gen ::xs/activity)
-                                  (sgen/elements ["http://adlnet.gov/expapi/verbs/passed"
-                                                  "https://w3id.org/xapi/dod-isd/verbs/answered"
-                                                  "http://adlnet.gov/expapi/verbs/completed"])
-                                  (sgen/fmap
-                                   w/stringify-keys
-                                   (s/gen (s/keys :req-un
-                                                  [:score/min
-                                                   :score/max
-                                                   :score/raw])))))))))
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[id stamp verb-id [act-id act-name] score success?]]
+                           {"id" id
+                            "actor" {"objectType" "Agent"
+                                     "mbox" "mailto:xapi@example.com"}
+                            "verb" {"id" verb-id}
+                            "object" {"objectType" "Activity"
+                                      "id" act-id
+                                      "definition" {"name" {"en-US" act-name}}}
+                            "timestamp" stamp
+                            "stored" stamp
+                            "authority" {"objectType" "Agent"
+                                         "account" {"homePage" "https://example.com"
+                                                    "name" "username"}}
+                            "version" "1.0.3"
+                            "result" {"score" score
+                                      "success" (if (= verb-id
+                                                       "http://adlnet.gov/expapi/verbs/passed")
+                                                  true
+                                                  success?)}})
+                         (sgen/tuple
+                          ;; id
+                          (sgen/fmap str (sgen/uuid))
+                          ;; timestamp/stored
+                          (sgen/fmap (fn [i]
+                                       (util/inst->timestamp
+                                        #?(:clj (java.util.Date. i)
+                                           :cljs (js/Date. i))))
+                                     ;; one year span
+                                     (sgen/large-integer*
+                                      {:min 1546300800000
+                                       :max 1577836800000}))
+                          ;; verb id
+                          (sgen/elements ["http://adlnet.gov/expapi/verbs/passed"
+                                          "https://w3id.org/xapi/dod-isd/verbs/answered"
+                                          "http://adlnet.gov/expapi/verbs/completed"])
+                          ;; activity id/name tuple
+                          (sgen/fmap (fn [x]
+                                       [(str "https://example.com/activities/" x)
+                                        (str "Activity " x)])
+                                     (sgen/elements ["a" "b" "c"]))
+                          ;; score
+                          (sgen/fmap
+                           w/stringify-keys
+                           (s/gen (s/keys :req-un
+                                          [:score/min
+                                           :score/max
+                                           :score/raw])))
+                          ;; success?
+                          (sgen/boolean)
+                          ))))))
   :ret ::ret/result)
 
 (defn success-timeline
@@ -80,7 +113,45 @@
 (s/fdef difficult-questions
   :args (s/cat
          :statements
-         (s/every ::xs/lrs-statement))
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[id stamp [act-id act-name] success?]]
+                           {"id" id
+                            "actor" {"objectType" "Agent"
+                                     "mbox" "mailto:xapi@example.com"}
+                            "verb" {"id" "https://w3id.org/xapi/dod-isd/verbs/answered"}
+                            "object" {"objectType" "Activity"
+                                      "id" act-id
+                                      "definition" {"name" {"en-US" act-name}
+                                                    "type" "http://adlnet.gov/expapi/activities/cmi.interaction"}}
+                            "timestamp" stamp
+                            "stored" stamp
+                            "authority" {"objectType" "Agent"
+                                         "account" {"homePage" "https://example.com"
+                                                    "name" "username"}}
+                            "version" "1.0.3"
+                            "result" {"success" success?}})
+                         (sgen/tuple
+                          ;; id
+                          (sgen/fmap str (sgen/uuid))
+                          ;; timestamp/stored
+                          (sgen/fmap (fn [i]
+                                       (util/inst->timestamp
+                                        #?(:clj (java.util.Date. i)
+                                           :cljs (js/Date. i))))
+                                     ;; one year span
+                                     (sgen/large-integer*
+                                      {:min 1546300800000
+                                       :max 1577836800000}))
+                          ;; activity id/name tuple
+                          (sgen/fmap (fn [x]
+                                       [(str "https://example.com/activities/" x)
+                                        (str "Activity " x)])
+                                     (sgen/elements ["a" "b" "c"]))
+                          ;; success?
+                          (sgen/boolean)
+                          ))))))
   :ret ::ret/result)
 
 (defn difficult-questions
@@ -116,18 +187,42 @@
 (s/fdef completion-rate
   :args (s/cat
          :statements
-         (s/every (s/with-gen ::xs/lrs-statement
-                    (fn []
-                      (sgen/fmap (fn [[s act id]]
-                                   (assoc-in (assoc s "object" act)
-                                             ["object" "id"]
-                                             id))
-                                 (sgen/tuple
-                                  (s/gen ::xs/lrs-statement)
-                                  (s/gen ::xs/activity)
-                                  (sgen/elements ["https://example.com/activity/a"
-                                                  "https://example.com/activity/b"
-                                                  "https://example.com/activity/c"]))))))
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[id stamp [act-id act-name]]]
+                           {"id" id
+                            "actor" {"objectType" "Agent"
+                                     "mbox" "mailto:xapi@example.com"}
+                            "verb" {"id" "https://w3id.org/xapi/dod-isd/verbs/answered"}
+                            "object" {"objectType" "Activity"
+                                      "id" act-id
+                                      "definition" {"name" {"en-US" act-name}}}
+                            "timestamp" stamp
+                            "stored" stamp
+                            "authority" {"objectType" "Agent"
+                                         "account" {"homePage" "https://example.com"
+                                                    "name" "username"}}
+                            "version" "1.0.3"})
+                         (sgen/tuple
+                          ;; id
+                          (sgen/fmap str (sgen/uuid))
+                          ;; timestamp/stored
+                          (sgen/fmap (fn [i]
+                                       (util/inst->timestamp
+                                        #?(:clj (java.util.Date. i)
+                                           :cljs (js/Date. i))))
+                                     ;; one year span
+                                     (sgen/large-integer*
+                                      {:min 1546300800000
+                                       :max 1577836800000}))
+                          ;; activity id/name tuple
+                          (sgen/fmap (fn [x]
+                                       [(str "https://example.com/activities/" x)
+                                        (str "Activity " x)])
+                                     (sgen/elements ["a" "b" "c"]))
+
+                          )))))
          :time-unit #{:second
                       :minute
                       :hour
