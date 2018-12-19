@@ -5,6 +5,7 @@
             [com.yetanalytics.dave.func.ret :as ret]
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
+            [com.yetanalytics.dave.util.spec :as su]
             [clojure.walk :as w]
             #?@(:cljs [[goog.string :refer [format]]
                        [goog.string.format]])))
@@ -15,7 +16,9 @@
          (s/every
           (s/with-gen ::xs/lrs-statement
             (fn []
-              (sgen/fmap (fn [[id stamp verb-id [act-id act-name] score success?]]
+              (sgen/fmap (fn [[id stamp verb-id [act-id act-name] [s-raw
+                                                                   s-min
+                                                                   s-max] success?]]
                            {"id" id
                             "actor" {"objectType" "Agent"
                                      "mbox" "mailto:xapi@example.com"}
@@ -29,7 +32,9 @@
                                          "account" {"homePage" "https://example.com"
                                                     "name" "username"}}
                             "version" "1.0.3"
-                            "result" {"score" score
+                            "result" {"score" {"raw" s-raw
+                                               "min" s-min
+                                               "max" s-max}
                                       "success" (if (= verb-id
                                                        "http://adlnet.gov/expapi/verbs/passed")
                                                   true
@@ -56,7 +61,8 @@
                                         (str "Activity " x)])
                                      (sgen/elements ["a" "b" "c"]))
                           ;; score
-                          (sgen/fmap
+                          (su/raw-min-max-gen)
+                          #_(sgen/fmap
                            w/stringify-keys
                            (s/gen (s/keys :req-un
                                           [:score/min
@@ -275,8 +281,10 @@
                                 :week 604800
                                 :month 2592000
                                 :year 31536000))
-                     rate (double (/ s-count
-                                     units))]]
+                     rate (if (not= 0 units)
+                            (double (/ s-count
+                                       units))
+                            0.0)]]
            {:x (or activity-name
                    activity-id)
             :y rate}))})

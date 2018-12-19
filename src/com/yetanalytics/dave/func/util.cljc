@@ -1,5 +1,6 @@
 (ns com.yetanalytics.dave.func.util
   (:require [clojure.spec.alpha :as s :include-macros true]
+            [clojure.spec.gen.alpha :as sgen]
             [xapi-schema.spec :as xs]
             [#?(:clj clj-time.core
                 :cljs cljs-time.core) :as t]
@@ -37,7 +38,8 @@
      (js/Date. timestamp)))
 
 (s/fdef inst->timestamp
-  :args (s/cat :inst inst?)
+  :args (s/cat :inst (s/inst-in #inst "1970"
+                                #inst "3000"))
   :ret ::xs/timestamp)
 
 #?(:clj (defn inst->timestamp
@@ -54,10 +56,46 @@
   ::xs/timestamp)
 
 (s/def :time-bucket-statements.ret.each/statements
-  (s/every ::xs/lrs-statements))
+  (s/every ::xs/lrs-statement))
 
 (s/fdef time-bucket-statements
-  :args (s/cat :statements (s/every ::xs/lrs-statements)
+  :args (s/cat :statements
+               (s/every
+                (s/with-gen ::xs/lrs-statement
+                  (fn []
+                    (sgen/fmap (fn [[id stamp [act-id act-name]]]
+                                 {"id" id
+                                  "actor" {"objectType" "Agent"
+                                           "mbox" "mailto:xapi@example.com"}
+                                  "verb" {"id" "https://w3id.org/xapi/dod-isd/verbs/answered"}
+                                  "object" {"objectType" "Activity"
+                                            "id" act-id
+                                            "definition" {"name" {"en-US" act-name}}}
+                                  "timestamp" stamp
+                                  "stored" stamp
+                                  "authority" {"objectType" "Agent"
+                                               "account" {"homePage" "https://example.com"
+                                                          "name" "username"}}
+                                  "version" "1.0.3"})
+                               (sgen/tuple
+                                ;; id
+                                (sgen/fmap str (sgen/uuid))
+                                ;; timestamp/stored
+                                (sgen/fmap (fn [i]
+                                             (inst->timestamp
+                                              #?(:clj (java.util.Date. i)
+                                                 :cljs (js/Date. i))))
+                                           ;; one year span
+                                           (sgen/large-integer*
+                                            {:min 1546300800000
+                                             :max 1577836800000}))
+                                ;; activity id/name tuple
+                                (sgen/fmap (fn [x]
+                                             [(str "https://example.com/activities/" x)
+                                              (str "Activity " x)])
+                                           (sgen/elements ["a" "b" "c"]))
+
+                                )))))
                :time-unit #{:second
                             :minute
                             :hour
