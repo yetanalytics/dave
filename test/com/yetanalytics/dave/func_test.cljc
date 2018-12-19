@@ -8,10 +8,6 @@
    [com.yetanalytics.dave.func :as func]
    [com.yetanalytics.dave.test-support :refer [failures stc-opts]]))
 
-(deftest dummy-test
-  (is #?(:cljs true
-         :clj true)))
-
 (deftest success-timeline-test
   (is (empty?
        (failures
@@ -19,7 +15,7 @@
          `func/success-timeline
          {stc-opts
           ;; TODO: improve generative test perf in cljs
-          {:num-tests 1 :max-size 1}})))))
+          {:num-tests 10 :max-size 3}})))))
 
 (deftest difficult-questions-test
   (is (empty?
@@ -27,7 +23,7 @@
         (stest/check
          `func/difficult-questions
          {stc-opts
-          {:num-tests 1 :max-size 1}})))))
+          {:num-tests 10 :max-size 3}})))))
 
 (deftest completion-rate-test
   (is (empty?
@@ -35,7 +31,7 @@
         (stest/check
          `func/completion-rate
          {stc-opts
-          {:num-tests 1 :max-size 1}})))))
+          {:num-tests 10 :max-size 3}})))))
 
 (deftest followed-recommendations-test
   (is (empty?
@@ -44,6 +40,7 @@
          `func/followed-recommendations
          {stc-opts
           {:num-tests 10 :max-size 3}})))))
+
 ;; helper fns
 
 (deftest helpers-test
@@ -63,7 +60,7 @@
          [`func/explain-args*
           `func/explain-args]
          {stc-opts
-          {:num-tests 1 :max-size 1}})))))
+          {:num-tests 10 :max-size 3}})))))
 
 (deftest apply-func-test
   (is (empty?
