@@ -3,10 +3,6 @@
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.func :as func]))
 
-;; TODO: remove this boiler
-(defn multiply [a b] (* a b))
-
-
 ;; DAVE Object Specs
 (s/def ::workbook
   workbook/workbook-spec)

@@ -1,5 +1,5 @@
 ;; This test runner is intended to be run from the command line
-(ns com.test-runner
+(ns com.yetanalytics.dave.test-runner
   (:require
     ;; require all the namespaces that you want to test
     [com.yetanalytics.dave-test]

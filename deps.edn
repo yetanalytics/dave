@@ -29,7 +29,7 @@
            :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
 
            :test  {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
-                   :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.test-runner]}
+                   :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.yetanalytics.dave.test-runner]}
            ;; for building a static html/js page
            :build-prod
            {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
