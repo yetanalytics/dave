@@ -20,3 +20,22 @@
             (= idx idx'))
           (map-indexed vector
                        (sort (map :index maps)))))
+
+;; Generators
+(defn raw-min-max-gen []
+  (sgen/bind
+   (sgen/double* {:infinite? false
+                  :NaN? false})
+   (fn [mn]
+     (sgen/bind
+      (sgen/double* {:infinite? false
+                     :NaN? false
+                     :min mn})
+      (fn [mx]
+        (sgen/tuple
+         (sgen/double* {:infinite? false
+                        :NaN? false
+                        :min mn
+                        :max mx})
+         (sgen/return mn)
+         (sgen/return mx)))))))

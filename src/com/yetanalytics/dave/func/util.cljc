@@ -1,5 +1,6 @@
 (ns com.yetanalytics.dave.func.util
   (:require [clojure.spec.alpha :as s :include-macros true]
+            [clojure.spec.gen.alpha :as sgen]
             [xapi-schema.spec :as xs]
             [#?(:clj clj-time.core
                 :cljs cljs-time.core) :as t]
@@ -37,7 +38,8 @@
      (js/Date. timestamp)))
 
 (s/fdef inst->timestamp
-  :args (s/cat :inst inst?)
+  :args (s/cat :inst (s/inst-in #inst "1970"
+                                #inst "3000"))
   :ret ::xs/timestamp)
 
 #?(:clj (defn inst->timestamp
@@ -54,10 +56,46 @@
   ::xs/timestamp)
 
 (s/def :time-bucket-statements.ret.each/statements
-  (s/every ::xs/lrs-statements))
+  (s/every ::xs/lrs-statement))
 
 (s/fdef time-bucket-statements
-  :args (s/cat :statements (s/every ::xs/lrs-statements)
+  :args (s/cat :statements
+               (s/every
+                (s/with-gen ::xs/lrs-statement
+                  (fn []
+                    (sgen/fmap (fn [[id stamp [act-id act-name]]]
+                                 {"id" id
+                                  "actor" {"objectType" "Agent"
+                                           "mbox" "mailto:xapi@example.com"}
+                                  "verb" {"id" "https://w3id.org/xapi/dod-isd/verbs/answered"}
+                                  "object" {"objectType" "Activity"
+                                            "id" act-id
+                                            "definition" {"name" {"en-US" act-name}}}
+                                  "timestamp" stamp
+                                  "stored" stamp
+                                  "authority" {"objectType" "Agent"
+                                               "account" {"homePage" "https://example.com"
+                                                          "name" "username"}}
+                                  "version" "1.0.3"})
+                               (sgen/tuple
+                                ;; id
+                                (sgen/fmap str (sgen/uuid))
+                                ;; timestamp/stored
+                                (sgen/fmap (fn [i]
+                                             (inst->timestamp
+                                              #?(:clj (java.util.Date. i)
+                                                 :cljs (js/Date. i))))
+                                           ;; one year span
+                                           (sgen/large-integer*
+                                            {:min 1546300800000
+                                             :max 1577836800000}))
+                                ;; activity id/name tuple
+                                (sgen/fmap (fn [x]
+                                             [(str "https://example.com/activities/" x)
+                                              (str "Activity " x)])
+                                           (sgen/elements ["a" "b" "c"]))
+
+                                )))))
                :time-unit #{:second
                             :minute
                             :hour
@@ -82,47 +120,49 @@
       the given period."
   [statements time-unit & {:keys [elide?]
                            :or {elide? false}}]
-  (let [time-unit-like (case time-unit
-                         :second (t/seconds 1)
-                         :minute (t/minutes 1)
-                         :hour   (t/hours 1)
-                         :day    (t/days 1)
-                         :week   (t/weeks 1)
-                         :month  (t/months 1)
-                         :year   (t/years 1))
-        statements-sorted
-        (sort-by #(-> % (get "timestamp") timestamp->inst)
-                 statements)
-        [stamp-min
-         stamp-max
-         :as domain] ((juxt (comp #(get % "timestamp") first)
-                            (comp #(get % "timestamp") last))
-                      statements-sorted)
-        ;; Pad and make a seq from the domain
-        pseq (tp/periodic-seq (t/minus (tc/to-date-time stamp-min)
-                                       time-unit-like)
-                              (t/plus (tc/to-date-time stamp-max)
-                                      time-unit-like)
-                              time-unit-like)
-        [rest-s buckets] (reduce
-                          (fn [[ss buckets] start]
-                            (let [end (t/plus start time-unit-like)
-                                  interval (t/interval start end)
-                                  [in-period rest-ss] (split-with (comp
-                                                                   (partial t/within? interval)
-                                                                   tc/to-date-time
-                                                                   #(get % "timestamp"))
-                                                                  ss)]
-                              (if (and elide? (empty? in-period))
-                                [rest-ss buckets]
-                                [rest-ss
-                                 (conj buckets
-                                       {:period-start (tf/unparse (tf/formatters :date-time) start)
-                                        :period-end   (tf/unparse (tf/formatters :date-time) end)
-                                        :statements (into [] in-period)})])))
-                          [statements-sorted []]
-                          pseq)]
-    buckets))
+  (if (seq statements)
+    (let [time-unit-like (case time-unit
+                           :second (t/seconds 1)
+                           :minute (t/minutes 1)
+                           :hour   (t/hours 1)
+                           :day    (t/days 1)
+                           :week   (t/weeks 1)
+                           :month  (t/months 1)
+                           :year   (t/years 1))
+          statements-sorted
+          (sort-by #(-> % (get "timestamp") timestamp->inst)
+                   statements)
+          [stamp-min
+           stamp-max
+           :as domain] ((juxt (comp #(get % "timestamp") first)
+                              (comp #(get % "timestamp") last))
+                        statements-sorted)
+          ;; Pad and make a seq from the domain
+          pseq (tp/periodic-seq (t/minus (tc/to-date-time stamp-min)
+                                         time-unit-like)
+                                (t/plus (tc/to-date-time stamp-max)
+                                        time-unit-like)
+                                time-unit-like)
+          [rest-s buckets] (reduce
+                            (fn [[ss buckets] start]
+                              (let [end (t/plus start time-unit-like)
+                                    interval (t/interval start end)
+                                    [in-period rest-ss] (split-with (comp
+                                                                     (partial t/within? interval)
+                                                                     tc/to-date-time
+                                                                     #(get % "timestamp"))
+                                                                    ss)]
+                                (if (and elide? (empty? in-period))
+                                  [rest-ss buckets]
+                                  [rest-ss
+                                   (conj buckets
+                                         {:period-start (tf/unparse (tf/formatters :date-time) start)
+                                          :period-end   (tf/unparse (tf/formatters :date-time) end)
+                                          :statements (into [] in-period)})])))
+                            [statements-sorted []]
+                            pseq)]
+      buckets)
+    []))
 
 (s/fdef format-time-unit
   :args (s/cat :d (s/or :inst inst?
