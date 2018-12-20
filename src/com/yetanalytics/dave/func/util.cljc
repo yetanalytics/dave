@@ -83,7 +83,7 @@
                                 ;; timestamp/stored
                                 (sgen/fmap (fn [i]
                                              (inst->timestamp
-                                              #?(:clj (java.util.Date. i)
+                                              #?(:clj (java.util.Date. ^Long i)
                                                  :cljs (js/Date. i))))
                                            ;; one year span
                                            (sgen/large-integer*
