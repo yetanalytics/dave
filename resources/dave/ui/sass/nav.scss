@@ -1,6 +1,18 @@
 @import "dave/ui/sass/mdc.scss";
 @import "@material/top-app-bar/_mixins";
 
+.dave-vega-container{
+  margin-bottom: 20px;
+}
+
+.flatbutton{
+  color: #345BC6;
+  border: 2px solid #345BC6;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
 .majorbutton{
   margin-right: 20px;
   background-color: #459069;
