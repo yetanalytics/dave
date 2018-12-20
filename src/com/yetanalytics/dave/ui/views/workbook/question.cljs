@@ -6,14 +6,14 @@
 
 (defn edit-button
   [workbook-id question-id]
-  [:button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:workbook.question/edit workbook-id question-id])}
    "Edit"])
 
 (defn delete-button
   [workbook-id question-id]
-  [:button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:crud/delete-confirm workbook-id question-id])}
    "Delete"])
