@@ -12,13 +12,13 @@
     [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])
 
 (defn edit-button [workbook-id]
-  [:button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:workbook/edit workbook-id])}
    "Edit"])
 
 (defn delete-button [workbook-id]
-  [:button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:crud/delete-confirm workbook-id])}
    "Delete"])
