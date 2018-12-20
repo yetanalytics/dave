@@ -73,7 +73,7 @@
                 :index 0
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
-                       :uri "/data/dave/ds.json"
+                       :uri "data/dave/ds.json"
                        :built-in? true}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
