@@ -28,7 +28,7 @@
 
 (defn edit-button
   [workbook-id question-id visualization-id]
-  [:button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:workbook.question.visualization/edit
                  workbook-id question-id visualization-id])}
@@ -36,7 +36,7 @@
 
 (defn delete-button
   [workbook-id question-id visualization-id]
-  [:button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:crud/delete-confirm workbook-id question-id visualization-id])}
    "Delete"])
