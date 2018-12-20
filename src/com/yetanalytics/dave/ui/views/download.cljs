@@ -4,7 +4,7 @@
 
 (defn download-text
   [label text]
-  [:a {:href (format
+  [:a.flatbutton {:href (format
               "data:application/octet-stream;charset=utf-16;base64,%s"
               (js/btoa text))}
    label])
