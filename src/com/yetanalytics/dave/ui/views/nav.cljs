@@ -99,7 +99,7 @@
 (defn topmenu
   []
   [:div.topmenu
-   [:img {:src "img/dev/dave_logo.png"}]
+   [:a {:href "#/"}  [:img {:src "img/dev/dave_logo.png"}]]
    [:a {:href "#/"} "About"]
    [:a {:href "#/"} "Contribute"]
    [:a {:href "#/"} "Contact"]

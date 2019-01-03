@@ -135,14 +135,15 @@ transition-duration: .1s;
   flex-wrap: wrap;
   align-items: center;
   padding-left: 30px;
-  > img {
-    height:200px;
-  }
   > a{
-    padding-left: 40px;
     text-decoration: none;
     color:black;
     font-size: 13px;
+    padding-right: 40px;
+    }
+    > a img {
+      height:200px;
+      padding-left: 0px;
     }
 }
 
