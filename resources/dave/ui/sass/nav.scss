@@ -1,60 +1,10 @@
 @import "dave/ui/sass/mdc.scss";
+@import "dave/ui/sass/buttons.scss";
 @import "@material/top-app-bar/_mixins";
 
 .dave-vega-container{
   margin-bottom: 20px;
 }
-
-.flatbutton{
-  color: #345BC6;
-  border: 2px solid #345BC6;
-  padding: 5px 10px;
-  border-radius: 5px;
-  text-decoration: none;
-}
-
-.majorbutton{
-  margin-right: 20px;
-  background-color: #459069;
-  color:white;
-  border-radius: 5px;
-  padding: 5px 15px;
-  margin-bottom: 20px;
-  font-size: 1em;
-  border: none;
-  -webkit-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
--moz-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-transition-duration: .1s;
-}
-
-.majorbutton:active{
- -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
- -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
- box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
- transition-duration: .1s;
-}
-
-.minorbutton{
-  margin-bottom: 20px;
-  margin-right: 10px;
-  border-radius: 5px;
-  padding: 2px 30px;
-  background-color: #345BC6;
-  color:white;
-  font-size: 1em;
-  -webkit-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
--moz-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-transition-duration: .1s;
-}
- .minorbutton:active{
-  -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-  -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-  box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-  transition-duration: .1s;
-}
-
 
 .title {
   color: #4449A6;
@@ -80,25 +30,6 @@ transition-duration: .1s;
     margin-top: 40px;
     margin-left: 25px;
     margin-bottom: 21px;
-  }
-  > div button.newblock {
-    background-color: #2A58CD;
-    color:white;
-    width: 200px;
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 5px;
-    margin-left: 24px;
-    -webkit-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-  -moz-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-  box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-  transition-duration: .1s;
-  }
-   div button.newblock:active {
-    -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-    -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-    box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-    transition-duration: .1s;
   }
 }
 
