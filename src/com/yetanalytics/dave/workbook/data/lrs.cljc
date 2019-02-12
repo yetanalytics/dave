@@ -14,7 +14,13 @@
 (s/def ::auth
   auth/auth-spec)
 
+(s/def ::endpoint
+  (s/and string?
+         not-empty))
+
 (def partial-spec
-  (s/keys :opt-un [::query
-                   ::auth
-                   ::more]))
+  (s/keys
+   :req-un [::endpoint]
+   :opt-un [::query
+            ::auth
+            ::more]))

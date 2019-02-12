@@ -7,14 +7,15 @@
         com.cognitect/transit-cljs {:mvn/version "0.8.256"}
         cljsjs/vega {:mvn/version "4.3.0-0"}
         cljs-http {:mvn/version "0.1.45"}
+        clj-http {:mvn/version "3.9.1"}
         com.andrewmcveigh/cljs-time {:mvn/version "0.5.2"}
-        clj-time {:mvn/version "0.15.0"}}
+        clj-time {:mvn/version "0.15.0"}
+        org.clojure/data.json {:mvn/version "0.2.6"}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                   com.bhauman/figwheel-main {:mvn/version "0.1.9"}
                   day8.re-frame/re-frame-10x {:mvn/version "0.3.3-react16"}
-                  clj-http {:mvn/version "3.9.1"}
                   cheshire {:mvn/version "5.8.1"}
                   org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
                  :extra-paths ["target" "test" "dev"]}
