@@ -15,7 +15,21 @@
                         [com.yetanalytics.dave.util.log
                          :refer [log
                                  logp
-                                 logf]])]))
+                                 logf
+                                 spy
+                                 spyf
+                                 trace
+                                 debug
+                                 info
+                                 warn
+                                 error
+                                 fatal
+                                 tracef
+                                 debugf
+                                 infof
+                                 warnf
+                                 errorf
+                                 fatalf]])]))
 
 #?(:cljs
    (defn pfmt [& msgs]
@@ -84,7 +98,95 @@
          (goog.log.log
           (ns-logger)
           (level->goog ~level)
-          (goog.string.format ~fmt-str ~@more)))))
+          (goog.string.format ~fmt-str ~@more))))
+
+  ;; Limited spy
+  (defmacro spy
+    "Evaluates expr and may write the form and its result to the log. Returns the
+    result of expr. Defaults to :debug log level."
+    ([expr]
+     `(spy :debug ~expr))
+    ([level expr]
+     `(let [a# ~expr]
+        (log ~level
+             (str (pr-str '~expr)
+                  " => "
+                  (pr-str a#)))
+        a#)))
+
+  (defmacro spyf
+    "Evaluates expr and may write (format fmt expr result) to the log. Returns the
+    result of expr. Defaults to :debug log level."
+    ([fmt expr]
+     `(spyf :debug ~fmt ~expr))
+    ([level fmt expr]
+     `(let [a# ~expr]
+        (logf ~level ~fmt '~expr a#)
+        a#)))
+
+
+  ;; Convenience Macros
+  ;; see https://github.com/clojure/tools.logging/blob/master/src/main/clojure/clojure/tools/logging.clj
+  (defmacro trace
+    "Trace level logging using print-style args."
+    [& args]
+    `(logp :trace ~@args))
+
+  (defmacro debug
+    "Debug level logging using print-style args."
+    [& args]
+    `(logp :debug ~@args))
+
+  (defmacro info
+    "Info level logging using print-style args."
+    [& args]
+    `(logp :info ~@args))
+
+  (defmacro warn
+    "Warn level logging using print-style args."
+    [& args]
+    `(logp :warn ~@args))
+
+  (defmacro error
+    "Error level logging using print-style args."
+    [& args]
+    `(logp :error ~@args))
+
+  (defmacro fatal
+    "Fatal level logging using print-style args."
+    [& args]
+    `(logp :fatal ~@args))
+
+  (defmacro tracef
+    "Trace level logging using format."
+    [& args]
+    `(logf :trace ~@args))
+
+  (defmacro debugf
+    "Debug level logging using format."
+    [& args]
+    `(logf :debug ~@args))
+
+  (defmacro infof
+    "Info level logging using format."
+    [& args]
+    `(logf :info ~@args))
+
+  (defmacro warnf
+    "Warn level logging using format."
+    [& args]
+    `(logf :warn ~@args))
+
+  (defmacro errorf
+    "Error level logging using format."
+    [& args]
+    `(logf :error ~@args))
+
+  (defmacro fatalf
+    "Fatal level logging using format."
+    [& args]
+    `(logf :fatal ~@args))
+  )
 
 #?(:cljs
    (defn set-level!
@@ -117,4 +219,6 @@
   ;; Set for a specific NS, other named thing
   (set-level! "com.yetanalytics.dave.util.log" :info)
 
+  (spy :info (+ 1 1))
+  (spyf :info "%s => %s" (+ 1 1))
   )
