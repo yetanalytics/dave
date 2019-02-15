@@ -11,6 +11,7 @@
             [clojure.string :as cs]
             [xapi-schema.spec.resources :as xsr]
             [com.yetanalytics.dave.workbook.data.lrs :as lrs]
+            [com.yetanalytics.dave.util.log :as log]
             ))
 
 (defn- channel?
@@ -77,6 +78,36 @@
 (s/def ::out-chan
   channel?)
 
+(s/def :retry/error-codes
+  (s/every pos-int?
+           :into #{}
+           :kind set?))
+
+(s/def :retry/wait-min
+  pos-int?)
+
+(s/def :retry/wait-max
+  pos-int?)
+
+(s/def :retry/wait-rate
+  pos?)
+
+(s/def :retry/tries
+  int?)
+
+(s/def :retry/tries-max
+  int?)
+
+(s/def ::retry
+  (s/keys :opt-un
+          [:retry/error-codes
+           :retry/wait
+           :retry/wait-min
+           :retry/wait-max
+           :retry/wait-rate
+           :retry/tries
+           :retry/tries-max]))
+
 (s/fdef query
   :args
   (s/cat
@@ -86,8 +117,31 @@
                     ::lrs/more
                     ::lrs/query])
    :options (s/keys* :opt-un [::out-chan
-                              ]))
+                              ::retry]))
   :ret channel?)
+
+(defn- update-retry
+  "Update the retry map for a retry attempt"
+  [{:keys [wait
+           wait-rate
+           wait-max]
+    :as retry}]
+  (-> retry
+      (update :tries inc)
+      (assoc :wait
+             (let [next-wait (int (* wait-rate
+                                     wait))]
+               (if (<= next-wait wait-max)
+                 next-wait
+                 wait-max)))))
+
+(defn- reset-retry
+  "Reset the retry to base values"
+  [{:keys [wait-min]
+    :as retry}]
+  (assoc retry
+         :wait wait-min
+         :tries 0))
 
 (defn query
   "Given an LRS data specification, request statements from an LRS.
@@ -101,13 +155,33 @@
            more]
     :as lrs-spec}
    & {:keys [out-chan
-             close-chan?
+             retry
              #?@(:clj [conn-mgr
                        http-client
                        keep-conn?])]
       :as options
       #?@(:clj [:or {keep-conn? false}])}]
-  (let [out-chan (or out-chan (a/chan))
+  (let [{:keys [error-codes
+                wait
+                wait-min
+                wait-max
+                wait-rate
+                tries
+                tries-max]
+         :as retry}
+        (merge
+         {:error-codes
+          ;; default to retrying on transient/gateway errors
+          #{408 420 429
+            502 503 504}
+          :wait 200
+          :wait-min 200
+          :wait-max 5000
+          :wait-rate 1.5
+          :tries 0
+          :tries-max 10}
+         retry)
+        out-chan (or out-chan (a/chan))
         url (str endpoint (or more "/xapi/statements"))
         #?@(:clj [conn-mgr (or conn-mgr (cm/make-reuseable-async-conn-manager {}))
                   http-client (or http-client
@@ -130,53 +204,88 @@
                                                  (xapi-query->params
                                                   xapi-query))
                                                {"ascending" true})))
-        ;; _ (do (println "req " url " " (:query-params req-options {})) (flush))
+        _ (log/infof "LRS query req - url: %s opts: %s"
+                     url (:query-params req-options {}))
+        shutdown-fn (fn [& _]
+                      (log/infof "LRS query shutdown - uri: %s"
+                                 url)
+                      #?(:clj (when-not keep-conn?
+                                ;; (println "shutting down, no more link")
+                                (cm/shutdown-manager conn-mgr)))
+                      (a/close! out-chan)
+                      nil)
+        ;; error fn gets an ex-info with a :status key, and retries/kills accordingly.
+        ;; Designed for common operation between clj-http and cljs-http
+        error-fn (fn [exi]
+                   (let [{:keys [status] :as exd} (ex-data exi)]
+                     (log/warnf "LRS query req error: %s" exd)
+                     ;; if this isn't a transient error, and we haven't reached our
+                     ;; retry limit, attempt the request again
+                     (if (and (contains? error-codes status)
+                              (< tries tries-max))
+                       ;; wait and retry
+                       (do
+                         (log/warnf "LRS query req error is transient, status: %d"
+                                    status)
+                         (log/warnf "LRS query retry in %d ms..."
+                                    wait)
+                         (a/take! (a/timeout wait)
+                                  (fn [_]
+                                    (log/warn "Retrying query...")
+                                    (query lrs-spec
+                                           :out-chan out-chan
+                                           :retry
+                                           (update-retry
+                                            retry)
+                                           #?@(:clj [:keep-conn? keep-conn?
+                                                     :conn-mgr conn-mgr
+                                                     :http-client http-client])))))
+                       ;; If this is another error or we are out of tries,
+                       ;; fail out + shut down
+                       (do
+                         (log/fatalf "LRS query req error fatal: %s - %s"
+                                     (ex-message exi)
+                                     (ex-data exi))
+                         (a/put! out-chan
+                               [:exception exi]
+                               shutdown-fn)))))
         response-fn (fn [{:keys [status body] :as response}]
-                      ;; (println "resp " status) (flush)
+                      (log/infof "LRS query resp status: %d" status)
                       (if (= status 200)
                         (let [body #?(:cljs (js->clj (.parse js/JSON body)
                                                      :keywordize-keys false)
                                       :clj (json/read-str body))]
-                          ;; (println "statements: " (count (get body "statements"))) (flush)
+                          (log/infof "LRS query resp statements: %d" (count (get body "statements")))
                           (if (not-empty (get body "statements"))
                             (a/put! out-chan
                                     [:result body]
                                     (if-let [more (get body "more")]
-                                      (fn [_]
-                                        (do (query (-> lrs-spec
-                                                       ;; use the more link
-                                                       (assoc :more more)
-                                                       ;; remove query params,
-                                                       ;; as these are included
-                                                       (dissoc :query)
-                                                       )
-                                                   :out-chan
-                                                   out-chan
-                                                   #?@(:clj [:keep-conn? keep-conn?
-                                                             :conn-mgr conn-mgr
-                                                             :http-client http-client]))
-                                            nil))
-                                      (fn [_]
-                                        (do
-                                          #?(:clj (when-not keep-conn?
-                                                    ;; (println "shutting down, no more link")
-                                                    (cm/shutdown-manager conn-mgr)))
-                                          (a/close! out-chan)
-                                          nil))))
-                            (do #?(:clj (when-not keep-conn?
-                                          ;; (println "shutting down, empty statement result")
-                                          (cm/shutdown-manager conn-mgr)))
-                                (a/close! out-chan))))
-                        (a/put! out-chan
-                                [:exception (ex-info "LRS Request Error"
-                                                     {:type ::lrs-request-error
-                                                      :response response})]
-                                (fn [_]
-                                  #?(:clj (when-not keep-conn?
-                                            ;; (println "shutting down, bad status")
-                                            (cm/shutdown-manager conn-mgr)))
-                                  (a/close! out-chan)))))
-        ]
+                                      (do
+                                        (log/infof "More link found: %s"
+                                                   more)
+                                        (fn [_]
+                                          (do (query (-> lrs-spec
+                                                         ;; use the more link
+                                                         (assoc :more more)
+                                                         ;; remove query params,
+                                                         ;; as these are included
+                                                         (dissoc :query)
+                                                         )
+                                                     :out-chan
+                                                     out-chan
+                                                     :retry (reset-retry retry)
+                                                     #?@(:clj [:keep-conn? keep-conn?
+                                                               :conn-mgr conn-mgr
+                                                               :http-client http-client]))
+                                              nil)))
+                                      shutdown-fn))
+                            (shutdown-fn)))
+                        (error-fn
+                         ;; make sure there's a status in the exi
+                         ;; so it lines up with clj-http
+                         (ex-info "LRS Request Error"
+                                  {:type ::lrs-request-error
+                                   :status status}))))]
     ;; (println "req!" #_req-options)
     #?(:cljs (a/take!
               (http-get
@@ -186,17 +295,7 @@
        :clj (http/get url
                       req-options
                       response-fn
-                      (fn [err]
-                        (a/put! out-chan
-                                [:exception (ex-info "LRS Request Error"
-                                                     {:type ::lrs-request-error
-                                                      }
-                                                     err)]
-                                (fn [_]
-                                  #?(:clj (when-not keep-conn?
-                                            (println "shutting down")
-                                            (cm/shutdown-manager conn-mgr)))
-                                  (a/close! out-chan))))))
+                      error-fn))
     out-chan))
 
 ;; Like query, but polls for new statements using since
@@ -269,12 +368,11 @@
                                    conn-mgr
                                    endpoint
                                    ))])
-        shutdown-fn (fn []
+        shutdown-fn (fn [& _]
                       #?(:clj (when-not keep-conn?
                                 (cm/shutdown-manager conn-mgr)))
                       (a/close! out-chan))]
-    (a/go-loop [;; phase :init ;; :receive, :poll
-                result-chan (query lrs-spec
+    (a/go-loop [result-chan (query lrs-spec
                                    #?@(:clj [:keep-conn? true
                                              :conn-mgr conn-mgr
                                              :htt-client http-client]))
@@ -303,15 +401,16 @@
               (shutdown-fn)))
         ;; If there's no result, we've reached the end of a query
         ;; We want to wait a little and retry, unless we've been stopped.
-        (let [;; _ (println "waiting " poll-interval " ms...")
+        (let [_ (log/infof "Looking for more statements in %d ms..."
+                           poll-interval)
               poll-timeout (a/timeout poll-interval)
               [v p] (a/alts! [stop-chan poll-timeout])]
           (if (= p stop-chan)
             ;; user abort
-            (shutdown-fn)
+            (do (log/warn "Polling aborted by user!")
+             (shutdown-fn))
             ;; timeout complete, update timing, query, recur
             (do
-              ;; (println "retrying...")
               (recur (query (cond-> lrs-spec
                               last-stored
                               (assoc-in [:query :since] last-stored))
