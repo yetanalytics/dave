@@ -21,8 +21,8 @@
 
 ;; Open spec for state, should be merged w/individual func
 (def common-spec
-  (s/keys :req-un [::statement-count]
-          :opt-un [::timestamp-domain
+  (s/keys :opt-un [::statement-count
+                   ::timestamp-domain
                    ::stored-domain]))
 
 (s/fdef update-domain
@@ -83,7 +83,7 @@
               timestamp (tc/to-date-time timestamp-in)
               [sdo0 sdo1] (mapv tc/to-date-time stored-domain-out)
               [tdo0 tdo1] (mapv tc/to-date-time timestamp-domain-out)]
-          (and (= statement-count-out (inc statement-count-in))
+          (and (= statement-count-out ((fnil inc 0) statement-count-in))
                ;; Statement is contained in both out domains
                (t/within? sdo0 sdo1 stored)
                (t/within? tdo0 tdo1 timestamp))))
@@ -97,6 +97,6 @@
            stored]
     :as statement}]
   (-> state
-      (update :statement-count inc)
+      (update :statement-count (fnil inc 0))
       (update :timestamp-domain update-domain timestamp)
       (update :stored-domain update-domain stored)))
