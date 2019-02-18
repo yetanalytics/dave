@@ -17,6 +17,7 @@ pom.xml.asc
 .rebel_readline_history
 *.aux
 *.log
+*.log.lck
 *.out
 .DS_Store
 /resources/public/css/*.css
