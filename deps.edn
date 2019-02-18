@@ -3,7 +3,9 @@
         org.clojure/core.async {:mvn/version "0.4.490"}
         reagent {:mvn/version "0.8.1"}
         re-frame {:mvn/version "0.10.6"}
-        com.yetanalytics/xapi-schema {:mvn/version "1.0.0-alpha19-SNAPSHOT"}
+        com.yetanalytics/xapi-schema
+        {:git/url "https://github.com/yetanalytics/xapi-schema.git"
+         :sha "e2c517e7adcedc7f3012b90bce274e2c33cdbcc1"}
         com.cognitect/transit-cljs {:mvn/version "0.8.256"}
         cljsjs/vega {:mvn/version "4.3.0-0"}
         cljs-http {:mvn/version "0.1.45"}
