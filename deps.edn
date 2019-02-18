@@ -1,6 +1,6 @@
-{:deps {org.clojure/clojure {:mvn/version "1.9.0"}
-        org.clojure/clojurescript {:mvn/version "1.10.439"}
-        org.clojure/core.async {:mvn/version "0.4.474"}
+{:deps {org.clojure/clojure {:mvn/version "1.10.0"}
+        org.clojure/clojurescript {:mvn/version "1.10.520"}
+        org.clojure/core.async {:mvn/version "0.4.490"}
         reagent {:mvn/version "0.8.1"}
         re-frame {:mvn/version "0.10.6"}
         com.yetanalytics/xapi-schema {:mvn/version "1.0.0-alpha19-SNAPSHOT"}
@@ -15,7 +15,7 @@
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
-                  com.bhauman/figwheel-main {:mvn/version "0.1.9"}
+                  com.bhauman/figwheel-main {:mvn/version "0.2.0"}
                   day8.re-frame/re-frame-10x {:mvn/version "0.3.3-react16"}
                   cheshire {:mvn/version "5.8.1"}
                   org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
@@ -42,11 +42,11 @@
             :main-opts ["-m" "cognitect.test-runner"]}
            ;; for building a static html/js page
            :build-prod
-           {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
+           {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.0"}}
             :main-opts ["-m" "figwheel.main" "-O" "simple" "-bo" "prod"]}
            ;; same as build-prod, but launches a figwheel server to debug/preview
            :build-prod-server
-           {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.1.9"}}
+           {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.0"}}
             :main-opts ["-m" "figwheel.main" "-O" "simple" "-bo" "prod" "-s"]}
            ;; run sass compilation once, sans source-map
            :build-sass
