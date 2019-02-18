@@ -20,6 +20,11 @@
                               (s/gen inst?))))
         :string ::xs/timestamp))
 
+(def inst-domain-spec
+  (s/and (s/tuple inst? inst?)
+         (fn [[s e]]
+           (<= (inst-ms s)
+               (inst-ms e)))))
 
 (s/fdef sequential-indices?
   :args (s/cat :maps (s/every map?))
