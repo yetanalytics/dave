@@ -27,3 +27,15 @@
          `util/time-bucket-statements
          {stc-opts
           {:num-tests 10 :max-size 3}})))))
+
+(deftest min-inst-test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/min-inst)))))
+
+(deftest max-inst-test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/max-inst)))))
