@@ -1,6 +1,8 @@
 (ns com.yetanalytics.dave.util.spec
   (:require [clojure.spec.alpha :as s]
-            [clojure.spec.gen.alpha :as sgen]))
+            [clojure.spec.gen.alpha :as sgen]
+            [xapi-schema.spec :as xs]
+            ))
 
 (def string-not-empty-spec
   (s/and string?
@@ -9,6 +11,15 @@
 (def index-spec
   (s/int-in 0 #?(:clj Integer/MAX_VALUE
                  :cljs js/Infinity)))
+
+(def datelike-spec
+  (s/or :inst inst?
+        :epoch (s/with-gen pos-int?
+                 (fn []
+                   (sgen/fmap inst-ms
+                              (s/gen inst?))))
+        :string ::xs/timestamp))
+
 
 (s/fdef sequential-indices?
   :args (s/cat :maps (s/every map?))

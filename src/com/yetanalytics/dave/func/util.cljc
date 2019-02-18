@@ -2,6 +2,7 @@
   (:require [clojure.spec.alpha :as s :include-macros true]
             [clojure.spec.gen.alpha :as sgen]
             [xapi-schema.spec :as xs]
+            [com.yetanalytics.dave.util.spec :as su]
             [#?(:clj clj-time.core
                 :cljs cljs-time.core) :as t]
             [#?(:clj clj-time.format
@@ -10,7 +11,6 @@
                 :cljs cljs-time.coerce) :as tc]
             [#?(:clj clj-time.periodic
                 :cljs cljs-time.periodic) :as tp])
-
   #?(:clj (:import [java.util Date TimeZone]
                    [java.time
                     Instant
@@ -190,3 +190,51 @@
                  :month  :year-month
                  :year   :year))
               (tc/to-date-time d)))
+
+(s/fdef min-inst
+  :args (s/cat :d1
+               su/datelike-spec
+               :d2
+               su/datelike-spec
+               :more
+               (s/? (s/* su/datelike-spec)))
+  :ret su/datelike-spec)
+
+(defn min-inst
+  "Given datelikes, return the earliest, as an inst"
+  ([d]
+   (tc/to-date d))
+  ([d1 d2]
+   (tc/to-date
+    (t/earliest (tc/to-date-time d1)
+                (tc/to-date-time d2))))
+  ([d1 d2 & more]
+   (tc/to-date
+    (t/earliest
+     (map tc/to-date-time
+          (concat [d1 d2]
+                  more))))))
+
+(s/fdef max-inst
+  :args (s/cat :d1
+               su/datelike-spec
+               :d2
+               su/datelike-spec
+               :more
+               (s/? (s/* su/datelike-spec)))
+  :ret su/datelike-spec)
+
+(defn max-inst
+  "Given datelikes, return the latest, as an inst"
+  ([d]
+   (tc/to-date d))
+  ([d1 d2]
+   (tc/to-date
+    (t/latest (tc/to-date-time d1)
+              (tc/to-date-time d2))))
+  ([d1 d2 & more]
+   (tc/to-date
+    (t/latest
+     (map tc/to-date-time
+          (concat [d1 d2]
+                  more))))))
