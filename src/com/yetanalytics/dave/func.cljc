@@ -6,9 +6,50 @@
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
             [com.yetanalytics.dave.util.spec :as su]
+            [com.yetanalytics.dave.func.state :as state]
             [clojure.walk :as w]
+            [#?(:clj clj-time.core
+                :cljs cljs-time.core) :as t]
+            [#?(:clj clj-time.coerce
+                :cljs cljs-time.coerce) :as tc]
+            [#?(:clj clj-time.periodic
+                :cljs cljs-time.periodic) :as tp]
             #?@(:cljs [[goog.string :refer [format]]
                        [goog.string.format]])))
+
+
+(s/def ::state
+  state/spec)
+
+(defprotocol AFunc
+  "Dave Funcs specify reducible xAPI caluclations."
+  (init [this] [this args]
+    "Set/reset to initial state optionally based on passed-in args.
+     Returns the func record.")
+  #_(query [this]
+    "Return a map representing an xAPI query for more data, possibly based on
+     the func's internal state.")
+  (relevant? [this statement]
+    "Should return true if the statement is valid basis data for the func.
+     Otherwise, returns false.")
+  (accept? [this statement]
+    "If the func can consider this statement given its current state/data,
+     returns true. Otherwise, returns false.")
+  (-step [this statement]
+    "Given a novel statement, update state. Returns the (possibly modified) record.")
+  (result [this]
+    "Output the result data given the current state of the function."))
+
+(defn step
+  "Step is wrapped with a function that updates common collection metrics for
+  all funcs."
+  [func
+   {:strs [timestamp
+           stored]
+    :as statement}]
+  (update (-step func statement)
+          ::state
+          state/step-state statement))
 
 (s/fdef success-timeline
   :args (s/cat
@@ -73,48 +114,73 @@
                           ))))))
   :ret ::ret/result)
 
-(defn success-timeline
-  "DAVE Section 2"
-  [statements]
-  {:specification
-   {:x {:type :time
-        :label "Timestamp"}
-    :y {:type :decimal
-        :label "Score"
-        :domain [0.0 100.0]}}
-   :values
-   (->> statements
-        (filter (fn [{{:strs [id]} "verb"
-                      {success "success"
-                       {score-min "min"
-                        score-max "max"
-                        score-raw "raw"} "score"} "result"}]
-                  (and (contains? #{"http://adlnet.gov/expapi/verbs/passed"
-                                    "https://w3id.org/xapi/dod-isd/verbs/answered"
-                                    "http://adlnet.gov/expapi/verbs/completed"}
-                                  id)
-                       (true? success)
-                       (and score-min score-max score-raw)
-                       )))
-        (map (fn [{timestamp "timestamp"
-                   {{:strs [raw min max]} "score"} "result"
-                   {actor-name "name"
-                    actor-mbox "mbox"
-                    actor-mbox-s1s "mbox_sha1sum"
-                    actor-openid "openid"
-                    {aa-name "name"
-                     aa-home-page "homePage"
-                     :as actor-account} "account"} "actor"}]
-               {:x (.getTime (util/timestamp->inst timestamp))
-                :y (common/scale raw min max)
-                :c (or actor-name
-                       actor-mbox
-                       actor-mbox-s1s
-                       actor-openid
-                       aa-name
-                       "unidentified")}))
-        (into []))})
+(defrecord SuccessTimeline [state]
+  AFunc
+  (init [this]
+    (assoc-in this [:state :successes] (sorted-map)))
+  (init [this args]
+    (init this))
+  (relevant? [_ {{:strs [id]} "verb"
+                 {success "success"
+                  {score-min "min"
+                   score-max "max"
+                   score-raw "raw"} "score"} "result"}]
+    (and (contains? #{"http://adlnet.gov/expapi/verbs/passed"
+                      "https://w3id.org/xapi/dod-isd/verbs/answered"
+                      "http://adlnet.gov/expapi/verbs/completed"}
+                    id)
+         (true? success)
+         (and score-min score-max score-raw)))
+  (accept? [_ statement]
+    ;; there are no such cases for this fn
+    true)
+  (-step [this {timestamp "timestamp"
+                {actor-name "name"
+                 actor-mbox "mbox"
+                 actor-mbox-s1s "mbox_sha1sum"
+                 actor-openid "openid"
+                 {aa-name "name"
+                  aa-home-page "homePage"
+                  :as actor-account} "account"} "actor"
+                {:strs [id]} "verb"
+                {success "success"
+                 {score-min "min"
+                  score-max "max"
+                  score-raw "raw"} "score"} "result"}]
+    (let [unix-stamp (.getTime (util/timestamp->inst timestamp))]
+      (assoc-in this
+                [:state :successes unix-stamp]
+                {:x unix-stamp
+                 :y (common/scale score-raw score-min score-max)
+                 :c (or actor-name
+                        actor-mbox
+                        actor-mbox-s1s
+                        actor-openid
+                        aa-name
+                        "unidentified")})))
+  (result [_]
+    {:specification
+     {:x {:type :time
+          :label "Timestamp"}
+      :y {:type :decimal
+          :label "Score"
+          :domain [0.0 100.0]}}
+     :values (into [] (vals (:successes state)))})
+  #?(:clj clojure.lang.IFn :cljs IFn)
+  (#?(:clj invoke
+      :cljs -invoke) [this statements]
+    (result
+     (reduce step this
+             (filter (partial relevant? this)
+                     statements))))
+  #?(:clj (applyTo [this args]
+                   (result
+                    (reduce step this
+                            (filter (partial relevant? this)
+                                    args))))))
 
+(def success-timeline
+  (map->SuccessTimeline {:state {:successes (sorted-map)}}))
 
 (s/fdef difficult-questions
   :args (s/cat
@@ -160,35 +226,64 @@
                           ))))))
   :ret ::ret/result)
 
-(defn difficult-questions
-  "DAVE Section 3"
-  [statements]
-  {:specification
-   {:x {:type :category
-        :label "Activity"}
-    :y {:type :count
-        :label "Success Count"}}
-   :values
-   (into []
-         (for [[[activity-id
-                 activity-name] ss]
-               (group-by
-                (juxt #(get-in % ["object" "id"])
-                      #(get-in % ["object" "definition" "name" "en-US"]))
-                (filter (fn [{{o-type "objectType"
-                               {a-type "type"} "definition"} "object"
-                              {success "success"} "result"}]
-                          (and
-                           ;; An activity
-                           (contains? #{"Activity" nil}
-                                      o-type)
-                           ;; An interaction activity
-                           (= a-type "http://adlnet.gov/expapi/activities/cmi.interaction")
-                           ;; Failure
-                           (false? success)))
-                        statements))]
-           {:x (or activity-name activity-id)
-            :y (count ss)}))})
+(defrecord DifficultQuestions [state]
+  AFunc
+  (init [this]
+    (assoc-in this [:state :failures] {}))
+  (init [this args]
+    (init this))
+  (relevant? [_ {{o-type "objectType"
+                  {a-type "type"} "definition"} "object"
+                 {success "success"} "result"}]
+    (and
+     ;; An activity
+     (contains? #{"Activity" nil}
+                o-type)
+     ;; An interaction activity
+     (= a-type "http://adlnet.gov/expapi/activities/cmi.interaction")
+     ;; Failure
+     (false? success)))
+  (accept? [_ statement]
+    ;; there are no such cases for this fn
+    true)
+  (-step [this {{id "id"
+                 {name-lmap "name"} "definition"} "object"}]
+    (update-in this
+               [:state :failures
+                [id (get name-lmap
+                         "en-US"
+                         (-> name-lmap
+                             (->> (sort-by key))
+                             first
+                             val))]]
+               (fnil inc 0)))
+  (result [_]
+    {:specification
+     {:x {:type :category
+          :label "Activity"}
+      :y {:type :count
+          :label "Success Count"}}
+     :values (into []
+                   (for [[[activity-id
+                           activity-name]
+                          s-count]
+                         (:failures state)]
+                     {:x (or activity-name activity-id)
+                      :y s-count}))})
+  #?(:clj clojure.lang.IFn :cljs IFn)
+  (#?(:clj invoke
+      :cljs -invoke) [this statements]
+    (result
+     (reduce step this
+             (filter (partial relevant? this)
+                     statements))))
+  #?(:clj (applyTo [this args]
+                   (result
+                    (reduce step this
+                            (filter (partial relevant? this)
+                                    args))))))
+
+(def difficult-questions (init (map->DifficultQuestions {})))
 
 (s/fdef completion-rate
   :args (s/cat
@@ -238,56 +333,98 @@
                       :year})
   :ret ::ret/result)
 
+(defrecord CompletionRate [state
+                           args]
+  AFunc
+  (init [this]
+    (assoc-in this [:state :completions] {}))
+  (init [this args]
+    (init (assoc this :args (merge {:time-unit :day}
+                                   args))))
+  (relevant? [_ {{v-id "id"} "verb"
+                 {o-type "objectType"} "object"
+                 {completion "completion"} "result"}]
+    (and
+     ;; An activity
+     (contains? #{"Activity" nil}
+                o-type)
+     (or (contains? #{"http://adlnet.gov/expapi/verbs/passed"
+                      "https://w3id.org/xapi/dod-isd/verbs/answered"
+                      "http://adlnet.gov/expapi/verbs/completed"}
+                    v-id)
+         (true? completion))))
+  (accept? [_ statement]
+    ;; there are no such cases for this fn
+    true)
+  (-step [this {{id "id"
+                 {name-lmap "name"} "definition"} "object"
+                timestamp "timestamp"}]
+    (update-in this
+               [:state :completions
+                [id (get name-lmap
+                         "en-US"
+                         (-> name-lmap
+                             (->> (sort-by key))
+                             first
+                             val))]]
+               (fn [m]
+                 (-> (or m {})
+                     (update :domain util/update-domain timestamp)
+                     (update :statement-count (fnil inc 0))))))
+  (result [_]
+    (let [{:keys [time-unit]} args
+          {:keys [completions]} state]
+      {:specification {:x {:type :category
+                           :label "Activity"}
+                       :y {:type :decimal
+                           :label (format "Completions per %s" (name time-unit))}}
+       :values
+       (into []
+             (for [[[activity-id activity-name]
+                    {[s e] :domain
+                     :keys [statement-count]}] completions
+                   :when (< 1 statement-count)
+                   :let [range-secs (quot
+                                     (- (tc/to-long e)
+                                        (tc/to-long s))
+                                     1000)]
+
+                   :when (< 0 range-secs)
+
+                   :let [units (/ range-secs
+                                  (case time-unit
+                                    :second 1
+                                    :minute 60
+                                    :hour 3600
+                                    :day 86400
+                                    :week 604800
+                                    :month 2592000
+                                    :year 31536000))
+                         rate (if (not= 0 units)
+                                (double (/ statement-count
+                                           units))
+                                0.0)]]
+               {:x (or activity-name
+                       activity-id)
+                :y rate}))}))
+  #?(:clj clojure.lang.IFn :cljs IFn)
+  (#?(:clj invoke
+      :cljs -invoke) [this statements]
+    (result
+     (reduce step this
+             (filter (partial relevant? this)
+                     statements))))
+  #?(:clj (applyTo [this args]
+                   (result
+                    (reduce step this
+                            (filter (partial relevant? this)
+                                    args))))))
 (defn completion-rate
-  "DAVE Section 4"
   [statements time-unit]
-  {:specification
-   {:x {:type :category
-        :label "Activity"}
-    :y {:type :decimal
-        :label (format "Completions per %s" (name time-unit))}}
-   :values
-   (into []
-         (for [[[activity-id activity-name] ss]
-               (group-by
-                (juxt #(get-in % ["object" "id"])
-                      #(get-in % ["object" "definition" "name" "en-US"]))
-                (filter
-                 (fn [s]
-                   (let [otype (get-in s ["object" "objectType"])]
-                     (contains? #{"Activity" nil}
-                                otype)))
-                 statements))
-               :let [s-count (count ss)]
-               :when (< 1 s-count)
-               :let [stamps (map #(.getTime
-                                   (util/timestamp->inst
-                                    (get % "timestamp")))
-                                 ss)
-                     min-ms (apply min stamps)
-                     max-ms (apply max stamps)]
-
-               :when (not= min-ms max-ms)
-
-               :let [delta-seconds (quot
-                                    (- max-ms min-ms)
-                                    1000)
-                     units (/ delta-seconds
-                              (case time-unit
-                                :second 1
-                                :minute 60
-                                :hour 3600
-                                :day 86400
-                                :week 604800
-                                :month 2592000
-                                :year 31536000))
-                     rate (if (not= 0 units)
-                            (double (/ s-count
-                                       units))
-                            0.0)]]
-           {:x (or activity-name
-                   activity-id)
-            :y rate}))})
+  ((init (map->CompletionRate {})
+         (when time-unit
+           {:time-unit time-unit}))
+   statements))
 
 (s/fdef followed-recommendations
   :args (s/cat
@@ -346,60 +483,128 @@
 
   :ret ::ret/result)
 
-(defn followed-recommendations
-  "Dave Section 5"
-  [statements time-unit]
-  {:specification
-   {:x {:label "Period"
-        #_:format #_(case time-unit
-                      :second
-                      "%Y-%m-%dT%H:%M:%S"
-                      :minute
-                      "%Y-%m-%dT%H:%M"
-                      :hour
-                      "%Y-%m-%dT%H"
-                      :day
-                      "%Y-%m-%d"
-                      :week
-                      "%YW%V"
-                      :month
-                      "%Y-%m"
-                      :year
-                      "%Y")}
-    :y {:type :count
-        :label "Statement Count"}
-    :c {:type :category}}
-   :values
-   (into []
-         (for [{:keys [period-start
-                       period-end
-                       statements]
-                :as bucket} (util/time-bucket-statements statements time-unit)
-               vtype [:recommended :launched :followed]]
-           {:x (str (util/format-time-unit
-                     period-start
-                     time-unit)
-                    " - "
-                    (util/format-time-unit
-                     period-end
-                     time-unit))
-            :y (count
-                (filter
-                 (case vtype
-                   :recommended
-                   #(= "https://w3id.org/xapi/dod-isd/verbs/recommended"
-                       (get-in % ["verb" "id"]))
-                   :launched
-                   #(= "http://adlnet.gov/expapi/verbs/launched"
-                       (get-in % ["verb" "id"]))
-                   :followed
-                   #(and (= "http://adlnet.gov/expapi/verbs/launched"
-                            (get-in % ["verb" "id"]))
-                         ;; a statement ref exists (assumed to be recommendation)
-                         (get-in % ["context" "statement"])))
-                 statements))
-            :c (name vtype)}))})
+(defrecord FollowedRecommendations [state
+                                    args]
+  AFunc
+  (init [this]
+    (-> this
+        (update :args #(merge %2 %1) {:time-unit :day})
+        (assoc-in [:state :statements] (sorted-map))))
+  (init [this args]
+    (init (assoc this
+                 :args
+                 (merge {:time-unit :day}
+                        args))))
+  (relevant? [_ {{v-id "id"} "verb"}]
+    (contains? #{"https://w3id.org/xapi/dod-isd/verbs/recommended"
+                 "http://adlnet.gov/expapi/verbs/launched"}
+               v-id))
+  (accept? [_ statement]
+    ;; there are no such cases for this fn
+    true)
+  (-step [this {id "id"
+                timestamp "timestamp"
+                {v-id "id"} "verb"
+                {?sr "statement"} "context"}]
+    (assoc-in this
+              [:state :statements
+               [(tc/to-date timestamp) id]]
+              (case v-id
+                "http://adlnet.gov/expapi/verbs/launched"
+                (if ?sr
+                  :followed
+                  :launched)
+                "https://w3id.org/xapi/dod-isd/verbs/recommended"
+                :recommended)))
+  (result [this]
+    (let [{:keys [time-unit]} args
+          {:keys [statements]} state
+          [p-start
+           p-end] (-> this ::state :timestamp-domain)]
+      {:specification
+       {:x {:label "Period"}
+        :y {:type :count
+            :label "Statement Count"}
+        :c {:type :category}}
+       :values
+       (into []
+             (when (and p-start
+                        p-end
+                        (not= p-start p-end))
+               (let [period-like (case time-unit
+                                   :second (t/seconds 1)
+                                   :minute (t/minutes 1)
+                                   :hour   (t/hours 1)
+                                   :day    (t/days 1)
+                                   :week   (t/weeks 1)
+                                   :month  (t/months 1)
+                                   :year   (t/years 1))]
+                 (:acc
+                  (reduce
+                   (fn [{:keys [ss] :as m} ps]
+                     (let [pe (t/plus ps period-like)
+                           within? (partial t/within?
+                                            ps
+                                            pe)
+                           [p-ss rest-ss] (split-with
+                                           (comp within? tc/to-date-time first)
+                                           ss)
+                           period-label (str (util/format-time-unit
+                                              ps
+                                              time-unit)
+                                             " - "
+                                             (util/format-time-unit
+                                              pe
+                                              time-unit))
+                           {:keys [launched
+                                   recommended
+                                   followed]} (merge {:launched 0
+                                                      :recommended 0
+                                                      :followed 0}
+                                                     (frequencies
+                                                      (map second
+                                                           p-ss)))]
+                       (-> m
+                           (assoc :ss rest-ss)
+                           (update :acc
+                                   conj
+                                   {:x period-label
+                                    :y launched
+                                    :c "Launched"}
+                                   {:x period-label
+                                    :y recommended
+                                    :c "Recommended"}
+                                   {:x period-label
+                                    :y followed
+                                    :c "Followed"})))
+                     )
+                   {:ss (map
+                         (fn [[[ts _] kind]]
+                           [ts kind])
+                         statements)
+                    :acc []}
+                   (tp/periodic-seq (tc/to-date-time p-start)
+                                    (tc/to-date-time p-end)
+                                    period-like))))))}))
+  #?(:clj clojure.lang.IFn :cljs IFn)
+  (#?(:clj invoke
+      :cljs -invoke) [this statements]
+    (result
+     (reduce step this
+             (filter (partial relevant? this)
+                     statements))))
+  #?(:clj (applyTo [this args]
+                   (result
+                    (reduce step this
+                            (filter (partial relevant? this)
+                                    args))))))
 
+(defn followed-recommendations
+  [statements time-unit]
+  ((init (map->FollowedRecommendations {})
+         (when time-unit
+           {:time-unit time-unit}))
+   statements))
 
 (s/def ::function
   (s/with-gen ifn?
