@@ -19,8 +19,7 @@
 (s/def ::stored-domain
   su/inst-domain-spec)
 
-;; Open spec for state, should be merged w/individual func
-(def common-spec
+(def spec
   (s/keys :opt-un [::statement-count
                    ::timestamp-domain
                    ::stored-domain]))
@@ -68,7 +67,7 @@
       [dt dt])))
 
 (s/fdef step-state
-  :args (s/cat :state common-spec
+  :args (s/cat :state spec
                :statement ::xs/lrs-statement)
   :fn (fn [{{{statement-count-in :statement-count} :state
              {timestamp-in :statement/timestamp
@@ -87,7 +86,7 @@
                ;; Statement is contained in both out domains
                (t/within? sdo0 sdo1 stored)
                (t/within? tdo0 tdo1 timestamp))))
-  :ret common-spec)
+  :ret spec)
 
 (defn step-state
   "Given a statement successfully processed by a func, update that func's common
@@ -98,5 +97,8 @@
     :as statement}]
   (-> state
       (update :statement-count (fnil inc 0))
-      (update :timestamp-domain update-domain timestamp)
-      (update :stored-domain update-domain stored)))
+      (cond->
+        timestamp
+        (update :timestamp-domain update-domain timestamp)
+        stored
+        (update :stored-domain update-domain stored))))
