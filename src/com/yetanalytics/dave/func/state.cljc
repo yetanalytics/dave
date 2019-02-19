@@ -24,48 +24,6 @@
                    ::timestamp-domain
                    ::stored-domain]))
 
-(s/fdef update-domain
-  :args (s/cat :domain (s/nilable su/inst-domain-spec)
-               :datelike su/datelike-spec)
-  :fn (fn [{{[s e :as ?domain-in] :domain
-             d :datelike} :args
-            [s' e' :as domain-out] :ret}]
-        (let [s' (tc/to-date-time s')
-              e' (tc/to-date-time e')
-              d (tc/to-date-time (s/unform su/datelike-spec d))]
-          (and
-           ;; d is contained within the result
-           (t/within? s'
-                      e'
-                      d)
-           (or
-            ;; No domain, making a new one
-            (nil? ?domain-in)
-            ;; The domain didn't change, as the statement fell in established
-            ;; domain
-            (= ?domain-in domain-out)
-            ;; The domain did change...
-            (let [s (tc/to-date-time s)
-                  e (tc/to-date-time e)]
-              ;; let's make sure it grew in one direction
-              ;; or another
-              (and
-               (or (t/before? s' s)
-                   (t/after? e' e))
-               ;; Bounds check
-               (t/within? s' e' s)
-               (t/within? s' e' e)))))))
-  :ret su/inst-domain-spec)
-
-(defn update-domain
-  [domain datelike]
-  (if domain
-    (-> domain
-        (update 0 u/min-inst datelike)
-        (update 1 u/max-inst datelike))
-    (let [dt (tc/to-date datelike)]
-      [dt dt])))
-
 (s/fdef step-state
   :args (s/cat :state spec
                :statement ::xs/lrs-statement)
@@ -99,6 +57,6 @@
       (update :statement-count (fnil inc 0))
       (cond->
         timestamp
-        (update :timestamp-domain update-domain timestamp)
+        (update :timestamp-domain u/update-domain timestamp)
         stored
-        (update :stored-domain update-domain stored))))
+        (update :stored-domain u/update-domain stored))))

@@ -8,12 +8,6 @@
    [com.yetanalytics.dave.func.state :as state]
    [com.yetanalytics.dave.test-support :refer [failures stc-opts]]))
 
-(deftest update-domain-test
-  (is (empty?
-       (failures
-        (stest/check
-         `state/update-domain)))))
-
 (deftest step-state-test
   (is (empty?
        (failures

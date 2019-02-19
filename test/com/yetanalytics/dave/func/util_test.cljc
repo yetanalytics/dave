@@ -39,3 +39,15 @@
        (failures
         (stest/check
          `util/max-inst)))))
+
+(deftest nested-group-by+test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/nested-group-by+)))))
+
+(deftest update-domain-test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/update-domain)))))
