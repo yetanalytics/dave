@@ -23,9 +23,8 @@
 
 (defprotocol AFunc
   "Dave Funcs specify reducible xAPI caluclations."
-  (init [this] [this args]
-    "Set/reset to initial state optionally based on passed-in args.
-     Returns the func record.")
+  (init [this]
+    "Set/reset to initial state.")
   #_(query [this]
     "Return a map representing an xAPI query for more data, possibly based on
      the func's internal state.")
@@ -37,19 +36,55 @@
      returns true. Otherwise, returns false.")
   (-step [this statement]
     "Given a novel statement, update state. Returns the (possibly modified) record.")
-  (result [this]
+  (result [this] [this args]
     "Output the result data given the current state of the function."))
 
 (defn step
-  "Step is wrapped with a function that updates common collection metrics for
-  all funcs."
+  "Step is wrapped with a function that decides if statement is novel, and
+  updates common collection metrics and checkpoint"
   [func
    {:strs [timestamp
            stored]
     :as statement}]
-  (update (-step func statement)
-          ::state
-          state/step-state statement))
+  (cond-> func
+    ;; We reject statements we've already seen
+    (state/accept? (::state func)
+                   statement)
+    (->
+     (cond->
+         (relevant? func statement)
+       (-step statement))
+     (update ::state state/step-state statement))))
+
+(defn ->invocable
+  "Make a func invocable as a clj(s) function.
+  Attaches the last state of the func as meta key ::func"
+  [func]
+  (reify
+    #?(:clj clojure.lang.IFn :cljs IFn)
+    (#?(:clj invoke
+        :cljs -invoke) [_ statements]
+      (let [func' (reduce step func
+                          statements)]
+        (vary-meta
+         (result func')
+         assoc ::func func')))
+    (#?(:clj invoke
+        :cljs -invoke) [_ statements args]
+      (let [func' (reduce step func
+                          statements)]
+        (vary-meta
+         (result func' args)
+         assoc ::func func')))
+    #?(:clj (applyTo [this [statements ?args]]
+                     (if ?args
+                       (this statements ?args)
+                       (this statements))))))
+
+(defn force-last-stored
+  "Force a func's last stored to be the given datelike"
+  [func datelike]
+  (update func ::state state/force-last-stored datelike))
 
 (s/fdef success-timeline
   :args (s/cat
@@ -118,8 +153,6 @@
   AFunc
   (init [this]
     (assoc-in this [:state :successes] (sorted-map)))
-  (init [this args]
-    (init this))
   (relevant? [_ {{:strs [id]} "verb"
                  {success "success"
                   {score-min "min"
@@ -166,21 +199,13 @@
           :label "Score"
           :domain [0.0 100.0]}}
      :values (into [] (vals (:successes state)))})
-  #?(:clj clojure.lang.IFn :cljs IFn)
-  (#?(:clj invoke
-      :cljs -invoke) [this statements]
-    (result
-     (reduce step this
-             (filter (partial relevant? this)
-                     statements))))
-  #?(:clj (applyTo [this args]
-                   (result
-                    (reduce step this
-                            (filter (partial relevant? this)
-                                    args))))))
+  (result [this _]
+    (result this)))
 
 (def success-timeline
-  (map->SuccessTimeline {:state {:successes (sorted-map)}}))
+  (->invocable
+   (init
+    (map->SuccessTimeline {}))))
 
 (s/fdef difficult-questions
   :args (s/cat
@@ -230,8 +255,6 @@
   AFunc
   (init [this]
     (assoc-in this [:state :failures] {}))
-  (init [this args]
-    (init this))
   (relevant? [_ {{o-type "objectType"
                   {a-type "type"} "definition"} "object"
                  {success "success"} "result"}]
@@ -270,20 +293,25 @@
                          (:failures state)]
                      {:x (or activity-name activity-id)
                       :y s-count}))})
-  #?(:clj clojure.lang.IFn :cljs IFn)
-  (#?(:clj invoke
-      :cljs -invoke) [this statements]
-    (result
-     (reduce step this
-             (filter (partial relevant? this)
-                     statements))))
-  #?(:clj (applyTo [this args]
-                   (result
-                    (reduce step this
-                            (filter (partial relevant? this)
-                                    args))))))
+  (result [this _]
+    (result this)))
 
-(def difficult-questions (init (map->DifficultQuestions {})))
+(def difficult-questions
+  (->invocable
+   (init
+    (map->DifficultQuestions {}))))
+
+(s/def ::time-unit
+  #{:second
+    :minute
+    :hour
+    :day
+    :week
+    :month
+    :year})
+
+(s/def :completion-rate/args
+  (s/keys :req-un [::time-unit]))
 
 (s/fdef completion-rate
   :args (s/cat
@@ -324,23 +352,13 @@
                                      (sgen/elements ["a" "b" "c"]))
 
                           )))))
-         :time-unit #{:second
-                      :minute
-                      :hour
-                      :day
-                      :week
-                      :month
-                      :year})
+         :args (s/? (s/nilable :completion-rate/args)))
   :ret ::ret/result)
 
-(defrecord CompletionRate [state
-                           args]
+(defrecord CompletionRate [state]
   AFunc
   (init [this]
     (assoc-in this [:state :completions] {}))
-  (init [this args]
-    (init (assoc this :args (merge {:time-unit :day}
-                                   args))))
   (relevant? [_ {{v-id "id"} "verb"
                  {o-type "objectType"} "object"
                  {completion "completion"} "result"}]
@@ -371,9 +389,11 @@
                  (-> (or m {})
                      (update :domain util/update-domain timestamp)
                      (update :statement-count (fnil inc 0))))))
-  (result [_]
-    (let [{:keys [time-unit]} args
-          {:keys [completions]} state]
+  (result [this]
+    (result this {:time-unit :day}))
+  (result [this {:keys [time-unit]
+                 :or {time-unit :day}}]
+    (let [{:keys [completions]} state]
       {:specification {:x {:type :category
                            :label "Activity"}
                        :y {:type :decimal
@@ -406,25 +426,16 @@
                                 0.0)]]
                {:x (or activity-name
                        activity-id)
-                :y rate}))}))
-  #?(:clj clojure.lang.IFn :cljs IFn)
-  (#?(:clj invoke
-      :cljs -invoke) [this statements]
-    (result
-     (reduce step this
-             (filter (partial relevant? this)
-                     statements))))
-  #?(:clj (applyTo [this args]
-                   (result
-                    (reduce step this
-                            (filter (partial relevant? this)
-                                    args))))))
-(defn completion-rate
-  [statements time-unit]
-  ((init (map->CompletionRate {})
-         (when time-unit
-           {:time-unit time-unit}))
-   statements))
+                :y rate}))})))
+
+(def completion-rate
+  (->invocable
+   (init
+    (map->CompletionRate {}))))
+
+
+(s/def :followed-recommendations/args
+  (s/keys :req-un [::time-unit]))
 
 (s/fdef followed-recommendations
   :args (s/cat
@@ -473,28 +484,14 @@
 
                           ;; ref-id
                           (sgen/fmap str (sgen/uuid)))))))
-         :time-unit #{:second
-                      :minute
-                      :hour
-                      :day
-                      :week
-                      :month
-                      :year})
+         :args (s/? (s/nilable :followed-recommendations/args)))
 
   :ret ::ret/result)
 
-(defrecord FollowedRecommendations [state
-                                    args]
+(defrecord FollowedRecommendations [state]
   AFunc
   (init [this]
-    (-> this
-        (update :args #(merge %2 %1) {:time-unit :day})
-        (assoc-in [:state :statements] (sorted-map))))
-  (init [this args]
-    (init (assoc this
-                 :args
-                 (merge {:time-unit :day}
-                        args))))
+    (assoc-in this [:state :statements] (sorted-map)))
   (relevant? [_ {{v-id "id"} "verb"}]
     (contains? #{"https://w3id.org/xapi/dod-isd/verbs/recommended"
                  "http://adlnet.gov/expapi/verbs/launched"}
@@ -517,7 +514,10 @@
                 "https://w3id.org/xapi/dod-isd/verbs/recommended"
                 :recommended)))
   (result [this]
-    (let [{:keys [time-unit]} args
+    (result this {:time-unit :day}))
+  (result [this args]
+    (let [{:keys [time-unit]
+           :or {time-unit :month}} args
           {:keys [statements]} state
           [p-start
            p-end] (-> this ::state :timestamp-domain)]
@@ -585,31 +585,15 @@
                     :acc []}
                    (tp/periodic-seq (tc/to-date-time p-start)
                                     (tc/to-date-time p-end)
-                                    period-like))))))}))
-  #?(:clj clojure.lang.IFn :cljs IFn)
-  (#?(:clj invoke
-      :cljs -invoke) [this statements]
-    (result
-     (reduce step this
-             (filter (partial relevant? this)
-                     statements))))
-  #?(:clj (applyTo [this args]
-                   (result
-                    (reduce step this
-                            (filter (partial relevant? this)
-                                    args))))))
+                                    period-like))))))})))
 
-(defn followed-recommendations
-  [statements time-unit]
-  ((init (map->FollowedRecommendations {})
-         (when time-unit
-           {:time-unit time-unit}))
-   statements))
+(def followed-recommendations
+  (->invocable
+   (init
+    (map->FollowedRecommendations {}))))
 
 (s/def ::function
-  (s/with-gen ifn?
-    (fn []
-      (sgen/return identity))))
+  record?)
 
 (s/def ::fspec
   (s/with-gen s/spec?
@@ -647,21 +631,21 @@
   {::success-timeline
    {:title "Success Timeline"
     :doc "Plots the timestamp of successful statements against the score of their result."
-    :function success-timeline
+    :function (init (map->SuccessTimeline {})) ;; success-timeline
     :fspec (s/get-spec `success-timeline)
     :args-default {}
     :args-enum {}}
    ::difficult-questions
    {:title "Difficult Questions"
     :doc "Plots interaction activity ids against the number of failed attempts for that activity."
-    :function difficult-questions
+    :function (init (map->DifficultQuestions {}))
     :fspec (s/get-spec `difficult-questions)
     :args-default {}
     :args-enum {}}
    ::completion-rate
    {:title "Completion Rate"
     :doc "Plots activity ids against the rate of failed attempts per given time unit."
-    :function completion-rate
+    :function (init (map->CompletionRate {}))
     :fspec (s/get-spec `completion-rate)
     :args-default {:time-unit :day}
     :args-enum {:time-unit #{:second
@@ -674,7 +658,7 @@
    ::followed-recommendations
    {:title "Followed Recommendations"
     :doc "Buckets statements into periods (time ranges) by statement timestamp. Within each bucket, counts the number of recommendations, launches and follows expressed."
-    :function followed-recommendations
+    :function (init (map->FollowedRecommendations {}))
     :fspec (s/get-spec `followed-recommendations)
     :args-default {:time-unit :month}
     :args-enum {:time-unit #{:second
@@ -805,6 +789,7 @@
                :args-map map?
                :statements (s/every ::xs/lrs-statement)))
 
+;; TODO: deprecate!
 (defn apply-func
   "Apply a DAVE function given a function key, args map (maybe nil) and a
   coll of statements"
@@ -813,8 +798,29 @@
                 args-default]} (get-func id)
         ]
     (apply
-     function
+     (->invocable function)
      statements
      (s/unform (:args fspec)
                (merge args-default
                       args-map)))))
+
+
+(comment
+
+  (require '[clojure.java.io :as io]
+           '[clojure.data.json :as json]
+           '[clojure.pprint :refer [pprint]])
+
+
+
+
+  (def statements
+    (sort-by #(get % "stored")
+             (mapv
+              (fn [{:strs [timestamp] :as statement} ]
+                (assoc statement "stored"
+                       (-> timestamp
+                           tc/to-date-time
+                           (t/plus (t/hours 1))
+                           tc/to-string)))
+              (json/read-str (slurp (io/resource "public/data/dave/ds.json")))))))
