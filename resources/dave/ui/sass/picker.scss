@@ -41,4 +41,8 @@ div.picker {
 
 div.picker.active {
   max-height: 256px;
+  -webkit-box-shadow: -1px -14px 59px -15px rgba(71,71,71,0.36);
+  -moz-box-shadow: -1px -14px 59px -15px rgba(71,71,71,0.49);
+  box-shadow: -1px -14px 59px -15px rgba(71,71,71,0.49);
+  border-radius: 30px;
 }
