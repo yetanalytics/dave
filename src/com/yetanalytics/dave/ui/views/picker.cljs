@@ -39,5 +39,5 @@
               {:on-click #(dispatch [:picker/dismiss])}
               "close"]]
       title (conj
-             [:h2 title]
+             [:h1 title]
              [choice-list]))))
