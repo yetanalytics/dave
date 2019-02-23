@@ -24,19 +24,6 @@ div.picker {
       padding-left: 50px;
       padding-right:50px;
       margin-bottom: 30px;
-      // @extend .mdc-image-list__item;
-      // > div:nth-child(1) {
-      //   @extend .mdc-image-list__image-aspect-container;
-      //   > img, svg {
-      //     @extend .mdc-image-list__image;
-      //   }
-      // }
-      // > div:nth-child(2) {
-      //   @extend .mdc-image-list__supporting;
-      //   > span {
-      //     @extend .mdc-image-list__label;
-      //   }
-      // }
     }
   }
   i.dismiss {
