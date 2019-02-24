@@ -11,7 +11,9 @@
             [clojure.string :as cs]
             [xapi-schema.spec.resources :as xsr]
             [com.yetanalytics.dave.workbook.data.lrs :as lrs]
+            [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.util.log :as log]
+
             ))
 
 (defn- channel?
@@ -108,6 +110,9 @@
            :retry/tries
            :retry/tries-max]))
 
+(s/def ::statement-idx
+  su/index-spec)
+
 (s/fdef query
   :args
   (s/cat
@@ -117,7 +122,8 @@
                     ::lrs/more
                     ::lrs/query])
    :options (s/keys* :opt-un [::out-chan
-                              ::retry]))
+                              ::retry
+                              ::statement-idx]))
   :ret channel?)
 
 (defn- update-retry
@@ -158,9 +164,12 @@
              retry
              #?@(:clj [conn-mgr
                        http-client
-                       keep-conn?])]
+                       keep-conn?])
+             statement-idx]
       :as options
-      #?@(:clj [:or {keep-conn? false}])}]
+      :or {statement-idx 0
+           #?@(:clj [keep-conn? false])}
+      }]
   (let [{:keys [error-codes
                 wait
                 wait-min
@@ -234,6 +243,7 @@
                                     (log/warn "Retrying query...")
                                     (query lrs-spec
                                            :out-chan out-chan
+                                           :statement-idx statement-idx
                                            :retry
                                            (update-retry
                                             retry)
@@ -257,28 +267,33 @@
                                       :clj (json/read-str body))]
                           (log/infof "LRS query resp statements: %d" (count (get body "statements")))
                           (if (not-empty (get body "statements"))
-                            (a/put! out-chan
-                                    [:result body]
-                                    (if-let [more (get body "more")]
-                                      (do
-                                        (log/infof "More link found: %s"
-                                                   more)
-                                        (fn [_]
-                                          (do (query (-> lrs-spec
-                                                         ;; use the more link
-                                                         (assoc :more more)
-                                                         ;; remove query params,
-                                                         ;; as these are included
-                                                         (dissoc :query)
-                                                         )
-                                                     :out-chan
-                                                     out-chan
-                                                     :retry (reset-retry retry)
-                                                     #?@(:clj [:keep-conn? keep-conn?
-                                                               :conn-mgr conn-mgr
-                                                               :http-client http-client]))
-                                              nil)))
-                                      shutdown-fn))
+                            (let [s-idx-range [statement-idx
+                                               (+ statement-idx
+                                                  (dec (count (get body "statements"))))]
+                                  body (vary-meta body assoc ::statement-idx-range s-idx-range)]
+                                (a/put! out-chan
+                                        [:result body]
+                                        (if-let [more (get body "more")]
+                                          (do
+                                            (log/infof "More link found: %s"
+                                                       more)
+                                            (fn [_]
+                                              (do (query (-> lrs-spec
+                                                             ;; use the more link
+                                                             (assoc :more more)
+                                                             ;; remove query params,
+                                                             ;; as these are included
+                                                             (dissoc :query)
+                                                             )
+                                                         :out-chan
+                                                         out-chan
+                                                         :statement-idx (inc (second s-idx-range))
+                                                         :retry (reset-retry retry)
+                                                         #?@(:clj [:keep-conn? keep-conn?
+                                                                   :conn-mgr conn-mgr
+                                                                   :http-client http-client]))
+                                                  nil)))
+                                          shutdown-fn)))
                             (shutdown-fn)))
                         (error-fn
                          ;; make sure there's a status in the exi
@@ -317,7 +332,7 @@
    :lrs-spec
    (s/keys :req-un [::lrs/endpoint]
            :opt-un [::lrs/auth
-                    ::lrs/more
+                    ;; ::lrs/more
                     ::lrs/query])
    :options (s/keys* :opt-un
                      [::out-chan
@@ -350,11 +365,13 @@
              poll-min
              poll-max
              poll-rate
+             statement-idx
              #?@(:clj [conn-mgr
                        http-client
                        keep-conn?])]
       :as options
-      :or {poll-min 200
+      :or {statement-idx 0
+           poll-min 200
            poll-max 5000
            poll-rate 1.5
            #?@(:clj [keep-conn? false])}
@@ -373,11 +390,13 @@
                                 (cm/shutdown-manager conn-mgr)))
                       (a/close! out-chan))]
     (a/go-loop [result-chan (query lrs-spec
+                                   :statement-idx statement-idx
                                    #?@(:clj [:keep-conn? true
                                              :conn-mgr conn-mgr
                                              :htt-client http-client]))
                 poll-interval poll-min
                 last-stored nil
+                last-statement-idx nil
                 ]
       ;; (println "loop" poll-interval last-stored)
       (if-let [[tag body] (a/<! result-chan)]
@@ -393,7 +412,8 @@
                    (-> body
                        (get "statements")
                        peek
-                       (get "stored"))))
+                       (get "stored"))
+                   (second (::statement-idx-range (meta body)))))
           :exception
           ;; On exceptions, we stop, output the exception, and shut down.
           (do ;; (println "error" body)
@@ -414,10 +434,39 @@
               (recur (query (cond-> lrs-spec
                               last-stored
                               (assoc-in [:query :since] last-stored))
+                            :statement-idx (inc (or last-statement-idx
+                                                    statement-idx))
                             #?@(:clj [:keep-conn? true
                                       :conn-mgr conn-mgr
                                       :htt-client http-client]))
                      (increase-poll-interval
                       poll-interval poll-rate poll-max)
-                     last-stored))))))
+                     last-stored
+                     last-statement-idx))))))
     [out-chan stop-chan]))
+
+(comment
+  (def s-chan (query {:endpoint "http://localhost:9001"
+                      :auth {:username "123456789"
+                             :password "123456789"}}
+                     #_:out-chan
+                     #_(a/chan 1 (mapcat (fn [[_ sr]]
+                                           (get sr "statements"))))))
+  (a/take! s-chan (fn [[_ s]]
+                    (println (meta s)
+                             )))
+
+  (let [[scp stop] (query-poll
+                    {:endpoint "http://localhost:9001"
+                     :auth {:username "123456789"
+                            :password "123456789"}}
+                    )]
+    (def s-chan-poll scp)
+    (def stop-chan stop))
+  (a/put! stop-chan true)
+  (a/take! s-chan-poll (fn [[_ s]]
+                         (println (meta s)
+                                  )))
+
+
+  )
