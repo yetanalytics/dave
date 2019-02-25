@@ -148,7 +148,7 @@
                                        10000]})
                    (fetch-fx workbook-id data db)))
      ;; Stop the timer if the data isn't present
-     {:stop-timer ::ensure})))
+     {:stop-timer [::ensure workbook-id]})))
 
 (re-frame/reg-event-fx
  ::ensure
