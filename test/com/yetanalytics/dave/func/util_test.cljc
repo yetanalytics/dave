@@ -32,19 +32,25 @@
   (is (empty?
        (failures
         (stest/check
-         `util/min-inst)))))
+         `util/min-inst
+         {stc-opts
+          {:num-tests 10 :max-size 10}})))))
 
 (deftest max-inst-test
   (is (empty?
        (failures
         (stest/check
-         `util/max-inst)))))
+         `util/max-inst
+         {stc-opts
+          {:num-tests 10 :max-size 10}})))))
 
 (deftest nested-group-by+test
   (is (empty?
        (failures
         (stest/check
-         `util/nested-group-by+)))))
+         `util/nested-group-by+
+         {stc-opts
+          {:num-tests 10 :max-size 10}})))))
 
 (deftest update-domain-test
   (is (empty?

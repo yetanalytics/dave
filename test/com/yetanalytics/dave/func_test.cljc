@@ -61,11 +61,3 @@
           `func/explain-args]
          {stc-opts
           {:num-tests 10 :max-size 3}})))))
-
-(deftest apply-func-test
-  (is (empty?
-       (failures
-        (stest/check
-         `func/apply-func
-         {stc-opts
-          {:num-tests 1 :max-size 1}})))))

@@ -33,7 +33,7 @@
            :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
 
            :test-cljs
-           {:extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
+           {;; :extra-deps {org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}
             :main-opts ["-m" "figwheel.main" "-co" "test.cljs.edn" "-m" com.yetanalytics.dave.test-runner]}
            :test-clj
            {:extra-paths ["test"]
