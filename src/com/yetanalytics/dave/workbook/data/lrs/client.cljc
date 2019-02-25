@@ -126,7 +126,7 @@
                               ::statement-idx]))
   :ret channel?)
 
-(defn- update-retry
+(defn update-retry
   "Update the retry map for a retry attempt"
   [{:keys [wait
            wait-rate
