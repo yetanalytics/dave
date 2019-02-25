@@ -2,7 +2,7 @@
 
 (defn snackbar
   []
-  [:div.mdc-snackbar
+  [:div.mdc-snackbar.dave-snackbar
    {:aria-live "assertive"
     :aria-atomic "true"
     :aria-hidden "true"}

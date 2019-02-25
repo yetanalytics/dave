@@ -332,3 +332,8 @@ div.descendant-counts {
     margin-right: 40px;
     }
 }
+
+/* Set the snackbar to z-index 9, the dialog is 7, the picker is 8 */
+.dave-snackbar {
+  z-index: 9 !important;
+}
