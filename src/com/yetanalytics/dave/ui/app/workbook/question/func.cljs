@@ -249,16 +249,17 @@
    (:state function)))
 
 (re-frame/reg-sub
- :workbook.question.function/func
- function-sub-base
- (fn [function _]
-   (:func function)))
-
-(re-frame/reg-sub
  :workbook.question.function/result
  function-sub-base
  (fn [function _]
    (:result function)))
+
+(re-frame/reg-sub
+ :workbook.question.function/func
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook.question.function/id] args)))
+ (fn [func-id _]
+   (func/get-func func-id)))
 
 (defn func-sub-base
   [[_ & args] _]
