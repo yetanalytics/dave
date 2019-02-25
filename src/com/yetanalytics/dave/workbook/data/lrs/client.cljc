@@ -213,10 +213,10 @@
                                                  (xapi-query->params
                                                   xapi-query))
                                                {"ascending" true})))
-        _ (log/infof "LRS query req - url: %s opts: %s"
+        _ (log/debugf "LRS query req - url: %s opts: %s"
                      url (:query-params req-options {}))
         shutdown-fn (fn [& _]
-                      (log/infof "LRS query shutdown - uri: %s"
+                      (log/debugf "LRS query shutdown - uri: %s"
                                  url)
                       #?(:clj (when-not keep-conn?
                                 ;; (println "shutting down, no more link")
@@ -260,12 +260,12 @@
                                [:exception exi]
                                shutdown-fn)))))
         response-fn (fn [{:keys [status body] :as response}]
-                      (log/infof "LRS query resp status: %d" status)
+                      (log/debugf "LRS query resp status: %d" status)
                       (if (= status 200)
                         (let [body #?(:cljs (js->clj (.parse js/JSON body)
                                                      :keywordize-keys false)
                                       :clj (json/read-str body))]
-                          (log/infof "LRS query resp statements: %d" (count (get body "statements")))
+                          (log/debugf "LRS query resp statements: %d" (count (get body "statements")))
                           (if (not-empty (get body "statements"))
                             (let [s-idx-range [statement-idx
                                                (+ statement-idx
@@ -275,7 +275,7 @@
                                         [:result body]
                                         (if-let [more (get body "more")]
                                           (do
-                                            (log/infof "More link found: %s"
+                                            (log/debugf "More link found: %s"
                                                        more)
                                             (fn [_]
                                               (do (query (-> lrs-spec
@@ -421,7 +421,7 @@
               (shutdown-fn)))
         ;; If there's no result, we've reached the end of a query
         ;; We want to wait a little and retry, unless we've been stopped.
-        (let [_ (log/infof "Looking for more statements in %d ms..."
+        (let [_ (log/debugf "Looking for more statements in %d ms..."
                            poll-interval)
               poll-timeout (a/timeout poll-interval)
               [v p] (a/alts! [stop-chan poll-timeout])]
