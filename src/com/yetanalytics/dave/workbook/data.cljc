@@ -17,6 +17,10 @@
 (s/def ::state
   state/spec)
 
+;; Is the data currently loading?
+(s/def ::loading?
+  boolean?)
+
 (s/def :error/message
   string?)
 
@@ -33,7 +37,8 @@
 (def data-common-spec
   (s/keys
    :req-un [::title]
-   :opt-un [::state
+   :opt-un [::loading?
+            ::state
             ::errors]))
 
 (defmulti data-type :type)
