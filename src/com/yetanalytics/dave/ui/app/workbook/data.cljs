@@ -7,8 +7,7 @@
             [clojure.core.async :as a :include-macros true]
             [clojure.spec.alpha :as s]
             [goog.string :refer [format]]
-            [goog.string.format]
-            ))
+            [goog.string.format]))
 
 
 (re-frame/reg-event-fx
@@ -76,12 +75,13 @@
            (lrs-client/query lrs-spec)]
           (let [st (apply min-key
                           :statement-idx
-                          (cons lrs-state
-                                (for [[_ {{:keys [state]} :function}]
-                                      (get-in db [:workbooks
-                                                  workbook-id
-                                                  :questions])]
-                                  state)))
+                          (remove nil?
+                                  (cons lrs-state
+                                        (for [[_ {{:keys [state]} :function}]
+                                              (get-in db [:workbooks
+                                                          workbook-id
+                                                          :questions])]
+                                          state))))
                 ?since (get-in st [:stored-domain 1])]
             [st
              (lrs-client/query (cond-> lrs-spec
@@ -154,7 +154,6 @@
       [_ workbook-id
        idx-range
        {:keys [status body] :as response}]]
-   #_(println "response" response)
    (let [{data-type :type
           data-state :state
           :as data} (get-in db
@@ -204,7 +203,9 @@
                   [:workbooks
                    workbook-id
                    :data]
-                  data-spec)
+                  ;; Force a fresh state
+                  (merge data-spec
+                         {:state {:statement-idx -1}}))
     :dispatch-n [[:workbook.question.function/reset-all!
                   workbook-id
                   [::ensure workbook-id]]
@@ -278,7 +279,6 @@
                              {:title "test dataset"
                               :type :com.yetanalytics.dave.workbook.data/file
                               :uri "data/dave/ds.json"
-                              :state {:statement-idx -1}
                               :built-in? true}]}
                  {:label "LRS Data"
                   :img-src ""
