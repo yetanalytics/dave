@@ -21,7 +21,8 @@
 (defmulti dialog-mode :mode)
 
 (s/def :form.field/key
-  keyword?)
+  (s/or :keyword keyword?
+        :path vector?))
 
 (s/def :form.field/label
   string?)
@@ -75,13 +76,17 @@
  (fn [{:keys [db] :as ctx} [_ dialog-form-spec]]
    (if (s/valid? dialog-spec dialog-form-spec)
      {:db (assoc db :dialog dialog-form-spec)}
-     (.error js/log "Invalid form dialog"
+     (.error js/console "Invalid form dialog"
              (s/explain-str dialog-spec dialog-form-spec)))))
 
 (re-frame/reg-event-db
  :dialog.form/update-field
  (fn [db [_ k v]]
-   (assoc-in db [:dialog :form k] v)))
+   (assoc-in db ((cond (keyword? k) conj
+                       (vector? k) into)
+                 [:dialog :form]
+                 k)
+             v)))
 
 (re-frame/reg-event-fx
  :dialog.form/save
@@ -134,7 +139,9 @@
  :dialog.form/form-field-val
  :<- [:dialog.form/form]
  (fn [form [_ k]]
-   (get form k)))
+   (get-in form (if (keyword? k)
+                  [k]
+                  k))))
 
 #_(re-frame/reg-sub
  :dialog.form.fields/field

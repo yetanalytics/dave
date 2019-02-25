@@ -9,7 +9,8 @@
             [com.yetanalytics.dave.ui.interceptor :as i]
             [com.cognitect.transit.types :as ty]
             [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.ui.app.dialog :as dialog])
+            [com.yetanalytics.dave.ui.app.dialog :as dialog]
+            [com.yetanalytics.dave.func :as func])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -17,9 +18,43 @@
 (extend-type ty/UUID
   cljs.core/IUUID)
 
+;; Set handlers for our funcs
+;; TODO: figure out a better way to handle serialization
+(def read-handlers
+  {"com.yetanalytics.dave.func/SuccessTimeline"
+   (fn [m]
+     (func/->SuccessTimeline m))
+   "com.yetanalytics.dave.func/DifficultQuestions"
+   (fn [m]
+     (func/->DifficultQuestions m))
+   "com.yetanalytics.dave.func/CompletionRate"
+   (fn [m]
+     (func/->CompletionRate m))
+   "com.yetanalytics.dave.func/FollowedRecommendations"
+   (fn [m]
+     (func/->FollowedRecommendations m))
+   })
+
+(def write-handlers
+  {func/SuccessTimeline
+   (t/write-handler (constantly "com.yetanalytics.dave.func/SuccessTimeline")
+                    (fn [st]
+                      (into {} st)))
+   func/DifficultQuestions
+   (t/write-handler (constantly "com.yetanalytics.dave.func/DifficultQuestions")
+                    (fn [st]
+                      (into {} st)))
+   func/CompletionRate
+   (t/write-handler (constantly "com.yetanalytics.dave.func/CompletionRate")
+                    (fn [st]
+                      (into {} st)))
+   func/FollowedRecommendations
+   (t/write-handler (constantly "com.yetanalytics.dave.func/FollowedRecommendations")
+                    (fn [st]
+                      (into {} st)))})
 ;; Persistence
-(defonce w (t/writer :json))
-(defonce r (t/reader :json))
+(defonce w (t/writer :json {:handlers write-handlers}))
+(defonce r (t/reader :json {:handlers read-handlers}))
 
 (defonce storage
   (Storage. (HTML5LocalStorage.)))
@@ -74,11 +109,16 @@
                 :data {:title "test dataset"
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "data/dave/ds.json"
-                       :built-in? true}
+                       :built-in? true
+                       :state {:statement-idx -1}}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                              :text "When do learners do their best work?"
-                             :function {:id :com.yetanalytics.dave.func/success-timeline}
+                             :function {:id :com.yetanalytics.dave.func/success-timeline
+                                        :state {:statement-idx -1}
+                                        :func (:function
+                                               (func/get-func
+                                                :com.yetanalytics.dave.func/success-timeline))}
                              :index 0
                              :visualizations
                              {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
@@ -90,7 +130,11 @@
                             #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                             {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
                              :text "What activities are most difficult?"
-                             :function {:id :com.yetanalytics.dave.func/difficult-questions}
+                             :function {:id :com.yetanalytics.dave.func/difficult-questions
+                                        :state {:statement-idx -1}
+                                        :func (:function
+                                                (func/get-func
+                                                 :com.yetanalytics.dave.func/difficult-questions))}
                              :index 1
                              :visualizations
                              {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
@@ -109,6 +153,10 @@
                             {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
                              :text "What activities are completed the most?"
                              :function {:id :com.yetanalytics.dave.func/completion-rate
+                                        :state {:statement-idx -1}
+                                        :func (:function
+                                                (func/get-func
+                                                 :com.yetanalytics.dave.func/completion-rate))
                                         :args {:time-unit :day}}
                              :index 2
                              :visualizations
@@ -122,6 +170,10 @@
                             {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
                              :text "How often are recommendations followed?"
                              :function {:id :com.yetanalytics.dave.func/followed-recommendations
+                                        :state {:statement-idx -1}
+                                        :func (:function
+                                                (func/get-func
+                                                 :com.yetanalytics.dave.func/followed-recommendations))
                                         :args {:time-unit :day}}
                              :index 3
                              :visualizations

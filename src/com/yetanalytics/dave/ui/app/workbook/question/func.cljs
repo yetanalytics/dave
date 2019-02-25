@@ -1,6 +1,7 @@
 (ns com.yetanalytics.dave.ui.app.workbook.question.func
   (:require [re-frame.core :as re-frame]
-            [com.yetanalytics.dave.func :as func]))
+            [com.yetanalytics.dave.func :as func]
+            [com.yetanalytics.dave.workbook.data.state :as state]))
 
 (re-frame/reg-event-fx
  :workbook.question.function/set-func!
@@ -9,17 +10,61 @@
                             question-id
                             func-id
                             ?args]]
-   (let [new-db (assoc-in db
+   (let [init-state (:function (func/get-func func-id))
+         new-db (assoc-in db
                           [:workbooks
                            workbook-id
                            :questions
                            question-id
                            :function]
                           {:id func-id
+                           :func init-state
+                           :state {:statement-idx -1}
                            :args (or ?args
                                      {})})]
      {:db new-db
-      :db/save! new-db})))
+      ;; :db/save! new-db
+      :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/ensure
+                 workbook-id]})))
+
+(re-frame/reg-event-fx
+ :workbook.question.function/reset!
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            question-id
+                            func-id]]
+   (let [init-state (:function (func/get-func func-id))]
+     {:db (update-in db
+                     [:workbooks
+                      workbook-id
+                      :questions
+                      question-id
+                      :function]
+                     merge
+                     ;; Carry over the args/result to keep graphs stable
+                     {:id func-id
+                      :func init-state
+                      :state {:statement-idx -1}})})))
+
+(re-frame/reg-event-fx
+ :workbook.question.function/reset-all!
+ (fn [{:keys [db] :as ctx}
+      [_
+       workbook-id
+       then-dispatch]]
+   {:dispatch-n
+    (conj (into []
+                (for [[question-id {{function-id :id} :function}]
+                      (get-in db
+                              [:workbooks
+                               workbook-id
+                               :questions])]
+                  [:workbook.question.function/reset!
+                   workbook-id
+                   question-id
+                   function-id]))
+          then-dispatch)}))
+
 
 ;; Offer function picker
 (re-frame/reg-event-fx
@@ -57,8 +102,111 @@
                            arg-key]
                           arg-val)]
      {:db new-db
-      :db/save! new-db
+      :dispatch [:workbook.question.function/result!
+                 workbook-id
+                 question-id]
+      ;; :db/save! new-db
       })))
+
+(re-frame/reg-event-fx
+ :workbook.question.function/step!
+ (fn [{:keys [db] :as ctx}
+      [_
+       workbook-id
+       question-id
+       [fidx lidx]
+       statements]]
+   (let [{:keys [data]
+          :as workbook} (get-in db [:workbooks
+                                    workbook-id])
+         {func-id :id
+          func-record :func
+          func-state :state
+          :as function} (get-in db [:workbooks
+                                    workbook-id
+                                    :questions
+                                    question-id
+                                    :function])
+         relevant-ss (not-empty
+                      (filter
+                       (partial func/relevant?
+                                func-record)
+                       statements))
+         next-state (state/update-state
+                     func-state statements)]
+     (cond-> {:db (assoc-in db
+                            [:workbooks
+                             workbook-id
+                             :questions
+                             question-id
+                             :function]
+                            (-> function
+                                (assoc :state next-state)
+                                (cond->
+                                    relevant-ss
+                                  (assoc :func
+                                         (reduce func/-step
+                                                 func-record
+                                                 relevant-ss)))))}
+       ;; When the state syncs up with the main data obj,
+       ;; we are safe to derive the result
+       (= next-state (:state data))
+       (assoc :dispatch-later
+              [{:ms 0
+                :dispatch
+                [:workbook.question.function/result!
+                 workbook-id
+                 question-id]}])))))
+
+(re-frame/reg-event-db
+ :workbook.question.function/result!
+ (fn [db
+      [_
+       workbook-id
+       question-id]]
+   (update-in db
+              [:workbooks
+               workbook-id
+               :questions
+               question-id
+               :function]
+              (fn [{func-record :func
+                    args :args
+                    :as function}]
+                (assoc function :result (func/result func-record
+                                                     args))))))
+
+;; Todo: Fit partial batches
+(re-frame/reg-event-fx
+ :workbook.question.function/step-all!
+ (fn [{:keys [db] :as ctx}
+      [_
+       workbook-id
+       [fidx lidx]
+       statements]]
+   (let [{:keys [questions] :as workbook}
+         (get-in db [:workbooks workbook-id])
+         dls (for [[id {{state :state
+                         :as function} :function
+                        :as question}] questions
+                   :when (and function
+                              (state/accept? state
+                                             [fidx lidx]))
+                   :let [[[fidx' lidx'] ss] (state/trim state
+                                                        [fidx lidx]
+                                                        statements)
+                         ;; _ (println (count ss) "statements")
+                         ]]
+               {:ms 0
+                :dispatch
+                [:workbook.question.function/step!
+                 workbook-id
+                 id
+                 [fidx' lidx']
+                 ss]})]
+     {:dispatch-later
+      (into []
+            dls)})))
 
 ;; Subs
 (re-frame/reg-sub
@@ -95,6 +243,24 @@
                args) arg-k)))
 
 (re-frame/reg-sub
+ :workbook.question.function/state
+ function-sub-base
+ (fn [function _]
+   (:state function)))
+
+(re-frame/reg-sub
+ :workbook.question.function/func
+ function-sub-base
+ (fn [function _]
+   (:func function)))
+
+(re-frame/reg-sub
+ :workbook.question.function/result
+ function-sub-base
+ (fn [function _]
+   (:result function)))
+
+(re-frame/reg-sub
  :workbook.question.function/func
  (fn [[_ & args] _]
    (re-frame/subscribe (into [:workbook.question.function/id] args)))
@@ -128,18 +294,6 @@
  func-sub-base
  (fn [func _]
    (:args-default func)))
-
-(re-frame/reg-sub
- :workbook.question.function/result
- (fn [[_ ?workbook-id ?question-id] _]
-   [(re-frame/subscribe [:workbook.data/statements ?workbook-id])
-    (re-frame/subscribe [:workbook.question/function ?workbook-id ?question-id])])
- ;; TODO: this gets disposed if you navigate away, and thus it might be better
- ;; to do this with events and then cache the last result for a given fn.
- (fn [[statements
-       {:keys [id args] :as function}] _]
-   (when (and function (seq statements))
-     (func/apply-func id args statements))))
 
 (re-frame/reg-sub
  :workbook.question.function.result/count
