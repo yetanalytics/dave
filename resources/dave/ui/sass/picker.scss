@@ -34,8 +34,12 @@ div.picker {
   }
   i.dismiss {
     position: fixed;
-    right: 1em;
-    margin-top: 20px;
+     right: 5%;
+     margin-top: 10px;
+    color: white;
+    background-color: #2A58CD;
+    padding: 10px;
+    border-radius: 30px;
   }
 }
 
