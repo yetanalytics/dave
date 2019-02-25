@@ -12,27 +12,35 @@
 
 (re-frame/reg-event-fx
  ::set-state
+ ;; called for a data source when loading is complete.
+ ;; funcs check if their state is = to this before deriving results.
  (fn [{:keys [db]}
       [_
        workbook-id
        new-state
        force?]]
-   (let [new-db (if force?
-                  (assoc-in db
-                            [:workbooks
-                             workbook-id
-                             :data
-                             :state]
-                            new-state)
-                  (update-in db
+   (let [new-db (assoc-in
+                 (if force?
+                   (assoc-in db
                              [:workbooks
                               workbook-id
                               :data
                               :state]
-                             (fnil
-                              (partial max-key :statement-idx)
-                              {:statement-idx -1})
-                             new-state))]
+                             new-state)
+                   (update-in db
+                              [:workbooks
+                               workbook-id
+                               :data
+                               :state]
+                              (fnil
+                               (partial max-key :statement-idx)
+                               {:statement-idx -1})
+                              new-state))
+                 [:workbooks
+                  workbook-id
+                  :data
+                  :loading?]
+                 false)]
      (cond-> {:db new-db}
        (not= db new-db)
        (assoc :dispatch [:db/save])))))
@@ -116,12 +124,35 @@
   {})
 
 (re-frame/reg-event-fx
- ::ensure
+ ::ensure*
  (fn [{:keys [db] :as ctx} [_ workbook-id]]
-   (let [data (get-in db [:workbooks
-                          workbook-id
-                          :data])]
-     (fetch-fx workbook-id data db))))
+   (if-let [data (get-in db [:workbooks
+                             workbook-id
+                             :data])]
+     (if (:loading? data)
+       {}
+       (merge-with conj
+                   {:db (assoc-in db [:workbooks
+                                      workbook-id
+                                      :data
+                                      :loading?]
+                                  true)}
+                   ;; Ensure the timer is started if this is an LRS
+                   (when (= (:type data) ::data/lrs)
+                     {:dispatch-timer [[::ensure workbook-id]
+                                       [::ensure workbook-id]
+                                       10000]})
+                   (fetch-fx workbook-id data db)))
+     ;; Stop the timer if the data isn't present
+     {:stop-timer ::ensure})))
+
+(re-frame/reg-event-fx
+ ::ensure
+ (fn [_ [_ workbook-id]]
+   {:dispatch-debounce
+    [::ensure
+     [::ensure* workbook-id]
+     500]}))
 
 #_(s/fdef load
   :args (s/cat :data data/data-spec
@@ -199,17 +230,21 @@
       [_
        workbook-id
        data-spec]]
-   {:db (assoc-in db
-                  [:workbooks
-                   workbook-id
-                   :data]
-                  ;; Force a fresh state
-                  (merge data-spec
-                         {:state {:statement-idx -1}}))
-    :dispatch-n [[:workbook.question.function/reset-all!
-                  workbook-id
-                  [::ensure workbook-id]]
-                 ]}))
+   (cond-> {:db (assoc-in db
+                          [:workbooks
+                           workbook-id
+                           :data]
+                          ;; Force a fresh state
+                          (merge data-spec
+                                 {:state {:statement-idx -1}}))
+            :dispatch-n [[:workbook.question.function/reset-all!
+                          workbook-id
+                          [::ensure workbook-id]]
+                         ]
+            }
+     (= (:type data-spec) ::data/file)
+     (assoc :stop-timer
+            [::ensure workbook-id]))))
 
 (re-frame/reg-event-fx
  ::check-lrs
