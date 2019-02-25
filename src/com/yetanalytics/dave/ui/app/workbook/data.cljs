@@ -43,7 +43,9 @@
                  false)]
      (cond-> {:db new-db}
        (not= db new-db)
-       (assoc :dispatch [:db/save])))))
+       (assoc :dispatch-n [[:workbook.question.function/result-all!
+                            workbook-id]
+                           [:db/save]])))))
 
 (s/fdef fetch-fx
   :args (s/cat :data data/data-spec)
@@ -74,53 +76,6 @@
     :as lrs-spec
     :or {lrs-state {:statement-idx -1}}}
    db]
-  #_(let [fresh-lrs? (= lrs-state
-                      {:statement-idx -1})
-        [init-state
-         lrs-chan]
-        (if fresh-lrs?
-          [lrs-state
-           (lrs-client/query lrs-spec)]
-          (let [st (apply min-key
-                          :statement-idx
-                          (remove nil?
-                                  (cons lrs-state
-                                        (for [[_ {{:keys [state]} :function}]
-                                              (get-in db [:workbooks
-                                                          workbook-id
-                                                          :questions])]
-                                          state))))
-                ?since (get-in st [:stored-domain 1])]
-            [st
-             (lrs-client/query (cond-> lrs-spec
-                                 ?since
-                                 (assoc-in [:query :since] ?since))
-                               :statement-idx
-                               (if (< -1 (:statement-idx st))
-                                 (:statement-idx st)
-                                 0))]))]
-    (a/go-loop [state init-state]
-      (if-let [[tag body] (a/<! lrs-chan)]
-        (case tag
-          :result
-          (when-let [statements (some-> body
-                                        (get "statements")
-                                        not-empty)]
-            (re-frame/dispatch
-             [::load
-              workbook-id
-              (::lrs-client/statement-idx-range
-               (meta body))
-              {:status 200 :body statements}])
-            (recur (state/update-state
-                     state statements)))
-          :exception
-          (println "LRS EX" body))
-        ;; When we reach the end, we (maybe) update the LRS state
-        (re-frame/dispatch [::set-state
-                            workbook-id
-                            state])
-        )))
   {:dispatch
    [:com.yetanalytics.dave.ui.app.workbook.data.lrs/query
     workbook-id
@@ -158,22 +113,6 @@
      [::ensure* workbook-id]
      500]}))
 
-#_(s/fdef load
-  :args (s/cat :data data/data-spec
-               :response map?)
-  :ret data/data-spec)
-
-#_(defmulti load (fn [data _]
-                   (:type data)))
-
-#_(defmethod load :default [_ _]
-  {})
-
-#_(defmethod load ::data/file
-  [{:as data} {:keys [body] :as response}]
-  (let [])
-  (assoc data :statements body))
-
 (re-frame/reg-event-fx
  ::clear-errors
  (fn [{:keys [db] :as ctx} [_ workbook-id]]
@@ -190,38 +129,31 @@
        idx-range
        {:keys [status body] :as response}
        then-dispatch]]
-   (let [{data-type :type
+   (let [
+         {data-type :type
           data-state :state
           :as data} (get-in db
                             [:workbooks
                              workbook-id
-                             :data])]
+                             :data])
+         then-dispatch (case data-type
+                         ::data/file
+                         [::set-state
+                          workbook-id
+                          (state/update-state
+                           {:statement-idx -1}
+                           body)
+                          true]
+                         ::data/lrs
+                         then-dispatch)]
      (if (= 200 status)
-       {:dispatch-n
-        (cond-> [[:workbook.question.function/step-all!
-                  workbook-id
-                  idx-range
-                  body]
-                 [::clear-errors workbook-id]]
-
-          then-dispatch
-          (conj then-dispatch)
-
-          (= ::data/file
-             data-type)
-          (conj [::set-state
-                 workbook-id
-                 (state/update-state
-                  {:statement-idx -1}
-                  body)
-                 true]))}
-       #_{:db (update-in db
-                       [:workbooks
-                        workbook-id
-                        :data]
-                       load
-                       response)
-        :dispatch [::clear-errors workbook-id]}
+       {:dispatch-n [[:workbook.question.function/step-all!
+                      workbook-id
+                      idx-range
+                      body
+                      ;; pass continuation
+                      then-dispatch]
+                     [::clear-errors workbook-id]]}
        {:db (update-in db
                        [:workbooks
                         workbook-id

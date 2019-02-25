@@ -108,73 +108,49 @@
       })))
 
 (re-frame/reg-event-fx
- :workbook.question.function/step!
- (fn [{:keys [db] :as ctx}
-      [_
-       workbook-id
-       question-id
-       [fidx lidx]
-       statements]]
-   (let [{:keys [data]
-          :as workbook} (get-in db [:workbooks
-                                    workbook-id])
-         {func-id :id
-          func-record :func
-          func-state :state
-          :as function} (get-in db [:workbooks
-                                    workbook-id
-                                    :questions
-                                    question-id
-                                    :function])
-         relevant-ss (not-empty
-                      (filter
-                       (partial func/relevant?
-                                func-record)
-                       statements))
-         next-state (state/update-state
-                     func-state statements)]
-     (cond-> {:db (assoc-in db
-                            [:workbooks
-                             workbook-id
-                             :questions
-                             question-id
-                             :function]
-                            (-> function
-                                (assoc :state next-state)
-                                (cond->
-                                    relevant-ss
-                                  (assoc :func
-                                         (reduce func/-step
-                                                 func-record
-                                                 relevant-ss)))))}
-       ;; When the state syncs up with the main data obj,
-       ;; we are safe to derive the result
-       (= next-state (:state data))
-       (assoc :dispatch-later
-              [{:ms 0
-                :dispatch
-                [:workbook.question.function/result!
-                 workbook-id
-                 question-id]}])))))
-
-(re-frame/reg-event-fx
  :workbook.question.function/result!
  (fn [{:keys [db] :as ctx}
       [_
        workbook-id
        question-id]]
-   {:db (update-in db
-                   [:workbooks
-                    workbook-id
-                    :questions
-                    question-id
-                    :function]
-                   (fn [{func-record :func
-                         args :args
-                         :as function}]
-                     (assoc function :result (func/result func-record
-                                                          args))))
-    :dispatch [:db/save]}))
+   (let [{{data-state :state} :data
+          :as workbook} (get-in db [:workbooks
+                                    workbook-id])
+         {{func-state :state
+           func-record :func
+           func-args :args
+           :as function} :function
+          :as question} (get-in workbook
+                                [:questions
+                                 question-id])]
+     (when (and data-state
+                func-state
+                (= data-state func-state))
+       {:db (assoc-in db
+                      [:workbooks
+                       workbook-id
+                       :questions
+                       question-id
+                       :function
+                       :result]
+                      (func/result func-record
+                                   func-args))
+        :dispatch [:db/save]}))))
+
+(re-frame/reg-event-fx
+ :workbook.question.function/result-all!
+ (fn [{:keys [db]}
+      [_ workbook-id]]
+   {:dispatch-later
+    (into []
+          (for [[question-id _] (get-in db [:workbooks
+                                            workbook-id
+                                            :questions])]
+            {:ms 0
+             :dispatch
+             [:workbook.question.function/result!
+              workbook-id
+              question-id]}))}))
 
 ;; Todo: Fit partial batches
 (re-frame/reg-event-fx
@@ -183,30 +159,91 @@
       [_
        workbook-id
        [fidx lidx]
-       statements]]
-   (let [{:keys [questions] :as workbook}
-         (get-in db [:workbooks workbook-id])
-         dls (for [[id {{state :state
-                         :as function} :function
-                        :as question}] questions
-                   :when (and function
-                              (state/accept? state
-                                             [fidx lidx]))
-                   :let [[[fidx' lidx'] ss] (state/trim state
-                                                        [fidx lidx]
-                                                        statements)
-                         ;; _ (println (count ss) "statements")
-                         ]]
-               {:ms 0
-                :dispatch
-                [:workbook.question.function/step!
-                 workbook-id
-                 id
-                 [fidx' lidx']
-                 ss]})]
-     {:dispatch-later
-      (into []
-            dls)})))
+       statements
+       then-dispatch
+       phase ;; :find, :step :done
+       steps
+       ]]
+   (let [phase (or phase :find)]
+     (case phase
+       :find
+       (let [{:keys [questions] :as workbook}
+             (get-in db [:workbooks workbook-id])
+             steps (for [[question-id {{state :state
+                               :as function} :function
+                              :as question}] questions
+                         :when (and function
+                                    (state/accept? state
+                                                   [fidx lidx]))
+                         :let [[[fidx' lidx'] ss] (state/trim state
+                                                              [fidx lidx]
+                                                              statements)]]
+                     {:question-id question-id
+                      :index-range [fidx' lidx']
+                      :statements ss})]
+         {:dispatch-later [{:ms 0
+                            :dispatch
+                            [:workbook.question.function/step-all!
+                             workbook-id
+                             [fidx lidx]
+                             statements
+                             then-dispatch
+                             :step
+                             steps]}]})
+       :step
+       (if-let [{:keys [question-id]
+                 ss :statements} (first steps)]
+         (let [{:keys [data]
+                :as workbook} (get-in db [:workbooks
+                                          workbook-id])
+               {func-id :id
+                func-record :func
+                func-state :state
+                :as function} (get-in db [:workbooks
+                                          workbook-id
+                                          :questions
+                                          question-id
+                                          :function])
+               relevant-ss (not-empty
+                            (filter
+                             (partial func/relevant?
+                                      func-record)
+                             ss))
+               next-state (state/update-state
+                           func-state statements)]
+           #_(println next-state (:state data))
+           {:db (assoc-in db
+                          [:workbooks
+                           workbook-id
+                           :questions
+                           question-id
+                           :function]
+                          (-> function
+                              (assoc :state next-state)
+                              (cond->
+                                  relevant-ss
+                                (assoc :func
+                                       (reduce func/-step
+                                               func-record
+                                               relevant-ss)))))
+            :dispatch-later
+            [{:ms 0
+              :dispatch [:workbook.question.function/step-all!
+                         workbook-id
+                         [fidx lidx]
+                         statements
+                         then-dispatch
+                         :step
+                         (rest steps)]}]})
+         {:dispatch-later [{:ms 0
+                            :dispatch
+                            [:workbook.question.function/step-all!
+                             workbook-id
+                             [fidx lidx]
+                             statements
+                             then-dispatch
+                             :done]}]})
+       :done {:dispatch then-dispatch}))))
 
 ;; Subs
 (re-frame/reg-sub
