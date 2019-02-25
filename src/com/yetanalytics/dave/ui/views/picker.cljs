@@ -19,7 +19,7 @@
                            {:type ::no-image
                             :choice choice})))
    [:div
-    [:span label]]])
+    [:span.minorbutton label]]])
 
 (defn choice-list
   []
