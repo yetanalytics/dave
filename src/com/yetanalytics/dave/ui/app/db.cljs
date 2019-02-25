@@ -91,16 +91,22 @@
                             (s/keys :req-un [::workbook/index])))
          (comp su/sequential-indices? vals)))
 
+(s/def ::db-version
+  #{"0.1.0"})
+
 (def db-state-spec
-  (s/keys :opt-un [::id
-                   ::nav
-                   ::workbooks
-                   ::dialog]))
+  (s/keys
+   :req-un [::db-version]
+   :opt-un [::id
+            ::nav
+            ::workbooks
+            ::dialog]))
 
 
 ;; This will include the default workbooks for DAVE
 (def db-default
-  {:workbooks {#uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
+  {:db-version "0.1.0"
+   :workbooks {#uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
                {:id #uuid "f1d0bd64-0868-43ec-96c6-a51c387f5fc8"
                 :title "DAVE Alpha Demo"
                 :description "A tour of DAVE Alpha features."
