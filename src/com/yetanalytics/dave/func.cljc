@@ -6,7 +6,6 @@
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
             [com.yetanalytics.dave.util.spec :as su]
-            #_[com.yetanalytics.dave.func.state :as state]
             [clojure.walk :as w]
             [#?(:clj clj-time.core
                 :cljs cljs-time.core) :as t]
@@ -17,44 +16,20 @@
             #?@(:cljs [[goog.string :refer [format]]
                        [goog.string.format]])))
 
-
-#_(s/def ::state
-  state/spec)
-
 (defprotocol AFunc
   "Dave Funcs specify reducible xAPI caluclations."
   (init [this]
     "Set/reset to initial state.")
-  #_(query [this]
-    "Return a map representing an xAPI query for more data, possibly based on
-     the func's internal state.")
   (relevant? [this statement]
     "Should return true if the statement is valid basis data for the func.
      Otherwise, returns false.")
   (accept? [this statement]
     "If the func can consider this statement given its current state/data,
      returns true. Otherwise, returns false.")
-  (-step [this statement]
+  (step [this statement]
     "Given a novel statement, update state. Returns the (possibly modified) record.")
   (result [this] [this args]
     "Output the result data given the current state of the function."))
-
-#_(defn step
-  "Step is wrapped with a function that decides if statement is novel, and
-  updates common collection metrics and checkpoint"
-  [func
-   {:strs [timestamp
-           stored]
-    :as statement}]
-  (cond-> func
-    ;; We reject statements we've already seen
-    (state/accept? (::state func)
-                   statement)
-    (->
-     (cond->
-         (relevant? func statement)
-       (-step statement))
-     (update ::state state/step-state statement))))
 
 (defn ->invocable
   "Make a func invocable as a clj(s) function.
@@ -64,7 +39,7 @@
     #?(:clj clojure.lang.IFn :cljs IFn)
     (#?(:clj invoke
         :cljs -invoke) [_ statements]
-      (let [func' (reduce -step func
+      (let [func' (reduce step func
                           (filter (partial relevant? func)
                                   statements))]
         (vary-meta
@@ -72,7 +47,7 @@
          assoc ::func func')))
     (#?(:clj invoke
         :cljs -invoke) [_ statements args]
-      (let [func' (reduce -step func
+      (let [func' (reduce step func
                           (filter (partial relevant? func)
                                   statements))]
         (vary-meta
@@ -82,11 +57,6 @@
                      (if ?args
                        (this statements ?args)
                        (this statements))))))
-
-#_(defn force-last-stored
-  "Force a func's last stored to be the given datelike"
-  [func datelike]
-  (update func ::state state/force-last-stored datelike))
 
 (s/fdef success-timeline
   :args (s/cat
@@ -169,7 +139,7 @@
   (accept? [_ statement]
     ;; there are no such cases for this fn
     true)
-  (-step [this {timestamp "timestamp"
+  (step [this {timestamp "timestamp"
                 {actor-name "name"
                  actor-mbox "mbox"
                  actor-mbox-s1s "mbox_sha1sum"
@@ -271,7 +241,7 @@
   (accept? [_ statement]
     ;; there are no such cases for this fn
     true)
-  (-step [this {{id "id"
+  (step [this {{id "id"
                  {name-lmap "name"} "definition"} "object"}]
     (update-in this
                [:state :failures
@@ -376,7 +346,7 @@
   (accept? [_ statement]
     ;; there are no such cases for this fn
     true)
-  (-step [this {{id "id"
+  (step [this {{id "id"
                  {name-lmap "name"} "definition"} "object"
                 timestamp "timestamp"}]
     (update-in this
@@ -501,7 +471,7 @@
   (accept? [_ statement]
     ;; there are no such cases for this fn
     true)
-  (-step [this {id "id"
+  (step [this {id "id"
                 timestamp "timestamp"
                 {v-id "id"} "verb"
                 {?sr "statement"} "context"}]

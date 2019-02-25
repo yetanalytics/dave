@@ -223,7 +223,7 @@
                               (cond->
                                   relevant-ss
                                 (assoc :func
-                                       (reduce func/-step
+                                       (reduce func/step
                                                func-record
                                                relevant-ss)))))
             :dispatch-later
