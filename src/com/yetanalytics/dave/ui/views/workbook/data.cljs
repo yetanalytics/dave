@@ -27,6 +27,12 @@
               [:li
                message])))))
 
+(defn change-button [workbook-id]
+  [:button
+   {:on-click #(dispatch [:workbook.data/offer-picker
+                          workbook-id])}
+   "Select Dataset"])
+
 (defn info
   [?workbook-id]
   [:div.data
@@ -36,5 +42,6 @@
        :com.yetanalytics.dave.workbook.data/file "insert_drive_file"
        :com.yetanalytics.dave.workbook.data/lrs "storage")]
     @(subscribe [:workbook.data/title ?workbook-id])]
+   [change-button ?workbook-id]
    [details ?workbook-id]
    [errors ?workbook-id]])
