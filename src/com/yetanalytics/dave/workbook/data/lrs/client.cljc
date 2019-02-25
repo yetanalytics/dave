@@ -141,7 +141,7 @@
                  next-wait
                  wait-max)))))
 
-(defn- reset-retry
+(defn reset-retry
   "Reset the retry to base values"
   [{:keys [wait-min]
     :as retry}]

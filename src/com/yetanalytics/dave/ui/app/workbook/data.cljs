@@ -74,7 +74,7 @@
     :as lrs-spec
     :or {lrs-state {:statement-idx -1}}}
    db]
-  (let [fresh-lrs? (= lrs-state
+  #_(let [fresh-lrs? (= lrs-state
                       {:statement-idx -1})
         [init-state
          lrs-chan]
@@ -121,7 +121,11 @@
                             workbook-id
                             state])
         )))
-  {})
+  {:dispatch
+   [:com.yetanalytics.dave.ui.app.workbook.data.lrs/query
+    workbook-id
+    lrs-spec
+    {}]})
 
 (re-frame/reg-event-fx
  ::ensure*
@@ -184,7 +188,8 @@
  (fn [{:keys [db] :as ctx}
       [_ workbook-id
        idx-range
-       {:keys [status body] :as response}]]
+       {:keys [status body] :as response}
+       then-dispatch]]
    (let [{data-type :type
           data-state :state
           :as data} (get-in db
@@ -198,6 +203,9 @@
                   idx-range
                   body]
                  [::clear-errors workbook-id]]
+
+          then-dispatch
+          (conj then-dispatch)
 
           (= ::data/file
              data-type)
