@@ -219,6 +219,7 @@
 
 (defn- save!-fx
   [db-state]
+  (.log js/console "saving to LocalStorage")
   (storage-set "dave.ui.db"
                (dissoc db-state
                        ;; Dissoc ID
@@ -261,6 +262,23 @@
        :as ctx} _]
    {:db/destroy! true
     :dispatch [:db/init id]}))
+
+(re-frame/reg-event-fx
+ :db/save!
+ (fn [{:keys [db]
+       :as ctx} _]
+   {:db/save! db}))
+
+;; Debounced save, can be called a lot
+(re-frame/reg-event-fx
+ :db/save
+ (fn [_ _]
+   {:dispatch-debounce
+    [::save!
+     [:db/save!]
+     3000]}))
+
+
 
 ;; Top-level sub for form-2 subs
 (re-frame/reg-sub

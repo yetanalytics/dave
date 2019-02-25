@@ -34,10 +34,10 @@
                                re-index))
          parent-path (butlast parent-map-path)]
      {:db new-db
-      :db/save! new-db
       :notify/snackbar
       {:message "Deleted!"}
-      :com.yetanalytics.dave.ui.app.nav/nav-path! parent-path})))
+      :com.yetanalytics.dave.ui.app.nav/nav-path! parent-path
+      :dispatch [:db/save]})))
 
 (re-frame/reg-event-fx
  :crud/create!
@@ -51,7 +51,7 @@
                     (update-in parent-map-path
                                re-index))]
      {:db new-db
-      :db/save! new-db
+      :dispatch [:db/save]
       :notify/snackbar
       {:message "Success"}})))
 
@@ -68,6 +68,6 @@
                     (update-in parent-map-path
                                re-index))]
      {:db new-db
-      :db/save! new-db
+      :dispatch [:db/save]
       :notify/snackbar
       {:message "Success"}})))

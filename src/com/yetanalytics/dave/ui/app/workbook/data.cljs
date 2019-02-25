@@ -11,29 +11,32 @@
             ))
 
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  ::set-state
- (fn [db
+ (fn [{:keys [db]}
       [_
        workbook-id
        new-state
        force?]]
-   (if force?
-     (assoc-in db
-               [:workbooks
-                workbook-id
-                :data
-                :state]
-               new-state)
-     (update-in db
-              [:workbooks
-               workbook-id
-               :data
-               :state]
-              (fnil
-               (partial max-key :statement-idx)
-               {:statement-idx -1})
-              new-state))))
+   (let [new-db (if force?
+                  (assoc-in db
+                            [:workbooks
+                             workbook-id
+                             :data
+                             :state]
+                            new-state)
+                  (update-in db
+                             [:workbooks
+                              workbook-id
+                              :data
+                              :state]
+                             (fnil
+                              (partial max-key :statement-idx)
+                              {:statement-idx -1})
+                             new-state))]
+     (cond-> {:db new-db}
+       (not= db new-db)
+       (assoc :dispatch [:db/save])))))
 
 (s/fdef fetch-fx
   :args (s/cat :data data/data-spec)

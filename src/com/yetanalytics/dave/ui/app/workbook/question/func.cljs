@@ -23,9 +23,9 @@
                            :args (or ?args
                                      {})})]
      {:db new-db
-      ;; :db/save! new-db
-      :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/ensure
-                 workbook-id]})))
+      :dispatch-n [[:db/save]
+                   [:com.yetanalytics.dave.ui.app.workbook.data/ensure
+                    workbook-id]]})))
 
 (re-frame/reg-event-fx
  :workbook.question.function/reset!
@@ -105,7 +105,6 @@
       :dispatch [:workbook.question.function/result!
                  workbook-id
                  question-id]
-      ;; :db/save! new-db
       })))
 
 (re-frame/reg-event-fx
@@ -158,23 +157,24 @@
                  workbook-id
                  question-id]}])))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :workbook.question.function/result!
- (fn [db
+ (fn [{:keys [db] :as ctx}
       [_
        workbook-id
        question-id]]
-   (update-in db
-              [:workbooks
-               workbook-id
-               :questions
-               question-id
-               :function]
-              (fn [{func-record :func
-                    args :args
-                    :as function}]
-                (assoc function :result (func/result func-record
-                                                     args))))))
+   {:db (update-in db
+                   [:workbooks
+                    workbook-id
+                    :questions
+                    question-id
+                    :function]
+                   (fn [{func-record :func
+                         args :args
+                         :as function}]
+                     (assoc function :result (func/result func-record
+                                                          args))))
+    :dispatch [:db/save]}))
 
 ;; Todo: Fit partial batches
 (re-frame/reg-event-fx
