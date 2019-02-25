@@ -519,8 +519,12 @@
     (let [{:keys [time-unit]
            :or {time-unit :month}} args
           {:keys [statements]} state
-          [p-start
-           p-end] (-> this ::state :timestamp-domain)]
+          p-start (some-> statements
+                          first
+                          ffirst)
+          p-end (some-> statements
+                        last
+                        ffirst)]
       {:specification
        {:x {:label "Period"}
         :y {:type :count
@@ -803,24 +807,3 @@
      (s/unform (:args fspec)
                (merge args-default
                       args-map)))))
-
-
-(comment
-
-  (require '[clojure.java.io :as io]
-           '[clojure.data.json :as json]
-           '[clojure.pprint :refer [pprint]])
-
-
-
-
-  (def statements
-    (sort-by #(get % "stored")
-             (mapv
-              (fn [{:strs [timestamp] :as statement} ]
-                (assoc statement "stored"
-                       (-> timestamp
-                           tc/to-date-time
-                           (t/plus (t/hours 1))
-                           tc/to-string)))
-              (json/read-str (slurp (io/resource "public/data/dave/ds.json")))))))
