@@ -378,6 +378,13 @@
    (:state data)))
 
 (re-frame/reg-sub
+ :workbook.data/loading?
+ (fn [[_ ?workbook-id] _]
+   (re-frame/subscribe [:workbook/data ?workbook-id]))
+ (fn [data _]
+   (:loading? data)))
+
+(re-frame/reg-sub
  :workbook.data/errors
  (fn [[_ ?workbook-id] _]
    (re-frame/subscribe [:workbook/data ?workbook-id]))
