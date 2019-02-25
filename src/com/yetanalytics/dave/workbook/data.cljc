@@ -3,17 +3,19 @@
             [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.workbook.data.file :as file]
             [com.yetanalytics.dave.workbook.data.lrs :as lrs]
-            [xapi-schema.spec :as xs]))
+            [xapi-schema.spec :as xs]
+            [com.yetanalytics.dave.workbook.data.state :as state]))
 
 (s/def ::type
   #{::file
     ::lrs})
 
-(s/def ::statements
-  (s/every ::xs/statement))
-
 (s/def ::title
   string?)
+
+;; track state
+(s/def ::state
+  state/spec)
 
 (s/def :error/message
   string?)
@@ -31,7 +33,7 @@
 (def data-common-spec
   (s/keys
    :req-un [::title]
-   :opt-un [::statements
+   :opt-un [::state
             ::errors]))
 
 (defmulti data-type :type)
