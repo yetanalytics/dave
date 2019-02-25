@@ -6,7 +6,7 @@
             [com.yetanalytics.dave.func.common :as common]
             [com.yetanalytics.dave.func.util :as util]
             [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.func.state :as state]
+            #_[com.yetanalytics.dave.func.state :as state]
             [clojure.walk :as w]
             [#?(:clj clj-time.core
                 :cljs cljs-time.core) :as t]
@@ -18,7 +18,7 @@
                        [goog.string.format]])))
 
 
-(s/def ::state
+#_(s/def ::state
   state/spec)
 
 (defprotocol AFunc
@@ -39,7 +39,7 @@
   (result [this] [this args]
     "Output the result data given the current state of the function."))
 
-(defn step
+#_(defn step
   "Step is wrapped with a function that decides if statement is novel, and
   updates common collection metrics and checkpoint"
   [func
@@ -64,15 +64,17 @@
     #?(:clj clojure.lang.IFn :cljs IFn)
     (#?(:clj invoke
         :cljs -invoke) [_ statements]
-      (let [func' (reduce step func
-                          statements)]
+      (let [func' (reduce -step func
+                          (filter (partial relevant? func)
+                                  statements))]
         (vary-meta
          (result func')
          assoc ::func func')))
     (#?(:clj invoke
         :cljs -invoke) [_ statements args]
-      (let [func' (reduce step func
-                          statements)]
+      (let [func' (reduce -step func
+                          (filter (partial relevant? func)
+                                  statements))]
         (vary-meta
          (result func' args)
          assoc ::func func')))
@@ -81,7 +83,7 @@
                        (this statements ?args)
                        (this statements))))))
 
-(defn force-last-stored
+#_(defn force-last-stored
   "Force a func's last stored to be the given datelike"
   [func datelike]
   (update func ::state state/force-last-stored datelike))

@@ -19,11 +19,14 @@
   cljs.core/IUUID)
 
 ;; Set handlers for our funcs
-;; TODO: figure out a better way to handle serialization
+;; TODO: figure out a better way to handle (de)serialization
 (def read-handlers
   {"com.yetanalytics.dave.func/SuccessTimeline"
    (fn [m]
-     (func/map->SuccessTimeline m))
+     (func/map->SuccessTimeline (update-in m
+                                           [:state
+                                            :successes]
+                                           #(into (sorted-map) %))))
    "com.yetanalytics.dave.func/DifficultQuestions"
    (fn [m]
      (func/map->DifficultQuestions m))
@@ -32,7 +35,11 @@
      (func/map->CompletionRate m))
    "com.yetanalytics.dave.func/FollowedRecommendations"
    (fn [m]
-     (func/map->FollowedRecommendations m))})
+     (func/map->FollowedRecommendations
+      (update-in m
+                 [:state
+                  :statements]
+                 #(into (sorted-map) %))))})
 
 (def write-handlers
   {func/SuccessTimeline
