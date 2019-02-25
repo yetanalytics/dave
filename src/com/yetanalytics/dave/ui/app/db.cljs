@@ -214,25 +214,62 @@
  ::load
  load-cofx)
 
+
+;; Hold on to the last saved state so we can compare and save
+(def last-saved
+  (atom nil))
+
+(s/fdef save?
+  :args (s/cat :db db-state-spec)
+  :ret boolean?)
+
+(defn save?
+  "Should we save this DB?"
+  [db]
+  (if (s/valid? db-state-spec db)
+    (and
+     (not= @last-saved db)
+     ;; All data is done loading
+     (empty?
+      (for [[workbook-id {:keys [questions]
+                          :as workbook}] (get db :workbooks)
+            [_ {:keys [data]}] questions
+            :when (true? (:loading data))]
+        workbook-id))
+     ;; All funcs are caught up
+     (every? true?
+             (for [[workbook-id {:keys [questions]
+                                 :as workbook}] (get db :workbooks)
+                   [_ {:keys [data
+                              function]}] questions
+                   :when (and data function)]
+               (= (:state data) (:state function)))))
+    (.error js/console "DB State Invalid, not saving!" (s/explain-str db-state-spec
+                                                                      db))))
+
 (s/fdef save!-fx
   :args (s/cat :db-state db-state-spec))
 
 (defn- save!-fx
   [db-state]
-  (.log js/console "saving to LocalStorage")
-  (storage-set "dave.ui.db"
-               (dissoc db-state
-                       ;; Dissoc ID
-                       :id
-                       ;; Dissoc nav, as this would force navigation in
-                       ;; multi-tab situations
-                       :nav
-                       ;; picker is ephemeral
-                       :picker
-                       ;; so is the dialog
-                       :dialog
-                       ;; Don't save dave.debug state, as it might be huge
-                       :debug)))
+  (let [to-save (dissoc db-state
+                        ;; Dissoc ID
+                        :id
+                        ;; Dissoc nav, as this would force navigation in
+                        ;; multi-tab situations
+                        :nav
+                        ;; picker is ephemeral
+                        :picker
+                        ;; so is the dialog
+                        :dialog
+                        ;; Don't save dave.debug state, as it might be huge
+                        :debug)]
+    (when (save? to-save)
+      (do #_(.log js/console "saving to LocalStorage")
+          (storage-set "dave.ui.db"
+                       to-save)
+          (reset! last-saved to-save))
+      #_(.log js/console "Skipped save..."))))
 (re-frame/reg-fx
  :db/save!
  save!-fx)
