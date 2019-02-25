@@ -23,17 +23,16 @@
 (def read-handlers
   {"com.yetanalytics.dave.func/SuccessTimeline"
    (fn [m]
-     (func/->SuccessTimeline m))
+     (func/map->SuccessTimeline m))
    "com.yetanalytics.dave.func/DifficultQuestions"
    (fn [m]
-     (func/->DifficultQuestions m))
+     (func/map->DifficultQuestions m))
    "com.yetanalytics.dave.func/CompletionRate"
    (fn [m]
-     (func/->CompletionRate m))
+     (func/map->CompletionRate m))
    "com.yetanalytics.dave.func/FollowedRecommendations"
    (fn [m]
-     (func/->FollowedRecommendations m))
-   })
+     (func/map->FollowedRecommendations m))})
 
 (def write-handlers
   {func/SuccessTimeline
