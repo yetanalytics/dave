@@ -33,7 +33,7 @@ div.picker {
   i.dismiss {
     position: fixed;
      right: 5%;
-     margin-top: 10px;
+     margin-top: -5px;
     color: white;
     background-color: #2A58CD;
     padding: 10px;
@@ -44,5 +44,6 @@ div.picker {
 
 div.picker.active {
   min-height: 300px;
+
 
 }
