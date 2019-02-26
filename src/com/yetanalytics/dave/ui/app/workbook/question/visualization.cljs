@@ -115,7 +115,7 @@
                             :title (get-in v/registry [vis-id :title]
                                            "Unnamed Chart")})]
      {:db new-db
-      :db/save! new-db})))
+      :dispatch [:db/save]})))
 
 ;; Offer vis picker
 (re-frame/reg-event-fx

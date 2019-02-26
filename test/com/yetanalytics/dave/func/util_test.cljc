@@ -27,3 +27,33 @@
          `util/time-bucket-statements
          {stc-opts
           {:num-tests 10 :max-size 3}})))))
+
+(deftest min-inst-test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/min-inst
+         {stc-opts
+          {:num-tests 10 :max-size 10}})))))
+
+(deftest max-inst-test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/max-inst
+         {stc-opts
+          {:num-tests 10 :max-size 10}})))))
+
+(deftest nested-group-by+test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/nested-group-by+
+         {stc-opts
+          {:num-tests 10 :max-size 10}})))))
+
+(deftest update-domain-test
+  (is (empty?
+       (failures
+        (stest/check
+         `util/update-domain)))))

@@ -1,6 +1,8 @@
 ^{:watch-dirs ["test" "src" "dev"]
   :css-dirs ["resources/public/css"]
-  :auto-testing true}
+  :auto-testing false ;;  true
+  :log-file "figwheel-main.log"
+  }
 {:closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
  :preloads             [day8.re-frame-10x.preload]
  :main com.yetanalytics.dave.ui.core

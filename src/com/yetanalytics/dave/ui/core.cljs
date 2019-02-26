@@ -8,9 +8,10 @@
    [re-frame.core :refer [dispatch dispatch-sync]]
    [com.yetanalytics.dave.ui.events :as events]
    [com.yetanalytics.dave.ui.subs]
-   [com.yetanalytics.dave.ui.views]))
+   [com.yetanalytics.dave.ui.views]
+   [com.yetanalytics.dave.util.log :as log :include-macros true]))
 
-(println "This text is printed from src/com/yetanalytics/dave/ui.cljs. Go ahead and edit it and see reloading in action.")
+(log/info "This text is printed from src/com/yetanalytics/dave/ui.cljs. Go ahead and edit it and see reloading in action.")
 
 ;; The instance ID identifies this instance of the app.
 ;; If multiple tabs are run in the same browser, they will have different ids.

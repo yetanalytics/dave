@@ -18,8 +18,9 @@
 
 (defmethod auth-type ::http-basic [_]
   (s/merge auth-common-spec
-           (s/keys :req [:com.yetanalytics.dave.workbook.data.lrs.auth.http-basic/username
-                         :com.yetanalytics.dave.workbook.data.lrs.auth.http-basic/password])))
+           (s/keys :req-un
+                   [:com.yetanalytics.dave.workbook.data.lrs.auth.http-basic/username
+                    :com.yetanalytics.dave.workbook.data.lrs.auth.http-basic/password])))
 
 (def auth-spec
   (s/multi-spec auth-type :type))

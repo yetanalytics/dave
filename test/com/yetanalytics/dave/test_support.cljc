@@ -6,15 +6,22 @@
    [clojure.walk :as w]
    [clojure.string :as cs]
    clojure.test.check
+   clojure.test.check.properties
    ))
 
 #?(:clj (alias 'stc 'clojure.spec.test.check))
 
-(def stc-ret #?(:clj :clojure.spec.test.check/ret
-                :cljs :clojure.test.check/ret))
+(def stc-ret :clojure.spec.test.check/ret
 
-(def stc-opts #?(:clj :clojure.spec.test.check/opts
-                 :cljs :clojure.test.check/opts))
+  ;; #?(:clj :clojure.spec.test.check/ret
+  ;;    :cljs :clojure.test.check/ret)
+  )
+
+(def stc-opts :clojure.spec.test.check/opts
+
+  ;; #?(:clj :clojure.spec.test.check/opts
+  ;;    :cljs :clojure.test.check/opts)
+  )
 
 (defn failures
   "Get any failing results of stest/check"

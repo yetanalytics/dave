@@ -27,14 +27,33 @@
               [:li
                message])))))
 
+(defn change-button [workbook-id]
+  [:button
+   {:on-click #(dispatch [:workbook.data/offer-picker
+                          workbook-id])}
+   "Select Dataset"])
+
+(defn loading-bar [workbook-id]
+  [:div.mdc-linear-progress.mdc-linear-progress--indeterminate
+   {:class (when-not @(subscribe [:workbook.data/loading? workbook-id])
+             "mdc-linear-progress--closed")}
+   [:div.mdc-linear-progress__buffering-dots]
+   [:div.mdc-linear-progress__buffer]
+   [:div.mdc-linear-progress__bar.mdc-linear-progress__primary-bar
+    [:span.mdc-linear-progress__bar-inner]]
+   [:div.mdc-linear-progress__bar.mdc-linear-progress__secondary-bar
+    [:span.mdc-linear-progress__bar-inner]]])
+
 (defn info
   [?workbook-id]
   [:div.data
+   [loading-bar ?workbook-id]
    [:h3.title
     [:i.material-icons
      (case @(subscribe [:workbook.data/type ?workbook-id])
        :com.yetanalytics.dave.workbook.data/file "insert_drive_file"
        :com.yetanalytics.dave.workbook.data/lrs "storage")]
     @(subscribe [:workbook.data/title ?workbook-id])]
+   [change-button ?workbook-id]
    [details ?workbook-id]
    [errors ?workbook-id]])

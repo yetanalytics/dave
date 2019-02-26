@@ -9,6 +9,7 @@ div.picker {
   }
   @extend .mdc-card;
   position: fixed;
+  z-index: 8 !important;
   bottom: 0;
   width: 100vw;
   max-height: 0px;

@@ -53,3 +53,10 @@
                       :args args
                       :spec-error (s/explain-data ::snackbar-args
                                                   args)})))))
+
+;; Easy passthru that can be called from re-frame/dispatch
+(re-frame/reg-event-fx
+ :notify/snackbar
+ (fn [_
+      [_ args]]
+   {:notify/snackbar args}))

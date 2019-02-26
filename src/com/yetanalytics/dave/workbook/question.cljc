@@ -5,7 +5,9 @@
   (:require [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.workbook.question.visualization :as v]
-            [com.yetanalytics.dave.func :as func]))
+            [com.yetanalytics.dave.func :as func]
+            [com.yetanalytics.dave.func.ret :as func-ret]
+            [com.yetanalytics.dave.workbook.data.state :as data-state]))
 
 (s/def ::id
   uuid?)
@@ -13,10 +15,20 @@
 (s/def ::text
   su/string-not-empty-spec)
 
+;; Func record that allows stateful reduction
+(s/def :com.yetanalytics.dave.workbook.question.function/func
+ #(satisfies? func/AFunc %))
+
+(s/def :com.yetanalytics.dave.workbook.question.function/state
+  data-state/spec)
+
 ;; The dave function that this question uses to get its data
 (s/def ::function
-  (s/and (s/keys :req-un [::func/id]
-                 :opt-un [::func/args])
+  (s/and (s/keys :req-un [::func/id
+                          :com.yetanalytics.dave.workbook.question.function/func
+                          :com.yetanalytics.dave.workbook.question.function/state]
+                 :opt-un [::func/args
+                          ::func-ret/result])
          ;; Validate that the args are OK
          (fn valid-args [{:keys [id args]}]
            (nil? (func/explain-args id args)))))
