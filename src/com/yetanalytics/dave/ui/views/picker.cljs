@@ -32,12 +32,12 @@
 (defn picker
   []
   (let [title @(subscribe [:picker/title])]
-    (cond-> [:div.picker
-             {:class (when title
-                       "active")}
-             [:i.material-icons.dismiss
-              {:on-click #(dispatch [:picker/dismiss])}
-              "close"]]
-      title (conj
-             [:h1 title]
-             [choice-list]))))
+  [:div.picker
+           {:class (when title
+                     "active")}
+   [:div.picker-header
+    [:h1 title]
+    [:i.material-icons.dismiss
+     {:on-click #(dispatch [:picker/dismiss])}
+     "close"]]
+   [choice-list]]))
