@@ -620,7 +620,7 @@
     :args-enum {}}
    ::completion-rate
    {:title "Completion Rate"
-    :doc "Plots activity ids against the rate of failed attempts per given time unit."
+    :doc "Plots activity ids against the rate of completions per given time unit."
     :function (init (map->CompletionRate {}))
     :fspec (s/get-spec `completion-rate)
     :args-default {:time-unit :day}
