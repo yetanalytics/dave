@@ -28,9 +28,14 @@ div.picker {
     }
   }
   i.dismiss {
-    position: absolute;
-    top: 1em;
-    right: .5em;
+    position: fixed;
+     right: 5%;
+     margin-top: 10px;
+    color: white;
+    background-color: #2A58CD;
+    padding: 10px;
+    border-radius: 30px;
+    z-index: 1;
   }
 }
 
