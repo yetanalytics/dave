@@ -25,6 +25,9 @@ div.picker {
       padding-left: 50px;
       padding-right:50px;
       margin-bottom: 30px;
+      > div img{
+        height: 150px;
+      }
     }
   }
   i.dismiss {
@@ -40,6 +43,6 @@ div.picker {
 }
 
 div.picker.active {
-  max-height: 450px;
+  min-height: 300px;
 
 }
