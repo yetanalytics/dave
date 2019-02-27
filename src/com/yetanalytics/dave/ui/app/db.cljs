@@ -10,7 +10,8 @@
             [com.cognitect.transit.types :as ty]
             [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.ui.app.dialog :as dialog]
-            [com.yetanalytics.dave.func :as func])
+            [com.yetanalytics.dave.func :as func]
+            [com.yetanalytics.dave.ui.app.wizard :as wizard])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -107,7 +108,8 @@
    :opt-un [::id
             ::nav
             ::workbooks
-            ::dialog]))
+            ::dialog
+            ::wizard]))
 
 
 ;; This will include the default workbooks for DAVE
@@ -274,6 +276,8 @@
                         :picker
                         ;; so is the dialog
                         :dialog
+                        ;; so is the wizard
+                        :wizard
                         ;; Don't save dave.debug state, as it might be huge
                         :debug)]
     (when (save? to-save)
