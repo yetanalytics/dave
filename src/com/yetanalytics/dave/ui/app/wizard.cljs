@@ -4,6 +4,7 @@
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
             [com.yetanalytics.dave.workbook :as workbook]
+            [com.yetanalytics.dave.workbook.data :as data]
             [com.yetanalytics.dave.workbook.question :as question]
             [com.yetanalytics.dave.workbook.question.visualization :as vis]))
 
@@ -51,6 +52,12 @@
    :opt-un
    [:com.yetanalytics.dave.ui.app.wizard.workbook/form]))
 
+(s/def :com.yetanalytics.dave.ui.app.wizard.workbook.data/form
+  ::workbook/data)
+
+(s/def ::data
+  (s/keys :opt-un [:com.yetanalytics.dave.ui.app.wizard.workbook.data/form]))
+
 ;; Question + function
 (s/def :com.yetanalytics.dave.ui.app.wizard.workbook.question/id
  ::question/id)
@@ -97,7 +104,7 @@
                    ::workbook
                    ::question]))
 
-(defmethod step-type :done
+(defmethod step-type ::done
   [_]
   (s/keys :req-un [::step
                    ::workbook
@@ -140,11 +147,11 @@
                       visualization]
                :as wizard} (:wizard db)]
      (when (not= ::done step)
-       {:db (assoc-in db [:wizard :step]
-                      (get step-transitions step))
-        :dispatch-n
-        (case step
-          ::workbook
+       (case step
+         ::workbook
+         {:db (assoc-in db [:wizard :step]
+                        (get step-transitions step))
+          :dispatch-n
           (let [{:keys [id form]} workbook]
             (if-let [extant (get-in db [:workbooks id])]
               [[:crud/update! (merge extant
@@ -154,8 +161,35 @@
                                      {:id id
                                       :index 0
                                       :questions {}})
-                id]]))
-          )}))))
+                id]]))}
+
+         ::data
+         (let [{:keys [form]} data]
+           (if (= ::data/lrs (:type form))
+               ;; we only advance if the LRS is all set.
+               ;; If it isn't, we try to create it, which will call this again on success
+               (if (some-> db
+                           (get-in [:workbooks (:id workbook) :data])
+                           (select-keys [:title
+                                         :endpoint
+                                         :auth
+                                         :type])
+                           (= form))
+                 ;; next!
+                 {:db (assoc-in db [:wizard :step]
+                                (get step-transitions step))}
+                 ;; Attempt LRS creation
+                 {:db db
+                  :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/create-lrs
+                             (:id workbook)
+                             form]})
+               ;; For file, it's much easier
+               {:db (assoc-in db [:wizard :step]
+                              (get step-transitions step))
+                :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/change
+                           (:id workbook)
+                           form]}
+               )))))))
 
 ;; goes back, if possible
 (re-frame/reg-event-fx
@@ -194,12 +228,41 @@
                           into
                           conj)
                         [:wizard
-                         (if (= step ::data)
-                           :workbook
-                           (keyword (name step)))
+                         (keyword (name step))
                          :form]
                         k)
                     v)})))
+
+;; Specific Handlers
+(re-frame/reg-event-fx
+ :wizard.data/offer-picker
+ (fn [{:keys [db]}
+      _]
+   (let [workbook-id (get-in db [:wizard :workbook :id])]
+     {:dispatch
+      [:picker/offer
+       {:title "Choose a Data Source"
+        :choices
+        [{:label "DAVE Test Dataset"
+          :img-src ""
+          :dispatch [:wizard.form/set-field!
+                     []
+                     {:title "test dataset"
+                      :type :com.yetanalytics.dave.workbook.data/file
+                      :uri "data/dave/ds.json"
+                      :built-in? true}]}
+         {:label "LRS Data"
+          :img-src ""
+          :dispatch
+          [:wizard.form/set-field!
+           []
+           {:type :com.yetanalytics.dave.workbook.data/lrs
+            ;; remove dummy vals
+            :title "My LRS"
+            :endpoint "http://localhost:9001"
+            :auth {:username "123456789"
+                   :password "123456789"
+                   :type :com.yetanalytics.dave.workbook.data.lrs.auth/http-basic}}]}]}]})))
 
 ;; Subs
 
@@ -219,9 +282,7 @@
  ::step-key
  :<- [:wizard/step]
  (fn [step _]
-   (if (= step ::data)
-     :workbook
-     (keyword (name step)))))
+   (keyword (name step))))
 
 (re-frame/reg-sub
  :wizard.step/data
@@ -250,7 +311,7 @@
    (:visualization wizard)))
 
 (re-frame/reg-sub
- :wizard/id ;; id of current item
+ :wizard/current-id ;; id of current item
  :<- [:wizard.step/data]
  (fn [data _]
    (:id data)))
@@ -272,6 +333,7 @@
 
 (defonce form-specs
   {:workbook :com.yetanalytics.dave.ui.app.wizard.workbook/form
+   :data :com.yetanalytics.dave.ui.app.wizard.workbook.data/form
    :question :com.yetanalytics.dave.ui.app.wizard.workbook.question/form
    :visualization :com.yetanalytics.dave.ui.app.wizard.workbook.question.visualization/form})
 

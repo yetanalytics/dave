@@ -9,7 +9,6 @@
             [goog.string :refer [format]]
             [goog.string.format]))
 
-
 (re-frame/reg-event-fx
  ::set-state
  ;; called for a data source when loading is complete.
@@ -218,10 +217,15 @@
        ;; TODO: proceed with creation
        {:notify/snackbar
         {:message "Connecting LRS..."}
-        :dispatch-n [[:dialog/dismiss]
-                     [::change
-                      workbook-id
-                      lrs-data-spec]]}
+        :dispatch-n (cond-> [[::change
+                              workbook-id
+                              lrs-data-spec]]
+                      ;; If we're in the wizard, don't dismiss the dialog
+                      (not (:wizard db))
+                      (conj [:dialog/dismiss])
+                      ;; if we are, advance
+                      (:wizard db)
+                      (conj [:wizard/next]))}
        {:notify/snackbar
         {:message
          (format "LRS Error: %d"
