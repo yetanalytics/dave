@@ -452,6 +452,33 @@
     form)))
 
 (re-frame/reg-sub
+ :wizard.form.spec-errors/problems
+ :<- [:wizard.form/spec-errors]
+ (fn [spec-errors _]
+   (::s/problems spec-errors)))
+
+(re-frame/reg-sub
+ :wizard.form.field/problem
+ :<- [:wizard.form.spec-errors/problems]
+ (fn [problems [_ k]]
+   (let [k-path (if (vector? k)
+                  k
+                  [k])]
+     (when-let [{:keys [pred]
+                 :as problem}
+                (some
+                 (fn [{:keys [in]
+                       :as prob}]
+                   (when (= k-path in)
+                     prob))
+                 problems)]
+
+       (case pred
+         cljs.core/not-empty
+         "Required Field"
+         "Unknown Problem")))))
+
+(re-frame/reg-sub
  :wizard/dialog-actions
  :<- [:wizard.form/spec-errors]
  :<- [:wizard/step]

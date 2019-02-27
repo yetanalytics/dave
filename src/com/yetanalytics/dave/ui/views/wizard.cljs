@@ -5,8 +5,40 @@
             [com.yetanalytics.dave.ui.views.form.select
              :as select]))
 
+(defn wizard-field
+  "Simple text field for string fields"
+  [field-key label]
+  [:div.wizard-field
+   [textfield/textfield
+    :label label
+    :value @(subscribe [:wizard.form/field field-key])
+    :on-change (fn [e]
+                 (dispatch [:wizard.form/set-field!
+                            field-key
+                            (-> e .-target .-value)]))]
+   [textfield/helper-text
+    :text (str @(subscribe [:wizard.form.field/problem field-key]))
+    :persistent? true
+    :validation? true]])
+
+(defn wizard-textarea
+  "Simple text area"
+  [field-key label]
+  [:div.wizard-field
+   [textfield/textarea
+    :label label
+    :value @(subscribe [:wizard.form/field field-key])
+    :on-change (fn [e]
+                 (dispatch [:wizard.form/set-field!
+                            field-key
+                            (-> e .-target .-value)]))]
+   [textfield/helper-text
+    :text (str @(subscribe [:wizard.form.field/problem field-key]))
+    :persistent? true
+    :validation? true]])
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Step 2: Workbook ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Step 1: Workbook ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -14,20 +46,8 @@
 (defn step-1-form
   []
   [:div.wizard-form
-   [textfield/textfield
-    :label "Title"
-    :value @(subscribe [:wizard.form/field :title])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            :title
-                            (-> e .-target .-value)]))]
-   [textfield/textarea
-    :label "Description"
-    :value @(subscribe [:wizard.form/field :description])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            :description
-                            (-> e .-target .-value)]))]])
+   [wizard-field :title "Title"]
+   [wizard-textarea :description "Description"]])
 
 (defn step-1-workbook
   []
@@ -41,34 +61,10 @@
 (defn step-2-lrs-form
   []
   [:div.wizard-form
-   [textfield/textfield
-    :label "LRS Title"
-    :value @(subscribe [:wizard.form/field :title])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            :title
-                            (-> e .-target .-value)]))]
-   [textfield/textfield
-    :label "LRS Endpoint"
-    :value @(subscribe [:wizard.form/field :endpoint])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            :endpoint
-                            (-> e .-target .-value)]))]
-   [textfield/textfield
-    :label "API Key"
-    :value @(subscribe [:wizard.form/field [:auth :username]])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            [:auth :username]
-                            (-> e .-target .-value)]))]
-   [textfield/textfield
-    :label "API Key Secret"
-    :value @(subscribe [:wizard.form/field [:auth :password]])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            [:auth :password]
-                            (-> e .-target .-value)]))]])
+   [wizard-field :title "LRS Title"]
+   [wizard-field :endpoint "LRS Endpoint"]
+   [wizard-field [:auth :username] "HTTP Basic Auth Username"]
+   [wizard-field [:auth :password] "HTTP Basic Auth Password"]])
 
 (defn step-2-data
   []
@@ -91,13 +87,7 @@
 (defn step-3-question-form
   []
   [:div.wizard-form
-   [textfield/textfield
-    :label "Question Text"
-    :value @(subscribe [:wizard.form/field :text])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            :text
-                            (-> e .-target .-value)]))]])
+   [wizard-field :text "Question Text"]])
 
 (defn step-3-question
   []
@@ -116,13 +106,7 @@
 (defn step-4-visualization-form
   []
   [:div.wizard-form
-   [textfield/textfield
-    :label "Title"
-    :value @(subscribe [:wizard.form/field :title])
-    :on-change (fn [e]
-                 (dispatch [:wizard.form/set-field!
-                            :title
-                            (-> e .-target .-value)]))]])
+   [wizard-field :title "Title"]])
 (defn step-4-visualization
   []
   [:div.wizard.wizard-visualization "vis"
