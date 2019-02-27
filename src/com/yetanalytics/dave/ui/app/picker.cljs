@@ -13,6 +13,11 @@
   (s/cat :event-id qualified-keyword?
          :args (s/* identity)))
 
+(s/def :choice/dispatch-n
+  (s/every :choice/dispatch
+           :kind vector?
+           :into []))
+
 (s/def :choice/vega-spec
   map?)
 
