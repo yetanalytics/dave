@@ -25,7 +25,8 @@
   (s/keys :req-un [:choice/label
                    (or :choice/img-src
                        :choice/vega-spec)
-                   :choice/dispatch]))
+                   (or :choice/dispatch
+                       :choice/dispatch-n)]))
 
 (s/def ::choices
   (s/every ::choice))
@@ -48,12 +49,14 @@
 (re-frame/reg-event-fx
  :picker/pick
  (fn [{:keys [db] :as ctx} [_ choice-idx]]
-   (if-let [{:keys [dispatch] :as choice} (get-in db [:picker :choices choice-idx])]
+   (if-let [{:keys [dispatch
+                    dispatch-n] :as choice} (get-in db [:picker :choices choice-idx])]
      ;; TODO: DO something with choice
      {
       ;; dismiss the picker
-      :dispatch-n [[:picker/dismiss]
-                   dispatch]}
+      :dispatch-n (cond-> [[:picker/dismiss]]
+                    dispatch (conj dispatch)
+                    dispatch-n (into dispatch-n))}
 
      {:notify/snackbar
       {:message "Choice not found!"
