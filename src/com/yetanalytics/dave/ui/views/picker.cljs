@@ -18,8 +18,8 @@
      :else (throw (ex-info "No image or vega spec provided!"
                            {:type ::no-image
                             :choice choice})))
-   [:div
-    [:span.minorbutton label]]])
+   [:div.selectorspan
+    [:span label]]])
 
 (defn choice-list
   []
