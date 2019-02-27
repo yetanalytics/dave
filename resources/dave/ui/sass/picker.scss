@@ -24,6 +24,7 @@ div.picker {
   > ul {
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-end;
     margin: 80px auto;
     padding: 0;
     @extend .mdc-image-list--with-text-protection;
@@ -31,12 +32,37 @@ div.picker {
     min-width: 100%;
     list-style:none;
     > li {
-      padding-left: 50px;
-      padding-right:50px;
-      margin-bottom: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      border-radius: 10px;
+      padding: 15px 0px 0px 0px;
+      margin: 0px 30px 30px 30px;
+      transition: .1s;
+      height: 200px;
+      width: 200px;
       > div img{
         height: 150px;
+        width: 160px;
       }
+      > div.dave-vega-container{
+        min-height: 150px;
+        min-width: 170px;
+      }
+      > .selectorspan{
+        background-color: #d9d9d9;
+        padding: 5px 5px 5px 0px;
+        border-radius: 2px;
+        width: 100%;
+          > span{
+          margin-left: 10px;
+        }
+      }
+    }
+    > li:hover {
+      -webkit-box-shadow: inset 0px 4px 50px -3px rgba(0,0,0,0.13);
+      box-shadow: inset 0px 4px 50px -3px rgba(0,0,0,0.13);
+      transition: .1s;
     }
   }
   i.dismiss {
