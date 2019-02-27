@@ -31,16 +31,23 @@ div.picker {
     min-width: 100%;
     list-style:none;
     > li {
-      padding-left: 50px;
-      padding-right:50px;
-      margin-bottom: 30px;
+      border-radius: 20px;
+      padding: 25px 55px 25px 55px;
+      margin: 0px 30px 30px 30px;
+      transition: .1s;
       > div img{
         height: 150px;
+        width:160px;
       }
       > div.dave-vega-container{
         min-height: 150px;
         min-width: 150px;
       }
+    }
+    > li:hover {
+      -webkit-box-shadow: inset 0px 4px 50px -3px rgba(0,0,0,0.13);
+      box-shadow: inset 0px 4px 50px -3px rgba(0,0,0,0.13);
+      transition: .1s;
     }
   }
   i.dismiss {
