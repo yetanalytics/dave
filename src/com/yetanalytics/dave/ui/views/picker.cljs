@@ -36,7 +36,7 @@
            {:class (when title
                      "active")}
    [:div.picker-header
-    [:h1 title
+    [:h2 title
     [:i.material-icons.dismiss
      {:on-click #(dispatch [:picker/dismiss])}
      "close"]]

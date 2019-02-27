@@ -4,8 +4,14 @@
 
 
 div.picker {
-  h1{
-    margin: 40px 0px 40px 30px;
+  div.picker-header{
+    position: fixed;
+    z-index: 3;
+   background: white;
+    width: 100%;
+  }
+  h2{
+    margin: 20px 0px 20px 30px;
   }
   @extend .mdc-card;
   position: fixed;
@@ -16,7 +22,10 @@ div.picker {
   overflow-y: scroll;
   transition: max-height .2s;
   > ul {
-    @extend .mdc-image-list;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 80px auto;
+    padding: 0;
     @extend .mdc-image-list--with-text-protection;
     @include mdc-image-list-standard-columns(7);
     min-width: 100%;
@@ -44,6 +53,4 @@ div.picker {
 
 div.picker.active {
   min-height: 300px;
-
-
 }
