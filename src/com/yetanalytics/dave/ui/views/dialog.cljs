@@ -94,6 +94,18 @@
              ;; :mdc-dialog-action "save"
              :on-click #(dispatch [:dialog.form/save])}]}])
 
+(defn dialog-wizard
+  "Dialog for the dave workbook creation wizard"
+  []
+  [dialog {:title @(subscribe [:dialog/title])
+           :full-width? true
+           :full-height? true
+           :content [[:div "HEYY wizrd"]]
+           :actions
+           [#_{:label "Save"
+             ;; :mdc-dialog-action "save"
+             :on-click #(dispatch [:dialog.form/save])}]}])
+
 (defn dialog-container
   "Parent component that shows/hides the dialog"
   []
@@ -101,4 +113,6 @@
     @(subscribe [:dialog/open?])
     (conj (case @(subscribe [:dialog/mode])
             :com.yetanalytics.dave.ui.app.dialog/form
-            [dialog-form]))))
+            [dialog-form]
+            :com.yetanalytics.dave.ui.app.dialog/wizard
+            [dialog-wizard]))))
