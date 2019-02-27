@@ -3,7 +3,8 @@
   (:require ["@material/dialog" :refer [MDCDialog]]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [com.yetanalytics.dave.ui.views.form.textfield :as textfield]))
+            [com.yetanalytics.dave.ui.views.form.textfield :as textfield]
+            [com.yetanalytics.dave.ui.views.wizard :as wizard]))
 
 (defn dialog
   "A modal dialog."
@@ -100,7 +101,7 @@
   [dialog {:title @(subscribe [:dialog/title])
            :full-width? true
            :full-height? true
-           :content [[:div "HEYY wizrd"]]
+           :content [[wizard/wizard]]
            :actions
            [#_{:label "Save"
              ;; :mdc-dialog-action "save"
