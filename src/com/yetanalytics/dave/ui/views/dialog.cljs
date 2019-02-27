@@ -15,12 +15,16 @@
      {:reagent-render
       (fn [{:keys [title
                    content
-                   actions]}]
+                   actions
+                   full-width?
+                   full-height?]}]
         [:div.mdc-dialog.dave-dialog
-         {:role "alertdialog"
-          :aria-modal true
-          :aria-labelledby title-id
-          :aria-describedby content-id}
+         (cond-> {:role "alertdialog"
+                  :aria-modal true
+                  :aria-labelledby title-id
+                  :aria-describedby content-id}
+           full-width? (update :class str " fullwidth")
+           full-height? (update :class str " fullheight"))
          [:div.mdc-dialog__container
           [:div.mdc-dialog__surface
            [:h2.mdc-dialog__title

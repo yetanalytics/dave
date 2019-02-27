@@ -3,3 +3,7 @@
 .dave-dialog.fullwidth {
   @include mdc-dialog-min-width(99vw);
 }
+
+.dave-dialog.fullheight .mdc-dialog__surface {
+  min-height: 98vh;
+}
