@@ -103,7 +103,8 @@
            :full-height? true
            :content [[wizard/wizard]]
            :actions
-           [#_{:label "Save"
+           @(subscribe [:wizard/dialog-actions])
+           #_[#_{:label "Save"
              ;; :mdc-dialog-action "save"
              :on-click #(dispatch [:dialog.form/save])}]}])
 
