@@ -113,10 +113,23 @@
 ;; Step 4: Vis ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
+(defn step-4-visualization-form
+  []
+  [:div.wizard-form
+   [textfield/textfield
+    :label "Title"
+    :value @(subscribe [:wizard.form/field :title])
+    :on-change (fn [e]
+                 (dispatch [:wizard.form/set-field!
+                            :title
+                            (-> e .-target .-value)]))]])
 (defn step-4-visualization
   []
-  [:div.wizard.wizard-visualization "vis"])
+  [:div.wizard.wizard-visualization "vis"
+   [step-4-visualization-form]
+   [:button
+    {:on-click #(dispatch [:wizard.question.visualization/offer-picker])}
+    "Choose Visualization"]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Step 5: Done ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

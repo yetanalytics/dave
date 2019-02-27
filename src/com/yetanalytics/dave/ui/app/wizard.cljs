@@ -7,7 +7,8 @@
             [com.yetanalytics.dave.workbook.data :as data]
             [com.yetanalytics.dave.workbook.question :as question]
             [com.yetanalytics.dave.func :as func]
-            [com.yetanalytics.dave.workbook.question.visualization :as vis]))
+            [com.yetanalytics.dave.workbook.question.visualization :as vis]
+            [com.yetanalytics.dave.vis :as v]))
 
 ;; step order: workbook -> data -> question ->  visualization -> done
 
@@ -224,7 +225,31 @@
                                       :index 0
                                       :visualizations {}})
                 workbook-id
-                question-id]]))})))))
+                question-id]]))}
+         ::visualization
+         {:db (next! db)
+          :dispatch-n
+          (let [{workbook-id :id} workbook
+                {question-id :id} question
+                {vis-id :id
+                 :keys [form]} visualization]
+            (if-let [extant (get-in db [:workbooks
+                                        workbook-id
+                                        :questions
+                                        question-id
+                                        :visualizations
+                                        vis-id])]
+              [[:crud/update! (merge extant
+                                     form)
+                workbook-id
+                question-id
+                vis-id]]
+              [[:crud/create! (merge form
+                                     {:id vis-id
+                                      :index 0})
+                workbook-id
+                question-id
+                vis-id]]))})))))
 
 ;; goes back, if possible
 (re-frame/reg-event-fx
@@ -251,7 +276,10 @@
  :wizard/complete
  (fn [{:keys [db]}
       _]
-   ))
+   (let [workbook-id (get-in db [:wizard :workbook :id])]
+     {:com.yetanalytics.dave.ui.app.nav/nav-path! [:workbooks workbook-id]
+      :db (dissoc db :wizard)
+      :dispatch [:dialog/dismiss]})))
 
 ;; Form manipulation
 (re-frame/reg-event-fx
@@ -314,13 +342,32 @@
                                                    doc]}] func/registry]
                                    {:label title
                                     :img-src "img/lambda.svg"
-                                    :dispatch-n
-                                    [[:wizard.form/set-field!
-                                      :function
-                                      {:id id
-                                       :func (:function (func/get-func id))
-                                       :state {:statement-idx -1}
-                                       :args {}}]]}))}]})))
+                                    :dispatch
+                                    [:wizard.form/set-field!
+                                     :function
+                                     {:id id
+                                      :func (:function (func/get-func id))
+                                      :state {:statement-idx -1}
+                                      :args {}}]}))}]})))
+
+(re-frame/reg-event-fx
+ :wizard.question.visualization/offer-picker
+ (fn [{:keys [db]}
+      _]
+   (let [{{workbook-id :id} :workbook
+          {question-id :id
+           form :form} :question} (:wizard db)]
+     {:dispatch [:picker/offer
+                 {:title "Choose a DAVE Chart Prototype"
+                  :choices (into []
+                                 (for [[id {:keys [title
+                                                   vega-spec]}] v/registry]
+                                   {:label title
+                                    :vega-spec vega-spec
+                                    :dispatch [:wizard.form/set-field!
+                                               :vis
+                                               {:id id
+                                                :args {}}]}))}]})))
 
 ;; Subs
 
@@ -421,4 +468,8 @@
           (not= step :done))
      (conj
       {:label "Next"
-       :on-click #(re-frame/dispatch [:wizard/next])}))))
+       :on-click #(re-frame/dispatch [:wizard/next])})
+     (= step ::done)
+     (conj
+      {:label "Go to Workbook"
+       :on-click #(re-frame/dispatch [:wizard/complete])}))))
