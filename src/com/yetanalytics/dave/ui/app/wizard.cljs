@@ -137,7 +137,21 @@
                 :mode :com.yetanalytics.dave.ui.app.dialog/wizard
                 :dispatch-cancel [:wizard/cancel]}]}))
 
+(defn maybe-set-next-id
+  [db next-step-key]
+  (if-not (or (= :data next-step-key) ;; data has no id
+              (get-in db [:wizard next-step-key :id]))
+    (assoc-in db [:wizard next-step-key :id] (random-uuid))
+    db))
 
+(defn next!
+  [db]
+  (let [this-step (get-in db [:wizard :step])
+        next-step (get step-transitions this-step)
+        next-step-key (keyword (name next-step))]
+    (-> db
+        (maybe-set-next-id next-step-key)
+        (assoc-in [:wizard :step] next-step))))
 
 ;; proceeds, if possible
 (re-frame/reg-event-fx
@@ -151,71 +165,66 @@
                       visualization]
                :as wizard} (:wizard db)]
      (when (not= ::done step)
-       (let [next-step (get step-transitions step)]
-         (case step
-           ::workbook
-           {:db (assoc-in db [:wizard :step]
-                          next-step)
-            :dispatch-n
-            (let [{:keys [id form]} workbook]
-              (if-let [extant (get-in db [:workbooks id])]
-                [[:crud/update! (merge extant
-                                       form)
-                  id]]
-                [[:crud/create! (merge form
-                                       {:id id
-                                        :index 0
-                                        :questions {}})
-                  id]]))}
+       (case step
+         ::workbook
+         {:db (next! db)
+          :dispatch-n
+          (let [{:keys [id form]} workbook]
+            (if-let [extant (get-in db [:workbooks id])]
+              [[:crud/update! (merge extant
+                                     form)
+                id]]
+              [[:crud/create! (merge form
+                                     {:id id
+                                      :index 0
+                                      :questions {}})
+                id]]))}
 
-           ::data
-           (let [{:keys [form]} data]
-             (if (= ::data/lrs (:type form))
-               ;; we only advance if the LRS is all set.
-               ;; If it isn't, we try to create it, which will call this again on success
-               (if (some-> db
-                           (get-in [:workbooks (:id workbook) :data])
-                           (select-keys [:title
-                                         :endpoint
-                                         :auth
-                                         :type])
-                           (= form))
-                 ;; next!
-                 {:db (assoc-in db [:wizard :step]
-                                next-step)}
-                 ;; Attempt LRS creation
-                 {:db db
-                  :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/create-lrs
-                             (:id workbook)
-                             form]})
-               ;; For file, it's much easier
-               {:db (assoc-in db [:wizard :step]
-                              next-step)
-                :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/change
+         ::data
+         (let [{:keys [form]} data]
+           (if (= ::data/lrs (:type form))
+             ;; we only advance if the LRS is all set.
+             ;; If it isn't, we try to create it, which will call this again on success
+             (if (some-> db
+                         (get-in [:workbooks (:id workbook) :data])
+                         (select-keys [:title
+                                       :endpoint
+                                       :auth
+                                       :type])
+                         (= form))
+               ;; next!
+               {:db (next! db)}
+               ;; Attempt LRS creation
+               {:db db
+                :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/create-lrs
                            (:id workbook)
-                           form]}
-               ))
-           ::question
-           {:db (assoc-in db [:wizard :step]
-                          next-step)
-            :dispatch-n
-            (let [{workbook-id :id} workbook
-                  {question-id :id
-                   :keys [form]} question]
-              (if-let [extant (get-in db [:workbooks
-                                          workbook-id
-                                          :questions
-                                          question-id])]
-                [[:crud/update! (merge extant
-                                       form)
-                  workbook-id
-                  question-id]]
-                [[:crud/create! (merge form
-                                       {:id question-id
-                                        :index 0
-                                        :visualizations {}})
-                  workbook-id
-                  question-id]]))}))))))
+                           form]})
+             ;; For file, it's much easier
+             {:db (next! db)
+              :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/change
+                         (:id workbook)
+                         form]}
+             ))
+         ::question
+         {:db (next! db)
+          :dispatch-n
+          (let [{workbook-id :id} workbook
+                {question-id :id
+                 :keys [form]} question]
+            (if-let [extant (get-in db [:workbooks
+                                        workbook-id
+                                        :questions
+                                        question-id])]
+              [[:crud/update! (merge extant
+                                     form)
+                workbook-id
+                question-id]]
+              [[:crud/create! (merge form
+                                     {:id question-id
+                                      :index 0
+                                      :visualizations {}})
+                workbook-id
+                question-id]]))})))))
 
 ;; goes back, if possible
 (re-frame/reg-event-fx
