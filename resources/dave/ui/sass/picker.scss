@@ -4,6 +4,15 @@
 
 
 div.picker {
+  div.picker-header{
+    position: fixed;
+    z-index: 3;
+   background: white;
+    width: 100%;
+  }
+  h2{
+    margin: 20px 0px 20px 30px;
+  }
   @extend .mdc-card;
   position: fixed;
   z-index: 8 !important;
@@ -11,35 +20,63 @@ div.picker {
   width: 100vw;
   max-height: 0px;
   overflow-y: scroll;
-  transition: max-height 1s;
+  transition: max-height .2s;
   > ul {
-    @extend .mdc-image-list;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin: 80px auto;
+    padding: 0;
     @extend .mdc-image-list--with-text-protection;
-    @include mdc-image-list-standard-columns(5);
+    @include mdc-image-list-standard-columns(7);
     min-width: 100%;
+    list-style:none;
     > li {
-      @extend .mdc-image-list__item;
-      > div:nth-child(1) {
-        @extend .mdc-image-list__image-aspect-container;
-        > img, svg {
-          @extend .mdc-image-list__image;
-        }
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      border-radius: 10px;
+      padding: 15px 0px 0px 0px;
+      margin: 0px 30px 30px 30px;
+      transition: .1s;
+      height: 200px;
+      width: 200px;
+      > div img{
+        height: 150px;
+        width: 160px;
       }
-      > div:nth-child(2) {
-        @extend .mdc-image-list__supporting;
-        > span {
-          @extend .mdc-image-list__label;
+      > div.dave-vega-container{
+        min-height: 150px;
+        min-width: 170px;
+      }
+      > .selectorspan{
+        background-color: #d9d9d9;
+        padding: 5px 5px 5px 0px;
+        border-radius: 2px;
+        width: 100%;
+          > span{
+          margin-left: 10px;
         }
       }
     }
+    > li:hover {
+      -webkit-box-shadow: inset 0px 4px 50px -3px rgba(0,0,0,0.13);
+      box-shadow: inset 0px 4px 50px -3px rgba(0,0,0,0.13);
+      transition: .1s;
+    }
   }
   i.dismiss {
-    position: absolute;
-    top: .5em;
-    right: .5em;
+    position: fixed;
+     right: 5%;
+     margin-top: -5px;
+    color: white;
+    background-color: #2A58CD;
+    padding: 10px;
+    border-radius: 30px;
+    z-index: 1;
   }
 }
 
 div.picker.active {
-  max-height: 256px;
+  min-height: 300px;
 }

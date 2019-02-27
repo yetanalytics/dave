@@ -18,7 +18,7 @@
      :else (throw (ex-info "No image or vega spec provided!"
                            {:type ::no-image
                             :choice choice})))
-   [:div
+   [:div.selectorspan
     [:span label]]])
 
 (defn choice-list
@@ -32,12 +32,13 @@
 (defn picker
   []
   (let [title @(subscribe [:picker/title])]
-    (cond-> [:div.picker
-             {:class (when title
-                       "active")}
-             [:i.material-icons.dismiss
-              {:on-click #(dispatch [:picker/dismiss])}
-              "close"]]
-      title (conj
-             [:h2 title]
-             [choice-list]))))
+  [:div.picker
+           {:class (when title
+                     "active")}
+   [:div.picker-header
+    [:h2 title
+    [:i.material-icons.dismiss
+     {:on-click #(dispatch [:picker/dismiss])}
+     "close"]]
+    ]
+   [choice-list]]))
