@@ -14,7 +14,8 @@
    [com.yetanalytics.dave.ui.app.workbook.question.visualization]
    [com.yetanalytics.dave.ui.app.crud]
    [com.yetanalytics.dave.ui.app.dialog]
-   [com.yetanalytics.dave.ui.app.picker]))
+   [com.yetanalytics.dave.ui.app.picker]
+   [com.yetanalytics.dave.ui.app.wizard]))
 
 (defn init!
   "Synchronously initialize the application:
