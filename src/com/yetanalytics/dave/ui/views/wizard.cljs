@@ -81,21 +81,6 @@
      :com.yetanalytics.dave.workbook.data/lrs
      [step-2-lrs-form]
      nil)
-   #_[select/select
-    :label "Select A Data Source"
-    :selected (or (some-> @(subscribe [:wizard.form/field :type])
-                          name)
-                  "file")
-    :options [{:value "file"
-               :label "Dave Built-in Dataset"}
-              {:value "lrs"
-               :label "xAPI LRS"}]
-    :handler
-    (fn [v-str]
-      (dispatch [:wizard.form/set-field!
-                 :type
-                 (keyword "com.yetanalytics.dave.workbook.data"
-                          v-str)]))]
    ])
 
 
@@ -103,10 +88,26 @@
 ;; Step 3: Question ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn step-3-question-form
+  []
+  [:div.wizard-form
+   [textfield/textfield
+    :label "Question Text"
+    :value @(subscribe [:wizard.form/field :text])
+    :on-change (fn [e]
+                 (dispatch [:wizard.form/set-field!
+                            :text
+                            (-> e .-target .-value)]))]])
 
 (defn step-3-question
   []
-  [:div.wizard.wizard-question "question"])
+  [:div.wizard.wizard-question
+   "question"
+   [step-3-question-form]
+   [:button
+    {:on-click #(dispatch [:wizard.question.function/offer-picker])}
+    "Choose Function"]
+   ])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Step 4: Vis ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -6,6 +6,7 @@
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.workbook.data :as data]
             [com.yetanalytics.dave.workbook.question :as question]
+            [com.yetanalytics.dave.func :as func]
             [com.yetanalytics.dave.workbook.question.visualization :as vis]))
 
 ;; step order: workbook -> data -> question ->  visualization -> done
@@ -36,7 +37,7 @@
 ;; don't need it.
 ;; We also have a form map for edits
 
-;; workbook + data
+;; workbook + data partial specs
 
 (s/def :com.yetanalytics.dave.ui.app.wizard.workbook/id
   ::workbook/id)
@@ -63,7 +64,8 @@
  ::question/id)
 
 (s/def :com.yetanalytics.dave.ui.app.wizard.workbook.question/form
-  (s/keys :req-un [::question/text]))
+  (s/keys :req-un [::question/text
+                   ::question/function]))
 
 (s/def ::question
   (s/keys
@@ -135,6 +137,8 @@
                 :mode :com.yetanalytics.dave.ui.app.dialog/wizard
                 :dispatch-cancel [:wizard/cancel]}]}))
 
+
+
 ;; proceeds, if possible
 (re-frame/reg-event-fx
  :wizard/next
@@ -147,25 +151,26 @@
                       visualization]
                :as wizard} (:wizard db)]
      (when (not= ::done step)
-       (case step
-         ::workbook
-         {:db (assoc-in db [:wizard :step]
-                        (get step-transitions step))
-          :dispatch-n
-          (let [{:keys [id form]} workbook]
-            (if-let [extant (get-in db [:workbooks id])]
-              [[:crud/update! (merge extant
-                                     form)
-                id]]
-              [[:crud/create! (merge form
-                                     {:id id
-                                      :index 0
-                                      :questions {}})
-                id]]))}
+       (let [next-step (get step-transitions step)]
+         (case step
+           ::workbook
+           {:db (assoc-in db [:wizard :step]
+                          next-step)
+            :dispatch-n
+            (let [{:keys [id form]} workbook]
+              (if-let [extant (get-in db [:workbooks id])]
+                [[:crud/update! (merge extant
+                                       form)
+                  id]]
+                [[:crud/create! (merge form
+                                       {:id id
+                                        :index 0
+                                        :questions {}})
+                  id]]))}
 
-         ::data
-         (let [{:keys [form]} data]
-           (if (= ::data/lrs (:type form))
+           ::data
+           (let [{:keys [form]} data]
+             (if (= ::data/lrs (:type form))
                ;; we only advance if the LRS is all set.
                ;; If it isn't, we try to create it, which will call this again on success
                (if (some-> db
@@ -177,7 +182,7 @@
                            (= form))
                  ;; next!
                  {:db (assoc-in db [:wizard :step]
-                                (get step-transitions step))}
+                                next-step)}
                  ;; Attempt LRS creation
                  {:db db
                   :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/create-lrs
@@ -185,11 +190,32 @@
                              form]})
                ;; For file, it's much easier
                {:db (assoc-in db [:wizard :step]
-                              (get step-transitions step))
+                              next-step)
                 :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/change
                            (:id workbook)
                            form]}
-               )))))))
+               ))
+           ::question
+           {:db (assoc-in db [:wizard :step]
+                          next-step)
+            :dispatch-n
+            (let [{workbook-id :id} workbook
+                  {question-id :id
+                   :keys [form]} question]
+              (if-let [extant (get-in db [:workbooks
+                                          workbook-id
+                                          :questions
+                                          question-id])]
+                [[:crud/update! (merge extant
+                                       form)
+                  workbook-id
+                  question-id]]
+                [[:crud/create! (merge form
+                                       {:id question-id
+                                        :index 0
+                                        :visualizations {}})
+                  workbook-id
+                  question-id]]))}))))))
 
 ;; goes back, if possible
 (re-frame/reg-event-fx
@@ -208,7 +234,8 @@
    (let [id (get-in db [:wizard :workbook :id])]
      (cond-> {:db (dissoc db :wizard)}
        (get-in db [:workbooks id])
-       (assoc :dispatch [:com.yetanalytics.dave.ui.app.crud/delete! id])))))
+       (assoc :dispatch-n [[:com.yetanalytics.dave.ui.app.crud/delete! id]
+                           [:db/save]])))))
 
 ;; completes, if possible
 (re-frame/reg-event-fx
@@ -263,6 +290,28 @@
             :auth {:username "123456789"
                    :password "123456789"
                    :type :com.yetanalytics.dave.workbook.data.lrs.auth/http-basic}}]}]}]})))
+
+(re-frame/reg-event-fx
+ :wizard.question.function/offer-picker
+ (fn [{:keys [db]}
+      _]
+   (let [{{workbook-id :id} :workbook
+          {question-id :id
+           form :form} :question} (:wizard db)]
+     {:dispatch [:picker/offer
+                 {:title "Choose a DAVE Function"
+                  :choices (into []
+                                 (for [[id {:keys [title
+                                                   doc]}] func/registry]
+                                   {:label title
+                                    :img-src "img/lambda.svg"
+                                    :dispatch-n
+                                    [[:wizard.form/set-field!
+                                      :function
+                                      {:id id
+                                       :func (:function (func/get-func id))
+                                       :state {:statement-idx -1}
+                                       :args {}}]]}))}]})))
 
 ;; Subs
 
