@@ -273,14 +273,14 @@
                {:title "Choose a Data Source"
                 :choices
                 [{:label "DAVE Test Dataset"
-                  :img-src "/img/folder.png"
+                  :img-src "img/folder.png"
                   :dispatch [::change workbook-id
                              {:title "test dataset"
                               :type :com.yetanalytics.dave.workbook.data/file
                               :uri "data/dave/ds.json"
                               :built-in? true}]}
                  {:label "LRS Data"
-                  :img-src "/img/db.png"
+                  :img-src "img/db.png"
                   :dispatch
                   [:dialog.form/offer
                    {:title "LRS Data Info"
