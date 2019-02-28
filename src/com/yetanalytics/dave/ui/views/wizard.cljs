@@ -185,13 +185,48 @@
 
 (defn step-3-info
   []
-  [:div.wizard-info
-   "Write out the question you would like to answer, and select a function to answer it."])
+  (let [result-count @(subscribe [:wizard.question.function/result-count])]
+    [:div.wizard-info
+     [:p "Write out the question you would like to answer, and select a function to answer it."]
+     [:p (str "For the chosen data source (and arguments, if provided), this function will return " result-count  " results.")]]))
 
+(defn step-3-form-function-info
+  []
+  (let [{:keys [title
+                doc]} @(subscribe [:wizard.question.function/info])]
+    [:div
+     [:h3 "Function: " title]
+     [:p doc]]))
+
+(defn step-3-form-function-args
+  []
+  (let [{:keys [workbook-id question-id]}
+        @(subscribe [:com.yetanalytics.dave.ui.app.wizard/wizard])]
+    (into [:div.args]
+          (for [[k enum] @(subscribe [:wizard.question.function.info/args-enum])
+                ]
+            [select/select
+             :label (name k)
+             :options (into []
+                            (for [v enum]
+                              {:label (name v)
+                               :value (name v)}))
+             :selected (if-let [sel @(subscribe [:wizard.form/field (conj [:function :args]
+                                                                            k)])]
+                         (name sel)
+                         "")
+             :handler #(-> %
+                           keyword
+                           (->> (conj [:workbook.question.function/set-arg!
+                                       workbook-id question-id
+                                       k]))
+                           dispatch)]))))
 (defn step-3-form
   []
   [:div.wizard-form
    [wizard-field :text "Question Text"]
+   [step-3-form-function-info]
+   [step-3-form-function-args]
    [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.function/offer-picker])}
     (if-not @(subscribe [:wizard.form/field :function])
@@ -201,7 +236,14 @@
 (defn step-3-problems
   []
   [:div.wizard-problems
-   (str @(subscribe [:wizard.form/field []]))])
+   [:p
+
+    (let [spec-errors @(subscribe [:wizard.form/spec-errors])
+          other-errors @(subscribe [:wizard.form/other-errors])]
+      (cond
+        spec-errors "Please fill out all fields."
+        other-errors "The function didn't return any results. Please try another, or go back and select a different data source."
+        :else "Looks good, click NEXT to continue."))]])
 
 (defn step-3-question
   []
@@ -209,7 +251,8 @@
    [:div
     [step-3-header]
     [step-3-form] [step-3-info]
-    [step-3-problems]]])
+    [step-3-problems]]
+   ])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
