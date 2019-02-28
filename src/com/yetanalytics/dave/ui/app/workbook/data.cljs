@@ -295,11 +295,10 @@
                               :label "API Key Secret"}]
                     :form {:type :com.yetanalytics.dave.workbook.data/lrs
                            :built-in? false
-                           ;; remove dummy vals
-                           :title "My LRS"
-                           :endpoint "http://localhost:9001"
-                           :auth {:username "123456789"
-                                  :password "123456789"
+                           ;; :title "My LRS"
+                           ;; :endpoint "http://localhost:9001"
+                           :auth {;; :username "123456789"
+                                  ;; :password "123456789"
                                   :type :com.yetanalytics.dave.workbook.data.lrs.auth/http-basic}}
                     :dispatch-save [::create-lrs workbook-id]}]}]}]}))
 
