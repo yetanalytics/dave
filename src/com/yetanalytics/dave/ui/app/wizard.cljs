@@ -17,15 +17,13 @@
   #{::workbook
     ::data
     ::question
-    ::visualization
-    ::done})
+    ::visualization})
 
 ;; Define the valid transitions
 (def step-transitions
   {::workbook ::data
    ::data ::question
-   ::question ::visualization
-   ::visualization ::done})
+   ::question ::visualization})
 
 (def step-transitions-reverse
   (reduce-kv
@@ -123,7 +121,7 @@
  :wizard/complete
  (fn [{:keys [db]}
       _]
-   (let [workbook-id (get-in db [:wizard :workbook :id])]
+   (let [workbook-id (get-in db [:wizard :workbook-id])]
      {:com.yetanalytics.dave.ui.app.nav/nav-path! [:workbooks workbook-id]
       :db (dissoc db :wizard)
       :dispatch-n [[:dialog/dismiss]
@@ -309,22 +307,21 @@
                question-id
                vis-id]}
        workbook-map] _]
-   (when-not (= step ::done)
-     (get-in workbook-map
-             (case step
-               ::workbook [workbook-id]
-               ::data [workbook-id
-                       :data]
-               ::question [workbook-id
-                           :questions
-                           question-id]
-               ::visualization
-               [workbook-id
-                :questions
-                question-id
-                :visualizations
-                vis-id]
-               )))))
+   (get-in workbook-map
+           (case step
+             ::workbook [workbook-id]
+             ::data [workbook-id
+                     :data]
+             ::question [workbook-id
+                         :questions
+                         question-id]
+             ::visualization
+             [workbook-id
+              :questions
+              question-id
+              :visualizations
+              vis-id]
+             ))))
 
 ;; Specify a step target, won't change
 (re-frame/reg-sub
@@ -336,22 +333,21 @@
                question-id
                vis-id]}
        workbook-map] [_ step]]
-   (when-not (= step ::done)
-     (get-in workbook-map
-             (case step
-               ::workbook [workbook-id]
-               ::data [workbook-id
-                       :data]
-               ::question [workbook-id
-                           :questions
-                           question-id]
-               ::visualization
-               [workbook-id
-                :questions
-                question-id
-                :visualizations
-                vis-id]
-               )))))
+   (get-in workbook-map
+           (case step
+             ::workbook [workbook-id]
+             ::data [workbook-id
+                     :data]
+             ::question [workbook-id
+                         :questions
+                         question-id]
+             ::visualization
+             [workbook-id
+              :questions
+              question-id
+              :visualizations
+              vis-id]
+             ))))
 
 (re-frame/reg-sub
  :wizard/current-spec
@@ -361,8 +357,7 @@
      ::workbook workbook/workbook-spec
      ::data data/data-spec
      ::question question/question-spec
-     ::visualization vis/visualization-spec
-     ::done identity)))
+     ::visualization vis/visualization-spec)))
 
 (re-frame/reg-sub
  :wizard.form/field
@@ -444,7 +439,7 @@
      (conj
       {:label "Previous"
        :on-click #(re-frame/dispatch [:wizard/prev])})
-     (not= step :done)
+     (not= step ::visualization)
      (conj
       {:label "Next"
        :disabled?
@@ -452,9 +447,12 @@
        (or (some? ?spec-error)
            (some? ?other-errors))
        :on-click #(re-frame/dispatch [:wizard/next])})
-     (= step ::done)
+     (= step ::visualization)
      (conj
       {:label "Go to Workbook"
+       :disabled?
+       (or (some? ?spec-error)
+           (some? ?other-errors))
        :on-click #(re-frame/dispatch [:wizard/complete])}))))
 
 (re-frame/reg-sub
