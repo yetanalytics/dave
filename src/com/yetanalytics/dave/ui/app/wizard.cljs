@@ -44,8 +44,8 @@
       :question-id question-id
       :vis-id vis-id}
      {:id workbook-id
-      :title "DAVE Alpha Demo"
-      :description "A tour of DAVE Alpha features."
+      :title "DAVE Wizard Workbnook"
+      :description "A DAVE Workbook created with help from the DAVE Wizard."
       :index 0
       :data {:title "test dataset"
              :type :com.yetanalytics.dave.workbook.data/file
