@@ -169,7 +169,7 @@
                   [:com.yetanalytics.dave.ui.app.workbook.data/check-lrs
                    new-data
                    ;; success
-                   [:com.yetanalytics.dave.ui.app.workbook.data/clear-errors
+                   [:com.yetanalytics.dave.ui.app.workbook.data/ensure*
                     workbook-id]
                    ;; error
                    [:com.yetanalytics.dave.ui.app.workbook.data/error!
@@ -259,10 +259,10 @@
            workbook-id
            {:type :com.yetanalytics.dave.workbook.data/lrs
             ;; remove dummy vals
-            :title "My LRS"
-            :endpoint "http://localhost:9001"
-            :auth {:username "123456789"
-                   :password "123456789"
+            ;; :title "My LRS"
+            ;; :endpoint "http://localhost:9001"
+            :auth {;; :username "123456789"
+                   ;; :password "123456789"
                    :type :com.yetanalytics.dave.workbook.data.lrs.auth/http-basic}}]}]}]})))
 
 (re-frame/reg-event-fx
