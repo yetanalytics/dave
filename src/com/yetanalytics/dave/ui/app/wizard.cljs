@@ -134,7 +134,7 @@
       _]
    {:db (assoc db :wizard (init-state))
     :dispatch [:dialog/offer
-               {:title "DAVE Wizard"
+               {:title "DAVE Workbook Wizard"
                 :mode :com.yetanalytics.dave.ui.app.dialog/wizard
                 :dispatch-cancel [:wizard/cancel]}]}))
 
@@ -500,3 +500,6 @@
      (conj
       {:label "Go to Workbook"
        :on-click #(re-frame/dispatch [:wizard/complete])}))))
+
+#_(s/reg-sub
+ :wizard.function)

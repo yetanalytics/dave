@@ -28,7 +28,7 @@
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    [:button
     {:on-click #(dispatch [:wizard/start])}
-    "Create Your Own Report"]])
+    "Create Your Own Workbook"]])
 
 
 
