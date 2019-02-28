@@ -43,14 +43,17 @@
                    "Cancel"]]
                  (for [{:keys [label
                                mdc-dialog-action
-                               on-click]} actions]
+                               on-click
+                               disabled?]} actions]
                    [:button.mdc-button.mdc-dialog__button
                     (cond-> {:on-click on-click
                              #_(fn [e]
                                          (.preventDefault e)
                                          (.close @dialog-ref)
                                          (on-click)
-                                         e)}
+                                 e)}
+                      disabled?
+                      (assoc :disabled true)
                       mdc-dialog-action
                       (assoc :data-mdc-dialog-action
                              mdc-dialog-action))

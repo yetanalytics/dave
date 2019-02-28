@@ -490,11 +490,12 @@
      (conj
       {:label "Previous"
        :on-click #(re-frame/dispatch [:wizard/prev])})
-     ;; TODO: other checks
-     (and (nil? ?spec-error)
-          (not= step :done))
+     (not= step :done)
      (conj
       {:label "Next"
+       :disabled?
+       ;; TODO: other checks
+       (some? ?spec-error)
        :on-click #(re-frame/dispatch [:wizard/next])})
      (= step ::done)
      (conj
