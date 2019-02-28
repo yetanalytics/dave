@@ -30,6 +30,10 @@ h3{
   }
 }
 
+.args{
+  margin-bottom:15px;
+}
+
 
 .wizard {
   @include mdc-layout-grid('desktop', 16px);
