@@ -17,6 +17,13 @@ dd{
     font-family: 'Lato', sans-serif;
 }
 
+h3{
+  color: #00a899;
+  font-weight:bold;
+  font-family: 'Lato', sans-serif;
+}
+
+
 .wizard {
   @include mdc-layout-grid('desktop', 16px);
   > div {

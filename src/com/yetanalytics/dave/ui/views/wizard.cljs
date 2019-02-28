@@ -106,14 +106,14 @@
                 "Choose Data Source")]]
       (= :com.yetanalytics.dave.workbook.data/lrs
          data-type)
-      (conj [:h2 "LRS Data Source"]
+      (conj [:h3 "LRS Data Source"]
             [wizard-field :title "LRS Title"]
             [wizard-field :endpoint "LRS Endpoint"]
             [wizard-field [:auth :username] "HTTP Basic Auth Username"]
             [wizard-field [:auth :password] "HTTP Basic Auth Password"])
       (= :com.yetanalytics.dave.workbook.data/file
          data-type)
-      (conj [:h2 "DAVE Test Dataset"]))))
+      (conj [:h3 "DAVE Test Dataset"]))))
 
 (defn step-2-data-state
   []
