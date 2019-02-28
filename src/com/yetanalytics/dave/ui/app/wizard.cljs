@@ -34,238 +34,85 @@
    {}
    step-transitions))
 
-;; For each step, we hold an ID to create, validate against. Some steps (like data)
-;; don't need it.
-;; We also have a form map for edits
+(defn generate-skeleton
+  "Generate a new, skeletal workbook. returns a tuple that is the map of ids and
+  the skeleton"
+  []
+  (let [workbook-id (random-uuid)
+        question-id (random-uuid)
+        vis-id (random-uuid)]
+    [{:workbook-id workbook-id
+      :question-id question-id
+      :vis-id vis-id}
+     {:id workbook-id
+      :title "DAVE Alpha Demo"
+      :description "A tour of DAVE Alpha features."
+      :index 0
+      :data {:title "test dataset"
+             :type :com.yetanalytics.dave.workbook.data/file
+             :uri "data/dave/ds.json"
+             :built-in? true
+             :state {:statement-idx -1}}
+      :questions
+      {question-id
+       {:id question-id
+        :text "When do learners do their best work?"
+        :function {:id :com.yetanalytics.dave.func/success-timeline
+                   :state {:statement-idx -1}
+                   :func (:function
+                          (func/get-func
+                           :com.yetanalytics.dave.func/success-timeline))}
+        :index 0
+        :visualizations
+        {vis-id
+         {:id vis-id
+          :title "Scores of Successful Statements"
+          :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter
+                :args {}}
+          :index 0}}}}}]))
 
-;; workbook + data partial specs
-
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook/id
+(s/def ::workbook-id
   ::workbook/id)
 
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook/form
-  (s/keys :req-un [::workbook/title
-                   ::workbook/description]))
+(s/def ::question-id
+  ::question/id)
 
-(s/def ::workbook
-  (s/keys
-   :req-un
-   [:com.yetanalytics.dave.ui.app.wizard.workbook/id]
-   :opt-un
-   [:com.yetanalytics.dave.ui.app.wizard.workbook/form]))
-
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook.data/form
-  ::workbook/data)
-
-(s/def ::data
-  (s/keys :opt-un [:com.yetanalytics.dave.ui.app.wizard.workbook.data/form]))
-
-;; Question + function
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook.question/id
- ::question/id)
-
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook.question/form
-  (s/keys :req-un [::question/text
-                   ::question/function]))
-
-(s/def ::question
-  (s/keys
-   :req-un [:com.yetanalytics.dave.ui.app.wizard.workbook.question/id]
-   :opt-un [:com.yetanalytics.dave.ui.app.wizard.workbook.question/form]))
-
-;; Visualization + vis
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook.question.visualization/id
+(s/def ::vis-id
   ::vis/id)
 
-(s/def :com.yetanalytics.dave.ui.app.wizard.workbook.question.visualization/form
-  (s/keys :req-un [::vis/title]))
-
-(s/def ::visualization
-  (s/keys
-   :req-un [:com.yetanalytics.dave.ui.app.wizard.workbook.question.visualization/id]
-   :opt-un [:com.yetanalytics.dave.ui.app.wizard.workbook.question.visualization/form]))
-
-(defmulti step-type :step)
-
-(defmethod step-type ::workbook
-  [_]
-  (s/keys :req-un [::step]))
-
-(defmethod step-type ::data
-  [_]
-  (s/keys :req-un [::step
-                   ::workbook]))
-
-(defmethod step-type ::question
-  [_]
-  (s/keys :req-un [::step
-                   ::workbook]))
-
-(defmethod step-type ::visualization
-  [_]
-  (s/keys :req-un [::step
-                   ::workbook
-                   ::question]))
-
-(defmethod step-type ::done
-  [_]
-  (s/keys :req-un [::step
-                   ::workbook
-                   ::question
-                   ::visualization]))
-
-;; top level key
+;; top level key tracks the target workbook and step
 (s/def ::wizard
-  (s/multi-spec step-type :step))
+  (s/keys :req-un [::workbook-id
+                   ::question-id
+                   ::vis-id
+                   ::step]))
 
-(def init-forms
-  {::workbook {:title "My Workbook"
-               :description "A new DAVE Workbook"}})
-
-(defn init-state
-  []
-  {:step ::workbook
-   :workbook {:id (random-uuid)
-              :form (::workbook init-forms)}})
-
+;; Initialize the workbook
 (re-frame/reg-event-fx
  :wizard/start
  (fn [{:keys [db]}
       _]
-   {:db (assoc db :wizard (init-state))
-    :dispatch [:dialog/offer
-               {:title "DAVE Workbook Wizard"
-                :mode :com.yetanalytics.dave.ui.app.dialog/wizard
-                :dispatch-cancel [:wizard/cancel]}]}))
+   (let [[{:keys [workbook-id
+                  ]
+           :as id-map}
+          skeleton] (generate-skeleton)]
+     {:db (assoc db :wizard (merge
+                             {:step ::workbook}
+                             id-map))
+      :dispatch-n [[:crud/create!
+                    skeleton
+                    workbook-id]
+                   [:dialog/offer
+                    {:title "DAVE Workbook Wizard"
+                     :mode :com.yetanalytics.dave.ui.app.dialog/wizard
+                     :dispatch-cancel [:wizard/cancel]}]]})))
 
-(defn maybe-set-next-id
-  [db next-step-key]
-  (if-not (or (= :data next-step-key) ;; data has no id
-              (get-in db [:wizard next-step-key :id]))
-    (assoc-in db [:wizard next-step-key :id] (random-uuid))
-    db))
-
-(defn next!
-  [db]
-  (let [this-step (get-in db [:wizard :step])
-        next-step (get step-transitions this-step)
-        next-step-key (keyword (name next-step))]
-    (-> db
-        (maybe-set-next-id next-step-key)
-        (assoc-in [:wizard :step] next-step))))
-
-;; proceeds, if possible
-(re-frame/reg-event-fx
- :wizard/next
- (fn [{:keys [db]}
-      _]
-   (when-let [{:keys [step
-                      workbook
-                      data
-                      question
-                      visualization]
-               :as wizard} (:wizard db)]
-     (when (not= ::done step)
-       (case step
-         ::workbook
-         {:db (next! db)
-          :dispatch-n
-          (let [{:keys [id form]} workbook]
-            (if-let [extant (get-in db [:workbooks id])]
-              [[:crud/update! (merge extant
-                                     form)
-                id]]
-              [[:crud/create! (merge form
-                                     {:id id
-                                      :index 0
-                                      :questions {}})
-                id]]))}
-
-         ::data
-         (let [{:keys [form]} data]
-           (if (= ::data/lrs (:type form))
-             ;; we only advance if the LRS is all set.
-             ;; If it isn't, we try to create it, which will call this again on success
-             (if (some-> db
-                         (get-in [:workbooks (:id workbook) :data])
-                         (select-keys [:title
-                                       :endpoint
-                                       :auth
-                                       :type])
-                         (= form))
-               ;; next!
-               {:db (next! db)}
-               ;; Attempt LRS creation
-               {:db db
-                :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/create-lrs
-                           (:id workbook)
-                           form]})
-             ;; For file, it's much easier
-             {:db (next! db)
-              :dispatch [:com.yetanalytics.dave.ui.app.workbook.data/change
-                         (:id workbook)
-                         form]}
-             ))
-         ::question
-         {:db (next! db)
-          :dispatch-n
-          (let [{workbook-id :id} workbook
-                {question-id :id
-                 :keys [form]} question]
-            (if-let [extant (get-in db [:workbooks
-                                        workbook-id
-                                        :questions
-                                        question-id])]
-              [[:crud/update! (merge extant
-                                     form)
-                workbook-id
-                question-id]]
-              [[:crud/create! (merge form
-                                     {:id question-id
-                                      :index 0
-                                      :visualizations {}})
-                workbook-id
-                question-id]]))}
-         ::visualization
-         {:db (next! db)
-          :dispatch-n
-          (let [{workbook-id :id} workbook
-                {question-id :id} question
-                {vis-id :id
-                 :keys [form]} visualization]
-            (if-let [extant (get-in db [:workbooks
-                                        workbook-id
-                                        :questions
-                                        question-id
-                                        :visualizations
-                                        vis-id])]
-              [[:crud/update! (merge extant
-                                     form)
-                workbook-id
-                question-id
-                vis-id]]
-              [[:crud/create! (merge form
-                                     {:id vis-id
-                                      :index 0})
-                workbook-id
-                question-id
-                vis-id]]))})))))
-
-;; goes back, if possible
-(re-frame/reg-event-fx
- :wizard/prev
- (fn [{:keys [db]}
-      _]
-   (when-let [step (get-in db [:wizard :step])]
-     (when (not= ::workbook step)
-       {:db (assoc-in db [:wizard :step]
-                      (get step-transitions-reverse step))}))))
-
+;; Cancel and delete the workbook
 (re-frame/reg-event-fx
  :wizard/cancel
  (fn [{:keys [db]}
       _]
-   (let [id (get-in db [:wizard :workbook :id])]
+   (let [id (get-in db [:wizard :workbook-id])]
      (cond-> {:db (dissoc db :wizard)}
        (get-in db [:workbooks id])
        (assoc :dispatch-n [[:com.yetanalytics.dave.ui.app.crud/delete! id]
@@ -279,47 +126,135 @@
    (let [workbook-id (get-in db [:wizard :workbook :id])]
      {:com.yetanalytics.dave.ui.app.nav/nav-path! [:workbooks workbook-id]
       :db (dissoc db :wizard)
-      :dispatch [:dialog/dismiss]})))
+      :dispatch-n [[:dialog/dismiss]
+                   [:db/save]]})))
 
-;; Form manipulation
+
+;; com.yetanalytics.dave.ui.app.workbook.data
 (re-frame/reg-event-fx
  :wizard.form/set-field!
  (fn [{:keys [db]}
       [_ k v]]
-   (let [{:keys [step]
+   (let [k-path (if (vector? k)
+                  k
+                  [k])
+         {:keys [step
+                 workbook-id
+                 question-id
+                 vis-id]
           :as wizard} (:wizard db)]
-     {:db (assoc-in db ((if (vector? k)
-                          into
-                          conj)
-                        [:wizard
-                         (keyword (name step))
-                         :form]
-                        k)
-                    v)})))
+     (case step
+       ::workbook
+       {:db (assoc-in db
+                      (into [:workbooks
+                             workbook-id]
+                            k-path)
+                      v)}
+       ::data
+       (let [{data-type :type
+              :as data} (get-in db [:workbooks
+                                    workbook-id
+                                    :data])
+             new-data (assoc-in data k-path v)]
+         (cond-> {:db (assoc-in db
+                                [:workbooks
+                                 workbook-id
+                                 :data]
+                                new-data)}
+           ;; If this is an LRS, and is valid, we'll check it,
+           ;; adding errors or clearing them.
+           (and (= ::data/lrs
+                   data-type)
+                (s/valid? data/data-spec new-data))
+           (assoc :dispatch
+                  [:com.yetanalytics.dave.ui.app.workbook.data/check-lrs
+                   new-data
+                   ;; success
+                   [:com.yetanalytics.dave.ui.app.workbook.data/clear-errors
+                    workbook-id]
+                   ;; error
+                   [:com.yetanalytics.dave.ui.app.workbook.data/error!
+                    workbook-id
+                    {:message "Can't Reach LRS"
+                     :type ::lrs-check-error}]
+                   ])))
+
+       ::question
+       {:db (assoc-in db
+                      (into [:workbooks
+                             workbook-id
+                             :questions
+                             question-id]
+                            k-path)
+                      v)}
+       ::visualization
+       {:db (assoc-in db
+                      (into [:workbooks
+                             workbook-id
+                             :questions
+                             question-id
+                             :visualizations
+                             vis-id]
+                            k-path)
+                      v)}))))
+
+(defn next!
+  [db]
+  (let [this-step (get-in db [:wizard :step])
+        next-step (get step-transitions this-step)]
+    (assoc-in db [:wizard :step] next-step)))
+
+;; proceeds, if possible
+(re-frame/reg-event-fx
+ :wizard/next
+ (fn [{:keys [db]}
+      _]
+   (when-let [{:keys [step
+                      workbook-id
+                      question-id
+                      vis-id]
+               :as wizard} (:wizard db)]
+
+     (cond-> {:db (next! db)}
+       (= step ::data)
+       (assoc :dispatch
+              [:com.yetanalytics.dave.ui.app.workbook.data/ensure
+               workbook-id])))))
+
+;; goes back, if possible
+(re-frame/reg-event-fx
+ :wizard/prev
+ (fn [{:keys [db]}
+      _]
+   (when-let [step (get-in db [:wizard :step])]
+     (when (not= ::workbook step)
+       {:db (assoc-in db [:wizard :step]
+                      (get step-transitions-reverse step))}))))
 
 ;; Specific Handlers
 (re-frame/reg-event-fx
  :wizard.data/offer-picker
  (fn [{:keys [db]}
       _]
-   (let [workbook-id (get-in db [:wizard :workbook :id])]
+   (let [workbook-id (get-in db [:wizard :workbook-id])]
      {:dispatch
       [:picker/offer
        {:title "Choose a Data Source"
         :choices
         [{:label "DAVE Test Dataset"
           :img-src ""
-          :dispatch [:wizard.form/set-field!
-                     []
-                     {:title "test dataset"
-                      :type :com.yetanalytics.dave.workbook.data/file
-                      :uri "data/dave/ds.json"
-                      :built-in? true}]}
+          :dispatch
+          [:com.yetanalytics.dave.ui.app.workbook.data/change
+           workbook-id
+           {:title "test dataset"
+            :type :com.yetanalytics.dave.workbook.data/file
+            :uri "data/dave/ds.json"
+            :built-in? true}]}
          {:label "LRS Data"
           :img-src ""
           :dispatch
-          [:wizard.form/set-field!
-           []
+          [:com.yetanalytics.dave.ui.app.workbook.data/change
+           workbook-id
            {:type :com.yetanalytics.dave.workbook.data/lrs
             ;; remove dummy vals
             :title "My LRS"
@@ -332,46 +267,25 @@
  :wizard.question.function/offer-picker
  (fn [{:keys [db]}
       _]
-   (let [{{workbook-id :id} :workbook
-          {question-id :id
-           form :form} :question} (:wizard db)]
-     {:dispatch [:picker/offer
-                 {:title "Choose a DAVE Function"
-                  :choices (into []
-                                 (for [[id {:keys [title
-                                                   doc]}] func/registry]
-                                   {:label title
-                                    :img-src "img/lambda.svg"
-                                    :dispatch
-                                    [:wizard.form/set-field!
-                                     :function
-                                     {:id id
-                                      :func (:function (func/get-func id))
-                                      :state {:statement-idx -1}
-                                      :args {}}]}))}]})))
+   (let [{:keys [workbook-id
+                 question-id]} (:wizard db)]
+
+     {:dispatch [:workbook.question.function/offer-picker
+                 workbook-id
+                 question-id]})))
 
 (re-frame/reg-event-fx
  :wizard.question.visualization/offer-picker
  (fn [{:keys [db]}
       _]
-   (let [{{workbook-id :id} :workbook
-          {question-id :id
-           form :form} :question} (:wizard db)]
-     {:dispatch [:picker/offer
-                 {:title "Choose a DAVE Chart Prototype"
-                  :choices (into []
-                                 (for [[id {:keys [title
-                                                   vega-spec]}] v/registry]
-                                   {:label title
-                                    :vega-spec vega-spec
-                                    :dispatch [:wizard.form/set-field!
-                                               :vis
-                                               {:id id
-                                                :args {}}]}))}]})))
+   (let [{:keys [workbook-id
+                 question-id
+                 vis-id]} (:wizard db)]
+     {:dispatch [:workbook.question.visualization/offer-picker
+                 workbook-id
+                 question-id
+                 vis-id]})))
 
-;; Subs
-
-;; Top-level
 (re-frame/reg-sub
  ::wizard
  (fn [db _]
@@ -384,78 +298,100 @@
    (:step wizard)))
 
 (re-frame/reg-sub
- ::step-key
+ :wizard/current-target
+ :<- [::wizard]
+ :<- [:workbook/map]
+ (fn [[{:keys [step
+               workbook-id
+               question-id
+               vis-id]}
+       workbook-map] _]
+   (when-not (= step ::done)
+     (get-in workbook-map
+             (case step
+               ::workbook [workbook-id]
+               ::data [workbook-id
+                       :data]
+               ::question [workbook-id
+                           :questions
+                           question-id]
+               ::visualization
+               [workbook-id
+                :questions
+                question-id
+                :visualizations
+                vis-id]
+               )))))
+
+;; Specify a step target, won't change
+(re-frame/reg-sub
+ :wizard/target
+ :<- [::wizard]
+ :<- [:workbook/map]
+ (fn [[{:keys [
+               workbook-id
+               question-id
+               vis-id]}
+       workbook-map] [_ step]]
+   (when-not (= step ::done)
+     (get-in workbook-map
+             (case step
+               ::workbook [workbook-id]
+               ::data [workbook-id
+                       :data]
+               ::question [workbook-id
+                           :questions
+                           question-id]
+               ::visualization
+               [workbook-id
+                :questions
+                question-id
+                :visualizations
+                vis-id]
+               )))))
+
+(re-frame/reg-sub
+ :wizard/current-spec
  :<- [:wizard/step]
  (fn [step _]
-   (keyword (name step))))
-
-(re-frame/reg-sub
- :wizard.step/data
- :<- [::wizard]
- :<- [::step-key]
- (fn [[wizard step-key] _]
-   (get wizard step-key)))
-
-;; Main identified objects
-(re-frame/reg-sub
- :wizard/workbook
- :<- [::wizard]
- (fn [wizard _]
-   (:workbook wizard)))
-
-(re-frame/reg-sub
- :wizard/workbook-id
- :<- [:wizard/workbook]
- (fn [workbook _]
-   (:id workbook)))
-
-(re-frame/reg-sub
- :wizard/question
- :<- [::wizard]
- (fn [wizard _]
-   (:question wizard)))
-
-(re-frame/reg-sub
- :wizard/visualization
- :<- [::wizard]
- (fn [wizard _]
-   (:visualization wizard)))
-
-(re-frame/reg-sub
- :wizard/current-id ;; id of current item
- :<- [:wizard.step/data]
- (fn [data _]
-   (:id data)))
-
-;; Form subs
-(re-frame/reg-sub
- :wizard/form
- :<- [:wizard.step/data]
- (fn [data _]
-   (:form data)))
+   (case step
+     ::workbook workbook/workbook-spec
+     ::data data/data-spec
+     ::question question/question-spec
+     ::visualization vis/visualization-spec
+     ::done identity)))
 
 (re-frame/reg-sub
  :wizard.form/field
- :<- [:wizard/form]
- (fn [form [_ k]]
+ :<- [:wizard/current-target]
+ (fn [target [_ k]]
    (if (vector? k)
-     (get-in form k)
-     (get form k))))
-
-(defonce form-specs
-  {:workbook :com.yetanalytics.dave.ui.app.wizard.workbook/form
-   :data :com.yetanalytics.dave.ui.app.wizard.workbook.data/form
-   :question :com.yetanalytics.dave.ui.app.wizard.workbook.question/form
-   :visualization :com.yetanalytics.dave.ui.app.wizard.workbook.question.visualization/form})
+     (get-in target k)
+     (get target k))))
 
 (re-frame/reg-sub
  :wizard.form/spec-errors
- :<- [:wizard/form]
- :<- [::step-key]
- (fn [[form step-key] _]
-   (s/explain-data
-    (get form-specs step-key)
-    form)))
+ :<- [:wizard/step]
+ :<- [:wizard/current-target]
+ :<- [:wizard/current-spec]
+ (fn [[step target spec] _]
+   (when spec
+     (s/explain-data
+      spec
+      (case step
+        ::workbook (assoc target :questions {})
+        ::question (assoc target :visualizations {})
+        target)))))
+
+;; Any other state errors besides spec
+(re-frame/reg-sub
+ :wizard.form/other-errors
+ :<- [:wizard/step]
+ :<- [:wizard/current-target]
+ (fn [[step target] _]
+   (case step
+     ::data (not-empty (:errors target))
+     nil)))
 
 (re-frame/reg-sub
  :wizard.form.spec-errors/problems
@@ -487,8 +423,10 @@
 (re-frame/reg-sub
  :wizard/dialog-actions
  :<- [:wizard.form/spec-errors]
+ :<- [:wizard.form/other-errors]
  :<- [:wizard/step]
  (fn [[?spec-error
+       ?other-errors
        step] _]
    (cond-> []
      (not= step
@@ -501,18 +439,10 @@
       {:label "Next"
        :disabled?
        ;; TODO: other checks
-       (some? ?spec-error)
+       (or (some? ?spec-error)
+           (some? ?other-errors))
        :on-click #(re-frame/dispatch [:wizard/next])})
      (= step ::done)
      (conj
       {:label "Go to Workbook"
        :on-click #(re-frame/dispatch [:wizard/complete])}))))
-
-;; Info subs for step elements
-
-(re-frame/reg-sub
- :wizard/workbook-realized
- :<- [:wizard/workbook-id]
- :<- [:workbook/map]
- (fn [[id workbook-map] _]
-   (get workbook-map id)))

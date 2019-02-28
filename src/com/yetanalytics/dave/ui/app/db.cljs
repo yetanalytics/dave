@@ -322,14 +322,15 @@
        :as ctx} _]
    {:db/save! db}))
 
-;; Debounced save, can be called a lot
+;; Debounced save, can be called a lot, but not while the wizard is up...
 (re-frame/reg-event-fx
  :db/save
- (fn [_ _]
-   {:dispatch-debounce
-    [::save!
-     [:db/save!]
-     3000]}))
+ (fn [{:keys [db]} _]
+   (when-not (:wizard db)
+     {:dispatch-debounce
+      [::save!
+       [:db/save!]
+       3000]})))
 
 
 

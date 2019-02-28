@@ -53,17 +53,18 @@
        workbook-id
        then-dispatch]]
    {:dispatch-n
-    (conj (into []
-                (for [[question-id {{function-id :id} :function}]
-                      (get-in db
-                              [:workbooks
-                               workbook-id
-                               :questions])]
-                  [:workbook.question.function/reset!
-                   workbook-id
-                   question-id
-                   function-id]))
-          then-dispatch)}))
+    (cond-> (into []
+                  (for [[question-id {{function-id :id} :function}]
+                        (get-in db
+                                [:workbooks
+                                 workbook-id
+                                 :questions])]
+                    [:workbook.question.function/reset!
+                     workbook-id
+                     question-id
+                     function-id]))
+      then-dispatch
+      (conj then-dispatch))}))
 
 
 ;; Offer function picker

@@ -3,7 +3,9 @@
             [com.yetanalytics.dave.ui.views.form.textfield
              :as textfield]
             [com.yetanalytics.dave.ui.views.form.select
-             :as select]))
+             :as select]
+
+            #_[cljs.pprint :refer [pprint]]))
 
 ;; Some form helpers
 (defn wizard-field
@@ -122,15 +124,18 @@
   []
   [:div.wizard-problems
    [:p
+
     (let [data-type @(subscribe [:wizard.form/field :type])
-          spec-errors @(subscribe [:wizard.form/spec-errors])]
+          spec-errors @(subscribe [:wizard.form/spec-errors])
+          other-errors @(subscribe [:wizard.form/other-errors])]
       (cond
         (nil? data-type) "Please select a data source using the button above."
         spec-errors "Please fill out all fields."
-        :else (cond-> "Looks good, click NEXT to continue."
-                (= :com.yetanalytics.dave.workbook.data/lrs
-                   data-type)
-                (str " DAVE will attempt to contact the LRS before proceeding."))))]])
+        other-errors (if (= :com.yetanalytics.dave.workbook.data/lrs
+                            data-type)
+                       "DAVE couldn't reach this LRS. Confirm your settings."
+                       "An unknown error occurred. Please report it.")
+        :else "Looks good, click NEXT to continue."))]])
 
 (defn step-2-data
   []
@@ -139,7 +144,6 @@
     [step-2-header]
     [step-2-form] [step-2-info]
     [step-2-problems]]])
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Step 3: Question ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -177,6 +181,7 @@
     [step-3-header]
     [step-3-form] [step-3-info]
     [step-3-problems]]])
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Step 4: Vis ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -216,4 +221,5 @@
      [step-4-visualization]
      :com.yetanalytics.dave.ui.app.wizard/done
      [step-5-done])
+   #_[:pre (with-out-str (pprint @(subscribe [:wizard/current-target])))]
    #_[:p (str @(subscribe [:wizard.form/spec-errors]))]])

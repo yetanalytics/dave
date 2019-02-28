@@ -87,30 +87,44 @@
    (if-let [data (get-in db [:workbooks
                              workbook-id
                              :data])]
-     (if (:loading? data)
-       {}
-       (merge-with conj
-                   {:db (assoc-in db [:workbooks
-                                      workbook-id
-                                      :data
-                                      :loading?]
-                                  true)}
-                   ;; Ensure the timer is started if this is an LRS
-                   (when (= (:type data) ::data/lrs)
-                     {:dispatch-timer [[::ensure workbook-id]
-                                       [::ensure workbook-id]
-                                       10000]})
-                   (fetch-fx workbook-id data db)))
+     (if (s/valid? data/data-spec data)
+       (if (:loading? data)
+         {}
+         (merge-with conj
+                     {:db (assoc-in db [:workbooks
+                                        workbook-id
+                                        :data
+                                        :loading?]
+                                    true)}
+                     ;; Ensure the timer is started if this is an LRS
+                     (when (= (:type data) ::data/lrs)
+                       {:dispatch-timer [[::ensure workbook-id]
+                                         [::ensure workbook-id]
+                                         10000]})
+                     (fetch-fx workbook-id data db)))
+       (.warn js/console "Skipped invalid Data source"))
      ;; Stop the timer if the data isn't present
      {:stop-timer [::ensure workbook-id]})))
 
 (re-frame/reg-event-fx
  ::ensure
  (fn [_ [_ workbook-id]]
+   #_(.log js/console "ensure!" workbook-id)
    {:dispatch-debounce
     [::ensure
      [::ensure* workbook-id]
      500]}))
+
+(re-frame/reg-event-fx
+ ::error! ;; replace errors
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            error]]
+   {:db (assoc-in db [:workbooks
+                      workbook-id
+                      :data
+                      :errors]
+                  [error])}))
 
 (re-frame/reg-event-fx
  ::clear-errors
@@ -176,10 +190,11 @@
                           ;; Force a fresh state
                           (merge data-spec
                                  {:state {:statement-idx -1}}))
-            :dispatch-n [[:workbook.question.function/reset-all!
-                          workbook-id
-                          [::ensure workbook-id]]
-                         ]
+            :dispatch (cond-> [:workbook.question.function/reset-all!
+                               workbook-id]
+                        (or (not (:wizard db))
+                            (= (:type data-spec) ::data/file))
+                        (conj [::ensure workbook-id]))
             }
      (= (:type data-spec) ::data/file)
      (assoc :stop-timer
@@ -224,8 +239,9 @@
                       (not (:wizard db))
                       (conj [:dialog/dismiss])
                       ;; if we are, advance
-                      (:wizard db)
-                      (conj [:wizard/next]))}
+                      #_(:wizard db)
+                      #_(conj [:wizard/next])
+                      )}
        {:notify/snackbar
         {:message
          (format "LRS Error: %d"
