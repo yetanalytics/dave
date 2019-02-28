@@ -28,7 +28,7 @@
                message])))))
 
 (defn change-button [workbook-id]
-  [:button
+  [:button.majorbuttonpurple
    {:on-click #(dispatch [:workbook.data/offer-picker
                           workbook-id])}
    "Select Dataset"])
