@@ -295,13 +295,6 @@
     [step-4-form] [step-4-info]
     [step-4-problems]]])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Step 5: Done ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn step-5-done
-  []
-  [:div.wizard.wizard-done "done"])
 
 (defn wizard
   [_]
@@ -315,7 +308,6 @@
      [step-3-question]
      :com.yetanalytics.dave.ui.app.wizard/visualization
      [step-4-visualization]
-     :com.yetanalytics.dave.ui.app.wizard/done
-     [step-5-done])
+     )
    #_[:pre (with-out-str (pprint @(subscribe [:wizard/current-target])))]
    #_[:p (str @(subscribe [:wizard.form/spec-errors]))]])
