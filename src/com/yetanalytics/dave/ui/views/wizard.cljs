@@ -267,6 +267,7 @@
   []
   [:div.wizard-form
    [wizard-field :title "Title"]
+   [:h3 "Visualization: " @(subscribe [:wizard.visualization.vis.info/title])]
    [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.visualization/offer-picker])}
     "Choose Another Visualization"]])
@@ -282,10 +283,13 @@
    [:p
 
     (let [spec-errors @(subscribe [:wizard.form/spec-errors])
-          other-errors @(subscribe [:wizard.form/other-errors])]
+          other-errors @(subscribe [:wizard.form/other-errors])
+          apropos? @(subscribe [:wizard.visualization/apropos?])]
       (cond
         spec-errors "Please fill out all fields."
-        :else "Looks good, click NEXT to continue."))]])
+        (not apropos?)
+        "It doesn't look like this visualization is a great fit for the data. You can try another, or complete the wizard."
+        :else "You've completed the DAVE Wizard. Go view your new workbook!"))]])
 
 (defn step-4-visualization
   []
