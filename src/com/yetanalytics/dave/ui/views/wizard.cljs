@@ -258,18 +258,42 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Step 4: Vis ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn step-4-header
+  []
+  [:div.wizard-header
+   [:h1 "Step 4: Create a Visualization"]])
 
-(defn step-4-visualization-form
+(defn step-4-form
   []
   [:div.wizard-form
-   [wizard-field :title "Title"]])
-(defn step-4-visualization
-  []
-  [:div.wizard.wizard-visualization "vis"
-   [step-4-visualization-form]
+   [wizard-field :title "Title"]
    [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.visualization/offer-picker])}
-    "Choose Visualization"]])
+    "Choose Another Visualization"]])
+
+(defn step-4-info
+  []
+  [:div.wizard-info
+   [:p.infomain "Choose one of the DAVE visualization prototypes to display the data."]])
+
+(defn step-4-problems
+  []
+  [:div.wizard-problems
+   [:p
+
+    (let [spec-errors @(subscribe [:wizard.form/spec-errors])
+          other-errors @(subscribe [:wizard.form/other-errors])]
+      (cond
+        spec-errors "Please fill out all fields."
+        :else "Looks good, click NEXT to continue."))]])
+
+(defn step-4-visualization
+  []
+  [:div.wizard.wizard-visualization
+   [:div
+    [step-4-header]
+    [step-4-form] [step-4-info]
+    [step-4-problems]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Step 5: Done ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
