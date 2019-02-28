@@ -69,7 +69,7 @@
 (defn step-1-info
   []
   [:div.wizard-info
-   [:p "Give your workbook a name and a short description."]])
+   [:p.infomain "Give your workbook a name and a short description."]])
 
 (defn step-1-problems
   []
@@ -141,8 +141,8 @@
   []
   (let [data-type @(subscribe [:wizard.form/field :type])]
     [:div.wizard-info
-     [:p "Select a source for the xAPI data that you want to consider in your workbook."]
-     [:p (case data-type
+     [:p.infomain  "Select a source for the xAPI data that you want to consider in your workbook."]
+     [:p.infomain  (case data-type
            :com.yetanalytics.dave.workbook.data/lrs
            "Connecting DAVE to an xAPI Learning Record Store (LRS) allows it to pull data in real-time."
            :com.yetanalytics.dave.workbook.data/file
@@ -187,7 +187,7 @@
   []
   (let [result-count @(subscribe [:wizard.question.function/result-count])]
     [:div.wizard-info
-     [:p "Write out the question you would like to answer, and select a function to answer it."]
+     [:p.infomain "Write out the question you would like to answer, and select a function to answer it."]
      [:p (str "For the chosen data source (and arguments, if provided), this function will return " result-count  " results.")]]))
 
 (defn step-3-form-function-info
