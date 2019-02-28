@@ -117,8 +117,14 @@
 
 (defn step-2-info
   []
-  [:div.wizard-info
-   "Select a source for the xAPI data that you want to consider in your workbook."])
+  (let [data-type @(subscribe [:wizard.form/field :type])]
+    [:div.wizard-info
+     [:p "Select a source for the xAPI data that you want to consider in your workbook."]
+     [:p (case data-type
+           :com.yetanalytics.dave.workbook.data/lrs
+           "Connecting DAVE to an xAPI Learning Record Store (LRS) allows it to pull data in real-time."
+           :com.yetanalytics.dave.workbook.data/file
+           "The DAVE Test Dataset is a collection of xAPI statements appropriate for use with DAVE's algorithms. It is built in to DAVE, so no further configuration is needed.")]]))
 
 (defn step-2-problems
   []

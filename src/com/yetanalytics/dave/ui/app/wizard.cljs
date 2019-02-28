@@ -216,7 +216,10 @@
                :as wizard} (:wizard db)]
 
      (cond-> {:db (next! db)}
-       (= step ::data)
+       ;; ensure the data is there
+       (#{::data
+          ::workbook}
+        step)
        (assoc :dispatch
               [:com.yetanalytics.dave.ui.app.workbook.data/ensure
                workbook-id])))))

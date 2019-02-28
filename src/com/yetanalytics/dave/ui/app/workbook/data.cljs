@@ -190,8 +190,12 @@
                           ;; Force a fresh state
                           (merge data-spec
                                  {:state {:statement-idx -1}}))
-            :dispatch (cond-> [:workbook.question.function/reset-all!
-                               workbook-id]
+            :dispatch [:workbook.question.function/reset-all!
+                       workbook-id
+                       [::ensure workbook-id]]
+            #_(cond-> [:workbook.question.function/reset-all!
+                               workbook-id
+                               [::ensure workbook-id]]
                         (or (not (:wizard db))
                             (= (:type data-spec) ::data/file))
                         (conj [::ensure workbook-id]))
