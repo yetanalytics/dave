@@ -5,3 +5,7 @@ $mdc-theme-secondary: #4E6C91;
 $mdc-theme-background: #fff;
 
 @import "@material/theme/mdc-theme";
+
+.mdc-menu-surface {
+  z-index: 10 !important;
+}
