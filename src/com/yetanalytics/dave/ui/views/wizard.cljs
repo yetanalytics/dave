@@ -5,7 +5,7 @@
             [com.yetanalytics.dave.ui.views.form.select
              :as select]
 
-            [cljs.pprint :refer [pprint]]))
+            #_[cljs.pprint :refer [pprint]]))
 
 ;; Some form helpers
 (defn wizard-field
@@ -250,5 +250,5 @@
      [step-4-visualization]
      :com.yetanalytics.dave.ui.app.wizard/done
      [step-5-done])
-   [:pre (with-out-str (pprint @(subscribe [:wizard/current-target])))]
+   #_[:pre (with-out-str (pprint @(subscribe [:wizard/current-target])))]
    #_[:p (str @(subscribe [:wizard.form/spec-errors]))]])
