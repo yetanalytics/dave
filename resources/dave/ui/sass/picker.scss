@@ -4,6 +4,7 @@
 
 
 div.picker {
+
   div.picker-header{
     position: fixed;
     z-index: 3;
@@ -35,6 +36,7 @@ div.picker {
       display: flex;
       flex-wrap: wrap;
       align-items: flex-end;
+      justify-content: center;
       border-radius: 10px;
       padding: 15px 0px 0px 0px;
       margin: 0px 30px 30px 30px;
@@ -51,9 +53,10 @@ div.picker {
       }
       > .selectorspan{
         background-color: #d9d9d9;
-        padding: 5px 5px 5px 0px;
+        padding: 5px 5px 5px 5px;
         border-radius: 2px;
         width: 100%;
+
           > span{
           margin-left: 10px;
         }
@@ -79,4 +82,7 @@ div.picker {
 
 div.picker.active {
   min-height: 300px;
+  -webkit-box-shadow: -1px -2px 57px -7px rgba(0,0,0,0.15);
+  -moz-box-shadow: -1px -2px 57px -7px rgba(0,0,0,0.15);
+  box-shadow: -1px -2px 57px -7px rgba(0,0,0,0.15);
 }
