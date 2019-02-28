@@ -44,7 +44,7 @@
       :question-id question-id
       :vis-id vis-id}
      {:id workbook-id
-      :title "DAVE Wizard Workbnook"
+      :title "DAVE Wizard Workbook"
       :description "A DAVE Workbook created with help from the DAVE Wizard."
       :index 0
       :data {:title "test dataset"
