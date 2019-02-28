@@ -404,6 +404,12 @@
    (:workbook wizard)))
 
 (re-frame/reg-sub
+ :wizard/workbook-id
+ :<- [:wizard/workbook]
+ (fn [workbook _]
+   (:id workbook)))
+
+(re-frame/reg-sub
  :wizard/question
  :<- [::wizard]
  (fn [wizard _]
@@ -502,5 +508,11 @@
       {:label "Go to Workbook"
        :on-click #(re-frame/dispatch [:wizard/complete])}))))
 
-#_(s/reg-sub
- :wizard.function)
+;; Info subs for step elements
+
+(re-frame/reg-sub
+ :wizard/workbook-realized
+ :<- [:wizard/workbook-id]
+ :<- [:workbook/map]
+ (fn [[id workbook-map] _]
+   (get workbook-map id)))
