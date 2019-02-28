@@ -8,7 +8,8 @@
             [com.yetanalytics.dave.workbook.question :as question]
             [com.yetanalytics.dave.func :as func]
             [com.yetanalytics.dave.workbook.question.visualization :as vis]
-            [com.yetanalytics.dave.vis :as v]))
+            [com.yetanalytics.dave.vis :as v]
+            ))
 
 ;; step order: workbook -> data -> question ->  visualization -> done
 

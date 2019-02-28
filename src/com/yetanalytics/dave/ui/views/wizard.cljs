@@ -4,7 +4,7 @@
              :as textfield]
             [com.yetanalytics.dave.ui.views.form.select
              :as select]
-
+            [com.yetanalytics.dave.ui.views.workbook.question.visualization :as vis]
             #_[cljs.pprint :refer [pprint]]))
 
 ;; Some form helpers
@@ -272,10 +272,21 @@
     {:on-click #(dispatch [:wizard.question.visualization/offer-picker])}
     "Choose Another Visualization"]])
 
+(defn step-4-info-preview
+  []
+  (let [{:keys [workbook-id question-id
+                vis-id]}
+        @(subscribe [:com.yetanalytics.dave.ui.app.wizard/wizard])]
+    [vis/display
+     workbook-id
+     question-id
+     vis-id]))
+
 (defn step-4-info
   []
   [:div.wizard-info
-   [:p.infomain "Choose one of the DAVE visualization prototypes to display the data."]])
+   [:p.infomain "Choose one of the DAVE visualization prototypes to display the data."]
+   [step-4-info-preview]])
 
 (defn step-4-problems
   []
