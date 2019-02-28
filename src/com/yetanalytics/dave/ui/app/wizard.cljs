@@ -394,6 +394,13 @@
  (fn [[step target] _]
    (case step
      ::data (not-empty (:errors target))
+     ::question (let [r-count (get-in target
+                                      [:function
+                                       :result
+                                       :values])]
+                  (when (= 0 r-count)
+                    [{:message "No results"
+                      :type ::no-function-results}]))
      nil)))
 
 (re-frame/reg-sub
@@ -455,3 +462,33 @@
  :<- [:wizard/target ::data]
  (fn [data _]
    (:state data)))
+
+(re-frame/reg-sub
+ :wizard.question/function
+ :<- [:wizard/target ::question]
+ (fn [question _]
+   (:function question)))
+
+(re-frame/reg-sub
+ :wizard.question.function/id
+ :<- [:wizard.question/function]
+ (fn [function _]
+   (:id function)))
+
+(re-frame/reg-sub
+ :wizard.question.function/info
+ :<- [:wizard.question.function/id]
+ (fn [func-id _]
+   (func/get-func func-id)))
+
+(re-frame/reg-sub
+ :wizard.question.function.info/args-enum
+ :<- [:wizard.question.function/info]
+ (fn [func _]
+   (:args-enum func)))
+
+(re-frame/reg-sub
+ :wizard.question.function/result-count
+ :<- [:wizard.question/function]
+ (fn [function _]
+   (count (get-in function [:result :values]))))

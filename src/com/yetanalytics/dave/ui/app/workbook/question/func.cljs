@@ -10,7 +10,8 @@
                             question-id
                             func-id
                             ?args]]
-   (let [init-state (:function (func/get-func func-id))
+   (let [func (func/get-func func-id)
+         init-state (:function func)
          new-db (assoc-in db
                           [:workbooks
                            workbook-id
@@ -21,6 +22,7 @@
                            :func init-state
                            :state {:statement-idx -1}
                            :args (or ?args
+                                     (:args-default func)
                                      {})})]
      {:db new-db
       :dispatch-n [[:db/save]
