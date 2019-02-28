@@ -5,7 +5,7 @@
             [com.yetanalytics.dave.ui.views.form.select
              :as select]
 
-            #_[cljs.pprint :refer [pprint]]))
+            [cljs.pprint :refer [pprint]]))
 
 ;; Some form helpers
 (defn wizard-field
@@ -115,6 +115,28 @@
          data-type)
       (conj [:h2 "DAVE Test Dataset"]))))
 
+(defn step-2-data-state
+  []
+  (let [{:keys [statement-idx
+                ]
+         [s-first s-last] :stored-domain
+         [t-first t-last] :timestamp-domain
+         :as state} @(subscribe [:wizard.data/state])]
+    [:dl
+     [:dt "Statements"]
+     [:dd (if statement-idx
+            (str (inc statement-idx))
+            "Loading...")]
+
+     [:dt "Stored Range"]
+     [:dd (if s-first
+            (str s-first " to " s-last)
+            "Loading...")]
+     [:dt "Timestamp Range"]
+     [:dd (if t-first
+            (str t-first " to " t-last)
+            "Loading...")]]))
+
 (defn step-2-info
   []
   (let [data-type @(subscribe [:wizard.form/field :type])]
@@ -124,7 +146,8 @@
            :com.yetanalytics.dave.workbook.data/lrs
            "Connecting DAVE to an xAPI Learning Record Store (LRS) allows it to pull data in real-time."
            :com.yetanalytics.dave.workbook.data/file
-           "The DAVE Test Dataset is a collection of xAPI statements appropriate for use with DAVE's algorithms. It is built in to DAVE, so no further configuration is needed.")]]))
+           "The DAVE Test Dataset is a collection of xAPI statements appropriate for use with DAVE's algorithms. It is built in to DAVE, so no further configuration is needed.")]
+     [step-2-data-state]]))
 
 (defn step-2-problems
   []
@@ -227,5 +250,5 @@
      [step-4-visualization]
      :com.yetanalytics.dave.ui.app.wizard/done
      [step-5-done])
-   #_[:pre (with-out-str (pprint @(subscribe [:wizard/current-target])))]
+   [:pre (with-out-str (pprint @(subscribe [:wizard/current-target])))]
    #_[:p (str @(subscribe [:wizard.form/spec-errors]))]])

@@ -449,3 +449,9 @@
      (conj
       {:label "Go to Workbook"
        :on-click #(re-frame/dispatch [:wizard/complete])}))))
+
+(re-frame/reg-sub
+ :wizard.data/state
+ :<- [:wizard/target ::data]
+ (fn [data _]
+   (:state data)))
