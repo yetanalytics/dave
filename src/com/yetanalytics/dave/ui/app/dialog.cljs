@@ -7,7 +7,8 @@
   string?)
 
 (s/def ::mode
-  #{::form})
+  #{::form
+    ::wizard})
 
 (s/def ::dispatch-cancel
   (s/cat :event-id qualified-keyword?
@@ -55,6 +56,9 @@
                             ::dispatch-save]
                    )))
 
+(defmethod dialog-mode ::wizard [_]
+  dialog-common-spec)
+
 (def dialog-spec
   (s/multi-spec dialog-mode :mode))
 
@@ -70,7 +74,17 @@
      (cond-> {:db (dissoc db :dialog)}
        dispatch-cancel (assoc :dispatch (conj dispatch-cancel dialog))))))
 
-;; Some actions for doing stuff
+;; General dialog offering handler
+(re-frame/reg-event-fx
+ :dialog/offer
+ (fn [{:keys [db] :as ctx}
+      [_ dialog-data]]
+   (if (s/valid? dialog-spec dialog-data)
+     {:db (assoc db :dialog dialog-data)}
+     (.error js/console "Invalid dialog"
+             (s/explain-str dialog-spec dialog-data)))))
+
+;; Some actions for doing stuff with forms
 (re-frame/reg-event-fx
  :dialog.form/offer
  (fn [{:keys [db] :as ctx} [_ dialog-form-spec]]

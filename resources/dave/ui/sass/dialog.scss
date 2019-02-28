@@ -1,0 +1,21 @@
+@import "@material/dialog/_mixins";
+
+.dave-dialog.fullwidth {
+  @include mdc-dialog-min-width(99vw);
+}
+
+.dave-dialog.fullheight .mdc-dialog__surface {
+  min-height: 98vh;
+}
+
+.mdc-text-field__input{
+  background-color: #FBFBFB !important;
+}
+
+.mdc-floating-label--float-above{
+    background-color: #FBFBFB !important;
+}
+
+.mdc-floating-label{
+  margin-bottom: 10px;
+}

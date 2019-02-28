@@ -10,7 +10,8 @@
   uuid?)
 
 (s/def ::title
-  string?)
+  (s/and string?
+         not-empty))
 
 (s/def ::index
   su/index-spec)

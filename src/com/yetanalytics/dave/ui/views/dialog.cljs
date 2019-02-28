@@ -3,7 +3,8 @@
   (:require ["@material/dialog" :refer [MDCDialog]]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [com.yetanalytics.dave.ui.views.form.textfield :as textfield]))
+            [com.yetanalytics.dave.ui.views.form.textfield :as textfield]
+            [com.yetanalytics.dave.ui.views.wizard :as wizard]))
 
 (defn dialog
   "A modal dialog."
@@ -15,12 +16,16 @@
      {:reagent-render
       (fn [{:keys [title
                    content
-                   actions]}]
+                   actions
+                   full-width?
+                   full-height?]}]
         [:div.mdc-dialog.dave-dialog
-         {:role "alertdialog"
-          :aria-modal true
-          :aria-labelledby title-id
-          :aria-describedby content-id}
+         (cond-> {:role "alertdialog"
+                  :aria-modal true
+                  :aria-labelledby title-id
+                  :aria-describedby content-id}
+           full-width? (update :class str " fullwidth")
+           full-height? (update :class str " fullheight"))
          [:div.mdc-dialog__container
           [:div.mdc-dialog__surface
            [:h2.mdc-dialog__title
@@ -38,14 +43,17 @@
                    "Cancel"]]
                  (for [{:keys [label
                                mdc-dialog-action
-                               on-click]} actions]
+                               on-click
+                               disabled?]} actions]
                    [:button.mdc-button.mdc-dialog__button
                     (cond-> {:on-click on-click
                              #_(fn [e]
                                          (.preventDefault e)
                                          (.close @dialog-ref)
                                          (on-click)
-                                         e)}
+                                 e)}
+                      disabled?
+                      (assoc :disabled true)
                       mdc-dialog-action
                       (assoc :data-mdc-dialog-action
                              mdc-dialog-action))
@@ -90,6 +98,19 @@
              ;; :mdc-dialog-action "save"
              :on-click #(dispatch [:dialog.form/save])}]}])
 
+(defn dialog-wizard
+  "Dialog for the dave workbook creation wizard"
+  []
+  [dialog {:title @(subscribe [:dialog/title])
+           :full-width? true
+           :full-height? true
+           :content [[wizard/wizard]]
+           :actions
+           @(subscribe [:wizard/dialog-actions])
+           #_[#_{:label "Save"
+             ;; :mdc-dialog-action "save"
+             :on-click #(dispatch [:dialog.form/save])}]}])
+
 (defn dialog-container
   "Parent component that shows/hides the dialog"
   []
@@ -97,4 +118,6 @@
     @(subscribe [:dialog/open?])
     (conj (case @(subscribe [:dialog/mode])
             :com.yetanalytics.dave.ui.app.dialog/form
-            [dialog-form]))))
+            [dialog-form]
+            :com.yetanalytics.dave.ui.app.dialog/wizard
+            [dialog-wizard]))))

@@ -9,7 +9,6 @@
             [goog.string :refer [format]]
             [goog.string.format]))
 
-
 (re-frame/reg-event-fx
  ::set-state
  ;; called for a data source when loading is complete.
@@ -88,30 +87,44 @@
    (if-let [data (get-in db [:workbooks
                              workbook-id
                              :data])]
-     (if (:loading? data)
-       {}
-       (merge-with conj
-                   {:db (assoc-in db [:workbooks
-                                      workbook-id
-                                      :data
-                                      :loading?]
-                                  true)}
-                   ;; Ensure the timer is started if this is an LRS
-                   (when (= (:type data) ::data/lrs)
-                     {:dispatch-timer [[::ensure workbook-id]
-                                       [::ensure workbook-id]
-                                       10000]})
-                   (fetch-fx workbook-id data db)))
+     (if (s/valid? data/data-spec data)
+       (if (:loading? data)
+         {}
+         (merge-with conj
+                     {:db (assoc-in db [:workbooks
+                                        workbook-id
+                                        :data
+                                        :loading?]
+                                    true)}
+                     ;; Ensure the timer is started if this is an LRS
+                     (when (= (:type data) ::data/lrs)
+                       {:dispatch-timer [[::ensure workbook-id]
+                                         [::ensure workbook-id]
+                                         10000]})
+                     (fetch-fx workbook-id data db)))
+       (.warn js/console "Skipped invalid Data source"))
      ;; Stop the timer if the data isn't present
      {:stop-timer [::ensure workbook-id]})))
 
 (re-frame/reg-event-fx
  ::ensure
  (fn [_ [_ workbook-id]]
+   #_(.log js/console "ensure!" workbook-id)
    {:dispatch-debounce
     [::ensure
      [::ensure* workbook-id]
      500]}))
+
+(re-frame/reg-event-fx
+ ::error! ;; replace errors
+ (fn [{:keys [db] :as ctx} [_
+                            workbook-id
+                            error]]
+   {:db (assoc-in db [:workbooks
+                      workbook-id
+                      :data
+                      :errors]
+                  [error])}))
 
 (re-frame/reg-event-fx
  ::clear-errors
@@ -177,10 +190,15 @@
                           ;; Force a fresh state
                           (merge data-spec
                                  {:state {:statement-idx -1}}))
-            :dispatch-n [[:workbook.question.function/reset-all!
-                          workbook-id
-                          [::ensure workbook-id]]
-                         ]
+            :dispatch [:workbook.question.function/reset-all!
+                       workbook-id
+                       [::ensure workbook-id]]
+            #_(cond-> [:workbook.question.function/reset-all!
+                               workbook-id
+                               [::ensure workbook-id]]
+                        (or (not (:wizard db))
+                            (= (:type data-spec) ::data/file))
+                        (conj [::ensure workbook-id]))
             }
      (= (:type data-spec) ::data/file)
      (assoc :stop-timer
@@ -218,10 +236,16 @@
        ;; TODO: proceed with creation
        {:notify/snackbar
         {:message "Connecting LRS..."}
-        :dispatch-n [[:dialog/dismiss]
-                     [::change
-                      workbook-id
-                      lrs-data-spec]]}
+        :dispatch-n (cond-> [[::change
+                              workbook-id
+                              lrs-data-spec]]
+                      ;; If we're in the wizard, don't dismiss the dialog
+                      (not (:wizard db))
+                      (conj [:dialog/dismiss])
+                      ;; if we are, advance
+                      #_(:wizard db)
+                      #_(conj [:wizard/next])
+                      )}
        {:notify/snackbar
         {:message
          (format "LRS Error: %d"
@@ -249,14 +273,14 @@
                {:title "Choose a Data Source"
                 :choices
                 [{:label "DAVE Test Dataset"
-                  :img-src ""
+                  :img-src "/img/folder.png"
                   :dispatch [::change workbook-id
                              {:title "test dataset"
                               :type :com.yetanalytics.dave.workbook.data/file
                               :uri "data/dave/ds.json"
                               :built-in? true}]}
                  {:label "LRS Data"
-                  :img-src ""
+                  :img-src "/img/db.png"
                   :dispatch
                   [:dialog.form/offer
                    {:title "LRS Data Info"

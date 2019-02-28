@@ -1,7 +1,9 @@
 (ns com.yetanalytics.dave.ui.views.form.textfield
   (:require [re-frame.core :refer [dispatch subscribe]]
             [reagent.core :as r]
-            ["@material/textfield" :refer [MDCTextField]]))
+            ["@material/textfield" :refer [MDCTextField]]
+            ["@material/textfield/helper-text"
+             :refer [MDCTextFieldHelperText]]))
 
 (defn textfield
   [_]
@@ -67,3 +69,27 @@
           [:div.mdc-notched-outline__trailing]]
 
          #_[:div.mdc-line-ripple]])})))
+
+
+(def helper-text*
+  (r/create-class
+   {:component-did-mount
+    (fn [c]
+      (MDCTextFieldHelperText. (r/dom-node c)))
+    :reagent-render
+    (fn [{:keys [text
+                 persistent?
+                 validation?]}]
+      [:div
+       {:class (cond-> "mdc-text-field-helper-text"
+                 persistent?
+                 (str " mdc-text-field-helper-text--persistent")
+                 validation?
+                 (str " mdc-text-field-helper-text--validation-msg"))}
+       text])}))
+
+(defn helper-text
+  "A line of helper text, must be immediate sibling of textfield/area"
+  [& {:as args}]
+  [:div.mdc-text-field-helper-line
+   [helper-text* args]])

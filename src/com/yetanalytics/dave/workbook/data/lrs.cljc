@@ -18,9 +18,14 @@
   (s/and string?
          not-empty))
 
+(s/def ::title
+  (s/and string?
+         not-empty))
+
 (def partial-spec
   (s/keys
    :req-un [::endpoint]
    :opt-un [::query
             ::auth
-            ::more]))
+            ::more
+            ::title]))

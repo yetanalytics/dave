@@ -11,10 +11,12 @@
 (defmulti auth-type :type)
 
 (s/def :com.yetanalytics.dave.workbook.data.lrs.auth.http-basic/username
-  string?)
+  (s/and string?
+         not-empty))
 
 (s/def :com.yetanalytics.dave.workbook.data.lrs.auth.http-basic/password
-  string?)
+  (s/and string?
+         not-empty))
 
 (defmethod auth-type ::http-basic [_]
   (s/merge auth-common-spec
