@@ -486,7 +486,60 @@
    (:args-enum func)))
 
 (re-frame/reg-sub
- :wizard.question.function/result-count
+ :wizard.question.function/result
  :<- [:wizard.question/function]
  (fn [function _]
-   (count (get-in function [:result :values]))))
+   (:result function)))
+
+(re-frame/reg-sub
+ :wizard.question.function.result/values
+ :<- [:wizard.question.function/result]
+ (fn [result _]
+   (:values result [])))
+
+(re-frame/reg-sub
+ :wizard.question.function/result-count
+ :<- [:wizard.question.function.result/values]
+ (fn [values _]
+   (count values)))
+
+(re-frame/reg-sub
+ :wizard.visualization/vis
+ :<- [:wizard/target ::visualization]
+ (fn [v _]
+   (:vis v)))
+
+(re-frame/reg-sub
+ :wizard.visualization.vis/id
+ :<- [:wizard.visualization/vis]
+ (fn [vis _]
+   (:id vis)))
+
+(re-frame/reg-sub
+ :wizard.visualization.vis/info
+ :<- [:wizard.visualization.vis/id]
+ (fn [vis-id _]
+   (get v/registry vis-id)))
+
+
+(re-frame/reg-sub
+ :wizard.visualization.vis.info/title
+ :<- [:wizard.visualization.vis/info]
+ (fn [vis-info _]
+   (:title vis-info)))
+
+(re-frame/reg-sub
+ :wizard.visualization.vis.info/datum-spec
+ :<- [:wizard.visualization.vis/info]
+ (fn [vis-info _]
+   (:datum-spec vis-info)))
+
+;; Is the visualization appropriate for the data?
+(re-frame/reg-sub
+ :wizard.visualization/apropos?
+ :<- [:wizard.question.function.result/values]
+ :<- [:wizard.visualization.vis.info/datum-spec]
+ (fn [[result-values
+       datum-spec] _]
+   (s/valid? (s/every datum-spec)
+             result-values)))
