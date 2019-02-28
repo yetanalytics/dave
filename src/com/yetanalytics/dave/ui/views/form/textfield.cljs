@@ -2,7 +2,7 @@
   (:require [re-frame.core :refer [dispatch subscribe]]
             [reagent.core :as r]
             ["@material/textfield" :refer [MDCTextField]]
-            ["@material/textfield/helper-text"
+            #_["@material/textfield/helper-text"
              :refer [MDCTextFieldHelperText]]))
 
 (defn textfield
@@ -73,8 +73,8 @@
 
 (def helper-text*
   (r/create-class
-   {:component-did-mount
-    (fn [c]
+   {#_:component-did-mount
+    #_(fn [c]
       (MDCTextFieldHelperText. (r/dom-node c)))
     :reagent-render
     (fn [{:keys [text
