@@ -23,6 +23,13 @@ h3{
   font-family: 'Lato', sans-serif;
 }
 
+.wizard-problems {
+  > p{
+    font-family: 'Lato', sans-serif;
+
+  }
+}
+
 
 .wizard {
   @include mdc-layout-grid('desktop', 16px);
