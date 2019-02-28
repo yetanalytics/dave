@@ -6,6 +6,17 @@
   font-family: 'Lato', sans-serif;
   font-weight: bold;
 }
+
+dt{
+  color: #26A699;
+  font-weight:bold;
+  font-family: 'Lato', sans-serif;
+}
+
+dd{
+    font-family: 'Lato', sans-serif;
+}
+
 .wizard {
   @include mdc-layout-grid('desktop', 16px);
   > div {
