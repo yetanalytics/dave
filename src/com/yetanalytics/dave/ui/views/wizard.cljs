@@ -99,7 +99,7 @@
   []
   (let [data-type @(subscribe [:wizard.form/field :type])]
     (cond-> [:div.wizard-form
-             [:button
+             [:button.majorbutton
               {:on-click #(dispatch [:wizard.data/offer-picker])}
               (if data-type
                 "Choose Another Data Source"
@@ -163,7 +163,7 @@
   []
   [:div.wizard-form
    [wizard-field :text "Question Text"]
-   [:button
+   [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.function/offer-picker])}
     (if-not @(subscribe [:wizard.form/field :function])
       "Choose A Function"
@@ -195,7 +195,7 @@
   []
   [:div.wizard.wizard-visualization "vis"
    [step-4-visualization-form]
-   [:button
+   [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.visualization/offer-picker])}
     "Choose Visualization"]])
 
