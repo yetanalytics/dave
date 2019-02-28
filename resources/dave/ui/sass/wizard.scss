@@ -9,6 +9,13 @@
     }
     > div.wizard-header {
       @include mdc-layout-grid-cell('desktop', 12, 4px);
+      h1{
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: .5em;
+        color: #353535;
+        font-family: 'Lato', sans-serif;
+      }
     }
     > div.wizard-form {
       @include mdc-layout-grid-cell('desktop', 6, 4px);

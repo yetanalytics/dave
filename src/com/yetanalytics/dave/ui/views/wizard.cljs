@@ -58,7 +58,7 @@
 (defn step-1-header
   []
   [:div.wizard-header
-   [:h1 "Step 1: Create a Workbook"]])
+   [:h1.hometitle "Step 1: Create a Workbook"]])
 
 (defn step-1-form
   []
