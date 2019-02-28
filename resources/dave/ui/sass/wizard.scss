@@ -1,0 +1,26 @@
+@import "@material/layout-grid/_mixins";
+
+.wizard {
+  @include mdc-layout-grid('desktop', 16px);
+  > div {
+    @include mdc-layout-grid-inner('desktop', 8px, 4px);
+    > div.wizard-intro {
+      @include mdc-layout-grid-cell('desktop', 12, 4px);
+    }
+    > div.wizard-header {
+      @include mdc-layout-grid-cell('desktop', 12, 4px);
+    }
+    > div.wizard-form {
+      @include mdc-layout-grid-cell('desktop', 6, 4px);
+    }
+    > div.wizard-info {
+      @include mdc-layout-grid-cell('desktop', 6, 4px);
+    }
+    > div.wizard-problems {
+      @include mdc-layout-grid-cell('desktop', 12, 4px);
+      > p {
+        text-align: center;
+      }
+    }
+  }
+}
