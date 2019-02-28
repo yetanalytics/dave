@@ -17,6 +17,20 @@ dd{
     font-family: 'Lato', sans-serif;
 }
 
+h3{
+  color: #00a899;
+  font-weight:bold;
+  font-family: 'Lato', sans-serif;
+}
+
+.wizard-problems {
+  > p{
+    font-family: 'Lato', sans-serif;
+
+  }
+}
+
+
 .wizard {
   @include mdc-layout-grid('desktop', 16px);
   > div {
@@ -51,9 +65,9 @@ dd{
   div.wizard-form{
     background-color: #FBFBFB;
     padding-left: 20px;
-    padding-top: 10px;
+    padding-top: 30px;
     padding-right: 20px;
-    padding-bottom: .5em;
+    padding-bottom: 20px;
     border-radius: 20px;
     -webkit-box-shadow: 0px 0px 20px -2px #bdbdbd;
     -moz-box-shadow: 0px 0px 20px -2px #bdbdbd;
