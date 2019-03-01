@@ -21926,7 +21926,8 @@ h3 {
     flex-flow: row wrap;
     align-items: stretch;
     margin: -2px;
-    margin: calc(var(--mdc-layout-grid-gutter-desktop, 4px) / 2 * -1); }
+    margin: calc(var(--mdc-layout-grid-gutter-desktop, 4px) / 2 * -1);
+    /* constrain graph sizes in wizard */ }
     @supports (display: grid) {
       .wizard > div {
         display: grid;
@@ -21979,6 +21980,20 @@ h3 {
       @supports (display: grid) {
         .wizard > div > div.wizard-form {
           margin: 0; } }
+    .wizard > div > div.wizard-formvis {
+      width: calc(50% - 4px);
+      width: calc(50% - var(--mdc-layout-grid-gutter-desktop, 4px));
+      box-sizing: border-box;
+      margin: 2px;
+      margin: calc(var(--mdc-layout-grid-gutter-desktop, 4px) / 2);
+      max-height: 220px; }
+      @supports (display: grid) {
+        .wizard > div > div.wizard-formvis {
+          width: auto;
+          grid-column-end: span 6; } }
+      @supports (display: grid) {
+        .wizard > div > div.wizard-formvis {
+          margin: 0; } }
     .wizard > div > div.wizard-info {
       width: calc(50% - 4px);
       width: calc(50% - var(--mdc-layout-grid-gutter-desktop, 4px));
@@ -22007,6 +22022,8 @@ h3 {
           margin: 0; } }
       .wizard > div > div.wizard-problems > p {
         text-align: center; }
+    .wizard > div div.dave-vega-container > svg {
+      max-height: 400px; }
   .wizard div.wizard-form {
     background-color: #FBFBFB;
     padding-left: 20px;
