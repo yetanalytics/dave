@@ -68,6 +68,10 @@ h3{
         text-align: center;
       }
     }
+    /* constrain graph sizes in wizard */
+    div.dave-vega-container > svg {
+      max-height: 400px;
+    }
   }
 
   div.wizard-form{
