@@ -265,7 +265,7 @@
 
 (defn step-4-form
   []
-  [:div.wizard-form
+  [:div.wizard-formvis.wizard-form
    [wizard-field :title "Title"]
    [:h3 "Visualization: " @(subscribe [:wizard.visualization.vis.info/title])]
    [:button.majorbutton

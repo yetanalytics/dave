@@ -55,6 +55,10 @@ h3{
     > div.wizard-form {
       @include mdc-layout-grid-cell('desktop', 6, 4px);
     }
+    > div.wizard-formvis{
+      @include mdc-layout-grid-cell('desktop', 6, 4px);
+      max-height: 220px;
+    }
     > div.wizard-info {
       @include mdc-layout-grid-cell('desktop', 6, 4px);
     }
