@@ -32,13 +32,13 @@
          :as workbook} @(subscribe [:nav/focus])]
     [:div.page.workbook
      [:div ;; inner
-      [:div.workbookinfo.gridblock
+      [:div.testdatasetblock.gridblock
        [:p.hometitle title]
        [:p.workbookdesc description]
        [edit-button id]
        [delete-button id]
        [descendant-counts id]]
-      [:div.workbookinfo.testdatasetblock
+      [:div.testdatasetblock.gridblock
        (when data
          [data/info id])]
       [:div

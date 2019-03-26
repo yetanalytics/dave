@@ -29,7 +29,7 @@
     [:div.page.question
      [:div.splash]
      [:div ;; inner
-      [:div.workbookinfo.testdatasetblock
+      [:div.testdatasetblock
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
        [edit-button workbook-id id]
        [delete-button workbook-id id]
