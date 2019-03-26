@@ -52,7 +52,6 @@
                                re-index))]
      {:db new-db
       :dispatch [:db/save]
-      :com.yetanalytics.dave.ui.app.nav/nav-path! db-path
       :notify/snackbar
       {:message "Success"}})))
 
