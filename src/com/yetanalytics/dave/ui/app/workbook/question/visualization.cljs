@@ -35,7 +35,28 @@
                       workbook-id
                       question-id
                       id
-                      ]]}))))
+                      ]
+                     [:workbook.question.visualization/after-create
+                      workbook-id
+                      question-id
+                      id]]}))))
+
+(re-frame/reg-event-fx
+ :workbook.question.visualization/after-create
+ (fn [_ [_
+         workbook-id
+         question-id
+         vis-id]]
+   {:com.yetanalytics.dave.ui.app.nav/nav-path! [:workbooks
+                                                 workbook-id
+                                                 :questions
+                                                 question-id
+                                                 :visualizations
+                                                 vis-id]
+    :dispatch [:workbook.question.visualization/offer-picker
+               workbook-id
+               question-id
+               vis-id]}))
 
 ;; Handlers
 (re-frame/reg-event-fx
