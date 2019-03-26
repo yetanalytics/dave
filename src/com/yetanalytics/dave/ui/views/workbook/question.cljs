@@ -61,9 +61,7 @@
      [visualization/display
       workbook-id id
       @(subscribe [:workbook.question/first-visualization-id
-                   workbook-id id])
-      :vega-override {:height 200
-                      :width 200}])
+                   workbook-id id])])
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
     "Select"]])
