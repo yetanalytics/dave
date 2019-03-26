@@ -6,6 +6,7 @@
   "Basic Vega Scatter chart with grouping."
   {:axes [{:orient "bottom", :scale "x"} {:orient "left", :scale "y"}],
    :width 500,
+   :height 200,
    :autosize "fit"
    :scales
    [{:name "x",
@@ -56,7 +57,6 @@
        "step-after"
        "step-before"]}}],
    :legends [{:fill "color"}]
-   :height 200,
    :data
    [{:name "table",
      :values

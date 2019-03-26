@@ -6,6 +6,7 @@
   "Basic Vega Line chart with grouping."
   {:axes [{:orient "bottom", :scale "x"} {:orient "left", :scale "y"}],
    :width 500,
+   :height 200,
    :autosize "fit"
    :scales
    [{:name "x",
@@ -54,7 +55,6 @@
        "step"
        "step-after"
        "step-before"]}}],
-   :height 200,
    :data
    [{:name "table",
      :values
