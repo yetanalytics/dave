@@ -65,7 +65,12 @@
                   :label "Title"}
                  {:key :description
                   :label "Description"}]
-        :form (select-keys workbook [:title :description])}]})))
+        :form (select-keys workbook [:title :description])
+        :additional-actions
+        [{:label "Select Dataset"
+          :mdc-dialog-action "cancel"
+          :dispatch [:workbook.data/offer-picker
+                     workbook-id]}]}]})))
 
 (re-frame/reg-event-fx
  :workbook/update

@@ -80,7 +80,14 @@
                         workbook-id question-id visualization-id]
         :fields [{:key :title
                   :label "Title"}]
-        :form (select-keys visualization [:title])}]})))
+        :form (select-keys visualization [:title])
+        :additional-actions
+        [{:label "Select Visualization"
+          :mdc-dialog-action "cancel"
+          :dispatch [:workbook.question.visualization/offer-picker
+                     workbook-id
+                     question-id
+                     visualization-id]}]}]})))
 
 (re-frame/reg-event-fx
  :workbook.question.visualization/update

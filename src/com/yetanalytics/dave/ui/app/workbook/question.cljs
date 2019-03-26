@@ -69,7 +69,13 @@
                         question-id]
         :fields [{:key :text
                   :label "Question Text"}]
-        :form (select-keys question [:text])}]})))
+        :form (select-keys question [:text])
+        :additional-actions
+        [{:label "Select Function"
+          :mdc-dialog-action "cancel"
+          :dispatch [:workbook.question.function/offer-picker
+                     workbook-id
+                     question-id]}]}]})))
 
 (re-frame/reg-event-fx
  :workbook.question/update
