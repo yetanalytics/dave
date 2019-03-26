@@ -10,20 +10,38 @@
                             question-id
                             func-id
                             ?args]]
-   (let [func (func/get-func func-id)
-         init-state (:function func)
-         new-db (assoc-in db
-                          [:workbooks
-                           workbook-id
-                           :questions
-                           question-id
-                           :function]
-                          {:id func-id
-                           :func init-state
-                           :state {:statement-idx -1}
-                           :args (or ?args
-                                     (:args-default func)
-                                     {})})]
+   (let [{:keys [function
+                 question-text-default] :as func}
+         (func/get-func func-id)
+         init-state function
+         new-db (cond-> (assoc-in db
+                                  [:workbooks
+                                   workbook-id
+                                   :questions
+                                   question-id
+                                   :function]
+                                  {:id func-id
+                                   :func init-state
+                                   :state {:statement-idx -1}
+                                   :args (or ?args
+                                             (:args-default func)
+                                             {})})
+                  (let [old-question-text (get-in db [:workbooks
+                                                      workbook-id
+                                                      :questions
+                                                      question-id
+                                                      :text])]
+                    (or (nil? old-question-text)
+                        (empty? old-question-text)
+                        (contains? func/question-text-defaults
+                                   old-question-text)))
+                  (assoc-in [:workbooks
+                             workbook-id
+                             :questions
+                             question-id
+                             :text]
+                            question-text-default)
+                  )]
      {:db new-db
       :dispatch-n [[:db/save]
                    [:com.yetanalytics.dave.ui.app.workbook.data/ensure

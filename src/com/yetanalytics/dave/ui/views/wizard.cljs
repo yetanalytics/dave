@@ -202,7 +202,8 @@
   []
   (let [{:keys [workbook-id question-id]}
         @(subscribe [:com.yetanalytics.dave.ui.app.wizard/wizard])]
-    (into [:div.args]
+    (into [:div.args
+           [wizard-field :text "Question Text"]]
           (for [[k enum] @(subscribe [:wizard.question.function.info/args-enum])
                 ]
             [select/select
@@ -212,7 +213,7 @@
                               {:label (name v)
                                :value (name v)}))
              :selected (if-let [sel @(subscribe [:wizard.form/field (conj [:function :args]
-                                                                            k)])]
+                                                                          k)])]
                          (name sel)
                          "")
              :handler #(-> %
@@ -224,14 +225,13 @@
 (defn step-3-form
   []
   [:div.wizard-form
-   [wizard-field :text "Question Text"]
-   [step-3-form-function-info]
-   [step-3-form-function-args]
    [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.function/offer-picker])}
     (if-not @(subscribe [:wizard.form/field :function])
       "Choose A Function"
-      "Choose Another Function")]])
+      "Choose Another Function")]
+   [step-3-form-function-info]
+   [step-3-form-function-args]])
 
 (defn step-3-problems
   []
