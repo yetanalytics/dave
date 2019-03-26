@@ -597,6 +597,11 @@
             (s/every
              keyword?)))
 
+;; Funcs have a default question text that can be suggested to the user
+(s/def ::question-text-default
+  (s/and string?
+         not-empty))
+
 (def registry
   "A map of function keyword to implementation. Each function is a map
   containing:
@@ -610,14 +615,16 @@
     :function (init (map->SuccessTimeline {})) ;; success-timeline
     :fspec (s/get-spec `success-timeline)
     :args-default {}
-    :args-enum {}}
+    :args-enum {}
+    :question-text-default "When do learners do their best work?"}
    ::difficult-questions
    {:title "Difficult Questions"
     :doc "Plots interaction activity ids against the number of failed attempts for that activity."
     :function (init (map->DifficultQuestions {}))
     :fspec (s/get-spec `difficult-questions)
     :args-default {}
-    :args-enum {}}
+    :args-enum {}
+    :question-text-default "What activities are most difficult?"}
    ::completion-rate
    {:title "Completion Rate"
     :doc "Plots activity ids against the rate of completions per given time unit."
@@ -630,7 +637,9 @@
                              :day
                              :week
                              :month
-                             :year}}}
+                             :year}}
+    :question-text-default
+    "What activities are completed the most?"}
    ::followed-recommendations
    {:title "Followed Recommendations"
     :doc "Buckets statements into periods (time ranges) by statement timestamp. Within each bucket, counts the number of recommendations, launches and follows expressed."
@@ -643,7 +652,15 @@
                              :day
                              :week
                              :month
-                             :year}}}})
+                             :year}}
+    :question-text-default
+    "How often are recommendations followed?"}})
+
+;; Keep a set of the default text so we know to only replace if it isn't custom
+(def question-text-defaults
+  (into #{}
+        (map :question-text-default
+             (vals registry))))
 
 (def func-spec
   (s/with-gen
@@ -651,7 +668,8 @@
                      ::fspec
                      ::title
                      ::args-default
-                     ::args-enum]
+                     ::args-enum
+                     ::question-text-default]
             :opt-un [::doc])
     (fn []
       (sgen/elements (vals registry)))))
