@@ -14364,6 +14364,8 @@ div.picker {
       div.picker > ul > li > div.dave-vega-container {
         min-height: 150px;
         min-width: 170px; }
+        div.picker > ul > li > div.dave-vega-container > svg {
+          max-height: 150px; }
       div.picker > ul > li > .selectorspan {
         background-color: #d9d9d9;
         padding: 5px 5px 5px 5px;
@@ -21751,8 +21753,14 @@ div.app-description {
   box-shadow: 0px 0px 20px -2px #bdbdbd;
   background-color: #FBFBFB;
   padding-left: 20px; }
+  .testdatasetblock > .hometitle {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: .5em;
+    color: #353535; }
 
 .workbookinfo {
+  transition-duration: .2s;
   margin-left: 2em;
   background-color: #FBFBFB;
   padding-left: 20px;
@@ -21778,6 +21786,14 @@ div.app-description {
         color: #353535; }
     .workbookinfo > .hometitle > .workbookdesc {
       font-size: 1em; }
+
+.workbookinfo:hover {
+  transform: translateY(-10px);
+  transition-duration: .2s;
+  background-color: white;
+  -webkit-box-shadow: 6px 13px 37px 0px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 6px 13px 37px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 6px 13px 37px 0px rgba(0, 0, 0, 0.2); }
 
 div.descendant-counts > .tag {
   background-color: #9E44A6;
@@ -21855,8 +21871,10 @@ div.descendant-counts > .visualtag {
 
 /* helper classes for vega chart renderer */
 div.dave-vega-container {
-  min-height: 300px;
-  min-width: 300px; }
+  min-height: 300px; }
+  div.dave-vega-container > svg {
+    width: 100%;
+    max-height: 80vh; }
 
 /* css for function stuff */
 .function .title button {
@@ -22054,6 +22072,7 @@ h3 {
   /* don't let the position be fixed, we want it to sit over the normal bar */
   position: unset; }
 
+/* Put a blue border on vega containers */
 body {
   margin: 0 0 0 0;
   font-family: 'Lato', sans-serif; }
