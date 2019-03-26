@@ -29,7 +29,7 @@
     [:div.page.question
      [:div.splash]
      [:div ;; inner
-      [:div.workbookinfo.testdatasetblock
+      [:div.testdatasetblock
        [:p.hometitle (str "Question: " text)] ;;The question from the previous page
        [edit-button workbook-id id]
        [delete-button workbook-id id]
@@ -54,6 +54,11 @@
 
 (defn cell [workbook-id {:keys [id text visualizations] :as question}]
   [:div.boxselection
+   {:on-click #(dispatch [:nav/nav-path!
+                          [:workbooks
+                           workbook-id
+                           :questions
+                           id]])}
    [:div.cardtitle
     "Question"]
    [:h4 text]

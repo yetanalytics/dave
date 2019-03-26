@@ -68,6 +68,13 @@
             {:keys [id
                     title] :as visualization}]
   [:div.boxselection
+   {:on-click #(dispatch [:nav/nav-path!
+                          [:workbooks
+                           workbook-id
+                           :questions
+                           question-id
+                           :visualizations
+                           id]])}
    [:div.cardtitle
     "Visualization"]
    [:h4 title]
