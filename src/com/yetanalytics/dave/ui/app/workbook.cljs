@@ -18,6 +18,7 @@
                 :label "Description"}]
       :form {}}]}))
 
+;; Only run after the new workbook action, NOT in the wiz
 (re-frame/reg-event-fx
  :workbook/create
  (fn [{:keys [db] :as ctx} [_ form-map]]
@@ -25,11 +26,6 @@
           :as new-workbook} (merge form-map
                                    {:id (random-uuid)
                                     :index 0
-                                    ;; TODO: remove the auto test dataset
-                                    :data {:title "test dataset"
-                                           :type :com.yetanalytics.dave.workbook.data/file
-                                           :uri "/data/dave/ds.json"
-                                           :built-in? true}
                                     :questions {}})]
      (if-let [spec-error (s/explain-data workbook/workbook-spec
                                          new-workbook)]
@@ -38,11 +34,21 @@
         ;; TODO: human readable spec errors
         {:message "Invalid Workbook"}}
        ;; it's valid, dismiss the dialog and pass it off to CRUD
+       ;; the after-create action will nav to it and open the picker
        {:dispatch-n [[:dialog/dismiss]
                      [:crud/create!
                       new-workbook
-                      id
-                      ]]}))))
+                      id]
+                     [:workbook/after-create
+                      id]]}))))
+
+(re-frame/reg-event-fx
+ :workbook/after-create
+ (fn [_ [_ workbook-id]]
+   {:com.yetanalytics.dave.ui.app.nav/nav-path! [:workbooks
+                                                 workbook-id]
+    :dispatch [:workbook.data/offer-picker
+               workbook-id]}))
 
 (re-frame/reg-event-fx
  :workbook/edit
@@ -59,7 +65,12 @@
                   :label "Title"}
                  {:key :description
                   :label "Description"}]
-        :form (select-keys workbook [:title :description])}]})))
+        :form (select-keys workbook [:title :description])
+        :additional-actions
+        [{:label "Select Dataset"
+          :mdc-dialog-action "cancel"
+          :dispatch [:workbook.data/offer-picker
+                     workbook-id]}]}]})))
 
 (re-frame/reg-event-fx
  :workbook/update

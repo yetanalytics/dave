@@ -31,7 +31,7 @@
     [:img.title-img {:src "img/lambda.svg"}]
     "Function: " @(subscribe [:workbook.question.function.func/title
                               workbook-id question-id])
-    [:button.minorbutton
+    #_[:button.minorbutton
      {:on-click #(dispatch [:workbook.question.function/offer-picker
                             workbook-id question-id])}
      "Change Function"]]

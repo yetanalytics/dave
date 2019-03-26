@@ -50,7 +50,7 @@
      [:div ;; inner
       [:div.splash
        [:h2 title]
-       [:button.majorbutton
+       #_[:button.majorbutton
         {:on-click #(dispatch [:workbook.question.visualization/offer-picker
                                workbook-id question-id id])}
         "Change Visualization"]

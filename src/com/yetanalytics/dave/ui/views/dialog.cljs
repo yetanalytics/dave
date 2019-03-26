@@ -41,17 +41,13 @@
                     ;; re-framey way.
                     :tab-index 0}
                    "Cancel"]]
-                 (for [{:keys [label
-                               mdc-dialog-action
-                               on-click
-                               disabled?]} actions]
+                 (for [[idx {:keys [label
+                                    mdc-dialog-action
+                                    on-click
+                                    disabled?]}] (map-indexed vector actions)]
                    [:button.mdc-button.mdc-dialog__button
                     (cond-> {:on-click on-click
-                             #_(fn [e]
-                                         (.preventDefault e)
-                                         (.close @dialog-ref)
-                                         (on-click)
-                                 e)}
+                             :tab-index (inc idx)}
                       disabled?
                       (assoc :disabled true)
                       mdc-dialog-action
@@ -94,9 +90,15 @@
                           (for [field @(subscribe [:dialog.form/fields])]
                             [form-field-input field]))
            :actions
-           [{:label "Save"
-             ;; :mdc-dialog-action "save"
-             :on-click #(dispatch [:dialog.form/save])}]}])
+           (into []
+                 (concat
+                  (for [{dispatch-v :dispatch
+                         :keys [label] :as action}
+                        @(subscribe [:dialog/additional-actions])]
+                    (merge action {:on-click #(dispatch dispatch-v)}))
+                  [{:label "Save"
+                    ;; :mdc-dialog-action "save"
+                    :on-click #(dispatch [:dialog.form/save])}]))}])
 
 (defn dialog-wizard
   "Dialog for the dave workbook creation wizard"

@@ -54,6 +54,5 @@
        :com.yetanalytics.dave.workbook.data/file "insert_drive_file"
        :com.yetanalytics.dave.workbook.data/lrs "storage")]
     @(subscribe [:workbook.data/title ?workbook-id])]
-   [change-button ?workbook-id]
    [details ?workbook-id]
    [errors ?workbook-id]])
