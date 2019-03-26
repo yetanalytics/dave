@@ -34,8 +34,22 @@
                      [:crud/create!
                       new-question
                       workbook-id
-                      id
-                      ]]}))))
+                      id]
+                     [:workbook.question/after-create
+                      workbook-id
+                      id]]}))))
+
+(re-frame/reg-event-fx
+ :workbook.question/after-create
+ (fn [_ [_ workbook-id
+         question-id]]
+   {:com.yetanalytics.dave.ui.app.nav/nav-path! [:workbooks
+                                                 workbook-id
+                                                 :questions
+                                                 question-id]
+    :dispatch [:workbook.question.function/offer-picker
+               workbook-id
+               question-id]}))
 
 (re-frame/reg-event-fx
  :workbook.question/edit
