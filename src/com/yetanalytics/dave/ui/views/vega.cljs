@@ -226,14 +226,21 @@
         el (r/dom-node this)
         el-width (.-offsetWidth el)
         el-height (.-offsetHeight el)
+        {spec-width :width
+         spec-height :height} spec
+        [width
+         height] (if (= spec-width spec-height)
+                   [spec-width
+                    spec-height]
+                   [el-width
+                    el-height])
         runtime (.parse js/vega (clj->js spec))
         chart (-> (js/vega.View. runtime)
                   (.logLevel (s/conform ::log-level
                                         log-level))
-                  (.width (-> el-width
-                              (* 0.9)
-                              int))
-                  (.height el-height)
+
+                  (.width width)
+                  (.height height)
                   (.renderer renderer)
                   (.initialize el)
                   (cond-> hover? .hover))]

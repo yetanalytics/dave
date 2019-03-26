@@ -11,6 +11,7 @@
      :labelAlign "left"}
     {:orient "left", :scale "yscale"}],
    :width 500,
+   :height 200,
    :autosize "fit"
    :scales
    [{:name "xscale",
@@ -74,7 +75,6 @@
       {:events "rect:mouseout", :update "{}"}]}
     {:name "bar_color"
      :value "steelblue"}],
-   :height 200,
    :legends [{:fill "color"}]
    :data
    [{:name "table",

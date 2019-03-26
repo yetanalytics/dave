@@ -71,8 +71,7 @@
    [:div.cardtitle
     "Visualization"]
    [:h4 title]
-   [display workbook-id question-id id
-    :vega-override {:width 200}]
+   [display workbook-id question-id id]
    [:a {:href (str "#/workbooks/" workbook-id
                    "/questions/" question-id
                    "/visualizations/" id)}
