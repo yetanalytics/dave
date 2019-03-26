@@ -14,10 +14,36 @@
   (s/cat :event-id qualified-keyword?
          :args (s/* identity)))
 
+(s/def :dialog.action/label
+  (s/and string?
+         not-empty))
+
+(s/def :dialog.action/dispatch
+  (s/cat :event-id qualified-keyword?
+         :args (s/* identity)))
+
+(s/def :dialog.action/disabled?
+  boolean?)
+
+(s/def :dialog.action/mdc-dialog-action
+  #{"close"
+    "cancel"})
+
+(s/def ::additional-actions
+  ;; A Vector of additional actions
+  ;; placed, in-order, between cancel and save
+  (s/coll-of (s/keys :req-un [:dialog.action/label
+                              :dialog.action/dispatch]
+                     :opt-un [:dialog.action/disabled?
+                              :dialog.action/mdc-dialog-action])
+             :kind vector?
+             :into []))
+
 (def dialog-common-spec
   (s/keys :req-un [::title
                    ::mode]
-          :opt-un [::dispatch-cancel]))
+          :opt-un [::dispatch-cancel
+                   ::additional-actions]))
 
 (defmulti dialog-mode :mode)
 
@@ -53,8 +79,7 @@
   (s/merge dialog-common-spec
            (s/keys :req-un [::fields
                             ::form
-                            ::dispatch-save]
-                   )))
+                            ::dispatch-save])))
 
 (defmethod dialog-mode ::wizard [_]
   dialog-common-spec)
@@ -134,6 +159,13 @@
  :<- [::dialog]
  (fn [dialog _]
    (:mode dialog)))
+
+(re-frame/reg-sub
+ :dialog/additional-actions
+ :<- [::dialog]
+ (fn [dialog _]
+   (into []
+         (:additional-actions dialog))))
 
 ;; Form Subs
 
