@@ -54,6 +54,11 @@
 
 (defn cell [workbook-id {:keys [id text visualizations] :as question}]
   [:div.boxselection
+   {:on-click #(dispatch [:nav/nav-path!
+                          [:workbooks
+                           workbook-id
+                           :questions
+                           id]])}
    [:div.cardtitle
     "Question"]
    [:h4 text]

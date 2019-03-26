@@ -53,6 +53,9 @@
 ;; TODO: more formatting specifically for cells
 (defn cell [{:keys [id] :as workbook}]
   [:div.workbookinfo
+   {:on-click #(dispatch [:nav/nav-path!
+                          [:workbooks
+                           id]])}
    [:div.sectiontitle
     [:p "Workbook"]]
    [:p.hometitle [:a {:href (str "#/workbooks/" id)}
