@@ -138,6 +138,13 @@
    (.replaceToken @history (path->token path))
    #_(nav! token)))
 
+;; Passhthrough for navigating by vector path
+(re-frame/reg-event-fx
+ :nav/nav-path!
+ (fn [_ [_ path]]
+   {::nav-path!
+    path}))
+
 ;; Receive events from the history API and dispatch accordingly
 (re-frame/reg-event-fx
  :nav/dispatch
