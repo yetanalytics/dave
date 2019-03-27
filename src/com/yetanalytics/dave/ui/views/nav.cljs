@@ -102,10 +102,10 @@
   []
   [:div.topmenu
    [:a {:href "#/"}  [:img {:src "img/dev/dave_logo.png"}]]
-   [:a {:href "#/"} "About"]
-   [:a {:href "#/"} "Contribute"]
-   [:a {:href "#/"} "Contact"]
-   [:a {:href "#/"} "Yet Analytics"]])
+   [:a {:href "https://www.yetanalytics.com/dave"} "About"]
+   [:a {:href "https://github.com/yetanalytics/dave"} "Contribute"]
+   [:a {:href "https://www.yetanalytics.com/contact-us"} "Contact"]
+   [:a {:href "https://www.yetanalytics.com/"} "Yet Analytics"]])
 
 (defn top-bar-links
   "The links in the top app bar"
