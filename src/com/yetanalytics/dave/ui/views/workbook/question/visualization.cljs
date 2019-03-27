@@ -76,7 +76,7 @@
    [:a {:href (str "#/workbooks/" workbook-id
                    "/questions/" question-id
                    "/visualizations/" id)}
-    (str "Select Visualization")]])
+    (str "View Your Visualization")]])
 
 (defn grid-list
   "A list of Visualizations"

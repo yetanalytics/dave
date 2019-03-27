@@ -66,7 +66,7 @@
                       :width 200}])
    [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
                    "/questions/" id)}
-    "Select"]])
+    "Continue"]])
 
 (defn grid-list
   "A list of Questions"
