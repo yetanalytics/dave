@@ -8,7 +8,11 @@
    [{:orient "bottom", :scale "xscale"
      :tickSize 0 :labelPadding 4 :zindex 1
      :labelAngle 60
-     :labelAlign "left"}
+     :labelAlign "left"
+     :labelLimit 112
+     :labelOverlap true
+     :labelSeparation -50
+     }
     {:orient "left", :scale "yscale"}],
    :width 500,
    :height 200,
