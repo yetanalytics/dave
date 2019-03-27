@@ -98,12 +98,14 @@
 (defn step-2-form
   []
   (let [data-type @(subscribe [:wizard.form/field :type])]
-    (cond-> [:div.wizard-form
+    (cond->
+          [:div.wizard-form
              [:button.majorbutton
               {:on-click #(dispatch [:wizard.data/offer-picker])}
               (if data-type
                 "Choose Another Data Source"
                 "Choose Data Source")]]
+
       (= :com.yetanalytics.dave.workbook.data/lrs
          data-type)
       (conj [:h3 "LRS Data Source"]
@@ -113,7 +115,12 @@
             [wizard-field [:auth :password] "HTTP Basic Auth Password"])
       (= :com.yetanalytics.dave.workbook.data/file
          data-type)
-      (conj [:h3 "DAVE Test Dataset"]))))
+
+      (conj [:h3 "DAVE Test Dataset"])
+
+
+
+          )))
 
 (defn step-2-data-state
   []
@@ -195,7 +202,7 @@
   (let [{:keys [title
                 doc]} @(subscribe [:wizard.question.function/info])]
     [:div
-     [:h3 "Function: " title]
+     [:h3.margintopzero "Function: " title]
      [:p doc]]))
 
 (defn step-3-form-function-args
@@ -267,7 +274,7 @@
   []
   [:div.wizard-formvis.wizard-form
    [wizard-field :title "Title"]
-   [:h3 "Visualization: " @(subscribe [:wizard.visualization.vis.info/title])]
+   [:h3.margintopzero "Visualization: " @(subscribe [:wizard.visualization.vis.info/title])]
    [:button.majorbutton
     {:on-click #(dispatch [:wizard.question.visualization/offer-picker])}
     "Choose Another Visualization"]])
