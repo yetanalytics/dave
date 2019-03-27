@@ -21706,7 +21706,8 @@ div.app-description {
       box-sizing: border-box;
       margin: 1px;
       margin: calc(var(--mdc-layout-grid-gutter-desktop, 2px) / 2);
-      border-radius: 10px; }
+      border-radius: 10px;
+      transition-duration: .2s; }
       @supports (display: grid) {
         .breadcrumbs > div > div {
           width: auto;
@@ -21728,6 +21729,10 @@ div.app-description {
           padding: 10px;
           color: #373737;
           font-size: .9em; }
+    .breadcrumbs > div > div:hover {
+      -webkit-box-shadow: 0px 0px 37px 0px rgba(0, 0, 0, 0.2);
+      -moz-box-shadow: 0px 0px 37px 0px rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 0px 37px 0px rgba(0, 0, 0, 0.2); }
     .breadcrumbs > div > div.active {
       width: calc(50% - 2px);
       width: calc(50% - var(--mdc-layout-grid-gutter-desktop, 2px));
@@ -21743,6 +21748,12 @@ div.app-description {
           margin: 0; } }
     .breadcrumbs > div div.active ~ div {
       /* TODO: this is just a placeholder to show difference, needs styling */ }
+      .breadcrumbs > div div.active ~ div .title {
+        background-color: #3C4967; }
+    .breadcrumbs > div div.active ~ div:hover {
+      box-shadow: unset;
+      -webkit-box-shadow: unset;
+      -moz-box-shadow: unset; }
 
 /* TODO: move this workbook/chart specific stuff out of nav */
 .chartimage img {
