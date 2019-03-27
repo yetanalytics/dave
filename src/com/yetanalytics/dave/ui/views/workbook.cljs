@@ -52,7 +52,7 @@
 
 ;; TODO: more formatting specifically for cells
 (defn cell [{:keys [id] :as workbook}]
-  [:div.workbookinfo
+  [:div.workbookinfo.hoverrise
    {:on-click #(dispatch [:nav/nav-path!
                           [:workbooks
                            id]])}
