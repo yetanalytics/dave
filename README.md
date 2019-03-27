@@ -1,5 +1,5 @@
 # DAVE
-## The Data Analytics Visualization Efficiency Framework for xAPI and the Total Learning Architecture
+## The Data Analytics Visualization Environment for xAPI and the Total Learning Architecture
 
 *How to contribute to Project DAVE: https://github.com/yetanalytics/dave/wiki/Contributing (includes workflow requirements).*
 
@@ -20,8 +20,6 @@ Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.
 **Take Part**
 
 Here is a quick link to the master doc for review of the template: https://github.com/yetanalytics/dave/blob/master/docs/algorithms/master.pdf
-
-Please join the Google Group to keep up with DAVE-related conversation and notifications: https://groups.google.com/forum/#!forum/project-dave
 
 ## For Developers: Running the Interactive Workbooks & Testing
 
@@ -56,6 +54,6 @@ To run Clojure tests on the JVM:
     clojure -Atest-clj
 
 ## License
-Copyright © 2018 Yet Analytics Inc
+Copyright © 2018-2019 Yet Analytics Inc
 
 Distributed under the Apache 2.0 License. See the file LICENSE for more information.
