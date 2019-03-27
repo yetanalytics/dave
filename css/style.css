@@ -21587,17 +21587,23 @@ a.mdc-list-item {
 
 .boxselection {
   background-color: #FBFBFB;
+  transition-duration: .2s;
   padding: 20px;
   border-radius: 20px;
   -webkit-box-shadow: 0px 0px 14px -2px #cfcfcf;
   -moz-box-shadow: 0px 0px 14px -2px #cfcfcf;
-  box-shadow: 0px 0px 14px -2px #cfcfcf; }
-  .boxselection > a {
-    background-color: #EB8603;
-    color: #ffffff;
+  box-shadow: 0px 0px 14px -2px #cfcfcf;
+  /* Title is a link */ }
+  .boxselection > h4 > a {
     text-decoration: none;
-    padding: 5px 13px;
-    border-radius: 10px; }
+    color: black; }
+
+.boxselection:hover {
+  transition-duration: .2s;
+  background-color: white;
+  -webkit-box-shadow: 6px 13px 37px 0px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 6px 13px 37px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 6px 13px 37px 0px rgba(0, 0, 0, 0.2); }
 
 .splash h2 {
   margin-top: 0px; }
