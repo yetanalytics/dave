@@ -4,7 +4,13 @@
 
 (def base
   "Basic Vega Scatter chart with grouping."
-  {:axes [{:orient "bottom", :scale "x"} {:orient "left", :scale "y"}],
+  {:axes [{:orient "bottom", :scale "x"
+           :labelAngle 60
+           :labelAlign "left"
+           :labelLimit 112
+           :labelOverlap true
+           :labelSeparation -35}
+          {:orient "left", :scale "y"}],
    :width 500,
    :height 200,
    :autosize "fit"
