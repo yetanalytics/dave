@@ -61,15 +61,16 @@
                            id]])}
    [:div.cardtitle
     "Question"]
-   [:h4 text]
+   [:h4
+    [:a
+     {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
+                 "/questions/" id)}
+     text]]
    (when (seq visualizations)
      [visualization/display
       workbook-id id
       @(subscribe [:workbook.question/first-visualization-id
-                   workbook-id id])])
-   [:a {:href (str "#/workbooks/" @(subscribe [:nav/focus-id])
-                   "/questions/" id)}
-    "Select"]])
+                   workbook-id id])])])
 
 (defn grid-list
   "A list of Questions"
