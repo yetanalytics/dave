@@ -77,12 +77,13 @@
                            id]])}
    [:div.cardtitle
     "Visualization"]
-   [:h4 title]
-   [display workbook-id question-id id]
-   [:a {:href (str "#/workbooks/" workbook-id
-                   "/questions/" question-id
-                   "/visualizations/" id)}
-    (str "Select Visualization")]])
+   [:h4
+    [:a
+     {:href (str "#/workbooks/" workbook-id
+                 "/questions/" question-id
+                 "/visualizations/" id)}
+     title]]
+   [display workbook-id question-id id]])
 
 (defn grid-list
   "A list of Visualizations"
