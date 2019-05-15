@@ -9,7 +9,7 @@
     #_[:div.splash
        [:h1 "DAVE"]
        ]
-    [:div [:button.newblock
+    [:div [:button.minorbutton
            {:on-click #(dispatch [:workbook/new])}
            "New Workbook"]]
     [workbook/grid-list]]])
