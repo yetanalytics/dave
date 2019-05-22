@@ -34,13 +34,13 @@
            (into [:div.mdc-dialog__content
                   {:id content-id}]
                  content)
-           (into [:footer.mdc-dialog__actions
+           (into [:footer.raisedfooter.mdc-dialog__actions
                   [:button.mdc-button.mdc-dialog__button
                    {:data-mdc-dialog-action "cancel"
                     ;; TODO: on-click that cancels the dialog action in a
                     ;; re-framey way.
                     :tab-index 0}
-                   "Cancel"]]
+                  "Cancel"]]
                  (for [[idx {:keys [label
                                     mdc-dialog-action
                                     on-click
