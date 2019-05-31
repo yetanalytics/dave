@@ -9,3 +9,11 @@ $mdc-theme-background: #fff;
 .mdc-menu-surface {
   z-index: 10 !important;
 }
+
+.mdc-dialog__button:first-child{
+  color:white !important;
+}
+
+.mdc-button:not(:disabled){
+  color:white !important;
+}
