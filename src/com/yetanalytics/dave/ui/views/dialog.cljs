@@ -34,7 +34,7 @@
            (into [:div.mdc-dialog__content
                   {:id content-id}]
                  content)
-           (into [:footer.raisedfooter.mdc-dialog__actions
+           (into [:footer.wizardfooter.mdc-dialog__actions
                   [:button.mdc-button.mdc-dialog__button
                    {:data-mdc-dialog-action "cancel"
                     ;; TODO: on-click that cancels the dialog action in a

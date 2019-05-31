@@ -2,11 +2,8 @@
 @import "dave/ui/sass/buttons.scss";
 @import "@material/top-app-bar/_mixins";
 
-.raisedfooter{
-  position: absolute;
-  top: 64px;
-right: 70px;
-    border-bottom: 3px solid #f3841c;
+.wizardfooter{
+  background-color: #3C4967;
 }
 
 .dave-vega-container{
