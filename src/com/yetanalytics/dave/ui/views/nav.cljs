@@ -132,9 +132,5 @@
   "The footer at the bottom of the app."
   []
   [:footer
-   [:img {:src "img/dev/white_text_logo.png"}]
-   [:a {:href "#/"} "About"]
-   [:a {:href "#/"} "More Info"]
-   [:a {:href "#/"} "Contribute"]
-   [:a {:href "#/"} "Contact"]
-   [:a {:href "#/"} "Yet Analytics"]])
+   [:a {:href "#"} [:img {:src "img/dev/white_text_logo.png"}]]
+   ])

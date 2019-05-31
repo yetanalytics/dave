@@ -63,7 +63,7 @@
      [page context]
      [dialog/dialog-container]
      ;; Static Footer
-     ;;[nav/footer]
+     [nav/footer]
      ;; Picker overlay
      [picker/picker]
      ;; mdc snackbar overlay
