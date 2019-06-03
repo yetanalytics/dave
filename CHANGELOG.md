@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This changelog!
 
 ### Changed
+-  Changes to the Wizard navigation footer and other DAVE related buttons
+
 ### Removed
 ### Fixed
 
 ## [0.0.2] - 2019-05-31
 ### Added
--  Changes to the Wizard navigation footer and other DAVE related buttons
+- Navigation footer
 
 ### Changed
 - Improved, centralized edit forms
