@@ -7229,6 +7229,12 @@ a.mdc-list-item {
 .mdc-menu-surface {
   z-index: 10 !important; }
 
+.mdc-dialog__button:first-child {
+  color: white !important; }
+
+.mdc-button:not(:disabled) {
+  color: white !important; }
+
 /* fonts and icons */
 .mdc-button {
   font-family: Roboto, sans-serif;
@@ -14320,6 +14326,12 @@ a.mdc-list-item {
 
 .mdc-menu-surface {
   z-index: 10 !important; }
+
+.mdc-dialog__button:first-child {
+  color: white !important; }
+
+.mdc-button:not(:disabled) {
+  color: white !important; }
 
 div.picker {
   position: fixed;
@@ -21484,6 +21496,12 @@ a.mdc-list-item {
 .mdc-menu-surface {
   z-index: 10 !important; }
 
+.mdc-dialog__button:first-child {
+  color: white !important; }
+
+.mdc-button:not(:disabled) {
+  color: white !important; }
+
 .flatbutton {
   color: #345BC6;
   border: 2px solid #345BC6;
@@ -21562,6 +21580,9 @@ a.mdc-list-item {
   -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
   box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
   transition-duration: .1s; }
+
+.wizardfooter {
+  background-color: #3C4967; }
 
 .dave-vega-container {
   margin-bottom: 20px; }
@@ -21831,30 +21852,21 @@ div.descendant-counts > .visualtag {
   background-color: #189366; }
 
 .dave-app > footer {
-  height: auto;
+  height: 80px;
   width: 100%;
-  background-image: linear-gradient(to right top, #1e3e8e, #21449d, #234bad, #2751bd, #2a58cd);
-  background-repeat: no-repeat;
+  background-color: #3C4967;
   background-size: contain;
-  color: white;
-  position: fixed;
-  /* change position to fixed*/
-  bottom: 0;
-  display: flex;
+  margin-top: 50px;
   flex-wrap: wrap;
+  display: flex;
   align-items: center;
-  padding: 30px;
   -webkit-box-shadow: 0px -11px 30px -16px rgba(66, 66, 66, 0.93);
   -moz-box-shadow: 0px -11px 30px -16px rgba(66, 66, 66, 0.93);
-  box-shadow: 0px -11px 30px -16px rgba(66, 66, 66, 0.93); }
-  .dave-app > footer > img {
-    height: 100px; }
-  .dave-app > footer > a {
-    color: white;
-    padding-left: 40px;
-    text-decoration: none;
-    font-weight: lighter;
-    margin: 10px; }
+  box-shadow: 0px -11px 30px -16px rgba(66, 66, 66, 0.53); }
+  .dave-app > footer > a img {
+    height: 50px;
+    margin-left: 30px;
+    padding: 10px 0px 10px 0px; }
 
 .quick-guide {
   max-width: 50%;
