@@ -568,6 +568,180 @@
    (init
     (map->FollowedRecommendations {}))))
 
+(s/def :learning-path/args
+  (s/keys :req-un [::time-unit]))
+
+(s/fdef LearningPath
+  :args (s/cat
+         :statements
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[id agent verb stamp [act-id act-name]]]
+                           {"id" id
+                            "actor" agent
+                            "verb" verb
+                            "object" {"objectType" "Activity"
+                                      "id" act-id
+                                      "definition" {"name" {"en-US" act-name}}}
+                            "timestamp" stamp
+                            "stored" stamp
+                            "authority" {"objectType" "Agent"
+                                         "account" {"homePage" "https://example.com"
+                                                    "name" "username"}}
+                            "version" "1.0.3"})
+                         (sgen/tuple
+                          ;; id
+                          (sgen/fmap str (sgen/uuid))
+                          ;; WIP: agent creation
+                          (sgen/fmap (fn [ifi] "...")
+                                     (sgen/elements ["WIP" "WIP" "WIP"]))
+                          ;; verb
+                          (sgen/fmap (fn [[id label]]
+                                       {"id" id
+                                        "display" {"en-US" label}})
+                                     (sgen/elements ["http://adlnet.gov/expapi/verbs/passed"           "passed"
+                                                     "https://w3id.org/xapi/dod-isd/verbs/answered"    "answered"
+                                                     "http://adlnet.gov/expapi/verbs/completed"        "completed"
+                                                     "https://w3id.org/xapi/dod-isd/verbs/answered"    "answered"
+                                                     "https://w3id.org/xapi/dod-isd/verbs/recommended" "recommended"
+                                                     "http://adlnet.gov/expapi/verbs/launched"         "launched"]))
+                          ;; timestamp/stored
+                          (sgen/fmap (fn [i]
+                                       (util/inst->timestamp
+                                        #?(:clj (java.util.Date. i)
+                                           :cljs (js/Date. i))))
+                                     ;; one year span
+                                     (sgen/large-integer*
+                                      {:min 1546300800000
+                                       :max 1577836800000}))
+                          ;; activity id/name tuple
+                          (sgen/fmap (fn [x]
+                                       [(str "https://example.com/activities/" x)
+                                        (str "Activity " x)])
+                                     (sgen/elements ["a" "b" "c" "d" "e" "f"])))))))
+         :args (s/? (s/nilable :learning-path/args)))
+  :ret ::ret/result)
+
+(defrecord LearningPath [state]
+  f/AFunc
+  (init [this]
+    ;; set/reset to init state
+    (assoc-in this [:state :learners] {}))
+  (relevant? [_ statement]
+    ;; "Should return true if the statement is valid basis data for the func. Otherwise, returns false."
+    ;; - All statements are relevant
+    true)
+  (accept? [_ statement]
+    ;; "If the func can consider this statement given its current state/data, returns true. Otherwise, returns false."
+    ;; - All statements are relevant
+    true)
+  (step [this statement]
+    ;; "Given a novel statement, update state. Returns the (possibly modified) record."
+    (letfn [(get-ifi-helper [src k] (not-empty (get src k)))
+
+            (get-actor-ifi [{:strs [actor]}]
+              ;; handles pasrsing actor ifi for grouping
+              (or (get-ifi-helper actor "mbox")
+                  (get-ifi-helper actor "account")
+                  (get-ifi-helper actor "openid")
+                  (get-ifi-helper actor "mbox_sha1sum")))
+            
+            (get-lmap-val [lmap] (-> lmap vals first))
+            
+            (update-state-with-fn [{:strs [timestamp id verb object]}]
+              ;; handles parsing of the statement
+              (let [{verb-id "id"
+                     verb-lmap "display"}               verb
+                    verb-label                          (get-lmap-val verb-lmap)
+                    {object-id            "id"
+                     {object-lmap "name"} "definition"} object
+                    object-label                        (get-lmap-val object-lmap)]
+                ;; TODO: MAYBE `timestamp` transformation
+                ;; - `tc/to-date` is used in `FollowedRecommendations`
+                ;; - (`let` [`unix-stamp` (`.getTime` (`util/timestamp->inst` `timestamp`))] ...) used in `SuccessTimeline`
+                [timestamp id verb-id verb-label object-id object-label]))
+            
+            (update-state-fn [existing data-from-stmt]
+              ;; during update, use existing agg or create a new one
+              (let [agg (or (not-empty existing) [])]
+                (conj agg data-from-stmt)))]
+      
+      ;; perform the top level step operation
+      (let [actor-ifi (get-actor-ifi statement)
+            data      (update-state-with-fn statement)]
+        ;; - whatever is currently at [:state :leaners `actor-ifi`] is passed as first arg to `update-state-fn`
+        ;; - mutated `this` is returned
+        (update-in this [:state :learners actor-ifi] update-state-fn data))))
+  
+  (result [this]
+    ;; "Output the result data given the current state of the function."
+    ;; - is this result processing necessary or can this be handled by the viz?
+    ;; -- `time-unit` intended to control the number and frequency of x-axis ticks across the scatterplots
+    (result this {:time-unit :day}))
+  
+  ;; TODO: does this need to perform these operations?
+  ;; - a) chronological sorting of accum attached to each actor
+  ;; - b) grouping based on `time-unit`
+  ;; Seems like things the viz can handle.
+  ;; - if the viz can't and/or shouldn't handle this, WIP impl below
+  
+  (result [this args]
+    ;; WIP - need to figure out the actual specification options which would be used here
+    #_{:specification
+       {:x {:type :time
+            :label "Timestamp"
+            ;; Intention of `:time-unit`
+            :axis-tick (:time-unit args)}
+        :y {:type :category
+            :label "Verb"}
+        :c {:type :category}}
+       ;; WIP - what would the values need to look like to ensure they get put into the correct plot?
+       ;; - something like below?
+       :scatterplot-ids (into [] (keys (get-in this [:state :learners])))
+       :values
+       (reduce-kv (fn [ack ifi data]
+                    ;; WIP - not tested - coll of vec w/ actor-ifi added to data points
+                    (reduce into ack (mapv #(conj % ifi) data)))
+                  []
+                  (get-in state [:state :learners]))
+       ;; or some generation of {:x "timestamp" :y "verb-id" :plot "actor-ifi" :c "object-id"}
+       }
+    
+    ;; WIP - possible impl if we can't rely on the viz to handle `:time-unit`
+    ;; - TODO: handling of `:time-unit` effect
+    
+    (letfn [;; timestamp from source statement is first value within all colls grouped by `actor-ifi`
+            ;; - ensure output coll is same type as input coll
+            (order-by-first [coll] (into (empty coll) (sort-by first coll)))
+
+            (ensure-chronological! [state]
+              (reduce-kv
+               ;; use `order-by-first` to ensure sorting
+               (fn [acum ifi _] (update-in acum [:state :learners ifi] order-by-first))
+               ;; return mutated state
+               state 
+               ;; - iterate over result of `step` found at [:state :learners] within `this`
+               ;; -- {actor-ifi-1 [[step-result-i] ... [step-result-j]], actor-ifi-2 [[step-result-i] ... [step-result-j]]}
+               (get-in state [:state :learners])))
+
+            (order-by-timeunit [chronological tu]
+              ;; TODO: impl if needed
+              (into (empty chronological) "handle `tu` effect on `chronological`"))
+
+            (ensure-by-timeunit! [state* timeunit]
+              (reduce-kv
+               ;; use `order-by-timeunit`
+               (fn [acum* a-ifi _] (update-in acum* [:state :learners a-ifi] order-by-timeunit timeunit))
+               ;; return mutated state
+               state*
+               ;; - iterate over result of `ensure-chronlogical!`
+               (get-in state* [:state :learners])))]
+      ;; ensure default of day - redundant saftey check
+      (let [time-unit (:time-unit args :day)]
+        ;; TODO: if sorting + `:time-unit` effect needs to happen here, squash ensure-fns! into single reduce-kv
+        (-> this ensure-chronological! (ensure-by-timeunit! time-unit) (get-in [:state :learners]))))))
+
 (s/def ::function
   record?)
 
