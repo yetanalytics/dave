@@ -594,18 +594,21 @@
                           ;; id
                           (sgen/fmap str (sgen/uuid))
                           ;; WIP: agent creation
-                          (sgen/fmap (fn [ifi] "...")
-                                     (sgen/elements ["WIP" "WIP" "WIP"]))
+                          (sgen/fmap
+                           (fn [n]
+                             {"name" (format "Agent %d" n)
+                              "mbox" (format "mailto:agent%d@example.com" n)
+                              "objectType" "Agent"})
+                           (sgen/elements [1 2 3 ]))
                           ;; verb
                           (sgen/fmap (fn [[id label]]
                                        {"id" id
                                         "display" {"en-US" label}})
-                                     (sgen/elements ["http://adlnet.gov/expapi/verbs/passed"           "passed"
-                                                     "https://w3id.org/xapi/dod-isd/verbs/answered"    "answered"
+                                     (sgen/elements {"http://adlnet.gov/expapi/verbs/passed"           "passed"
                                                      "http://adlnet.gov/expapi/verbs/completed"        "completed"
                                                      "https://w3id.org/xapi/dod-isd/verbs/answered"    "answered"
                                                      "https://w3id.org/xapi/dod-isd/verbs/recommended" "recommended"
-                                                     "http://adlnet.gov/expapi/verbs/launched"         "launched"]))
+                                                     "http://adlnet.gov/expapi/verbs/launched"         "launched"}))
                           ;; timestamp/stored
                           (sgen/fmap (fn [i]
                                        (util/inst->timestamp
@@ -741,6 +744,11 @@
       (let [time-unit (:time-unit args :day)]
         ;; TODO: if sorting + `:time-unit` effect needs to happen here, squash ensure-fns! into single reduce-kv
         (-> this ensure-chronological! (ensure-by-timeunit! time-unit) (get-in [:state :learners]))))))
+
+(def learning-path
+  (->invocable
+   (init
+    (map->LearningPath {}))))
 
 (s/def ::function
   record?)
