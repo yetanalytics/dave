@@ -1,0 +1,15 @@
+language: java
+before_install:
+  - curl -O https://download.clojure.org/install/linux-install.sh
+  - chmod +x linux-install.sh
+  - sudo ./linux-install.sh
+script: make ci
+cache:
+  directories:
+  - /usr/local/bin/clj
+  - /usr/local/bin/clj
+  - /usr/local/lib/clojure
+  - $HOME/.clojure
+  - $HOME/.cljs
+  - $HOME/.m2
+  - .cpcache

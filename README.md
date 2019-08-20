@@ -33,11 +33,19 @@ To get an interactive development environment run:
 
     clj -A:fig:build
 
+Or via the `Makefile`:
+
+    make dev-repl
+
 A browser window will open automatically to `http://localhost:9500`
 
 To live-compile SASS files to CSS (do this in another shell):
 
     clojure -A:watch-sass
+
+Or via the `Makefile`:
+
+    make watch-sass
 
 The root SASS file can be found at `/resources/dave/ui/sass/style.scss`
 
@@ -49,11 +57,32 @@ To run the ClojureScript tests outside of figwheel:
 
     clojure -Afig:test-cljs
 
+Or via the `Makefile`:
+
+    make test-cljs
+
 To run Clojure tests on the JVM:
 
     clojure -Atest-clj
 
+Or via the `Makefile`:
+
+    make test-clj
+
+All tests can be run via the `Makefile`:
+
+    make ci
+
+And an application package for GitHub Pages can be generated at `./gh_pages`:
+
+    make gh_pages
+
+And all project artifacts can be deleted:
+
+    make clean
+
 ## License
+
 Copyright © 2018-2019 Yet Analytics Inc
 
 Distributed under the Apache 2.0 License. See the file LICENSE for more information.
