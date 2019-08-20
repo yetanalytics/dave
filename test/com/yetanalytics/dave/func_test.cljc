@@ -41,6 +41,14 @@
          {stc-opts
           {:num-tests 10 :max-size 3}})))))
 
+(deftest learning-path-test
+  (is (empty?
+       (failures
+        (stest/check
+         `func/learning-path
+         {stc-opts
+          {:num-tests 10 :max-size 3}})))))
+
 ;; helper fns
 
 (deftest helpers-test
