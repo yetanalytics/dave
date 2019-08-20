@@ -571,7 +571,7 @@
 (s/def :learning-path/args
   (s/keys :req-un [::time-unit]))
 
-(s/fdef LearningPath
+(s/fdef learning-path
   :args (s/cat
          :statements
          (s/every
@@ -624,7 +624,7 @@
   :ret ::ret/result)
 
 (defrecord LearningPath [state]
-  f/AFunc
+  AFunc
   (init [this]
     ;; set/reset to init state
     (assoc-in this [:state :learners] {}))
@@ -646,9 +646,9 @@
                   (get-ifi-helper actor "account")
                   (get-ifi-helper actor "openid")
                   (get-ifi-helper actor "mbox_sha1sum")))
-            
+
             (get-lmap-val [lmap] (-> lmap vals first))
-            
+
             (update-state-with-fn [{:strs [timestamp id verb object]}]
               ;; handles parsing of the statement
               (let [{verb-id "id"
@@ -661,31 +661,31 @@
                 ;; - `tc/to-date` is used in `FollowedRecommendations`
                 ;; - (`let` [`unix-stamp` (`.getTime` (`util/timestamp->inst` `timestamp`))] ...) used in `SuccessTimeline`
                 [timestamp id verb-id verb-label object-id object-label]))
-            
+
             (update-state-fn [existing data-from-stmt]
               ;; during update, use existing agg or create a new one
               (let [agg (or (not-empty existing) [])]
                 (conj agg data-from-stmt)))]
-      
+
       ;; perform the top level step operation
       (let [actor-ifi (get-actor-ifi statement)
             data      (update-state-with-fn statement)]
         ;; - whatever is currently at [:state :leaners `actor-ifi`] is passed as first arg to `update-state-fn`
         ;; - mutated `this` is returned
         (update-in this [:state :learners actor-ifi] update-state-fn data))))
-  
+
   (result [this]
     ;; "Output the result data given the current state of the function."
     ;; - is this result processing necessary or can this be handled by the viz?
     ;; -- `time-unit` intended to control the number and frequency of x-axis ticks across the scatterplots
     (result this {:time-unit :day}))
-  
+
   ;; TODO: does this need to perform these operations?
   ;; - a) chronological sorting of accum attached to each actor
   ;; - b) grouping based on `time-unit`
   ;; Seems like things the viz can handle.
   ;; - if the viz can't and/or shouldn't handle this, WIP impl below
-  
+
   (result [this args]
     ;; WIP - need to figure out the actual specification options which would be used here
     #_{:specification
@@ -707,10 +707,10 @@
                   (get-in state [:state :learners]))
        ;; or some generation of {:x "timestamp" :y "verb-id" :plot "actor-ifi" :c "object-id"}
        }
-    
+
     ;; WIP - possible impl if we can't rely on the viz to handle `:time-unit`
     ;; - TODO: handling of `:time-unit` effect
-    
+
     (letfn [;; timestamp from source statement is first value within all colls grouped by `actor-ifi`
             ;; - ensure output coll is same type as input coll
             (order-by-first [coll] (into (empty coll) (sort-by first coll)))
@@ -720,7 +720,7 @@
                ;; use `order-by-first` to ensure sorting
                (fn [acum ifi _] (update-in acum [:state :learners ifi] order-by-first))
                ;; return mutated state
-               state 
+               state
                ;; - iterate over result of `step` found at [:state :learners] within `this`
                ;; -- {actor-ifi-1 [[step-result-i] ... [step-result-j]], actor-ifi-2 [[step-result-i] ... [step-result-j]]}
                (get-in state [:state :learners])))
