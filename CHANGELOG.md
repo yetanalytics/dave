@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - This changelog!
 - Makefile for easier building w/o clojure syntax
+- CI via travis.org
 
 ### Changed
 - Changes to the Wizard navigation footer and other DAVE related buttons
