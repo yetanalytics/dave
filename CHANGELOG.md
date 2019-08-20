@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - This changelog!
+- Makefile for easier building w/o clojure syntax
 
 ### Changed
--  Changes to the Wizard navigation footer and other DAVE related buttons
+- Changes to the Wizard navigation footer and other DAVE related buttons
+- Run headless cljs tests via nodejs
 
 ### Removed
 ### Fixed
