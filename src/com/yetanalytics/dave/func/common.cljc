@@ -31,8 +31,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (s/fdef get-helper
-  :args (s/cat :src (s/map-of some? ::xs/any-json)
-               :k some?)
+  :args (s/gen (s/cat :src (s/map-of some? ::xs/any-json)
+                      :k some?))
   :ret ::xs/any-json)
 
 (defn get-helper
@@ -65,7 +65,7 @@
          :open-id      :group/openid)))
 
 (s/fdef get-ifi
-  :args (s/cat :actor ::xs/actor)
+  :args (s/gen (s/cat :actor ::xs/actor))
   :ret  (s/or :agent  ::agent-ifi
               :group  ::group-ifi))
 
@@ -82,9 +82,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (s/fdef get-lmap-val
-  :args (s/alt :unary (s/cat :lmap         ::xs/language-map)
-               :two   (s/cat :lmap         ::xs/language-map
-                             :language-tag ::xs/language-tag))
+  :args (s/gen (s/alt :unary (s/cat :lmap         ::xs/language-map)
+                      :two   (s/cat :lmap         ::xs/language-map
+                                    :language-tag ::xs/language-tag)))
   :ret (s/nilable ;; provided language tag may be incorrect
         ::xs/language-map-text))
 
@@ -109,7 +109,7 @@
   (s/keys :req-un [::agent-name ::agent-ifi]))
 
 (s/fdef parse-agent
-  :args (s/cat :agent ::xs/agent)
+  :args (s/gen (s/cat :agent ::xs/agent))
   :ret ::parse-agent-ret)
 
 (defn parse-agent
@@ -134,7 +134,7 @@
           :opt-un [::group-members ::group-ifi]))
 
 (s/fdef parse-group
-  :args (s/cat :group ::xs/group)
+  :args (s/gen (s/cat :group ::xs/group))
   :ret  ::parse-group-ret)
 
 (defn parse-group
@@ -167,9 +167,9 @@
   (s/keys :req-un [::activity-id ::activity-name]))
 
 (s/fdef parse-activity
-  :args (s/alt :unary (s/cat :activity     ::xs/activity)
-               :two   (s/cat :activity     ::xs/activity
-                             :language-tag ::xs/language-tag))
+  :args (s/gen (s/alt :unary (s/cat :activity     ::xs/activity)
+                      :two   (s/cat :activity     ::xs/activity
+                                    :language-tag ::xs/language-tag)))
   :ret ::parse-activity-ret)
 
 (defn parse-activity
@@ -198,7 +198,7 @@
         :group ::parse-group-ret))
 
 (s/fdef parse-actor
-  :args (s/cat :actor ::xs/actor)
+  :args (s/gen (s/cat :actor ::xs/actor))
   :ret ::parse-actor-ret)
 
 (defn parse-actor
@@ -227,9 +227,9 @@
   (s/keys :req-un [::verb-id ::verb-name]))
 
 (s/fdef parse-verb
-  :args (s/alt :unary (s/cat :verb ::xs/verb)
-               :two   (s/cat :verb ::xs/verb
-                             :language-tag ::xs/language-tag))
+  :args (s/gen (s/alt :unary (s/cat :verb ::xs/verb)
+                      :two   (s/cat :verb ::xs/verb
+                                    :language-tag ::xs/language-tag)))
   :ret ::parse-verb-ret)
 
 (defn parse-verb
@@ -301,9 +301,9 @@
   ;; limiting args to supported object types
   ;; - TODO: may be possible to spec intentional errors from (`throw` (`ex-info` ...)) but not sure how
   ;; -- some form of macro magic...I am but an apprentice
-  :args (s/alt :unary (s/cat :supported-object-types ::object)
-               :two   (s/cat :only-activity ::xs/activity
-                             :language-tag  ::xs/language-tag))
+  :args (s/gen (s/alt :unary (s/cat :supported-object-types ::object)
+                      :two   (s/cat :only-activity ::xs/activity
+                                    :language-tag  ::xs/language-tag)))
   :ret ::parse-object-ret)
 
 (defn parse-object
@@ -428,12 +428,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (s/fdef parse-statement-simple
-  :args (s/alt :only-statement        (s/cat :simple-statement      :statement-simple.one.arg/statement)
-               :shared-language-tag   (s/cat :simple-statement      :statement-simple.many.arg/statement
-                                             :shared-language-tag   ::xs/language-tag)
-               :targeted-language-tag (s/cat :simple-statement      :statement-simple.many.arg/statement
-                                             :language-tag-verb     ::xs/language-tag
-                                             :language-tag-activity ::xs/language-tag))
+  :args (s/gen (s/alt :only-statement        (s/cat :simple-statement      :statement-simple.one.arg/statement)
+                      :shared-language-tag   (s/cat :simple-statement      :statement-simple.many.arg/statement
+                                                    :shared-language-tag   ::xs/language-tag)
+                      :targeted-language-tag (s/cat :simple-statement      :statement-simple.many.arg/statement
+                                                    :language-tag-verb     ::xs/language-tag
+                                                    :language-tag-activity ::xs/language-tag)))
   :ret (s/keys :req-un [:statement-simple.ret/id
                         :statement-simple.ret/actor
                         :statement-simple.ret/verb
@@ -544,10 +544,10 @@
              :into []))
 
 (s/fdef handle-actor
-  :args (s/cat :parsed-actor
-               (s/keys :req-un [(or (and ::agent-name ::agent-ifi) ::group-name)]
-                       :opt-un [::group-members
-                                ::group-ifi]))
+  :args (s/gen (s/cat :parsed-actor
+                      (s/keys :req-un [(or (and ::agent-name ::agent-ifi) ::group-name)]
+                              :opt-un [::group-members
+                                       ::group-ifi])))
   :ret (s/or :agent       :handle-actor.ret/agent
              :group       :handle-actor.ret/group
              :members     :handle-actor.ret/members
@@ -611,12 +611,12 @@
              :count 1))
 
 (s/fdef handle-object
-  :args (s/cat :parsed-object
-               (s/keys :req-un [(or (and ::agent-name ::agent-ifi)
-                                    (and ::activity-id ::activity-name)
-                                    ::group-name)]
-                       :opt-un [::group-members
-                                ::group-ifi]))
+  :args (s/gen (s/cat :parsed-object
+                      (s/keys :req-un [(or (and ::agent-name ::agent-ifi)
+                                           (and ::activity-id ::activity-name)
+                                           ::group-name)]
+                              :opt-un [::group-members
+                                       ::group-ifi])))
   :ret (s/or :activity     :handle-object.ret/activity
              :agent        :handle-object.ret/agent
              :group        :handle-object.ret/identified-group
