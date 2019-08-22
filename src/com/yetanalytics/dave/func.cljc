@@ -710,8 +710,8 @@
       (result this {:time-unit :hour
                     :actor-ifi ifi})))
   (result [this args]
-    (let [{time-unit :time-unit} args
-          data-per-actor         (get-in this [:state :learners])
+    (let [data-per-actor         (get-in this [:state :learners])
+          time-unit              (:time-unit args :hour) ;; set default to catch `args` being nil
           ifi                    (:actor-ifi args
                                              ;; if `actor-ifi` was not set by args
                                              ;; - result should only return data for a single actor
