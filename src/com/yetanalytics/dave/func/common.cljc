@@ -516,6 +516,10 @@
 ;; helper for return information after statement has been parsed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; actor
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (s/def :handle-actor.ret/agent-ordering
   (s/cat :name ::agent-name
          :ifi  ::agent-ifi))
@@ -566,4 +570,76 @@
       (when group-ifi [group-name group-ifi]))
     ;; dealing with an agent, return what we know
     [agent-name agent-ifi]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; object
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(s/def :handle-object.ret/agent
+  :handle-actor.ret/agent)
+
+(s/def :handle-object.ret/identified-group
+  :handle-actor.ret/group)
+
+(s/def :handle-object.ret/members
+  (s/coll-of :handle-object.ret/agent
+             :kind vector?
+             :into []))
+
+(s/def :handle-object.ret/group-with-members-ordering
+  (s/cat :name    ::group-name
+         :members :handle-object.ret/members))
+
+(s/def :handle-object.ret/group-with-members
+  (s/with-gen
+    (s/and vector? :handle-object.ret/group-with-members-ordering)
+    #(sgen/fmap vec (s/gen :handle-object.ret/group-with-members-ordering))))
+
+(s/def :handle-object.ret/activity-ordering
+  (s/cat :name ::activity-name
+         :ifi  ::activity-id))
+
+(s/def :handle-object.ret/activity
+  (s/with-gen
+    (s/and vector? :handle-object.ret/activity-ordering)
+    #(sgen/fmap vec (s/gen :handle-object.ret/activity-ordering))))
+
+(s/def :handle-object.ret/group-only-name
+  (s/coll-of ::group-name
+             :kind vector?
+             :into []
+             :count 1))
+
+(s/fdef handle-object
+  :args (s/cat :parsed-object
+               (s/keys :req-un [(or (and ::agent-name ::agent-ifi)
+                                    (and ::activity-id ::activity-name)
+                                    ::group-name)]
+                       :opt-un [::group-members
+                                ::group-ifi]))
+  :ret (s/or :activity     :handle-object.ret/activity
+             :agent        :handle-object.ret/agent
+             :group        :handle-object.ret/identified-group
+             :with-members :handle-object.ret/group-with-members
+             :only-name    :handle-object.ret/group-only-name))
+
+(defn handle-object
+  [{:keys [agent-name agent-ifi
+           group-name group-members group-ifi
+           activity-id activity-name]}]
+  (cond (and activity-id activity-name)
+        [activity-name activity-id]
+        (and agent-name agent-ifi)
+        [agent-name agent-ifi]
+        (and group-name group-ifi)
+        [group-name group-ifi]
+        :else
+        (if-let [members (not-empty
+                          (mapv (fn [member]
+                                  (let [{a-name :agent-name
+                                         a-ifi  :agent-ifi} member]
+                                    [a-name a-ifi]))
+                                group-members))]
+          [group-name members]
+          [group-name])))
 

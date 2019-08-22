@@ -79,4 +79,10 @@
         (stest/check
          `common/handle-actor)))))
 
+(deftest handle-object-test
+  (is (empty?
+       (failures
+        (stest/check
+         `common/handle-object)))))
+
 
