@@ -1,7 +1,9 @@
 (ns com.yetanalytics.dave.func.common
-  (:require [clojure.spec.alpha :as s]
+  (:require [xapi-schema.spec :as xs]
+            [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as sgen]
-            [com.yetanalytics.dave.util.spec :as su]))
+            [com.yetanalytics.dave.util.spec :as su]
+            [com.yetanalytics.dave.func.util :as util]))
 
 (s/fdef scale
   :args (s/with-gen (s/cat :raw number?
