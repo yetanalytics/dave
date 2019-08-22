@@ -579,6 +579,7 @@
             (fn []
               (sgen/fmap (fn [[id agent verb stamp [act-id act-name]]]
                            {"id" id
+                            ;; TODO: or group
                             "actor" agent
                             "verb" verb
                             "object" {"objectType" "Activity"
@@ -593,13 +594,13 @@
                          (sgen/tuple
                           ;; id
                           (sgen/fmap str (sgen/uuid))
-                          ;; WIP: agent creation
+                          ;; agent creation
                           (sgen/fmap
                            (fn [n]
                              {"name" (format "Agent %d" n)
                               "mbox" (format "mailto:agent%d@example.com" n)
                               "objectType" "Agent"})
-                           (sgen/elements [1 2 3 ]))
+                           (sgen/elements [1 2 3]))
                           ;; verb
                           (sgen/fmap (fn [[id label]]
                                        {"id" id
@@ -633,117 +634,71 @@
     (assoc-in this [:state :learners] {}))
   (relevant? [_ statement]
     ;; "Should return true if the statement is valid basis data for the func. Otherwise, returns false."
-    ;; - All statements are relevant
-    true)
+    ;; -  Not going to support statements with substatements or statement references at this time
+    (let [{:strs [object]} statement
+          object-type (common/get-helper object "objectType")]
+      (case object-type
+        "SubStatement" false
+        "StatementRef" false
+        true)))
   (accept? [_ statement]
     ;; "If the func can consider this statement given its current state/data, returns true. Otherwise, returns false."
-    ;; - All statements are relevant
-    true)
+    (if (-> statement
+            (common/get-helper "actor")
+            common/parse-actor
+            common/handle-actor
+            not-empty)
+      ;; we have usable identity vs don't have it
+      true
+      false))
   (step [this statement]
     ;; "Given a novel statement, update state. Returns the (possibly modified) record."
-    (letfn [(get-ifi-helper [src k] (not-empty (get src k)))
-
-            (get-actor-ifi [{:strs [actor]}]
-              ;; handles pasrsing actor ifi for grouping
-              (or (get-ifi-helper actor "mbox")
-                  (get-ifi-helper actor "account")
-                  (get-ifi-helper actor "openid")
-                  (get-ifi-helper actor "mbox_sha1sum")))
-
-            (get-lmap-val [lmap] (-> lmap vals first))
-
-            (update-state-with-fn [{:strs [timestamp id verb object]}]
-              ;; handles parsing of the statement
-              (let [{verb-id "id"
-                     verb-lmap "display"}               verb
-                    verb-label                          (get-lmap-val verb-lmap)
-                    {object-id            "id"
-                     {object-lmap "name"} "definition"} object
-                    object-label                        (get-lmap-val object-lmap)]
-                ;; TODO: MAYBE `timestamp` transformation
-                ;; - `tc/to-date` is used in `FollowedRecommendations`
-                ;; - (`let` [`unix-stamp` (`.getTime` (`util/timestamp->inst` `timestamp`))] ...) used in `SuccessTimeline`
-                [timestamp id verb-id verb-label object-id object-label]))
-
-            (update-state-fn [existing data-from-stmt]
-              ;; during update, use existing agg or create a new one
-              (let [agg (or (not-empty existing) [])]
-                (conj agg data-from-stmt)))]
-
-      ;; perform the top level step operation
-      (let [actor-ifi (get-actor-ifi statement)
-            data      (update-state-with-fn statement)]
-        ;; - whatever is currently at [:state :leaners `actor-ifi`] is passed as first arg to `update-state-fn`
-        ;; - mutated `this` is returned
-        (update-in this [:state :learners actor-ifi] update-state-fn data))))
-
+    (let [{:keys [timestamp id actor verb object]} (common/parse-statement-simple statement)
+          {:keys [verb-id verb-name]}               verb
+          relevant-actor-info                       (common/handle-actor actor)
+          many-actor-agents?                        (-> relevant-actor-info first vector?)
+          [obj-name id-or-members]                  (common/handle-object object)
+          obj-member-names                          (when (vector? id-or-members)
+                                                      (apply str (interpose "," (map first id-or-members))))
+          object-display                            (or obj-member-names obj-name)]
+      (if many-actor-agents?
+        (do ;; make sure `this` is returned
+          (doseq [[member-name member-ifi] relevant-actor-info]
+            (let [data (vector timestamp id member-name verb-name object-display)]
+              (update-in
+               this
+               [:state :learners member-ifi]
+               (fn [old new-data]
+                 (let [accum (or (not-empty old) [])]
+                   (conj accum new-data)))
+               data)))
+          this)
+        (let [[actor-name actor-ifi] relevant-actor-info
+              data         (vector timestamp id actor-name verb-name object-display)]
+          (update-in
+           this
+           [:state :learners actor-ifi]
+           (fn [old new-data]
+             (let [accum (or (not-empty old) [])]
+               (conj accum new-data)))
+           data)))))
   (result [this]
     ;; "Output the result data given the current state of the function."
     ;; - is this result processing necessary or can this be handled by the viz?
     ;; -- `time-unit` intended to control the number and frequency of x-axis ticks across the scatterplots
-    (result this {:time-unit :day}))
-
-  ;; TODO: does this need to perform these operations?
-  ;; - a) chronological sorting of accum attached to each actor
-  ;; - b) grouping based on `time-unit`
-  ;; Seems like things the viz can handle.
-  ;; - if the viz can't and/or shouldn't handle this, WIP impl below
-
+    (result this {:time-unit :hour}))
   (result [this args]
-    ;; WIP - need to figure out the actual specification options which would be used here
-    #_{:specification
-       {:x {:type :time
-            :label "Timestamp"
-            ;; Intention of `:time-unit`
-            :axis-tick (:time-unit args)}
-        :y {:type :category
-            :label "Verb"}
-        :c {:type :category}}
-       ;; WIP - what would the values need to look like to ensure they get put into the correct plot?
-       ;; - something like below?
-       :scatterplot-ids (into [] (keys (get-in this [:state :learners])))
-       :values
-       (reduce-kv (fn [ack ifi data]
-                    ;; WIP - not tested - coll of vec w/ actor-ifi added to data points
-                    (reduce into ack (mapv #(conj % ifi) data)))
-                  []
-                  (get-in state [:state :learners]))
-       ;; or some generation of {:x "timestamp" :y "verb-id" :plot "actor-ifi" :c "object-id"}
-       }
-
-    ;; WIP - possible impl if we can't rely on the viz to handle `:time-unit`
-    ;; - TODO: handling of `:time-unit` effect
-
-    (letfn [;; timestamp from source statement is first value within all colls grouped by `actor-ifi`
-            ;; - ensure output coll is same type as input coll
-            (order-by-first [coll] (into (empty coll) (sort-by first coll)))
-
-            (ensure-chronological! [state]
-              (reduce-kv
-               ;; use `order-by-first` to ensure sorting
-               (fn [acum ifi _] (update-in acum [:state :learners ifi] order-by-first))
-               ;; return mutated state
-               state
-               ;; - iterate over result of `step` found at [:state :learners] within `this`
-               ;; -- {actor-ifi-1 [[step-result-i] ... [step-result-j]], actor-ifi-2 [[step-result-i] ... [step-result-j]]}
-               (get-in state [:state :learners])))
-
-            (order-by-timeunit [chronological tu]
-              ;; TODO: impl if needed
-              (into (empty chronological) "handle `tu` effect on `chronological`"))
-
-            (ensure-by-timeunit! [state* timeunit]
-              (reduce-kv
-               ;; use `order-by-timeunit`
-               (fn [acum* a-ifi _] (update-in acum* [:state :learners a-ifi] order-by-timeunit timeunit))
-               ;; return mutated state
-               state*
-               ;; - iterate over result of `ensure-chronlogical!`
-               (get-in state* [:state :learners])))]
-      ;; ensure default of day - redundant saftey check
-      (let [time-unit (:time-unit args :day)]
-        ;; TODO: if sorting + `:time-unit` effect needs to happen here, squash ensure-fns! into single reduce-kv
-        (-> this ensure-chronological! (ensure-by-timeunit! time-unit) (get-in [:state :learners]))))))
+    ;; dummy return for reference + passing spec tests
+    ;; TODO: effect of :time-unit
+    ;; - see com.yetanalytics.dave.func.util for time bucket util fn
+    ;; - see followed recommendations for impl of effect
+    {:values [{:x 123456
+               :y "verb display 1"
+               :c "object name 1"}
+              {:x 123457
+               :y "verb display 2"
+               :c "object name 2"}]}
+    ))
 
 (def learning-path
   (->invocable
