@@ -13,6 +13,8 @@
                 :cljs cljs-time.coerce) :as tc]
             [#?(:clj clj-time.periodic
                 :cljs cljs-time.periodic) :as tp]
+            [#?(:clj clj-time.format
+                :cljs cljs-time.format) :as tf]
             #?@(:cljs [[goog.string :refer [format]]
                        [goog.string.format]])))
 
@@ -662,43 +664,115 @@
                                                       (apply str (interpose "," (map first id-or-members))))
           object-display                            (or obj-member-names obj-name)]
       (if many-actor-agents?
-        (do ;; make sure `this` is returned
+        (do
           (doseq [[member-name member-ifi] relevant-actor-info]
+            ;; update `this` for each member of the group using `data`
             (let [data (vector timestamp id member-name verb-name object-display)]
               (update-in
                this
                [:state :learners member-ifi]
                (fn [old new-data]
+                 ;; ensure vector if no data has been recorded for the member given their ifi
                  (let [accum (or (not-empty old) [])]
                    (conj accum new-data)))
                data)))
+          ;; make sure `this` is returned
           this)
         (let [[actor-name actor-ifi] relevant-actor-info
-              data         (vector timestamp id actor-name verb-name object-display)]
+              data                   (vector timestamp id actor-name verb-name object-display)]
           (update-in
            this
            [:state :learners actor-ifi]
            (fn [old new-data]
+             ;; ensure vector if no data has been recorded for the actor given their ifi
              (let [accum (or (not-empty old) [])]
                (conj accum new-data)))
            data)))))
   (result [this]
     ;; "Output the result data given the current state of the function."
-    ;; - is this result processing necessary or can this be handled by the viz?
-    ;; -- `time-unit` intended to control the number and frequency of x-axis ticks across the scatterplots
-    (result this {:time-unit :hour}))
+    (let [data-per-actor (get-in this [:state :learners])
+          [_ ifi]        (last ;; highest n of statements
+                          (sort-by first (reduce-kv (fn [accum a-ifi a-data]
+                                                      (conj accum [(count a-data) a-ifi]))
+                                                    [] data-per-actor)))]
+      ;; set actor IFI based on who has the most data
+      (result this {:time-unit :hour
+                    :actor-ifi ifi})))
   (result [this args]
-    ;; dummy return for reference + passing spec tests
-    ;; TODO: effect of :time-unit
-    ;; - see com.yetanalytics.dave.func.util for time bucket util fn
-    ;; - see followed recommendations for impl of effect
-    {:values [{:x 123456
-               :y "verb display 1"
-               :c "object name 1"}
-              {:x 123457
-               :y "verb display 2"
-               :c "object name 2"}]}
-    ))
+    (let [{time-unit :time-unit} args
+          data-per-actor         (get-in this [:state :learners])
+          ifi                    (:actor-ifi args
+                                             ;; if `actor-ifi` was not set by args
+                                             ;; - result should only return data for a single actor
+                                             (let [[_ the-ifi]
+                                                   (last ;; highest n of statements
+                                                    (sort-by first
+                                                             (reduce-kv
+                                                              (fn [accum a-ifi a-data]
+                                                                (conj accum [(count a-data) a-ifi]))
+                                                              [] data-per-actor)))]
+                                               the-ifi))
+          actors-data            (get data-per-actor ifi)
+          ;; actors-data looks like:
+          ;; [
+          ;; [timestamp-i id-i actor-name verb-name-i object-display-i]
+          ;; ...
+          ;; [timestamp-j id-j actor-name verb-name-j object-display-j]
+          ;;  ]
+          chronological          (sort-by first actors-data)
+          [p-start]              (first chronological)
+          [p-end]                (last chronological)
+          values                 (or (when (and p-start
+                                                p-end
+                                                (not= p-start p-end))
+                                       (let [time-unit-like (case time-unit
+                                                              :second (t/seconds 1)
+                                                              :minute (t/minutes 1)
+                                                              :hour   (t/hours 1)
+                                                              :day    (t/days 1)
+                                                              :week   (t/weeks 1)
+                                                              :month  (t/months 1)
+                                                              :year   (t/years 1))
+                                             pseq (tp/periodic-seq (t/minus (tc/to-date-time p-start)
+                                                                            time-unit-like)
+                                                                   (t/plus (tc/to-date-time p-end)
+                                                                           time-unit-like)
+                                                                   time-unit-like)
+                                             [_ buckets] (reduce
+                                                          (fn [[d ack] start]
+                                                            (let [end (t/plus start time-unit-like)
+                                                                  interval (t/interval start end)
+                                                                  [in-period rest-d] (split-with
+                                                                                      (comp
+                                                                                       (partial t/within? interval)
+                                                                                       tc/to-date-time
+                                                                                       #(first %))
+                                                                                      d)]
+                                                              (if (empty? in-period)
+                                                                [rest-d ack]
+                                                                ;; parse cordinates from `chronological`
+                                                                (let [cords (mapv
+                                                                             (fn [[unix-ts stmt-id actr-name vrb-name obj-disply]]
+                                                                               {:x unix-ts
+                                                                                :y vrb-name
+                                                                                :c obj-disply})
+                                                                             in-period)]
+                                                                  ;; add them to the accumulator
+                                                                  [rest-d (conj ack
+                                                                                {:period-start (tf/unparse
+                                                                                                (tf/formatters :date-time)
+                                                                                                start)
+                                                                                 :period-end   (tf/unparse
+                                                                                                (tf/formatters :date-time)
+                                                                                                end)
+                                                                                 :cords cords})]))))
+                                                          [chronological []]
+                                                          pseq)]
+                                         buckets))
+                                     [])]
+      ;; `values` also contains `:period-start` and `:period-end`
+      ;; - only parsing out `:cords`
+      {:values (reduce into [] (mapv :cords values))})))
 
 (def learning-path
   (->invocable
