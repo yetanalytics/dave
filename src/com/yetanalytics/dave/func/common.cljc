@@ -31,8 +31,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (s/fdef get-helper
-  :args (s/cat :src (s/map-of some? ::xs/any-json)
-               :k some?)
+  :args (s/cat :src (s/map-of #{"foo"
+                                "bar"
+                                "baz"}
+                              ::xs/any-json)
+               :k #{"foo"
+                    "bar"
+                    "baz"
+                    "notthere"})
   :ret ::xs/any-json)
 
 (defn get-helper
@@ -335,7 +341,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; basic info from a statement specs
 ;; - warning...shield your eyes, it gets ugly
-;; (╯°□°）╯︵ ┻━┻ 
+;; (╯°□°）╯︵ ┻━┻
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -475,7 +481,7 @@
     :timestamp    (.getTime (util/timestamp->inst timestamp))}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; my generators actually work 
+;; my generators actually work
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
@@ -642,4 +648,3 @@
                                 group-members))]
           [group-name members]
           [group-name])))
-

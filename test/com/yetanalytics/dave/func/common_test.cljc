@@ -18,83 +18,93 @@
        (failures
         (stest/check
          `common/get-helper
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest get-ifi-test
   (is (empty?
        (failures
         (stest/check
          `common/get-ifi
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest get-lmap-val-test
   (is (empty?
        (failures
         (stest/check
          `common/get-lmap-val
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-agent-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-agent
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-group-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-group
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-activity-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-activity
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-actor-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-actor
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-verb-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-verb
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-object-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-object
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest parse-statement-simple-test
   (is (empty?
        (failures
         (stest/check
          `common/parse-statement-simple
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest handle-actor-test
   (is (empty?
        (failures
         (stest/check
          `common/handle-actor
-         {:num-tests 10})))))
+         {stc-opts
+          {:num-tests 10}})))))
 
 (deftest handle-object-test
   (is (empty?
        (failures
         (stest/check
          `common/handle-object
-         {:num-tests 10})))))
-
-
+         {stc-opts
+          {:num-tests 10}})))))
