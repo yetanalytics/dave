@@ -95,3 +95,59 @@
                 [{:x 1544635781376, :y 1, :c 0} {:x 1544635781376, :y 3, :c 1}
                  {:x 1544635798007, :y 2, :c 0} {:x 1544635798007, :y 1, :c 1}
                  {:x 1544635807957, :y 1, :c 0} {:x 1544635807957, :y 3, :c 1}])))
+(def time-scatter-point
+  (merge
+   base
+   {:legends [{:fill "color"}]
+    :axes [{:orient "bottom", :scale "x"
+            :labelAngle 60
+            :labelAlign "left"
+            :labelLimit 112
+            :labelOverlap true
+            :labelSeparation -35
+            }
+           {:orient "left", :scale "y"}]
+    :scales [{:name "x",
+              :type "time",
+              :range "width",
+              ;; :nice "day"
+              :padding 20
+              :domain {:data "table", :field "x"}}
+             {:name "y",
+              :type "point",
+              :range "height",
+              :padding 0.2
+              :domain {:data "table", :field "y"}
+              }
+             {:name "color",
+              :type "ordinal",
+              :range "category",
+              :domain {:data "table", :field "c"}}]
+    :marks [{:type "symbol",
+             :from {:data "table"},
+             :encode
+             {:enter
+              {:size {:value 50}
+               :x {:scale "x", :field "x"},
+               :y {:scale "y", :field "y"},
+               :stroke {:scale "color", :field "c"},
+               :strokeWidth {:value 2}
+               :opacity {:value 0.75}
+               :tooltip {:signal "datum.y + ' ' + datum.c"}}
+              ;; :hover {:fillOpacity {:value 0.5}}
+              }}]
+    :data [{:name "table",
+            :values
+            (into []
+                  (for [x (take 100 (iterate #(+ % (rand-int 86400000))
+                                             1544635798007))
+                        :let [v (rand-nth ["attempted"
+                                           "succeeded"
+                                           "failed"])
+                              o (rand-nth ["something"
+                                           "something else"
+                                           "a third thing"
+                                           "another thing"])]]
+                    {:x x
+                     :y v
+                     :c o}))}]}))

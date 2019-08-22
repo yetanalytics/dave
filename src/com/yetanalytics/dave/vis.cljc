@@ -53,7 +53,13 @@
                                                [:datum/x
                                                 :datum/y]
                                                :opt-un
-                                               [:datum/c])}})
+                                               [:datum/c])}
+   ::scatter/time-scatter-point {:title "Time Scatter (Point Y-Axis)"
+                                 :vega-spec scatter/time-scatter-point
+                                 :datum-spec (s/keys :req-un
+                                                     [:datum/x
+                                                      :datum/y
+                                                      :datum/c])}})
 
 (s/def ::id
   (s/and qualified-keyword?

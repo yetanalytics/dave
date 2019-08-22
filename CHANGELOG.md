@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This changelog!
 - Makefile for easier building w/o clojure syntax
 - CI via travis.org
+- Time scatter plot with point Y-axis
 
 ### Changed
 - Changes to the Wizard navigation footer and other DAVE related buttons
