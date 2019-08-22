@@ -17,72 +17,84 @@
   (is (empty?
        (failures
         (stest/check
-         `common/get-helper)))))
+         `common/get-helper
+         {:num-tests 10})))))
 
 (deftest get-ifi-test
   (is (empty?
        (failures
         (stest/check
-         `common/get-ifi)))))
+         `common/get-ifi
+         {:num-tests 10})))))
 
 (deftest get-lmap-val-test
   (is (empty?
        (failures
         (stest/check
-         `common/get-lmap-val)))))
+         `common/get-lmap-val
+         {:num-tests 10})))))
 
 (deftest parse-agent-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-agent)))))
+         `common/parse-agent
+         {:num-tests 10})))))
 
 (deftest parse-group-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-group)))))
+         `common/parse-group
+         {:num-tests 10})))))
 
 (deftest parse-activity-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-activity)))))
+         `common/parse-activity
+         {:num-tests 10})))))
 
 (deftest parse-actor-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-actor)))))
+         `common/parse-actor
+         {:num-tests 10})))))
 
 (deftest parse-verb-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-verb)))))
+         `common/parse-verb
+         {:num-tests 10})))))
 
 (deftest parse-object-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-object)))))
+         `common/parse-object
+         {:num-tests 10})))))
 
 (deftest parse-statement-simple-test
   (is (empty?
        (failures
         (stest/check
-         `common/parse-statement-simple)))))
+         `common/parse-statement-simple
+         {:num-tests 10})))))
 
 (deftest handle-actor-test
   (is (empty?
        (failures
         (stest/check
-         `common/handle-actor)))))
+         `common/handle-actor
+         {:num-tests 10})))))
 
 (deftest handle-object-test
   (is (empty?
        (failures
         (stest/check
-         `common/handle-object)))))
+         `common/handle-object
+         {:num-tests 10})))))
 
 
