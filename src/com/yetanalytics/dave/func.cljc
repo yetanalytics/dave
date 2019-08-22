@@ -570,8 +570,19 @@
    (init
     (map->FollowedRecommendations {}))))
 
+(s/def :learning-path/actor-ifi
+  (s/alt :agent (s/or :mbox         :agent/mbox
+                      :account      :agent/account
+                      :mbox-sha1sum :agent/mbox_sha1sum
+                      :open-id      :agent/openid)
+         :group (s/or :mbox         :group/mbox
+                      :account      :group/account
+                      :mbox-sha1sum :group/mbox_sha1sum
+                      :open-id      :group/openid)))
+
 (s/def :learning-path/args
-  (s/keys :req-un [::time-unit]))
+  (s/keys :req-un [::time-unit]
+          :opt-un [:learning-path/actor-ifi]))
 
 (s/fdef learning-path
   :args (s/cat
