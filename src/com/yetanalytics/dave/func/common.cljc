@@ -512,6 +512,58 @@
      ;; not a statement ref
      (false? (s/valid? ::xs/statement-ref the-obj)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; helper for return information after statement has been parsed
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(s/def :handle-actor.ret/agent-ordering
+  (s/cat :name ::agent-name
+         :ifi  ::agent-ifi))
 
+(s/def :handle-actor.ret/agent
+  (s/with-gen
+    (s/and vector? :handle-actor.ret/agent-ordering)
+    #(sgen/fmap vec (s/gen :handle-actor.ret/agent-ordering))))
+
+(s/def :handle-actor.ret/group-ordering
+  (s/cat :name ::group-name
+         :ifi  ::group-ifi))
+
+(s/def :handle-actor.ret/group
+  (s/with-gen
+    (s/and vector? :handle-actor.ret/group-ordering)
+    #(sgen/fmap vec (s/gen :handle-actor.ret/group-ordering))))
+
+(s/def :handle-actor.ret/members
+  (s/coll-of :handle-actor.ret/agent
+             :kind vector?
+             :into []))
+
+(s/fdef handle-actor
+  :args (s/cat :parsed-actor
+               (s/keys :req-un [(or (and ::agent-name ::agent-ifi) ::group-name)]
+                       :opt-un [::group-members
+                                ::group-ifi]))
+  :ret (s/or :agent       :handle-actor.ret/agent
+             :group       :handle-actor.ret/group
+             :members     :handle-actor.ret/members
+             :dont-accept nil?))
+
+(defn handle-actor
+  [{:keys [agent-name agent-ifi group-name group-members group-ifi]}]
+  (if group-name
+    ;; dealing with a group
+    (if-let [members (not-empty
+                      (mapv (fn [member]
+                              (let [{a-name :agent-name
+                                     a-ifi  :agent-ifi} member]
+                                [a-name a-ifi]))
+                            group-members))]
+      ;; we had members, they are all we care about
+      members
+      ;; we didnt' have members, treat the group as an individual
+      ;; - need their identity, only safe way to save their info in state
+      (when group-ifi [group-name group-ifi]))
+    ;; dealing with an agent, return what we know
+    [agent-name agent-ifi]))
 

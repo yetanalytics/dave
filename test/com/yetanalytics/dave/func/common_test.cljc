@@ -72,3 +72,11 @@
        (failures
         (stest/check
          `common/parse-statement-simple)))))
+
+(deftest handle-actor-test
+  (is (empty?
+       (failures
+        (stest/check
+         `common/handle-actor)))))
+
+
