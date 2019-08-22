@@ -1,0 +1,12 @@
+^{:watch-dirs ["dev"]
+  :auto-testing false ;;  true
+  ;; :log-file "figwheel-main-sass.log"
+  }
+{:main dave.sass
+ :closure-defines {"dave.sass.DEV_SASS" true}
+ :target :nodejs
+ :install-deps true
+ :source-map true
+ :npm-deps {"material-components-web" "0.41.1"
+            "node-sass" "4.12.0"
+            "source-map-support" "0.5.9"}}
