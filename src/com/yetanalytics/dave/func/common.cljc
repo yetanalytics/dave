@@ -31,14 +31,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (s/fdef get-helper
-  :args (s/cat :src (s/map-of #{"foo"
-                                "bar"
-                                "baz"}
-                              ::xs/any-json)
-               :k #{"foo"
-                    "bar"
-                    "baz"
-                    "notthere"})
+  :args (s/cat :src (s/map-of ::xs/any-json ::xs/any-json)
+               :k ::xs/any-json)
   :ret ::xs/any-json)
 
 (defn get-helper
