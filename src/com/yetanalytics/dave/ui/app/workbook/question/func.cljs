@@ -342,6 +342,12 @@
    (:args-enum func)))
 
 (re-frame/reg-sub
+ :workbook.question.function.func/args-string
+ func-sub-base
+ (fn [func _]
+   (:args-string func)))
+
+(re-frame/reg-sub
  :workbook.question.function.func/args-default
  func-sub-base
  (fn [func _]
