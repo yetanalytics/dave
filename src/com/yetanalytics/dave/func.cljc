@@ -819,6 +819,9 @@
   (s/map-of keyword?
             (s/every
              keyword?)))
+;; Some args are strings.
+(s/def ::args-string
+  (s/coll-of keyword? :kind set? :into #{}))
 
 ;; Funcs have a default question text that can be suggested to the user
 (s/def ::question-text-default
