@@ -132,5 +132,5 @@
   "The footer at the bottom of the app."
   []
   [:footer
-   [:a {:href "#"} [:img {:src "img/dev/white_text_logo.png"}]]
+   [:a {:href "#"} [:img {:src "img/dev/white_logo.png"}]]
    ])
