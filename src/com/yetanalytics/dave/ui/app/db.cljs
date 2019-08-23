@@ -212,7 +212,7 @@
                                         :func (:function
                                                (func/get-func
                                                 :com.yetanalytics.dave.func/learning-path))
-                                        :args {:time-unit :day}}
+                                        :args {}}
                              :index 4
                              :visualizations
                              {#uuid "73da0a5a-614d-4f47-97fb-b72bae720857"

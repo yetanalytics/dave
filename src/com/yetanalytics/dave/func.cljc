@@ -817,14 +817,8 @@
     :doc "TBD" ;; TODO: Will add
     :function (init (map->LearningPath {}))
     :fspec (s/get-spec `learning-path)
-    :args-default {:time-unit :month}
-    :args-enum {:time-unit #{:second
-                             :minute
-                             :hour
-                             :day
-                             :week
-                             :month
-                             :year}}
+    :args-default {}
+    :args-enum {}
     :args-string #{:actor-ifi}
     :question-text-default
     "TBD" ;; TODO: Will add
