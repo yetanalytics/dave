@@ -675,7 +675,8 @@
           object-display                            (or obj-member-names obj-name)]
       (if many-actor-agents?
         (do
-          (doseq [[member-name member-ifi] relevant-actor-info]
+          ;; TODO: make this explode groups
+          #_(doseq [[member-name member-ifi] relevant-actor-info]
             ;; update `this` for each member of the group using `data`
             (let [data (vector timestamp id member-name verb-name object-display)]
               (update-in
