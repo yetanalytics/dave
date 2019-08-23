@@ -894,6 +894,7 @@
                              :week
                              :month
                              :year}}
+    :args-string #{:actor-ifi}
     :question-text-default
     "" ;; TODO: Will add
     }})
@@ -912,7 +913,8 @@
                      ::args-default
                      ::args-enum
                      ::question-text-default]
-            :opt-un [::doc])
+            :opt-un [::doc
+                     ::args-string])
     (fn []
       (sgen/elements (vals registry)))))
 
