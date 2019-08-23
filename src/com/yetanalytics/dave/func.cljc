@@ -883,7 +883,7 @@
     "How often are recommendations followed?"}
    ::learning-path
    {:title "Learning Path"
-    :doc "" ;; TODO: Will add
+    :doc "TBD" ;; TODO: Will add
     :function (init (map->LearningPath {}))
     :fspec (s/get-spec `learning-path)
     :args-default {:time-unit :month}
@@ -896,7 +896,7 @@
                              :year}}
     :args-string #{:actor-ifi}
     :question-text-default
-    "" ;; TODO: Will add
+    "TBD" ;; TODO: Will add
     }})
 
 ;; Keep a set of the default text so we know to only replace if it isn't custom
