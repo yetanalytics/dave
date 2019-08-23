@@ -56,4 +56,6 @@
   (is (empty?
        (failures
         (stest/check
-         `util/update-domain)))))
+         `util/update-domain
+         {stc-opts
+          {:num-tests 10 :max-size 3}})))))

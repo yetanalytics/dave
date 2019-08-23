@@ -13,6 +13,8 @@
                 :cljs cljs-time.coerce) :as tc]
             [#?(:clj clj-time.periodic
                 :cljs cljs-time.periodic) :as tp]
+            [#?(:clj clj-time.format
+                :cljs cljs-time.format) :as tf]
             #?@(:cljs [[goog.string :refer [format]]
                        [goog.string.format]])))
 
@@ -568,6 +570,159 @@
    (init
     (map->FollowedRecommendations {}))))
 
+(s/def :learning-path/actor-ifi
+  (s/alt :agent (s/or :mbox         :agent/mbox
+                      :account      :agent/account
+                      :mbox-sha1sum :agent/mbox_sha1sum
+                      :open-id      :agent/openid)
+         :group (s/or :mbox         :group/mbox
+                      :account      :group/account
+                      :mbox-sha1sum :group/mbox_sha1sum
+                      :open-id      :group/openid)))
+
+(s/def :learning-path/args
+  (s/keys :opt-un [:learning-path/actor-ifi]))
+
+(s/fdef learning-path
+  :args (s/cat
+         :statements
+         (s/every
+          (s/with-gen ::xs/lrs-statement
+            (fn []
+              (sgen/fmap (fn [[id agent verb stamp [act-id act-name]]]
+                           {"id" id
+                            ;; TODO: or group
+                            "actor" agent
+                            "verb" verb
+                            "object" {"objectType" "Activity"
+                                      "id" act-id
+                                      "definition" {"name" {"en-US" act-name}}}
+                            "timestamp" stamp
+                            "stored" stamp
+                            "authority" {"objectType" "Agent"
+                                         "account" {"homePage" "https://example.com"
+                                                    "name" "username"}}
+                            "version" "1.0.3"})
+                         (sgen/tuple
+                          ;; id
+                          (sgen/fmap str (sgen/uuid))
+                          ;; agent creation
+                          (sgen/fmap
+                           (fn [n]
+                             {"name" (format "Agent %d" n)
+                              "mbox" (format "mailto:agent%d@example.com" n)
+                              "objectType" "Agent"})
+                           (sgen/elements [1 2 3]))
+                          ;; verb
+                          (sgen/fmap (fn [[id label]]
+                                       {"id" id
+                                        "display" {"en-US" label}})
+                                     (sgen/elements {"http://adlnet.gov/expapi/verbs/passed"           "passed"
+                                                     "http://adlnet.gov/expapi/verbs/completed"        "completed"
+                                                     "https://w3id.org/xapi/dod-isd/verbs/answered"    "answered"
+                                                     "https://w3id.org/xapi/dod-isd/verbs/recommended" "recommended"
+                                                     "http://adlnet.gov/expapi/verbs/launched"         "launched"}))
+                          ;; timestamp/stored
+                          (sgen/fmap (fn [i]
+                                       (util/inst->timestamp
+                                        #?(:clj (java.util.Date. i)
+                                           :cljs (js/Date. i))))
+                                     ;; one year span
+                                     (sgen/large-integer*
+                                      {:min 1546300800000
+                                       :max 1577836800000}))
+                          ;; activity id/name tuple
+                          (sgen/fmap (fn [x]
+                                       [(str "https://example.com/activities/" x)
+                                        (str "Activity " x)])
+                                     (sgen/elements ["a" "b" "c" "d" "e" "f"])))))))
+         :args (s/? (s/nilable :learning-path/args)))
+  :ret ::ret/result)
+
+(defrecord LearningPath [state]
+  AFunc
+  (init [this]
+    ;; set/reset to init state
+    (assoc-in this [:state :learners] {}))
+  (relevant? [_ statement]
+    ;; "Should return true if the statement is valid basis data for the func. Otherwise, returns false."
+    ;; -  Not going to support statements with substatements or statement references at this time
+    (let [{:strs [object]} statement
+          object-type (common/get-helper object "objectType")]
+      (case object-type
+        "SubStatement" false
+        "StatementRef" false
+        true)))
+  (accept? [_ statement]
+    ;; "If the func can consider this statement given its current state/data, returns true. Otherwise, returns false."
+    (if (-> statement
+            (common/get-helper "actor")
+            common/parse-actor
+            common/handle-actor
+            not-empty)
+      ;; we have usable identity vs don't have it
+      true
+      false))
+  (step [this statement]
+    ;; "Given a novel statement, update state. Returns the (possibly modified) record."
+    (let [{:keys [timestamp id actor verb object]} (common/parse-statement-simple statement)
+          {:keys [verb-id verb-name]}               verb
+          relevant-actor-info                       (common/handle-actor actor)
+          many-actor-agents?                        (-> relevant-actor-info first vector?)
+          [obj-name id-or-members]                  (common/handle-object object)
+          obj-member-names                          (when (vector? id-or-members)
+                                                      (apply str (interpose "," (map first id-or-members))))
+          object-display                            (or obj-member-names obj-name)]
+      (if many-actor-agents?
+        (do
+          ;; TODO: make this explode groups
+          #_(doseq [[member-name member-ifi] relevant-actor-info]
+            ;; update `this` for each member of the group using `data`
+            (let [data (vector timestamp id member-name verb-name object-display)]
+              (update-in
+               this
+               [:state :learners member-ifi]
+               (fn [old new-data]
+                 ;; ensure vector if no data has been recorded for the member given their ifi
+                 (let [accum (or (not-empty old) [])]
+                   (conj accum new-data)))
+               data)))
+          ;; make sure `this` is returned
+          this)
+        (let [[actor-name actor-ifi] relevant-actor-info
+              data                   (vector timestamp id actor-name verb-name object-display)]
+          (update-in
+           this
+           [:state :learners actor-ifi]
+           (fn [old new-data]
+             ;; ensure vector if no data has been recorded for the actor given their ifi
+             (let [accum (or (not-empty old) [])]
+               (conj accum new-data)))
+           data)))))
+  (result [this]
+    ;; "Output the result data given the current state of the function."
+    ;; set actor IFI based on who has the most data
+    (result this {}))
+  (result [this args]
+    (let [data-per-actor (get-in this [:state :learners])
+          ifi            (not-empty (:actor-ifi args))
+          the-data       (if ifi
+                           (get data-per-actor ifi)
+                           (reduce-kv (fn [a _ per-actor]
+                                        (into a per-actor))
+                                      []
+                                      data-per-actor))
+          cords (mapv (fn [[unix-ts stmt-id actr-name vrb-name obj-disply]]
+                        {:x unix-ts
+                         :y vrb-name
+                         :c obj-disply}) the-data)]
+      {:values cords})))
+
+(def learning-path
+  (->invocable
+   (init
+    (map->LearningPath {}))))
+
 (s/def ::function
   record?)
 
@@ -596,6 +751,9 @@
   (s/map-of keyword?
             (s/every
              keyword?)))
+;; Some args are strings.
+(s/def ::args-string
+  (s/coll-of keyword? :kind set? :into #{}))
 
 ;; Funcs have a default question text that can be suggested to the user
 (s/def ::question-text-default
@@ -654,7 +812,18 @@
                              :month
                              :year}}
     :question-text-default
-    "How often are recommendations followed?"}})
+    "How often are recommendations followed?"}
+   ::learning-path
+   {:title "Learner Activity Pathways"
+    :doc "Collects user activity over time to show a Learner's journey." ;; TODO: Will add
+    :function (init (map->LearningPath {}))
+    :fspec (s/get-spec `learning-path)
+    :args-default {}
+    :args-enum {}
+    :args-string #{:actor-ifi}
+    :question-text-default
+    "What actions do learners take?"
+    }})
 
 ;; Keep a set of the default text so we know to only replace if it isn't custom
 (def question-text-defaults
@@ -670,7 +839,8 @@
                      ::args-default
                      ::args-enum
                      ::question-text-default]
-            :opt-un [::doc])
+            :opt-un [::doc
+                     ::args-string])
     (fn []
       (sgen/elements (vals registry)))))
 

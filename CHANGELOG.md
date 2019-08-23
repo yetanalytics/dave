@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Makefile for easier building w/o clojure syntax
 - CI via travis.org
 - `vega-tooltip` plugin for Vega renderer
+- Time scatter plot with point Y-axis
+- Learning Path algorithm
+- Common xAPI Statement parsers
 
 ### Changed
 - Changes to the Wizard navigation footer and other DAVE related buttons

@@ -40,7 +40,10 @@
       (update-in m
                  [:state
                   :statements]
-                 #(into (sorted-map) %))))})
+                 #(into (sorted-map) %))))
+   "com.yetanalytics.dave.func/LearningPath"
+   (fn [m]
+     (func/map->LearningPath m))})
 
 (def write-handlers
   {func/SuccessTimeline
@@ -57,6 +60,10 @@
                       (into {} st)))
    func/FollowedRecommendations
    (t/write-handler (constantly "com.yetanalytics.dave.func/FollowedRecommendations")
+                    (fn [st]
+                      (into {} st)))
+   func/LearningPath
+   (t/write-handler (constantly "com.yetanalytics.dave.func/LearningPath")
                     (fn [st]
                       (into {} st)))})
 ;; Persistence
@@ -196,9 +203,24 @@
                                :title "Recommendations, Launches and Follows"
                                :vis {:id :com.yetanalytics.dave.vis.bar/base
                                      :args {}}
-                               :index 0}}
-                             }
-                            }}}})
+                               :index 0}}}
+                            #uuid "e25e517c-1fd8-4f9b-b073-ad0117ddcfa9"
+                            {:id #uuid "e25e517c-1fd8-4f9b-b073-ad0117ddcfa9"
+                             :text "What paths do learners take?"
+                             :function {:id :com.yetanalytics.dave.func/learning-path
+                                        :state {:statement-idx -1}
+                                        :func (:function
+                                               (func/get-func
+                                                :com.yetanalytics.dave.func/learning-path))
+                                        :args {}}
+                             :index 4
+                             :visualizations
+                             {#uuid "73da0a5a-614d-4f47-97fb-b72bae720857"
+                              {:id #uuid "73da0a5a-614d-4f47-97fb-b72bae720857"
+                               :title "Learning Path"
+                               :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter-point
+                                     :args {}}
+                               :index 0}}}}}}})
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))
