@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This changelog!
 - Makefile for easier building w/o clojure syntax
 - CI via travis.org
+- `vega-tooltip` plugin for Vega renderer
 
 ### Changed
 - Changes to the Wizard navigation footer and other DAVE related buttons
@@ -16,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Fixed
+- Tooltips now display properly
 
 ## [0.0.2] - 2019-05-31
 ### Added

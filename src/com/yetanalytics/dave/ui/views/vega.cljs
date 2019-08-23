@@ -17,6 +17,7 @@
   ]"
   (:require
    [cljsjs.vega]
+   [cljsjs.vega-tooltip]
    [reagent.core :as r]
    [reagent.ratom :as ratom]
    [re-frame.core :refer [dispatch subscribe]]
@@ -235,12 +236,14 @@
                    [el-width
                     el-height])
         runtime (.parse js/vega (clj->js spec))
+        tooltip-handler (js/vegaTooltip.Handler.)
         chart (-> (js/vega.View. runtime)
                   (.logLevel (s/conform ::log-level
                                         log-level))
 
                   (.width width)
                   (.height height)
+                  (.tooltip (.-call tooltip-handler))
                   (.renderer renderer)
                   (.initialize el)
                   (cond-> hover? .hover))]
