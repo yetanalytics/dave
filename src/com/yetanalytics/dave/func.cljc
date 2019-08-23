@@ -876,7 +876,23 @@
                              :month
                              :year}}
     :question-text-default
-    "How often are recommendations followed?"}})
+    "How often are recommendations followed?"}
+   ::learning-path
+   {:title "Learning Path"
+    :doc "" ;; TODO: Will add
+    :function (init (map->LearningPath {}))
+    :fspec (s/get-spec `learning-path)
+    :args-default {:time-unit :month}
+    :args-enum {:time-unit #{:second
+                             :minute
+                             :hour
+                             :day
+                             :week
+                             :month
+                             :year}}
+    :question-text-default
+    "" ;; TODO: Will add
+    }})
 
 ;; Keep a set of the default text so we know to only replace if it isn't custom
 (def question-text-defaults
