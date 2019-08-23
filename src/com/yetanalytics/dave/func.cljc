@@ -814,15 +814,15 @@
     :question-text-default
     "How often are recommendations followed?"}
    ::learning-path
-   {:title "Learning Path"
-    :doc "TBD" ;; TODO: Will add
+   {:title "Learner Activity Pathways"
+    :doc "Collects user activity over time to show a Learner's journey." ;; TODO: Will add
     :function (init (map->LearningPath {}))
     :fspec (s/get-spec `learning-path)
     :args-default {}
     :args-enum {}
     :args-string #{:actor-ifi}
     :question-text-default
-    "TBD" ;; TODO: Will add
+    "What actions do learners take?"
     }})
 
 ;; Keep a set of the default text so we know to only replace if it isn't custom
