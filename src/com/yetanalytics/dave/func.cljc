@@ -712,17 +712,18 @@
   (result [this args]
     (let [data-per-actor         (get-in this [:state :learners])
           time-unit              (:time-unit args :hour) ;; set default to catch `args` being nil
-          ifi                    (:actor-ifi args
-                                             ;; if `actor-ifi` was not set by args
-                                             ;; - result should only return data for a single actor
-                                             (let [[_ the-ifi]
-                                                   (last ;; highest n of statements
-                                                    (sort-by first
-                                                             (reduce-kv
-                                                              (fn [accum a-ifi a-data]
-                                                                (conj accum [(count a-data) a-ifi]))
-                                                              [] data-per-actor)))]
-                                               the-ifi))
+          ;; TODO: This definitely shouldn't just pick an actor.
+          ifi                    (or (not-empty (:actor-ifi args))
+                                     ;; if `actor-ifi` was not set by args
+                                     ;; - result should only return data for a single actor
+                                     (let [[_ the-ifi]
+                                           (last ;; highest n of statements
+                                            (sort-by first
+                                                     (reduce-kv
+                                                      (fn [accum a-ifi a-data]
+                                                        (conj accum [(count a-data) a-ifi]))
+                                                      [] data-per-actor)))]
+                                       the-ifi))
           actors-data            (get data-per-actor ifi)
           ;; actors-data looks like:
           ;; [
