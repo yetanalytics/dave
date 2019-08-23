@@ -40,7 +40,10 @@
       (update-in m
                  [:state
                   :statements]
-                 #(into (sorted-map) %))))})
+                 #(into (sorted-map) %))))
+   "com.yetanalytics.dave.func/LearningPath"
+   (fn [m]
+     (func/map->LearningPath m))})
 
 (def write-handlers
   {func/SuccessTimeline
@@ -57,6 +60,10 @@
                       (into {} st)))
    func/FollowedRecommendations
    (t/write-handler (constantly "com.yetanalytics.dave.func/FollowedRecommendations")
+                    (fn [st]
+                      (into {} st)))
+   func/LearningPath
+   (t/write-handler (constantly "com.yetanalytics.dave.func/LearningPath")
                     (fn [st]
                       (into {} st)))})
 ;; Persistence
