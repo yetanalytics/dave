@@ -705,7 +705,7 @@
     (result this {}))
   (result [this args]
     (let [data-per-actor (get-in this [:state :learners])
-          ifi            (:actor-ifi args)
+          ifi            (not-empty (:actor-ifi args))
           the-data       (if ifi
                            (get data-per-actor ifi)
                            (reduce-kv (fn [a _ per-actor]
