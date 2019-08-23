@@ -581,8 +581,7 @@
                       :open-id      :group/openid)))
 
 (s/def :learning-path/args
-  (s/keys :req-un [::time-unit]
-          :opt-un [:learning-path/actor-ifi]))
+  (s/keys :opt-un [:learning-path/actor-ifi]))
 
 (s/fdef learning-path
   :args (s/cat
@@ -701,90 +700,22 @@
            data)))))
   (result [this]
     ;; "Output the result data given the current state of the function."
-    (let [data-per-actor (get-in this [:state :learners])
-          [_ ifi]        (last ;; highest n of statements
-                          (sort-by first (reduce-kv (fn [accum a-ifi a-data]
-                                                      (conj accum [(count a-data) a-ifi]))
-                                                    [] data-per-actor)))]
-      ;; set actor IFI based on who has the most data
-      (result this {:time-unit :hour
-                    :actor-ifi ifi})))
+    ;; set actor IFI based on who has the most data
+    (result this {}))
   (result [this args]
-    (let [data-per-actor         (get-in this [:state :learners])
-          time-unit              (:time-unit args :hour) ;; set default to catch `args` being nil
-          ;; TODO: This definitely shouldn't just pick an actor.
-          ifi                    (or (not-empty (:actor-ifi args))
-                                     ;; if `actor-ifi` was not set by args
-                                     ;; - result should only return data for a single actor
-                                     (let [[_ the-ifi]
-                                           (last ;; highest n of statements
-                                            (sort-by first
-                                                     (reduce-kv
-                                                      (fn [accum a-ifi a-data]
-                                                        (conj accum [(count a-data) a-ifi]))
-                                                      [] data-per-actor)))]
-                                       the-ifi))
-          actors-data            (get data-per-actor ifi)
-          ;; actors-data looks like:
-          ;; [
-          ;; [timestamp-i id-i actor-name verb-name-i object-display-i]
-          ;; ...
-          ;; [timestamp-j id-j actor-name verb-name-j object-display-j]
-          ;;  ]
-          chronological          (sort-by first actors-data)
-          [p-start]              (first chronological)
-          [p-end]                (last chronological)
-          values                 (or (when (and p-start
-                                                p-end
-                                                (not= p-start p-end))
-                                       (let [time-unit-like (case time-unit
-                                                              :second (t/seconds 1)
-                                                              :minute (t/minutes 1)
-                                                              :hour   (t/hours 1)
-                                                              :day    (t/days 1)
-                                                              :week   (t/weeks 1)
-                                                              :month  (t/months 1)
-                                                              :year   (t/years 1))
-                                             pseq (tp/periodic-seq (t/minus (tc/to-date-time p-start)
-                                                                            time-unit-like)
-                                                                   (t/plus (tc/to-date-time p-end)
-                                                                           time-unit-like)
-                                                                   time-unit-like)
-                                             [_ buckets] (reduce
-                                                          (fn [[d ack] start]
-                                                            (let [end (t/plus start time-unit-like)
-                                                                  interval (t/interval start end)
-                                                                  [in-period rest-d] (split-with
-                                                                                      (comp
-                                                                                       (partial t/within? interval)
-                                                                                       tc/to-date-time
-                                                                                       #(first %))
-                                                                                      d)]
-                                                              (if (empty? in-period)
-                                                                [rest-d ack]
-                                                                ;; parse cordinates from `chronological`
-                                                                (let [cords (mapv
-                                                                             (fn [[unix-ts stmt-id actr-name vrb-name obj-disply]]
-                                                                               {:x unix-ts
-                                                                                :y vrb-name
-                                                                                :c obj-disply})
-                                                                             in-period)]
-                                                                  ;; add them to the accumulator
-                                                                  [rest-d (conj ack
-                                                                                {:period-start (tf/unparse
-                                                                                                (tf/formatters :date-time)
-                                                                                                start)
-                                                                                 :period-end   (tf/unparse
-                                                                                                (tf/formatters :date-time)
-                                                                                                end)
-                                                                                 :cords cords})]))))
-                                                          [chronological []]
-                                                          pseq)]
-                                         buckets))
-                                     [])]
-      ;; `values` also contains `:period-start` and `:period-end`
-      ;; - only parsing out `:cords`
-      {:values (reduce into [] (mapv :cords values))})))
+    (let [data-per-actor (get-in this [:state :learners])
+          ifi            (:actor-ifi args)
+          the-data       (if ifi
+                           (get data-per-actor ifi)
+                           (reduce-kv (fn [a _ per-actor]
+                                        (into a per-actor))
+                                      []
+                                      data-per-actor))
+          cords (mapv (fn [[unix-ts stmt-id actr-name vrb-name obj-disply]]
+                        {:x unix-ts
+                         :y vrb-name
+                         :c obj-disply}) the-data)]
+      {:values cords})))
 
 (def learning-path
   (->invocable
