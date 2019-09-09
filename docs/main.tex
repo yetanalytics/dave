@@ -1,0 +1,50 @@
+\documentclass{report}
+
+%%% Package imports
+\usepackage{graphicx}
+\graphicspath{{../../resources/plots/} {../resources/plots/}}
+\usepackage{placeins}
+\usepackage{subfiles}
+\usepackage[utf8]{inputenc}
+\usepackage[ruled]{algorithm2e}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{zed-csp}
+\usepackage{breqn}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{dateplot}
+\usepgfplotslibrary{polar}
+\usetikzlibrary{pgfplots.dateplot}
+\usetikzlibrary{pgfplots.patchplots}
+\usetikzlibrary{patterns}
+
+\usepackage{floatrow}
+
+\usepackage{calc}
+%%% \makeatletter\amparswitchfalse\makeatother\
+\DeclareMarginSet{hangleft}{\setfloatmargins
+{\hskip-\marginparwidth\hskip-\marginparsep}{\hfil}}
+\floatsetup[widefigure]{margins=hangleft}
+%%% ^ Figure formatting within Appendex A
+
+\lstset{literate = {-}{-}1} % get dashs to show up
+
+\pgfplotsset{compat=1.15}
+
+\SetKw{KwBy}{by}
+
+\usepackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
+
+\begin{document}
+
+\section*{Introduction}
+
+some stand in intro text
+
+\subfile{appendices/a.tex}
+\end{document}
