@@ -17,7 +17,6 @@ Singular value $x$ of a fundamental JSON type as described by \href{https://json
 
 a n-tuple of items $x$ such that
 $$X = <x_{i}..x_{n}..x_{j}>$$
-
 where
 $$i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j$$
 
@@ -33,18 +32,15 @@ a piece of data $v$ where $v = x \lor X$
 
 Association between a $k$ and $v$ where
 $$k \mapsto v$$
-
 such that
 $$kv = k \mapsto v$$
+$\\$
 and a collection of Key Value pair(s) is defined as
 $$KV = <kv_{i}..kv_{n}..kv_{j}>$$
-
 such that
 $$ k_{n} \mapsto v_{n}$$
-
 and all $k$ within $KV$ are unique
 $$i_{k} \not= n_{k} \not= j_{k} $$
-
 but the same is not true for all $v$ within $KV$
 $$i_{v} = n_{v} \lor i_{v} \not= n_{v} \
 i_{v} = j_{v} \lor i_{v} \not= j_{v} \
@@ -62,17 +58,22 @@ Mutable collection of Key Value Pair(s)
 
 Collection of Key Value Pair(s) which alter the result of an Algorithm
 
-\subsection{Operation}
+\section{Operation}
 
 Given an input X, an Operation produces output Y
-$\\\\$
-{\includegraphics[page=1]{operation-x}}
-$\\\\$
-If X changes to X' then the Operation results in Y' instead of Y
-$\\\\$
-{\includegraphics[page=1]{operation-x-prime}}
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[page=1]{operation-x}}
+\end{figure*}
 
-\subsubsection{Domain}
+$\\$
+If X changes to X' then the Operation results in Y' instead of Y
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[page=1]{operation-x-prime}}
+\end{figure*}
+
+\subsection{Domain}
 
 Any of the following
 \begin{itemize}
@@ -83,7 +84,7 @@ Any of the following
 \item Algorithm State
 \end{itemize}
 
-\subsubsection{Range}
+\subsection{Range}
 
 Any of the following dependent upon the Domain and Functionality of the Operation
 
@@ -95,7 +96,7 @@ Any of the following dependent upon the Domain and Functionality of the Operatio
 \item Algorithm State
 \end{itemize}
 
-\subsubsection{Formal Definition}
+\subsection{Formal Definition}
 
 A relationship between input and output data which will result in the same $Y$ given the same $X$
 
@@ -114,7 +115,7 @@ which implies that the collection $Y$ has the same ordering as collection $X$
 $$ i_{Operation(x)} = i_{y} \ \land \ n_{Operation(x)} = n_{y} \ \land \ j_{Operation(x)} = j_{y} $$
 and allows us to define the $input \to output$ relationship of an $Operation$ in terms of collection members
 $$Operation(x) = y$$
-which establishes how an $Operation$ responds to non-distinct values within a Collection
+which establishes how an $Operation$ responds to non-distinct values within a collection
 $$Operation(x_{n}) = y_{n}$$
 $$Operation(x_{n'}) = y_{n'}$$
 $$Operation(x_{n' + 1}) = y_{n'}$$
@@ -124,5 +125,378 @@ $$\implies $$
 $$x_{n} \not \equiv  x_{n' + 1}$$
 $$\implies $$
 $$Operation(x_{n'}) = Operation(x_{n' + 1}) \not= Operation(x_{n})$$
+
+\section{Primitive}
+A collection of Operations where the output of an Operation is passed as the argument to the next Operation
+
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[page=1]{primitive-tree}}
+\end{figure*}
+$\\$
+Primitives break the processing of xAPI data down into discrete units that can be composed to create new analytical functions. Primitives allow users to address the methodology of answering research questions as a sequence of generic algorithmic steps which establish the necessary data transformations, aggregations and calculations required to reach the solution in an implementation agnostic way.
+
+\subsection{Domain}
+Any of the following
+
+\begin{itemize}
+\item Key(s)
+\item Value(s)
+\item Key Value pair(s)
+\item Statement(s)
+\item Algorithm State
+\end{itemize}
+
+\subsection{Range}
+Any of the following dependent upon the Domain and Functionality of the Primitive
+
+\begin{itemize}
+\item Key(s)
+\item Value(s)
+\item Key Value pair(s)
+\item Statement(s)
+\item Algorithm State
+\end{itemize}
+
+\subsection{Formal Definition}
+
+A collection of Operation(s) $O_{n}$ labeled $p$ and defined as
+
+$$p = <O_{i}..O_{n}..O_{j}>$$
+where
+$$i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j$$
+such that the output $Z$ is defined as the sequential composition of operation(s) $O_{n}$ given arg(s) $Args$ provided to $p$
+
+$$ Z = p(Args) = O_{j}(O_{n}(O_{i}(Args))) $$
+
+\section{Algorithm}
+Given a collection of statement(s) $S_{<a..b..c>}$ and potentially option(s) $opt$ and potentially an existing Algorithm State $state$ an Algorithm $A$ executes as follows
+
+\begin{enumerate}
+\item call $init$
+\item for each $stmt \in S_{<a..b..c>}$
+  \begin{enumerate}
+  \item $relevant?$
+  \item $accepted?$
+  \item $step$
+  \end{enumerate}
+\item return $result$
+\end{enumerate}
+with each process within $A$ is enumerated as
+
+\begin{lstlisting}[frame=single]
+  (init [state] body)
+   - init state
+
+  (relevant? [state statement] body)
+   - is the statement valid for use in algorithm?
+
+  (accept? [state statement] body)
+   - can the algorithm consider the current statement?
+
+  (step [state statement] body)
+   - processing per statement
+   - can result in a modified state
+
+  (result [state] body)
+   - return without option(s) provided
+   - possibly sets default option(s)
+
+  (result [state opts] body)
+   - return with consideration to option(s)
+\end{lstlisting}
+where
+\begin{itemize}
+\item $body$ is a collection of Primitive(s) $P$ which establishes the processing of inputs $\to$ outputs
+\item $state$ is a mutable collection of key value pair(s) $KV$ and synonymous with Algorithm State
+\item $statement$ is a single statement $s$ within the collection of statements $S$ passed as input data to the Algorithm $A$
+\item $opts$ are additional arguments passed to the algorithm $A$ which impact the return value of the algorithm
+\end{itemize}
+Such that the execution of A can be described visually but not exhaustively as
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[scale=0.379]{algorithm-tree}}
+\end{figure*}
+$\\\\$
+
+\subsection{Domain}
+Any of the following
+
+\begin{itemize}
+\item Statement(s)
+\item Algorithm State
+\item Option(s)
+\end{itemize}
+
+\subsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsection{Initialization}
+
+First process to run within an Algorithm which returns the starting Algorithm State $state_{0}$
+
+$$ init() = init(state) \lor init() \not= init(state)$$
+where $state_{0}$ does not need to be related to its arguments
+
+$$init() \to state_{0}$$
+but $state_{0}$ can be derived from some other $state$ passed as an argument to $init$
+
+$$init(state) \to state'_{0}$$
+such that
+
+$$state_{0} \not= state'_{0} $$
+but this functionality is dependent upon the $body$ of an Algorithms' $init$
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsection{Relevant?}
+
+First process that each $stmt$ passes through such that
+$$relevant? \prec accept? \prec step$$
+resulting in an indication of whether the $stmt$ is valid for use within algorithm $A$
+$\\\\$
+The criteria which determines validity of $stmt$ within $A$ is defined by the $body$ of $relevant?$
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Statement
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Scalar
+\end{itemize}
+
+\subsection{Accept?}
+
+Second process that each $stmt$ passes through such that
+$$relevant? \prec accept? \prec step$$
+resulting in an indication of whether the $stmt$ can be sent to $step$ given the current $state$
+$\\\\$
+The criteria which determines usability of $stmt$ given $state$` is defined by the $body$ of $accept?$
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Statement
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Scalar
+\end{itemize}
+
+$\\\\\\$
+
+\subsection{Step}
+
+An Algorithm Step consists of a collection of Primitive(s) and therefore collection(s) of Operation(s)
+
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[scale=0.70]{algorithm-step-flat}}
+\end{figure*}
+$\\$
+which expands to
+
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[scale=0.401]{algorithm-step-expanded}}
+\end{figure*}
+$$ i \leq n \leq j \implies i \prec n \prec j$$
+$$ i_{i} \leq i_{n} \leq i_{j} \leq n_{i} \leq n_{n} \leq n_{j} \leq j_{i} \leq j_{n} \leq j_{j} \implies i_{<i..n..j>} \prec n_{<i..n..j>} \prec j_{<i..n..j>}$$
+$\\$
+where the output of a Primitive is passed as the argument to the next Primitive
+
+\begin{figure*}[h]
+  \centering
+  {\includegraphics[page=1]{algorithm-step-args}}
+\end{figure*}
+$\\$
+The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic Step determines how the Algorithm State changes during iteration through Statement(s) passed as input to the Algorithm.
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Statement
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Formal Definition}
+
+A collection of Primitive(s)
+
+$$P = <p_{i}..p_{n}..p_{j}> $$
+where
+
+$$i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j$$
+and
+
+$$Z_{i} =p_{i}(Args) \implies O_{ij}(O_{in}(O_{ii}(Args)))$$
+where
+
+$$ii \leq in \leq ij \implies ii \prec in \prec ij \iff ii \not= in \not= ij$$
+such that for each $stmt_{b}$ within a collection of Statement(s) $S$ defined as
+
+$$ S = <stmt_{a}..stmt_{b}..stmt_{c}> $$
+where
+
+$$a \leq b \leq c \implies a \prec b \prec c \iff a \not= b \not= c$$
+$\\\\\\$
+and
+
+$$a \not \mapsto i \ \land b \not \mapsto n \ \land c \not \mapsto j$$
+The output of $step$ given a $stmt_{b}$ and $state_{b}$ is defined as
+
+$$step(state_{b}, stmt_{b}) = p_{j}(p_{n}(Z_{ib}))$$
+where
+
+$$Z_{ib} = p_{i}(Args) \implies p_{i}(state_{b}, stmt_{b}) \implies O_{ij}(O_{in}(O_{ii}(state_{b}, stmt_{b})))$$
+and subsequently
+
+$$Z_{nb} = p_{n}(Z_{ib})$$
+which establishes that
+
+$$Z_{jb} = p_{j}(Z_{nb}) \implies p_{j}(p_{n}(p_{i}(state_{b}, stmt_{b})))$$
+$\\$
+such that for a given $stmt_{b}$, $P_{<i..n..j>}$ will always result in a $Z_{jb}$ but
+
+$$ Z_{ib} = state_{b} \lor state'_{ib} \iff state_{b} \not = state'_{ib}$$
+which means
+
+$$Z_{nb} = p_{n}(state_{b}, stmt_{b}) \lor p_{n}(state'_{ib}, stmt_{b})$$
+$$ \implies$$
+$$Z_{nb} = state_{b} \ \lor state'_{ib} \ \lor state'_{nb}$$
+$$\implies$$
+$$Z_{nb} = Z_{ib} \lor state'_{nb} \ \iff \ state_{b} \not= state'_{ib} \not= state'_{nb} $$
+and concludes with
+$$Z_{jb} = p_{j}(state_{b}, stmt_{b}) \lor p_{j}(state'_{ib}, stmt_{b}) \lor p_{j}(state'_{nb}, stmt_{b})$$
+$$\implies$$
+$$Z_{jb} = state_{b} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb}$$
+$$\implies$$
+$$Z_{jb} = Z_{nb} \lor state'_{jb}
+\ \iff \
+state_{b} \not= state'_{ib} \not= state'_{nb} \not= state'_{jb} $$
+
+$\\\\\\$
+such that
+
+$$Z_{jb} \equiv state'_{b}$$
+$$\implies$$
+$$state'_{b} = state_{b} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb}
+\ \iff \
+state_{b} \not= state'_{ib} \not= state'_{nb} \not= state'_{jb}$$
+$\\$
+the impact being that iteration through all $stmt \in S{<a..b..c>}$ results in a return of $Z_{jc}$ such that
+
+$$Z_{ja} = step(state_{a}, stmt_{a})
+\ \implies \
+state'_{a} \equiv Z_{ja} = state_{a} \lor state'_{ia} \lor state'_{na} \lor state'_{ja} $$
+and
+$$Z_{jb} = step(Z_{ja}, stmt_{b})
+\ \implies \
+state'_{b} \equiv Z_{jb} = Z_{ja} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb} $$
+meaning
+$$Z_{jc} = step(Z_{jb}, stmt_{c})
+\ \implies \
+state'_{c} \equiv Z_{jc} = Z_{jb} \lor state'_{ic} \lor state'_{nc} \lor state'_{jc}$$
+such that each $stmt \in S{<a..b..c>}$ may not result in a mutation of $state$ from $state \to state'$
+$$state'_{c} = Z_{jc}$$
+$$\implies$$
+$$state'_{c} = state_{a} \lor state_{ia} \lor state'_{na} \lor state'_{ja} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb} \lor state'_{ic} \lor state'_{nc} \lor state'_{jc}$$
+$$\implies$$
+$$state'{c} = state_{a} \lor state'{c} \not= state{a}$$
+$\\$
+The no-op scenario described above is only a possibility of $step(state_{a}, stmt \in S_{<a..b..c>})$ but can be predicted to occur given
+\begin{itemize}
+\item The definition of individual Operations $O$ which constitute a Primitive $p$
+  $$Operation(X) = Y \land Operation(X') = Y' \implies Y = Y' \iff X = X'$$
+\item The ordering of $O_{<i..n..j>}$ within $p$
+  $$i \prec n \prec j$$
+\item The Primitive(s) $p$ chosen for inclusion within $P_{<i..n..j>}$
+  $$Z_{i} =p_{i}(Args) \implies O_{ij}(O_{in}(O_{ii}(Args)))$$
+  $$Z_{j} =p_{j}(Args) \implies O_{jj}(O_{jn}(O_{ji}(Args)))$$
+  $$\forall Args \ \exists \ Z_{i} = Z_{j} \iff O_{ij}(O_{in}(O_{ii}(Args))) \equiv O_{jj}(O_{jn}(O_{ji}(Args)))$$
+  $$<p_{i}, p_{j}> \equiv <p_{j}, p_{i}> \iff Z_{i} = Z_{j}$$
+\item The ordering of $p \in P_{i..n..j}$ which implies the ordering of $O \in p_{<i..n..j>} \in P_{<ii..ij..ni..nj..ji..jj>}$
+  $$i \prec n \prec j \implies ii \prec in \prec ij \implies ii \prec ij \prec ni \prec nj \prec ji \prec jj$$
+  $$P_{i..n..j} = P_{x..y..z} \implies <p_{i}, p_{n}, p_{j}> \equiv <p_{x}, p_{y}, p_{z}> \iff p_{i} \equiv p_{x} \ \land \ p_{n} \equiv p_{y} \ \land \ p_{j} \ \equiv p_{z}$$
+  $$\implies$$
+  $$P_{i..n..j} = P_{x..y..z} \iff i \mapsto x \ \land \ n \mapsto y \ \land \ j \mapsto z \ \land \ Z_{i} = Z_{x} \ \land \ Z_{n} = Z_{y} \ \land \ Z_{j} = Z_{z}$$
+\item The Key Value pair(s) $kv \in$ $stmt$ $\in S_{<a..b..c>}$
+\item The ordering of Statement(s) $stmt \in S_{<a..b..c>}$ such that $a \prec b \prec c$
+\end{itemize}
+
+\subsection{Return}
+
+Last process to run within an Algorithm which returns the Algorithm State $state$ without preventing subsequent call of $A$
+$$relevant? \prec accept? \prec step \prec result \prec relevant? \iff S \not= \emptyset$$
+$$\implies$$
+$$relevant? \prec accept? \prec step \prec result \iff S = \emptyset$$
+$\\$
+such that if $S(t_{n}) = \emptyset$ and at some future point $j$ within the timeline $i..n..j$ this is no longer true $S(t_{j}) \not= \emptyset$ then
+$$A(state_{n-1}, \ S(t_{n - 1})) = state_{n} = A(init(), \ S(t_{n - i})) \iff A(state_{n},\ S(t_{n})) = state_{n}$$
+$\\$
+such that the statement(s) added to $S$ between $t_{i}$  and $t_{n}$ is
+$$S(t_{n - i})$$
+and the statement(s) added to $S$ between $t_{n}$  and $t_{j}$ be
+$$S(t_{j - n})$$
+such that
+$$ S(t_{n - i}) \ \cup \ S(t_{j - n}) = S(t_{j - i})$$
+which means
+$$ A(init(), \  S(t_{j - i})) = state_{j}$$
+and establishes that $A$ can pick up from a previous $state_{n}$ without losing track of its own history.
+$$A(result(state_{n}), \ S(t_{j-n})) = A(init(),\ S(t_{j - i})) = state_{j}$$
+$$\iff$$
+$$result(state_{n}) = A(init(),\ S(t_{n - i})) = state_{n}$$
+$\\$
+Which makes $A$ capable of taking in some $S_{<i..n..j..\infty>}$ as not all $s \in S_{<i..\infty>}$ have to be considered at once. In other words, the input data does not need to persist across the history of $A$, only the effect of $s$ on $state$ must be persisted.
+$\\\\$
+Additionally, the effect of $opts$ is determined by the $body$ within $result$ such that
+$$A(result(state_{n}), \ S(t_{j-n}), \ opts)$$
+$$\equiv$$
+$$A(init(),\ S(t_{j - i}))$$
+$$\equiv$$
+$$A(init(),\ S(t_{j - i}), \ opts)$$
+$$\equiv$$
+$$A(result(state_{n}), \ S(t_{j-n}))$$
+Which implies that $opts$ may have an effect on $state$ but not in a way which prevents backwards compatibility of $state$
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Algorithm State
+\item Option(s)
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
 
 \end{document}
