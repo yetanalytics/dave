@@ -103,28 +103,6 @@ A relationship between input and output data which will result in the same $Y$ g
 $$Operation(X) = Y \land \ Operation(X') = Y'$$
 $$\implies$$
 $$Y = Y' \iff X = X'  \land Y \not= Y' \iff X \not= X'$$
-When $X$ is a collection, that collection consists of one or more members $x_{n}$ within the range $i..j$ such that
-$$i \leq n \leq j  \implies i \prec n \prec j \iff i \not= n \not= j$$
-which allows collection $X$ to be defined as
-$$X = <x_{i}..x_{n}..x_{j}> $$
-and the output of $Operation(X)$ to be defined as
-$$Y = <y_{i}..y_{n}..y_{j}>$$
-such that the mapping from $Operation(X) \to Y$ can be defined as
-$$Operation(x_{i}) \mapsto y_{i} \land Operation(x_{n}) \mapsto y_{n} \land Operation(x_{j}) \mapsto y_{j}$$
-which implies that the collection $Y$ has the same ordering as collection $X$
-$$ i_{Operation(x)} = i_{y} \ \land \ n_{Operation(x)} = n_{y} \ \land \ j_{Operation(x)} = j_{y} $$
-and allows us to define the $input \to output$ relationship of an $Operation$ in terms of collection members
-$$Operation(x) = y$$
-which establishes how an $Operation$ responds to non-distinct values within a collection
-$$Operation(x_{n}) = y_{n}$$
-$$Operation(x_{n'}) = y_{n'}$$
-$$Operation(x_{n' + 1}) = y_{n'}$$
-$$\iff$$
-$$x_{n'} \equiv x_{n'+1} \land x_{n'} \not \equiv x_{n}$$
-$$\implies $$
-$$x_{n} \not \equiv  x_{n' + 1}$$
-$$\implies $$
-$$Operation(x_{n'}) = Operation(x_{n' + 1}) \not= Operation(x_{n})$$
 
 \section{Primitive}
 A collection of Operations where the output of an Operation is passed as the argument to the next Operation
