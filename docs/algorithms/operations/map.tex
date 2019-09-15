@@ -1,0 +1,54 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+
+\section{Map}
+
+The $map$ operation accepts the following arguments
+
+\begin{itemize}
+\item Operation or Primitive
+\item A Collection
+\end{itemize}
+and returns a collection of $Operation(x_{n}) \ \lor Primitive(x_{n})$ respectively
+\subsection{Formal Definition}
+
+Given an input Collection $X$ and a Operation $o$ or Primitive $p$ where
+$$X = <x_{i}..x_{n}..x_{j}>$$
+and that collection consists of one or more members $x_{n}$ within the range $i..j$
+$$i \leq n \leq j  \implies i \prec n \prec j \iff i \not= n \not= j$$
+then
+$$map(o, \ X) = Y \ \land \ map(p, \ X) = Y'$$
+such that
+$$Y = <o(x_{i})..o(x_{n})..o(x_{j})>$$
+and
+$$Y' = <p(x_{i})..p(x_{n})..p(x_{j})>$$
+which establishes both $Y$ and $Y'$ are a Collection where each member $y_{n}$ or $y'_{n}$ is the result of passing $x_{n}$ to $o$ or $p$ respectively.
+
+$\\$
+In otherwords
+$$o(x_{i}) \mapsto y_{i} \land o(x_{n}) \mapsto y_{n} \land o(x_{j}) \mapsto y_{j}$$
+$$p(x_{i}) \mapsto y'_{i} \land p(x_{n}) \mapsto y'_{n} \land p(x_{j}) \mapsto y'_{j}$$
+which implies both collections $Y$ and $Y'$ have the same ordering as collection $X$
+$$ i_{o(x)} = i_{y} \ \land \ n_{o(x)} = n_{y} \ \land \ j_{o(x)} = j_{y} $$
+$$ i_{p(x)} = i_{y'} \ \land \ n_{p(x)} = n_{y'} \ \land \ j_{p(x)} = j_{y'}$$
+When $X$ contains non-distinct values, $o$ and $p$ are unaffected.
+$$o(x_{n}) = y_{n}$$
+$$o(x_{n'}) = y_{n'}$$
+$$o(x_{n' + 1}) = y_{n'}$$
+$$\iff$$
+$$x_{n'} \equiv x_{n'+1} \land x_{n'} \not \equiv x_{n}$$
+$$\implies $$
+$$x_{n} \not \equiv  x_{n' + 1}$$
+$$\implies $$
+$$o(x_{n'}) = o(x_{n' + 1}) \not= o(x_{n})$$
+Because $p$ is just a composition of $o$'s, the same property holds for primitives
+$$p(x_{n}) = y'_{n}$$
+$$p(x_{n'}) = y'_{n'}$$
+$$p(x_{n' + 1}) = y'_{n'}$$
+$$\iff$$
+$$x_{n'} \equiv x_{n'+1} \land x_{n'} \not \equiv x_{n}$$
+$$\implies $$
+$$x_{n} \not \equiv  x_{n' + 1}$$
+$$\implies $$
+$$p(x_{n'}) = p(x_{n' + 1}) \not= p(x_{n})$$
+\end{document}
