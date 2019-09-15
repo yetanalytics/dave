@@ -1,0 +1,32 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+
+\section{Timeunit To Number of Seconds}
+
+the $timeunit \to seconds$ operation accepts the following arguments
+
+\begin{itemize}
+\item A string Scalar of
+  \begin{itemize}
+  \item second
+  \item minute
+  \item hour
+  \item day
+  \item week
+  \item month
+  \item year
+  \end{itemize}
+\end{itemize}
+and returns the corresponding number of seconds
+
+\subsection{Formal Definition}
+
+The $timeunit \to seconds$ operation calculates the number of seconds corresponding to another unit of time
+$$timeunit \to seconds(second) = 1$$
+$$timeunit \to seconds(minute) = 60$$
+$$timeunit \to seconds(hour) = 3600$$
+$$timeunit \to seconds(day) = 86400$$
+$$timeunit \to seconds(week) = 604800$$
+$$timeunit \to seconds(month) = 2629743$$
+$$timeunit \to seconds(year) = 31556926$$
+\end{document}
