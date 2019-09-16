@@ -1,0 +1,57 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Associate}
+The operation $associate$ will return a modified KV' with a mapping of
+\begin{itemize}
+\item Key to Value added at a specified Key.
+  $$associate(KV, k, v) \to KV'$$
+\item Key to Value added at a specified nesting of Key(s).
+  $$associate(KV, <k_{i}..k_{n}..k_{j}>, v) \to KV'$$
+\end{itemize}
+such that if $KV$ is a collection of Key Value pair(s) $<k_{0}v_{k_{0}}, k_{1}v_{k_{1}}>$
+where
+$$k_{0} = abc \ \land  v_{k_{0}} = 123$$
+$$\implies$$
+$$k_{0}v_{k_{0}} = abc \mapsto 123$$
+and
+$$k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456$$
+$$\implies$$
+$$k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$$
+such that
+$$KV = <abc \mapsto 123, \ def \mapsto xyz \mapsto 456>$$
+$\\$
+When $k$ is a single Key
+\begin{itemize}
+\item $k \not \in KV$, $k \mapsto v$ is added to $KV$ to create $KV'$
+  $$associate(KV, baz, foo) = KV'$$
+  $$ = $$
+  $$<abc \mapsto 123, \ def \mapsto xyz \mapsto 456, \ baz \mapsto foo>$$
+\item $k \in KV$, the previous mapping is overwritten to create $KV'$
+  $$associate(KV, abc, 789) = KV'$$
+  $$ = $$
+  $$<abc \mapsto 789, \ def \mapsto xyz \mapsto 456>$$
+  $\\$
+  $$associate(KV, def, 456) = KV'$$
+  $$ = $$
+  $$ <abc \mapsto 123, \ def \mapsto 456> $$
+\end{itemize}
+When $k$ is a Collection of Key(s) $K = <k_{i}, k_{j}>$
+\begin{itemize}
+\item $K \not \in KV$, $k_{i} \mapsto k_{j} \mapsto v$ is added to $KV$ to create $KV'$
+  $$associate(KV, <baz, bar>, foo) = KV'$$
+  $$ = $$
+  $$<abc \mapsto 123, \ def \mapsto xyz \mapsto 456, \ baz \mapsto bar \mapsto foo>$$
+\item $k_{i} \in KV \ \land k_{j} \not \in v_{k_{i}} \ \land \ object?(v_{k_{i}}) = false$, the previous mapping at $k_{i}$ is overwritten to create $KV'$
+  $$associate(KV, <abc, cba>, 789) = KV'$$
+  $$ = $$
+  $$<abc \mapsto cba \mapsto 789, \ def \mapsto xyz \mapsto 456>$$
+\item $k_{i} \in KV \ \land k_{j} \not \in v_{k_{i}} \ \land \ object?(v_{k_{i}}) = true$, $k_{j} \mapsto v$ is added to $k_{i}$
+  $$associate(KV, <def, zyx>, fizbuz) = KV'$$
+  $$ = $$
+  $$<abc \mapsto 123, \ def \mapsto <xyz \mapsto 456, zyx \mapsto fizbuz>>$$
+\item $k_{i} \in KV \ \land k_{j} \in v_{k_{i}} \implies object?(v_{k_{i}}) = true$, $v_{k_{j}}$ is replaced with $v$
+  $$associate(KV, <def, xyz>, 654) = KV'$$
+  $$ = $$
+  $$<abc \mapsto 123, \ def \mapsto xyz \mapsto 654>$$
+\end{itemize}
+\end{document}
