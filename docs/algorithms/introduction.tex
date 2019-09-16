@@ -48,7 +48,7 @@ j_{v} = n_{v} \lor j_{v} \not= n_{v}$$
 
 \subsubsection{Statement}
 
-Immutable collection of Key Value Pair(s) conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification}
+Immutable collection of Key Value Pair(s) conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification} as described in the previous section
 
 \subsubsection{Algorithm State}
 
@@ -155,7 +155,7 @@ Given a collection of statement(s) $S_{<a..b..c>}$ and potentially option(s) $op
 \item for each $stmt \in S_{<a..b..c>}$
   \begin{enumerate}
   \item $relevant?$
-  \item $accepted?$
+  \item $accept?$
   \item $step$
   \end{enumerate}
 \item return $result$
@@ -245,7 +245,7 @@ but this functionality is dependent upon the $body$ of an Algorithms' $init$
 First process that each $stmt$ passes through such that
 $$relevant? \prec accept? \prec step$$
 resulting in an indication of whether the $stmt$ is valid for use within algorithm $A$
-$\\\\$
+$$relevant?(state, stmt) = true \ \lor false$$
 The criteria which determines validity of $stmt$ within $A$ is defined by the $body$ of $relevant?$
 
 \subsubsection{Domain}
@@ -266,7 +266,7 @@ The criteria which determines validity of $stmt$ within $A$ is defined by the $b
 Second process that each $stmt$ passes through such that
 $$relevant? \prec accept? \prec step$$
 resulting in an indication of whether the $stmt$ can be sent to $step$ given the current $state$
-$\\\\$
+$$accept?(state, stmt) = true \ \lor false$$
 The criteria which determines usability of $stmt$ given $state$` is defined by the $body$ of $accept?$
 
 \subsubsection{Domain}
