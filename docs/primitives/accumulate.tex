@@ -1,0 +1,153 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\subsection{Accumulate}
+Performs an update at $path$ within $state$ using the supplied $item$ or $k \ \land \ v$
+$$accumulate(state, path, item) \to state'$$
+$$accumulate(state, path, k, v) \to state'$$
+
+\subsubsection{Arguments}
+\begin{itemize}
+\item $state$ is an Algorithm State
+\item $path$ is a Collection of Key(s) used to navigate into $state$
+\item $item$ is a Scalar which should be reflected within $state'$ at $path$
+\item $k$    is a Value used as the target
+  \begin{itemize}
+  \item Index within some Collection
+  \item Key within some KV such that $k \mapsto v \in KV$
+  \end{itemize}
+\item $v$ is a Value
+  \begin{itemize}
+  \item Added to some Collection at index $k$
+  \item Mapped to $k$ within some KV such that $k \mapsto v \in KV$
+  \end{itemize}
+\end{itemize}
+
+
+\subsubsection{Relevant Operations}
+The primitive $accumulate$ uses the operations
+\begin{itemize}
+\item array?
+\item object?
+\item append
+\item associate
+\item atKey
+\item count
+\end{itemize}
+
+\subsubsection{Summary}
+$accumulate$ will do one of the following things
+\begin{itemize}
+\item replace an existing non-array Scalar or KV
+  $$accumulate(state, path, item) \equiv associate(state, path, item)$$
+\item update an existing array Scalar or Collection
+  $$accumulate(state, path, item) \equiv associate(state, path, append(state_{path}, item, count(state_{path})))$$
+\item updates an existing Scalar object or KV
+  $$accumulate(state, path, k, v) \equiv associate(state, append(path, k, count(path)), v)$$
+\item updates an existing array Scalar or Collection
+  $$accumulate(state, path, k, v) \equiv associate(state, path, append(state_{path}, v, k))$$
+\item create a new Collection containing $state_{path}$ and $v$
+  $$accumulate(state, path, k, v) \equiv associate(state, path, append(append(<>, state_{path}, 0), v, k))$$
+\end{itemize}
+
+\subsubsection{Usage of Operations}
+In order to update the argument $state$ at $path$ using $item$ or $k \ \land \ v$ the first step is always retrieving the value at $path$ using the operation $atKey$. This operation is used because by definition, $state$ is a $KV$
+$$state_{path} = atKey(state, path)$$
+to determine its type
+$$state_{path} = Object \ \lor \ KV \ \lor \ x \ \lor X$$
+such that the following bullet points represent the beahvior of $accumulate$ under various conditions
+\begin{itemize}
+\item $object?(state_{path}) = true$
+  \begin{itemize}
+  \item and $item$ passed in as argument
+    $$updatedState = associate(state, path, item)$$
+  \item and $k \ \land v$ passed in as argument
+    $$index = count(path)$$
+    $$fullPath = append(path, k, index)$$
+    $$updatedState = associate(state, fullPath, v)$$
+  \end{itemize}
+\item $array?(state_{path}) = true$
+  \begin{itemize}
+  \item and $item$ passed in as argument
+    $$index = count(state_{path})$$
+    $$updatedArray = append(state_{path}, item, index)$$
+    $$updatedState = associate(state, path, updatedArray)$$
+  \item and $k \ \land \ v$ passed in as argument
+    $$updatedArray = append(state_{path}, v, k)$$
+    $$updatedState = associate(state, path, updatedArray)$$
+  \end{itemize}
+\item $array?(state_{path}) = false \ \land \ object?(state_{path}) = false$
+  \begin{itemize}
+  \item and $item$ passed in as argument
+    $$updatedState = associate(state, path, item)$$
+  \item and $k \ \land \ v$ passed in as argument
+    $$newArray = append(<>, state_{path}, 0)$$
+    $$updatedArray = append(newArray, v, k)$$
+    $$updatedState = associate(state, path, updatedArray)$$
+  \end{itemize}
+\end{itemize}
+Which shows that $accumulate$ has common steps across all conditions
+$$state_{path} = atKey(state, path)$$
+$$objectAtPath? = object?(state_{path})$$
+$$arrayAtPath? = array?(state_{path})$$
+but then the steps deviate based $item$ vs $k \ \land \ v$ such that the action of $accumulate$ when $item$ is passed in results in either
+\begin{itemize}
+\item an overwrite of $state_{path}$ via $associate(state, path, item)$
+  \begin{itemize}
+  \item $objectAtPath? = true$
+  \item $objectAtPath? = false \ \land \ arrayAtpath? = false$
+  \end{itemize}
+\item an updated $state_{path}$ via $associate(state, path, append(state_{path}, item, count(state_{path})))$
+  \begin{itemize}
+  \item $arrayAtPath? = true$
+  \end{itemize}
+\end{itemize}
+and the action of $accumulate$ when $k \ \land \ v$ is passed in results in either
+\begin{itemize}
+\item $objectAtPath? = true$
+  \begin{itemize}
+  \item an update of $state_{path}$ to include $k \mapsto v$
+    $$associate(state, append(path, k, count(path)), v)$$
+  \end{itemize}
+\item $arrayAtPath? = true$
+  \begin{itemize}
+  \item an update of $state_{path}$ to include $v$ at index $k$
+    $$associate(state, path, append(state_{path}, v, k))$$
+  \end{itemize}
+\item $objectAtPath? = false \ \land \ arrayAtpath? = false$
+  \begin{itemize}
+  \item creation of a new array which contains $state_{path}$ and $v$ at index $k$
+    $$associate(state, path, append(append(<>, state_{path}, 0), v, k))$$
+  \end{itemize}
+\end{itemize}
+
+\subsubsection{Example output}
+To demonstrate the functionality of $accumulate$, the following assumptions will be made
+$$state = <a \mapsto <b \mapsto <1, 2, 3>, c \mapsto 4> d \mapsto foo, e \mapsto <4, 5, 6>>$$
+$$\implies$$
+$$state_{a} = <b \mapsto <1, 2, 3>, c \mapsto 4>$$
+$$state_{d} = foo$$
+$$state_{e} = <4, 5, 6>$$
+such that
+$$accumulate(state, <d>, baz) = <state_{a}, \ d \mapsto baz, \ state_{e}>$$
+and
+$$accumulate(state, <a>, baz) = <a \mapsto baz, \ state_{d}, \ state_{e}>$$
+and
+$$accumulate(state, <a, c>, baz) = <a \mapsto <b \mapsto <1, 2, 3>, c \mapsto baz>, \ state_{d}, \ state_{e}>$$
+and
+$$accumulate(state, <e>, 7) = <state_{a}, \ state_{d}, \ e \mapsto <4, 5, 6, 7>>$$
+and
+$$accumulate(state, <e>, <7, 8, 9>) = <state_{a}, \ state_{d}, \ e \mapsto <4, 5, 6, <7, 8, 9>>>$$
+and
+$$accumulate(state, <a>, b, <3, 2, 1>) = <a \mapsto <b \mapsto <3, 2, 1>, c \mapsto 4>, \ state_{d}, \ state_{e}>$$
+and
+$$accumulate(state, <a>, q, baz) = <a \mapsto <b \mapsto <1, 2, 3>, c \mapsto 4, q \mapsto baz>, \ state_{d}, \ state_{e}>$$
+and
+$$accumulate(state, <a, q>, r, baz) = <a \mapsto <b \mapsto <1, 2, 3>, c \mapsto 4, q \mapsto r \mapsto baz>, \ state_{d}, \ state_{e}>$$
+and
+$$accumulate(state, <e>, 1, 7) = <state_{a}, \ state_{d}, \ e \mapsto <4, 7, 5, 6>>$$
+and
+$$accumulate(state, <d>, 0, baz) = <state_{a}, \ <baz, foo>, \ state_{e}>$$
+and
+$$accumulate(state, <d>, 1, <baz, bar>) = <state_{a}, \ <foo, <baz, bar>>, \ state_{e}>$$
+\end{document}
