@@ -1,0 +1,54 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\subsection{Map}
+
+The $map$ operation accepts the following arguments
+
+\begin{itemize}
+\item Operation or Primitive
+\item A Collection
+\item Additional Arguments passed to the Operator or Primitive
+\end{itemize}
+and returns a collection of Operation $Operation(x_{n}, args) \ \lor Primitive(x_{n}, args)$ respectively
+$\\\\$
+Given an input Collection $X$ and a Operation $o$ or Primitive $p$ where
+$$X = <x_{i}..x_{n}..x_{j}>$$
+and that collection consists of one or more members $x_{n}$ within the range $i..j$
+$$i \leq n \leq j  \implies i \prec n \prec j \iff i \not= n \not= j$$
+then
+$$map(o, \ X, \ args) = Y \ \land \ map(p, \ X, \ args) = Y'$$
+such that
+$$Y = <o(x_{i}, args)..o(x_{n}, args)..o(x_{j}, args)>$$
+and
+$$Y' = <p(x_{i}, args)..p(x_{n}, args)..p(x_{j}, args)>$$
+which establishes both $Y$ and $Y'$ are a Collection where each member $y_{n}$ or $y'_{n}$ is the result of passing $x_{n}$ and $args$ to $o$ or $p$ respectively.
+
+$\\$
+In otherwords
+$$o(x_{i}, args) \mapsto y_{i} \land o(x_{n}, args) \mapsto y_{n} \land o(x_{j}, args) \mapsto y_{j}$$
+$$p(x_{i}, args) \mapsto y'_{i} \land p(x_{n}, args) \mapsto y'_{n} \land p(x_{j}, args) \mapsto y'_{j}$$
+which implies both collections $Y$ and $Y'$ have the same ordering as collection $X$
+$$ i_{o(x, args)} = i_{y} \ \land \ n_{o(x, args)} = n_{y} \ \land \ j_{o(x, args)} = j_{y} $$
+$$ i_{p(x, args)} = i_{y'} \ \land \ n_{p(x, args)} = n_{y'} \ \land \ j_{p(x, args)} = j_{y'}$$
+When $X$ contains non-distinct values, $o$ and $p$ are unaffected.
+$$o(x_{n}, args) = y_{n}$$
+$$o(x_{n'}, args) = y_{n'}$$
+$$o(x_{n' + 1}, args) = y_{n'}$$
+$$\iff$$
+$$x_{n'} \equiv x_{n'+1} \land x_{n'} \not \equiv x_{n}$$
+$$\implies $$
+$$x_{n} \not \equiv  x_{n' + 1}$$
+$$\implies $$
+$$o(x_{n'}, args) = o(x_{n' + 1}, args) \not= o(x_{n}, args)$$
+Because $p$ is just a composition of $o$'s, the same property holds for primitives
+$$p(x_{n}, args) = y'_{n}$$
+$$p(x_{n'}, args) = y'_{n'}$$
+$$p(x_{n' + 1}, args) = y'_{n'}$$
+$$\iff$$
+$$x_{n'} \equiv x_{n'+1} \land x_{n'} \not \equiv x_{n}$$
+$$\implies $$
+$$x_{n} \not \equiv  x_{n' + 1}$$
+$$\implies $$
+$$p(x_{n'}, args) = p(x_{n' + 1}, args) \not= p(x_{n}, args)$$
+\end{document}
