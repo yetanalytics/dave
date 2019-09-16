@@ -1,8 +1,6 @@
-\documentclass[../../main.tex]{subfiles}
+\documentclass[../main.tex]{subfiles}
 \begin{document}
-
-\section{Timeunit To Number of Seconds}
-
+\subsubsection{Timeunit To Number of Seconds}
 the $timeunit \to seconds$ operation accepts the following arguments
 
 \begin{itemize}
@@ -17,11 +15,9 @@ the $timeunit \to seconds$ operation accepts the following arguments
   \item year
   \end{itemize}
 \end{itemize}
-and returns the corresponding number of seconds
-
-\subsection{Formal Definition}
-
-The $timeunit \to seconds$ operation calculates the number of seconds corresponding to another unit of time
+and returns the corresponding number of seconds such that
+$$timeunit \to seconds(timeunit) = \real$$
+Where the following is the enumeration of $timeunit \to seconds(timeunit)$
 $$timeunit \to seconds(second) = 1$$
 $$timeunit \to seconds(minute) = 60$$
 $$timeunit \to seconds(hour) = 3600$$
