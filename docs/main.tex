@@ -57,15 +57,14 @@
 
 \section*{Introduction}
 
-This report introduces the initial learning analytics algorithms,
-\textbf{timeline of learner success},\textbf{which assessment
-  questions are the most difficult} and \textbf{rate of completions}.
-In doing so, it establishes a set of style
-guidelines for the reporting of algorithms and associated visualization templates.
-This document will be updated to include additional learning analytics
-questions presented elsewhere within this github repo in addition to other learning
-analytics algorithms which have yet to be defined. Updates may also
-address refinement of these algorithms and this document should be
+This report introduces the updated definition of learning analytics algorithms in terms of
+\textbf{Operations}, \textbf{Primitives} and \textbf{Algorithms} and presents an updated definition for
+each of the previously defined algorithms. The previous definitions will be included for reference.
+In a more general sense, this report establishes a set of style guidelines for the reporting of algorithms and associated visualization templates.
+
+This document will be updated to include additional Operations, Primitives and Algorithms
+as they are defined by the Author of this report or members of the Open Source Community.
+Updates may also address refinement of existing definitions and this document should be
 understood to be an example of algorithm presentation and not the
 final state of any defined algorithm.
 
@@ -73,9 +72,21 @@ $\\\\$
 The structure of this documents is as follows:
 \begin{enumerate}
 \item A formal specification for xAPI written in Z
-  and referenced within the formal specifications of learning
-  analytics algorithms
-\item An algorithm definition which will consist of:
+\item An Introduction to Terminology of Operations, Primitives and Algorithms
+\item What is an Operation
+\item What is a Primitive
+\item What is an Algorithm
+\item Foundational Operations
+\item Example Primitives
+\item An algorithm definition including
+  \begin{enumerate}
+  \item Init
+  \item Relevant?
+  \item Accept?
+  \item Step
+  \item Result
+  \end{enumerate}
+\item Previous Algorithm definitions where each consists of
   \begin{enumerate}
   \item an introduction for the algorithm
   \item the structure of the ideal input data
@@ -95,15 +106,45 @@ The structure of this documents is as follows:
 \end{enumerate}
 
 \subfile{z/xapi.tex}
+\subfile{algorithms/introduction}
 
+\section{Foundational Operations}
 
+\subsection{Collections}
+Operations which expect a Collection of Scalar(s)
+$$X = <x_{i}..x_{n}..x_{j}>$$
+\subfile{operations/array?.tex}
+\subfile{operations/append.tex}
+\subfile{operations/remove.tex}
+\subfile{operations/atIndex.tex}
 
-\subfile{algorithms/timeline_learner_success.tex}
+\subsection{Key Value Pairs}
+Operations which expect a Collection of Key Value pair(s)
+$$KV = <k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}}>$$
+\subfile{operations/object?.tex}
+\subfile{operations/associate.tex}
+\subfile{operations/dissociate.tex}
+\subfile{operations/atKey.tex}
 
-\subfile{algorithms/most_difficult_assessment_questions.tex}
+\section{Example Primitives}
+\textbf{COMING SOON}
 
+\section*{Updated Algorithm Definitions}
+The following are examples of the new way in which Algorithms were defined.
+\section{Rate of Completions}
+\textbf{COMING SOON}
+\section{Timeline Of Learner Success}
+\textbf{COMING SOON}
+\section{Which Assessment Questions are the Most Difficult}
+\textbf{COMING SOON}
+\section{How Often are Recommendations Followed}
+\textbf{COMING SOON}
+
+\section*{Previous Algorithm Definitions}
+The following are examples of the previous way in which Algorithms were defined.
 \subfile{algorithms/rate_of_completions.tex}
-
+\subfile{algorithms/timeline_learner_success.tex}
+\subfile{algorithms/most_difficult_assessment_questions.tex}
 \subfile{algorithms/followed_recommendations.tex}
 
 \subfile{appendices/a.tex}
