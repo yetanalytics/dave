@@ -1,0 +1,72 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\subsection{At JSONPath}
+Performs a lookup at $path$ within $source$ similar to atKey
+$$atJsonPath(source, path)$$
+such that the fundamental functionality of JSONPath is covered in this definition.
+\begin{itemize}
+\item A more complete definition will come at a future date if/as necessary
+\end{itemize}
+
+\subsubsection{Arguments}
+\begin{itemize}
+\item $source$ is an object Scalar, KV, Statement or an Algorithm State
+\item $path$ is a \href{https://goessner.net/articles/JsonPath/index.html#e2}{JSONPath string} which adheres to the
+  \href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#81-statement-template-rules}{additional requirements, clarifications, and additions} placed on JSONPath by the \href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#part-two}{xAPI Profile Specification}
+\end{itemize}
+
+\subsubsection{Relevant Operations}
+The primitive $atJsonPath$ uses the operations
+\begin{itemize}
+\item atKey
+\item atIndex
+\item append
+\item count
+\end{itemize}
+
+\subsubsection{Summary}
+$atJsonPath$ will return a $v$ found within $source$ after converting
+$$path \to <path_{i+1}..path_{j}>$$
+such that if
+$$path = \$.a.b$$
+then
+$$path \to <a, b>$$
+so that
+$$atJsonPath(<a \mapsto b \mapsto 123>, \$.a.b) = 123$$
+
+\subsubsection{Usage of Operations}
+In order to convert
+$$path \to <path_{i+2}..path_{j}>$$
+an empty Collection $keyState$ is introduced
+$$keyState = <>$$
+so that the relevant $k$'(s) can be stored in $keyState$ during iteration over $path$
+$$\forall n : i..j \ \bullet i = 0 \ \land j = count(path) - 1$$
+and the number of stored keys can be tracked using $curKeyStateIndex$
+$$curKeyStateIndex = count(keyState) - 1$$
+such that the current $path_{n}$ can be retrieved
+$$curKey = atIndex(path, n)$$
+and $keepKey?$ can indicate the relevance of $path_{n}$
+$$keepKey? = true \iff curKey \not= \$ \ \land curKey \not= . $$
+such that during each iteration $n$, $keyState$ will be updated if necessary
+$$keyState = append(keyState, \ curKey, \ curKeyStateIndex) \iff keepKey? = true$$
+so at the end of the loop
+$$keyState = <path_{i+2}..path_{n}..path_{j}>$$
+which provides the Collection of Key(s) necessary for calling $atKey$
+$$valueInSource = atKey(source, keyState)$$
+such that
+$$atJsonPath(source,path) \equiv atKey(source, keyState)$$
+
+\subsubsection{Example output}
+Given an example $source$
+$$source = <a \mapsto <b \mapsto 123, c \mapsto 456>, d \mapsto foo>$$
+then
+$$atJsonPath(source, \$.a) = <b \mapsto 123, c \mapsto 456>$$
+and
+$$atJsonPath(source, \$.a.b) = 123$$
+and
+$$atJsonPath(source, \$.a.c) = 456$$
+and
+$$atJsonPath(source, \$.d) = foo$$
+
+\end{document}
