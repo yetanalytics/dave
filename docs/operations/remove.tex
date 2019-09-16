@@ -1,0 +1,17 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Remove}
+The operation $remove$ will return a Collection minus the Value removed from the specified Numeric Index
+$$remove(coll, idx) \to X'$$
+such that if $X$ is a collection $<x_{0}, x_{1}, x_{2}>$
+where
+$$x_{0} = 0$$
+$$x_{1} = foo$$
+$$x_{2} = baz$$
+then
+$$remove(X, 0) = <foo, baz> = X'$$
+$$remove(X, 1) = <0, baz> = X'$$
+$$remove(X, 2) = <0, foo> = X'$$
+and if $idx$ does not exist within $X$, $remove$ will return $X$ unaltered
+$$remove(X, 3) = <0, foo, baz> = X$$
+\end{document}
