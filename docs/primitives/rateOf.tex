@@ -1,0 +1,64 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\subsection{Rate Of}
+Calculates the number of times something occured within an interval of time given a unit of time.
+$$rateOf(nOccurances, start, end, unit)$$
+Where the output translates to: the rate of occurance per unit within interval
+
+\subsubsection{Arguments}
+\begin{itemize}
+\item $nOccurances$ is the number of times something happened and should be an Integer
+\item $start$ is an ISO 8601 timestamp which serves as the first timestamp within the interval
+\item $end$ is an ISO 8601 timestamp which servers as the last timestamp within the interval
+\item $unit$ is a String Enum representing the unit of time
+\end{itemize}
+
+\subsubsection{Relevant Operations}
+\begin{itemize}
+\item isoToUnixEpoch
+\item $timeunit \to seconds$
+\end{itemize}
+
+\subsubsection{Summary}
+$rateOf$ determines the number of seconds within the interval $start \to end$
+$$intervalSeconds = isoToUnixEpoch(end) - isoToUnixEpoch(start)$$
+and resolves the numer of seconds corresponding to $unit$
+$$unitSeconds = timeunit \to seconds(unit)$$
+so that the interval can be converted from Seconds to $unit$
+$$per = intervalSeconds / unitSeconds$$
+and the rate can be calculated
+$$rateOf(nOccurances, start, end, unit) \equiv nOccurances \div per$$
+
+\subsubsection{Usage of Operations}
+The Operations used within $rateOf$ convert from a String to a Integer
+\begin{itemize}
+\item $isoToUnixEpoch$ is used to convert
+  $$end \ \land start \to \real$$
+\item $timeunit \to seconds$ is used to convert
+  $$unit \to \real$$
+\end{itemize}
+The only other functionality required by $rateOf$ is supplied via basic arithmetic
+
+\subsubsection{Example output}
+Given an example $start$ and $end$
+$$start = 2015-11-18T12:17:00Z$$
+$$end = 2015-11-18T14:17:00Z$$
+Then the Unix Epoch of each is
+$$nStart = 1447849020$$
+$$nEnd = 1447856220$$
+Which provides an interval range (in seconds)
+$$intervalSeconds = nEnd - nStart = 7200$$
+which is divided by $timeunit \to seconds(unit)$ to derive per $unit$
+$$per = 7200 \iff unit = second \implies 7200 / 1$$
+$$per = 120 \iff unit = minute \implies 7200 / 60$$
+$$per = 2 \iff unit = hour \implies 7200 / 3600$$
+such that if
+$$nOccurances = 10$$
+and $unit = second$ then the output is 0.001389 occurances per second within $start \to end$
+$$rateOf(nOccurances, start, end, second) \equiv 10 / 7200 \equiv 0.001389$$
+and $unit = minute$ then the output is 0.0833 occurances per minute within $start \to end$
+$$rateOf(nOccurances, start, end, minute) \equiv 10 / 120 \equiv 0.0833$$
+and $unit = hour$ then the output is 5 occurances per hour within $start \to end$
+$$rateOf(nOccurances, start, end, hour) \equiv 10 / 2 \equiv 5$$
+\end{document}
