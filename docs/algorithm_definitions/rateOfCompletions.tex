@@ -69,7 +69,149 @@ $$accept?(state, stmt) = object?(stmt)$$
 which should always return true assuming valid xAPI Statements are passed to $rateOfCompletions$
 
 \subsection{Step}
-What primitives are used to process a Statement to update $state$
-\subsection{Return}
-What $opts$ are used if any + what does the $state$ look like?
+\subsubsection{summary}
+$step(state, stmt)$ updates $state$ to include
+$$\$.object.id \mapsto <domain, statementCount, name>$$
+where
+$$domain \mapsto <start, end> $$
+$$statementCount \mapsto \real$$
+$$name \mapsto <\$.object.definition.name>$$
+at
+$$<state, completions, \$.object.id>$$
+
+\subsubsection{processing}
+$step$ starts by extracting the relevant information from $stmt$
+\begin{itemize}
+\item $currentTime$
+  $$currentTime = atKey(stmt, timestamp)$$
+\item $name$
+  $$name_{stmt} = atKey(stmt, <object, definition, name>)$$
+\item $objectId$
+  $$objectId = atKey(stmt, <object, id>)$$
+\end{itemize}
+which allows for the previous $state$ to be resolved using $objectId$
+\begin{itemize}
+\item $domain$
+  $$domain_{state} = atKey(state, <state, completions, objectId, domain>)$$
+  $$start_{state} = first(domain_{state})$$
+  $$end_{state} = last(domain_{state})$$
+\item $statementCount$
+  $$statementCount_{state} = atKey(state, <state, completions, objectId, statementCount>)$$
+\item $name$
+  $$name_{state} = atKey(state, <state, completions, objectId, name>)$$
+\end{itemize}
+so that the previous state can be used along side the information parsed from $stmt$
+\begin{itemize}
+\item does $start_{state}$ need to be updated to $currentTime$?
+  $\\\\$
+  where
+  $$inSeconds_{stmt} = isoToUnixEpoch(currentTime)$$
+  $$inSeconds_{start} = isoToUnixEpoch(start_{state}) \iff start_{state} \not = nil$$
+  such that
+  $$start(state, stmt) = currentTime$$
+  $$\iff$$
+  $$start_{state} = nil$$
+  $$\lor$$
+  $$inSeconds_{stmt} \leq inSeconds_{start}$$
+  otherwise
+  $$start(state, stmt) = start_{state}$$
+\item does $end_{state}$ need to be updated to $currentTime$?
+  $\\\\$
+  where
+  $$inSeconds_{stmt} = isoToUnixEpoch(currentTime)$$
+  $$inSeconds_{end} = isoToUnixEpoch(end_{state}) \iff end_{state} \not = nil$$
+  such that
+  $$end(state, stmt) = currentTime$$
+  $$\iff$$
+  $$end_{state} = nil$$
+  $$\lor$$
+  $$inSeconds_{stmt} \geq inSeconds_{end}$$
+  otherwise
+  $$end(state, stmt) = end_{state}$$
+\item what should $statementCount$ be?
+  $$nStmts(state) = 1 \iff statementCount_{state} = 0 \ \lor \ nil$$
+  $$\lor$$
+  $$nStmts(state) = 1 + statementCount_{state} \iff statementCount_{state} \geq 1$$
+\item do we need to add a new $name$?
+  $$allNames(state, stmt) = append(name_{state}, name_{stmt}, count(name_{state}))$$
+  $$\iff$$
+  $$name_{stmt} \not \in name_{state}$$
+  otherwise
+  $$allNames(state, stmt) = name_{state}$$
+\end{itemize}
+which allows for the following primitives to be defined
+$$p_{start}(state, stmt) = start(state, stmt)$$
+$$p_{end}(state, stmt) = end(state, stmt)$$
+$$p_{stmtCount}(state, stmt) = nStmts(state)$$
+$$p_{names}(state, stmt) = allNames(state, stmt)$$
+and establish relevant paths into $state$
+$$K_{domain} = <state, completions, objectId, domain>$$
+$$K_{stmtCount} = <state, completions, objectId, statementCount>$$
+$$K_{names} = <state, completions, objectId, name>$$
+which are used within higher level primitives concerned with updating $state$
+$$p_{updateStart}(state, stmt)$$
+$$\equiv$$
+$$associate(state, K_{domain}, append(remove(domain_{state}, 0), p_{start}(state, stmt), 0))$$
+and
+$$p_{updateEnd}(state, stmt)$$
+$$\equiv$$
+$$associate(state, K_{domain}, append(remove(domain_{state}, 1), p_{end}(state, stmt), 1))$$
+and
+$$p_{updatedCount}(state, stmt)$$
+$$\equiv$$
+$$associate(state, K_{stmtCount} , p_{stmtCount}(state, stmt))$$
+and
+$$p_{updatedNames}(state, stmt)$$
+$$\equiv$$
+$$associate(state, K_{names}, p_{names}(state, stmt))$$
+$\\$
+such that $body$ of $step$ is defined as
+$$step(state, stmt) = p_{updateNames}(p_{updateCount}(p_{updateEnd}(p_{updateStart}(state, stmt), stmt), stmt), stmt)$$
+where
+$$state' = p_{updateStart}(state, stmt)$$
+and
+$$state'' = p_{updateEnd}(state', stmt)$$
+and
+$$state''' = p_{updateCount}(state'', stmt)$$
+such that
+$$step(state, stmt) = p_{updateNames}(state''', stmt)$$
+
+\subsection{Result}
+The only $opts$ used by $rateOfCompletions$ is $timeUnit$
+$$timeUnit = second \ \lor minute \ \lor \ hour \ \lor day \ \lor month \ \lor year$$
+and will default to $day$ if not passed to $rateOfCompletions$
+$$result(state) = result(state, <timeUnit \mapsto day>)$$
+which is passed to $rateOf$ along with the arguments parsed from $state$
+$$unit = atKey(opts, timeUnit)$$
+$$allCompletions(state) = atKey(state, <state, completions>)$$
+such that
+$$\forall k_{n} : i..n..j \in allCompletions(state)$$
+the following primitives are called each iteration
+$$getCount(state, k_{n}) = atKey(allCompletions(state), <k_{n}, statementCount>)$$
+$$getStart(state, k_{n}) = atKey(allCompletions(state), <k_{n}, domain, start>)$$
+$$getEnd(state, k_{n}) = atKey(allCompletions(state), <k_{n}, domain, end>)$$
+$$getName(state, k_{n}) = atKey(allCompletions(state), <k_{n}, name>) $$
+which allows for
+$$rate_{n}(state, k_{n}, unit) = rateOf(getCount(state, k_{n}), getStart(state, k_{n}), getEnd(state, k_{n}), unit)$$
+such that
+$$value_{n}(state, k_{n}, unit) = <x_{n}, y_{n}>$$
+where
+$$name_{n}(state, k_{n}) = first(getName(state, k_{n}))$$
+$$x_{n} = x \mapsto name_{n}(state, k_{n}) \iff name_{n}(state, k_{n}) \not = nil$$
+otherwise
+$$x_{n} = x \mapsto k_{n}$$
+and
+$$y_{n} = y \mapsto rate_{n}(state, k_{n}, unit)$$
+such that
+$$value_{n}(state, k_{n}, unit) = <name_{n}(state, k_{n}), \ rate_{n}(state, k_{n}, unit)>$$
+and
+$$value(state, unit) = \forall k_{n} : i..n..j \in allCompletions(state) \exists! value_{n}(state, k_{n}, unit) = <x_{n}, y_{n}>$$
+$$\implies$$
+$$value(state, unit) = <value_{i}(state, k_{i}, unit)..value_{n}(state, k_{n}, unit)..value_{j}(state, k_{j}, unit)>$$
+which allows the body of $result$ to be defined using
+$$unit = atKey(opts, timeUnit)$$
+$$K_{store} = <state, completions, values, unit>$$
+so that $result$ returns an updated $state$ with the rate of completions per $unit$ located at $K_{store}$
+$$result(state, opts) = associate(state, K_{store}, value(state, unit))$$
+
 \end{document}
