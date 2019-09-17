@@ -22,7 +22,47 @@ then
 $$state_{0} = <a \mapsto b, state \mapsto completions \mapsto <>>$$
 
 \subsection{Relevant?}
-What primitives are used to determine if a Statement is relevant
+$relevant?(state, stmt)$ determines if $stmt$ is valid for use within $step$ of $rateOfCompletions$ and does so by
+looking into various $k \to v$ within $stmt$. The following Primitives are used as the $body$ of $relevant?(state, stmt)$
+\begin{itemize}
+\item is the Object of the Statement an Activity?
+  $$activityType = atKey(stmt, <object, objectType>)$$
+  $$activity?(activityType) = true \iff activityType = Activity \ \lor activityType = nil$$
+\item is the Verb indicative of a completion event?
+  $$verbId = atKey(stmt, <verb, id>)$$
+  $$completionVerb?(verbId) = true$$
+  $$\iff$$
+  $$verbId = http://adlnet.gov/expapi/verbs/passed$$
+  $$\lor$$
+  $$verbId = https://w3id.org/xapi/dod-isd/verbs/answered$$
+  $$\lor$$
+  $$verbId = http://adlnet.gov/expapi/verbs/completed$$
+\item does the $stmt$ indicate completion using Result?
+  $$result = atKey(stmt, <result, completion>)$$
+  $$resultCompletion = true \iff result = true$$
+\end{itemize}
+$\\$
+such that the body of $relevant?$ contains
+$$p_{a}(stmt) = activity?(atKey(stmt, <object, objectType>))$$
+and
+$$p_{v}(stmt) = completionVerb?(atKey(stmt, <verb, id>))$$
+and
+$$p_{r}(stmt) = resultCompletion(atKey(stmt, <result, completion>))$$
+which are used to form higher level Primitives
+$$p_{continue}(stmt) = stmt \iff p_{a}(stmt) = true$$
+and
+$$p_{completed?}(stmt) = stmt \iff p_{v}(stmt) = true \ \lor \ p_{r}(stmt) = true$$
+which results in a final Primitive $p_{return?}$
+$$p_{return?}(stmt) = object?(p_{completed?}(p_{continue}(stmt)))$$
+which defines the $body$ of $relevant?$
+$$relevant?(stmt) = p_{return?}(stmt) \implies object?(p_{completed?}(p_{continue}(stmt)))$$
+and can be summarized as
+$$relevant?(state, stmt) = true$$
+$$\iff$$
+$$activity?(activitType) = true$$
+$$\land$$
+$$completionVerb?(verbId) = true \ \lor \ resultCompletion = true$$
+
 \subsection{Accept?}
 What primitives are used to determine if a Statement is accepted
 \subsection{Step}
