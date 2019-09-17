@@ -64,7 +64,10 @@ $$\land$$
 $$completionVerb?(verbId) = true \ \lor \ resultCompletion = true$$
 
 \subsection{Accept?}
-What primitives are used to determine if a Statement is accepted
+$rateOfCompletions$ does not require further boolean logic to determine if $stmt$ and $state$ can be passed to $step$
+$$accept?(state, stmt) = object?(stmt)$$
+which should always return true assuming valid xAPI Statements are passed to $rateOfCompletions$
+
 \subsection{Step}
 What primitives are used to process a Statement to update $state$
 \subsection{Return}
