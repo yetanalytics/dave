@@ -10,7 +10,17 @@ possible to retell their learning story through data and data visualization. One
 that story is the rate of completion of the various digital resources within the learning ecosystem.
 
 \subsection{Initialization}
-What does $state_{0}$ look like?
+$init(state)$ sets up an empty $KV$ within $state$ for the Algorithm to update at each $step$
+$$init(state) = state_{0}$$
+where
+$$state_{0} = associate(state, <state, completions>, <>) \iff atKey(state, <state, completions>) = nil$$
+otherwise
+$$state_{0} = state$$
+such that if
+$$state = <a \mapsto b>$$
+then
+$$state_{0} = <a \mapsto b, state \mapsto completions \mapsto <>>$$
+
 \subsection{Relevant?}
 What primitives are used to determine if a Statement is relevant
 \subsection{Accept?}
