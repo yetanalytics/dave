@@ -21,6 +21,15 @@ Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.
 
 Here is a quick link to the master doc for review of the template: https://github.com/yetanalytics/dave/blob/master/docs/algorithms/master.pdf
 
+The structure, contents and format of the above document are currently undergoing a revision. For more information, see:
+- [Primitives Documentation Branch](../../tree/primitives-document)
+   - [Introduction to Operations, Primitives and Algorithms](../../tree/primitives-document/docs/algorithms/introduction.pdf)
+      - [Example Operation - Associate](../../tree/primitives-document/docs/operations/associate.pdf)
+      - [Example Primitive - Accumulate](../../tree/primitives-document/docs/primitives/accumulate.pdf)
+      - [Example of Algorithm - Rate of Completions](../../tree/primitives-document/docs/algorithm_definitions/rateOfCompletions.pdf)
+
+The [Primitives Documentation Branch](../../tree/primitives-document) is Active and thus subject to change. Please avoid committing directly to this branch. Instead, either open an [Issue](../../issues) or [branch](https://help.github.com/en/articles/about-branches) off of the [Primitives Documentation Branch](../../tree/primitives-document). For more information, see the [Contributing Wiki](../../wiki/Contributing)
+
 ## For Developers: Running the Interactive Workbooks & Testing
 
 ### Interactive Workbooks
