@@ -7,10 +7,20 @@ The current formal specification only defines xAPI statements
 abstractly within the context of Z. A concrete definition for xAPI
 statements is outside the scope of this document.
 
-\subsection{Basic Types}
-$IFI$ ::=$ mbox \,|\, mbox\_sha1sum \,|\, openid \,|\, account$
+\subsection{Basic and Free Types}
+$[MBOX, MBOX\_SHA1SUM, OPENID, ACCOUNT]$
 \begin{itemize}
-\item Type unique to Agents and Groups, The concrete definition of the listed values
+\item Basic Types for the abstract representation of the different forms of Inverse Functional Identifiers found in xAPI
+\end{itemize}
+
+$[CHOICES, SCALE, SOURCE, TARGET, STEPS]$
+\begin{itemize}
+\item Basic Types for the abstract representation of the different forms of Interaction Components found in xAPI
+\end{itemize}
+
+$IFI$ ::=$ MBOX \,|\, MBOX\_SHA1SUM \,|\, OPENID \,|\, ACCOUNT$
+\begin{itemize}
+\item Free Type unique to Agents and Groups, The concrete definition of the listed Basic Types
   is outside the scope of this specification
 \end{itemize}
 $OBJECTTYPE$ ::=$ Agent \,|\, Group \,|\, SubStatement \,|\,
@@ -26,12 +36,12 @@ likert \,|\, numeric \,|\, other$
 \item A type which represents the possible interactionTypes as
   defined within the xAPI specification
 \end{itemize}
-$INTERACTIONCOMPONENT$ ::= $choices \,|\, scale \,|\, source \,|\,
-target \,|\, steps$
+$INTERACTIONCOMPONENT$ ::= $CHOICES \,|\, SCALE \,|\, SOURCE \,|\,
+TARGET \,|\, STEPS$
 \begin{itemize}
 \item A type which represents the possible interaction components as
   defined within the xAPI specification
-\item the concrete definition of the listed values is outside the
+\item the concrete definition of the listed Basic Types is outside the
   scope of this specification
 \end{itemize}
 $CONTEXTTYPES$ ::= $parent \,|\, grouping \,|\, category \,|\, other$
