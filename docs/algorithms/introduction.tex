@@ -105,7 +105,29 @@ such that $\ldata (k_{ni}, v_{ni}) \rdata$ and $\ldata (k_{nj}, v_{nj}) \rdata$ 
 
 \subsubsection{Statement}
 
-Immutable collection of Key Value Pair(s) conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification} as described in the previous section
+Immutable Map conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification} as described in the xAPI Formal Definition section of this document. The imutability of a Statement $s$ is demonstrated by the following
+which indicates that $s$ was not altered when passed to $associate$.
+\begin{axdef}
+  s!, s? : STATEMENT \\
+  k? : K \\
+  v? : V \\
+  \where
+  s! = associate(s?, k?, v?) = s? \implies (k?, v?) \not \in s! \implies s! = s? \\
+\end{axdef}
+ Additionally, given the schema $Statements$ the following is true for all $Statement$(s)
+\begin{axdef}
+  Statements \\
+  Keys : STRING \\
+  S : Collection
+  \where
+  Keys = \{~id, actor, verb, object, result, context, attachments, timestamp, stored\} \\
+  \dom statement = K \dres Keys \\
+  S = \langle ~statement_{i}~..~statement_{n}~..~statement_{j} \rangle @ \\
+  \t1 atKey(statement_{i}, id) \not= atKey(statement_{n}, id) \not= atKey(statement_{j}, id) \implies \\
+  \t1 id_{i} \not= id_{n} \not= id_{j} \iff statement_{i} \not= statement_{n} \not= statement_{j}
+\end{axdef}
+Which confirms the constraints found in the schema $Statement$ and adds an additional constraint
+to $Statements$ such that every unique $Statement$ in a $Collection$ of $Statements$ has a unique $id$.
 
 \subsubsection{Algorithm State}
 
