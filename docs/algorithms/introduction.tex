@@ -359,11 +359,17 @@ The criteria which determines validity of $stmt$ within $A$ is defined by the $b
 
 \subsection{Accept?}
 
-Second process that each $stmt$ passes through such that
-$$relevant? \prec accept? \prec step$$
-resulting in an indication of whether the $stmt$ can be sent to $step$ given the current $state$
-$$accept?(state, stmt) = true \ \lor false$$
-The criteria which determines usability of $stmt$ given $state$` is defined by the $body$ of $accept?$
+Second process that each $stmt$ passes through $\implies relevant? \prec accept? \prec step$
+\begin{schema}{Accept?[KV, STATEMENT]}
+  state? : KV \\
+  stmt? : STATEMENT \\
+  accept? : KV \cross STATEMENT \fun Boolean
+  \where
+  accept?(state?, stmt?) = true ~\lor false
+\end{schema}
+resulting in an indication of whether the $stmt$ can be sent to $step$ given the current $state$.
+The criteria which determines usability of $stmt$ given $state$ is defined by the $body$ of $accept?$
+
 
 \subsubsection{Domain}
 
