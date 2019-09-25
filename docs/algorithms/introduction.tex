@@ -131,11 +131,18 @@ to $Statements$ such that every unique $Statement$ in a $Collection$ of $Stateme
 
 \subsubsection{Algorithm State}
 
-Mutable collection of Key Value Pair(s)
+Mutable Map $state$ without any domain restriction such that
+\begin{axdef}
+  state?, state! : Map \\
+  k? : K \\
+  v? : V
+  \where
+  associate(state?, k?, v?) = state! @ (k, v) \in state! \implies state? \not= state!
+\end{axdef}
 
 \subsubsection{Option}
 
-Collection of Key Value Pair(s) which alter the result of an Algorithm
+Mutable Map $opts$ which is used to alter the result of an Algorithm. The effect of $opts$ on an Algorithm will be discussed in the Algorithm Result section bellow.
 
 \section{Operation}
 
