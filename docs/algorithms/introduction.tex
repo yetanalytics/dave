@@ -384,33 +384,11 @@ The criteria which determines usability of $stmt$ given $state$ is defined by th
 \item Scalar
 \end{itemize}
 
-$\\\\\\$
-
 \subsection{Step}
 
-An Algorithm Step consists of a collection of Primitive(s) and therefore collection(s) of Operation(s)
-
-\begin{figure*}[h]
-  \centering
-  {\includegraphics[scale=0.70]{algorithm-step-flat}}
-\end{figure*}
-$\\$
-which expands to
-
-\begin{figure*}[h]
-  \centering
-  {\includegraphics[scale=0.401]{algorithm-step-expanded}}
-\end{figure*}
-$$ i \leq n \leq j \implies i \prec n \prec j$$
-$$ i_{i} \leq i_{n} \leq i_{j} \leq n_{i} \leq n_{n} \leq n_{j} \leq j_{i} \leq j_{n} \leq j_{j} \implies i_{<i..n..j>} \prec n_{<i..n..j>} \prec j_{<i..n..j>}$$
-$\\$
-where the output of a Primitive is passed as the argument to the next Primitive
-
-\begin{figure*}[h]
-  \centering
-  {\includegraphics[page=1]{algorithm-step-args}}
-\end{figure*}
-$\\$
+An Algorithm Step consists of a sequential composition of Primitive(s) and therefore sequential composition of all Operation(s)
+where the output of a Primitive is passed as the argument to the next Primitive.
+$$p_{i} \comp p_{n} \comp p_{j} \implies o_{ii} \comp o_{in} \comp o_{ij} \comp o_{ni} \comp o_{nn} \comp o_{nj} \comp o_{ji} \comp o_{jn} \comp o_{jj}$$
 The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic Step determines how the Algorithm State changes during iteration through Statement(s) passed as input to the Algorithm.
 
 \subsubsection{Domain}
