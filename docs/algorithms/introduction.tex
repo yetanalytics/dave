@@ -387,8 +387,8 @@ The criteria which determines usability of $stmt$ given $state$ is defined by th
 \subsection{Step}
 
 An Algorithm Step consists of a sequential composition of Primitive(s) and therefore sequential composition of all Operation(s)
-where the output of a Primitive is passed as the argument to the next Primitive.
-$$p_{i} \comp p_{n} \comp p_{j} \implies o_{ii} \comp o_{in} \comp o_{ij} \comp o_{ni} \comp o_{nn} \comp o_{nj} \comp o_{ji} \comp o_{jn} \comp o_{jj}$$
+where the output of a Primitive is passed as an argument to the next Primitive.
+$$p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \implies o_{ii} ~\pipe ~o_{in} ~\pipe ~o_{ij} ~\pipe ~o_{ni} ~\pipe ~o_{nn} ~\pipe ~o_{nj} ~\pipe ~o_{ji} ~\pipe ~o_{jn} ~\pipe ~o_{jj}$$
 The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic Step determines how the Algorithm State changes during iteration through Statement(s) passed as input to the Algorithm.
 
 \subsubsection{Domain}
