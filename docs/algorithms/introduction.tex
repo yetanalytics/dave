@@ -390,6 +390,43 @@ An Algorithm Step consists of a sequential composition of Primitive(s) and there
 where the output of a Primitive is passed as an argument to the next Primitive.
 $$p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \implies o_{ii} ~\pipe ~o_{in} ~\pipe ~o_{ij} ~\pipe ~o_{ni} ~\pipe ~o_{nn} ~\pipe ~o_{nj} ~\pipe ~o_{ji} ~\pipe ~o_{jn} ~\pipe ~o_{jj}$$
 The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic Step determines how the Algorithm State changes during iteration through Statement(s) passed as input to the Algorithm.
+\begin{axdef}
+  P = \langle p_{i}~..~p_{n}~..~p_{j} \rangle @ i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j @ p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \\
+  P' = \langle p_{i'}~..~p_{n'}~..~p_{j'} \rangle @ i' \leq n' \leq j' \implies i' \prec n' \prec j' \iff i' \not= n' \not= j' @ p_{i'} ~\pipe ~p_{n'} ~\pipe ~p_{j'} \\
+  P'' = \langle p_{x}~..~p_{y}~..~p_{z}\rangle @ x \leq y \leq z \implies x \prec y \prec z \iff x \not= y \not= z @ p_{x} ~\pipe ~p_{y} ~\pipe ~p_{z}
+  \where
+  P = P' \iff i \mapsto i' ~\land ~n \mapsto n' ~\land ~j \mapsto j' \\
+  P = P'' \iff (i \mapsto x ~\land n \mapsto y ~\land j \mapsto z) ~\land (p_{i} \equiv p_{x} ~\land p_{n} \equiv p_{y} ~\land p_{j} \equiv p_{z})
+\end{axdef}
+$step$ may or may not update the input Algorithm State given the current Statement from the Collection of Statement(s).
+\begin{axdef}
+  S : Collection \\
+  stmt_{a}, stmt_{b}, stmt_{c} : STATEMENT \\
+  state?, step_{a}!, step_{b}!, step_{c}! : KV \\
+  step : KV \cross STATEMENT \fun KV
+  \where
+  S = \langle stmt_{a}..stmt_{b}..stmt_{c} \rangle @ a \leq b \leq c \implies a \prec b \prec c \iff a \not= b \not= c \\
+  step_{a}! = step(state?, stmt_{a}) @ step_{a}! = state? ~\lor ~step_{a}! \not= state? \\
+  step_{b}! = step(step_{a}!, stmt_{b}) @ step_{b}! = step_{a}! ~\lor ~step_{b}! \not= step_{a}! \\
+  step_{c}! = step(step_{b}!, stmt_{c}) @ step_{c}! = step_{b}! ~\lor ~step_{c}! \not= step_{b}!
+\end{axdef}
+In general, this allows $step$ to be defined as
+\begin{schema}{Step[KV, STATEMENT]}
+  state?, state! : KV \\
+  stmt? : STATEMENT \\
+  step : KV \cross STATEMENT \fun KV
+  \where
+  state! = step~(state?, stmt?) = state? ~\lor \not= state?
+\end{schema}
+A change of $state? \to state! @ state! \not= state?$ can be predicted to occur given
+\begin{itemize}
+\item The definition of individual Operations which constitute a Primitive
+\item The ordering of Operations within a Primitive
+\item The Primitive(s) $p$ chosen for inclusion within $P_{\langle i~..~n~..~j \rangle}$
+\item The ordering of $p \in P_{\langle i~..~n~..~j \rangle}$ which implies the ordering of $o \in p_{\langle i~..~n~..~j \rangle} \in P_{\langle ii~..~ij~..~ni~..~nj~..~ji~..~jj \rangle}$
+\item The key value pair(s) $(K, V) \in stmt$
+\item The ordering of Statement(s) $stmt \in S_{\langle a~..~b~..~c \rangle}$
+\end{itemize}
 
 \subsubsection{Domain}
 
@@ -402,111 +439,6 @@ The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic 
 
 \begin{itemize}
 \item Algorithm State
-\end{itemize}
-
-\subsubsection{Formal Definition}
-
-A collection of Primitive(s)
-
-$$P = <p_{i}..p_{n}..p_{j}> $$
-where
-
-$$i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j$$
-and
-
-$$Z_{i} =p_{i}(Args) \implies O_{ij}(O_{in}(O_{ii}(Args)))$$
-where
-
-$$ii \leq in \leq ij \implies ii \prec in \prec ij \iff ii \not= in \not= ij$$
-such that for each $stmt_{b}$ within a collection of Statement(s) $S$ defined as
-
-$$ S = <stmt_{a}..stmt_{b}..stmt_{c}> $$
-where
-
-$$a \leq b \leq c \implies a \prec b \prec c \iff a \not= b \not= c$$
-$\\\\\\$
-and
-
-$$a \not \mapsto i \ \land b \not \mapsto n \ \land c \not \mapsto j$$
-The output of $step$ given a $stmt_{b}$ and $state_{b}$ is defined as
-
-$$step(state_{b}, stmt_{b}) = p_{j}(p_{n}(Z_{ib}))$$
-where
-
-$$Z_{ib} = p_{i}(Args) \implies p_{i}(state_{b}, stmt_{b}) \implies O_{ij}(O_{in}(O_{ii}(state_{b}, stmt_{b})))$$
-and subsequently
-
-$$Z_{nb} = p_{n}(Z_{ib})$$
-which establishes that
-
-$$Z_{jb} = p_{j}(Z_{nb}) \implies p_{j}(p_{n}(p_{i}(state_{b}, stmt_{b})))$$
-$\\$
-such that for a given $stmt_{b}$, $P_{<i..n..j>}$ will always result in a $Z_{jb}$ but
-
-$$ Z_{ib} = state_{b} \lor state'_{ib} \iff state_{b} \not = state'_{ib}$$
-which means
-
-$$Z_{nb} = p_{n}(state_{b}, stmt_{b}) \lor p_{n}(state'_{ib}, stmt_{b})$$
-$$ \implies$$
-$$Z_{nb} = state_{b} \ \lor state'_{ib} \ \lor state'_{nb}$$
-$$\implies$$
-$$Z_{nb} = Z_{ib} \lor state'_{nb} \ \iff \ state_{b} \not= state'_{ib} \not= state'_{nb} $$
-and concludes with
-$$Z_{jb} = p_{j}(state_{b}, stmt_{b}) \lor p_{j}(state'_{ib}, stmt_{b}) \lor p_{j}(state'_{nb}, stmt_{b})$$
-$$\implies$$
-$$Z_{jb} = state_{b} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb}$$
-$$\implies$$
-$$Z_{jb} = Z_{nb} \lor state'_{jb}
-\ \iff \
-state_{b} \not= state'_{ib} \not= state'_{nb} \not= state'_{jb} $$
-
-$\\\\\\$
-such that
-
-$$Z_{jb} \equiv state'_{b}$$
-$$\implies$$
-$$state'_{b} = state_{b} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb}
-\ \iff \
-state_{b} \not= state'_{ib} \not= state'_{nb} \not= state'_{jb}$$
-$\\$
-the impact being that iteration through all $stmt \in S{<a..b..c>}$ results in a return of $Z_{jc}$ such that
-
-$$Z_{ja} = step(state_{a}, stmt_{a})
-\ \implies \
-state'_{a} \equiv Z_{ja} = state_{a} \lor state'_{ia} \lor state'_{na} \lor state'_{ja} $$
-and
-$$Z_{jb} = step(Z_{ja}, stmt_{b})
-\ \implies \
-state'_{b} \equiv Z_{jb} = Z_{ja} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb} $$
-meaning
-$$Z_{jc} = step(Z_{jb}, stmt_{c})
-\ \implies \
-state'_{c} \equiv Z_{jc} = Z_{jb} \lor state'_{ic} \lor state'_{nc} \lor state'_{jc}$$
-such that each $stmt \in S{<a..b..c>}$ may not result in a mutation of $state$ from $state \to state'$
-$$state'_{c} = Z_{jc}$$
-$$\implies$$
-$$state'_{c} = state_{a} \lor state_{ia} \lor state'_{na} \lor state'_{ja} \lor state'_{ib} \lor state'_{nb} \lor state'_{jb} \lor state'_{ic} \lor state'_{nc} \lor state'_{jc}$$
-$$\implies$$
-$$state'{c} = state_{a} \lor state'{c} \not= state{a}$$
-$\\$
-The no-op scenario described above is only a possibility of $step(state_{a}, stmt \in S_{<a..b..c>})$ but can be predicted to occur given
-\begin{itemize}
-\item The definition of individual Operations $O$ which constitute a Primitive $p$
-  $$Operation(X) = Y \land Operation(X') = Y' \implies Y = Y' \iff X = X'$$
-\item The ordering of $O_{<i..n..j>}$ within $p$
-  $$i \prec n \prec j$$
-\item The Primitive(s) $p$ chosen for inclusion within $P_{<i..n..j>}$
-  $$Z_{i} =p_{i}(Args) \implies O_{ij}(O_{in}(O_{ii}(Args)))$$
-  $$Z_{j} =p_{j}(Args) \implies O_{jj}(O_{jn}(O_{ji}(Args)))$$
-  $$\forall Args \ \exists \ Z_{i} = Z_{j} \iff O_{ij}(O_{in}(O_{ii}(Args))) \equiv O_{jj}(O_{jn}(O_{ji}(Args)))$$
-  $$<p_{i}, p_{j}> \equiv <p_{j}, p_{i}> \iff Z_{i} = Z_{j}$$
-\item The ordering of $p \in P_{i..n..j}$ which implies the ordering of $O \in p_{<i..n..j>} \in P_{<ii..ij..ni..nj..ji..jj>}$
-  $$i \prec n \prec j \implies ii \prec in \prec ij \implies ii \prec ij \prec ni \prec nj \prec ji \prec jj$$
-  $$P_{i..n..j} = P_{x..y..z} \implies <p_{i}, p_{n}, p_{j}> \equiv <p_{x}, p_{y}, p_{z}> \iff p_{i} \equiv p_{x} \ \land \ p_{n} \equiv p_{y} \ \land \ p_{j} \ \equiv p_{z}$$
-  $$\implies$$
-  $$P_{i..n..j} = P_{x..y..z} \iff i \mapsto x \ \land \ n \mapsto y \ \land \ j \mapsto z \ \land \ Z_{i} = Z_{x} \ \land \ Z_{n} = Z_{y} \ \land \ Z_{j} = Z_{z}$$
-\item The Key Value pair(s) $kv \in$ $stmt$ $\in S_{<a..b..c>}$
-\item The ordering of Statement(s) $stmt \in S_{<a..b..c>}$ such that $a \prec b \prec c$
 \end{itemize}
 
 \subsection{Result}
