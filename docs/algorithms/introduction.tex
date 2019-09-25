@@ -287,13 +287,10 @@ with each process within $A$ is enumerated as
 \item $statement$ is a single statement within the collection of statements passed as input data to the Algorithm $A$
 \item $opt$ are additional arguments passed to the algorithm $A$ which impact the return value of the algorithm and synonymous with Option
 \end{itemize}
-Such that the execution of A can be described visually but not exhaustively as
-\begin{figure*}[h]
-  \centering
-  {\includegraphics[scale=0.379]{algorithm-tree}}
-\end{figure*}
-$\\\\$
-
+Such that the execution of A can be described as
+\begin{zed}
+  Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
+\end{zed}
 \subsection{Domain}
 Any of the following
 
