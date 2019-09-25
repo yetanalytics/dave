@@ -11,8 +11,16 @@ Within this document, (s) indicates one or more.
 When talking about some $x \in X$ at some index within a range $i~..~n~..~j$, the notation $i_{x} ~\lor ~n_{x}, ~\lor ~j_{x}$ may be used in cases where it is a more concise version of an equivalant expression.
 
 \subsubsection{Scalar}
-
-Singular value $x$ of a fundamental JSON type as described by \href{https://json-schema.org/understanding-json-schema/reference/type.html}{JSON Schema}
+When working with xAPI data, Statements are written using \href{https://www.json.org/}{JavaScript Object Notation} (JSON).
+This data model supports a few fundamental types as described by \href{https://json-schema.org/understanding-json-schema/reference/type.html}{JSON Schema}.
+In order to speak about a singular valid JSON value (string, number, boolean, null) generically, the term Scalar is used.
+To talk about a scalar within a Z Schema, the following free and basic types are introduced.
+\begin{zed}
+  [STRING, NULL] \\
+  Boolean :== true ~| ~false \\
+  Scalar :== Boolean ~| ~STRING ~| ~NULL ~| ~\num
+\end{zed}
+Arrays and Objects are also valid JSON values but will be referenced using the terms Collection and Map respectively.
 
 \subsubsection{Collection}
 
