@@ -23,11 +23,20 @@ To talk about a scalar within a Z Schema, the following free and basic types are
 Arrays and Objects are also valid JSON values but will be referenced using the terms Collection and Map respectively.
 
 \subsubsection{Collection}
-
-a n-tuple of items $x$ such that
-$$X = <x_{i}..x_{n}..x_{j}>$$
-where
-$$i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j$$
+a sequence $\langle ... \rangle$ of items $c$ such that
+\begin{axdef}
+  C = \langle c_{i}..c_{n}..c_{j} \rangle \implies \{~i \mapsto c_{i}, n \mapsto c_{n}, j \mapsto c_{j} \}
+  \where
+  i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j
+\end{axdef}
+And the following free type is introducted for collections
+\begin{argue}
+  Collection :== emptyColl ~| ~append \ldata Collection \cross Scalar ~\lor Collection ~\lor Map \cross \nat \rdata \\
+  \t1 emptyColl & the empty Collection $\langle  \rangle$ \\
+  \t1 append & is a constructor and is infered to be an injection \\
+  \t1 Map & a free type introduced bellow \\
+  append(emptyColl, c?, 0) = \langle c_{0} \rangle \implies \{~0 \mapsto c?\}
+\end{argue}
 
 \subsubsection{Key}
 
