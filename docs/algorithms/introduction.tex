@@ -333,10 +333,15 @@ This functionality is dependent upon the $body$ of an Algorithms $init$
 
 \subsection{Relevant?}
 
-First process that each $stmt$ passes through such that
-$$relevant? \prec accept? \prec step$$
-resulting in an indication of whether the $stmt$ is valid for use within algorithm $A$
-$$relevant?(state, stmt) = true \ \lor false$$
+First process that each $stmt$ passes through $\implies relevant? \prec accept? \prec step$
+\begin{schema}{Relevant?[KV, STATEMENT]}
+  state? : KV \\
+  stmt? : STATEMENT \\
+  relevant? : KV \cross STATEMENT \fun Boolean
+  \where
+  relevant?(state?, stmt?) = true ~\lor false
+\end{schema}
+resulting in an indication of whether the $stmt$ is valid within algorithm $A$.
 The criteria which determines validity of $stmt$ within $A$ is defined by the $body$ of $relevant?$
 
 \subsubsection{Domain}
@@ -349,7 +354,7 @@ The criteria which determines validity of $stmt$ within $A$ is defined by the $b
 \subsubsection{Range}
 
 \begin{itemize}
-\item Scalar
+\item Boolean
 \end{itemize}
 
 \subsection{Accept?}
