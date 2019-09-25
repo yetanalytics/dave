@@ -91,8 +91,8 @@ as seen on page 115. Additionally, $\iseq$ is used to describe a sequence whose 
 
 \subsection{Bags}
 A collection of elements where the number of times an element appears in the collection is meaningful.
-$$\lbag a_{1},...,a_{n} \rbag \implies \{a_{1} \mapsto c_{1},...,a_{n} \mapsto c_{n}\}$$
-As described on page 124 (replacing $c$ with $k$), each element $a_{i}$ appears $c_{i}$ times in the list $a_{1},...,a_{n}$
+$$\lbag a_{1},...,a_{n} \rbag \implies \{a_{1} \mapsto k_{1},...,k_{n} \mapsto k_{n}\}$$
+As described on page 124, each element $a_{i}$ appears $k_{i}$ times in the list $a_{1},...,a_{n}$
 such that the number of occurances of $a_{i}$ within bag $A$ is returned by
 $$count ~A ~a_{i} \ \equiv A ~\# ~a_{i}$$
 
@@ -117,7 +117,7 @@ The enumeration of a $map$ was chosen to be $\ldata ... \rdata$ as a $map$ is a 
 such that if $M$ is the result of $associate(base, x_{i}, y_{i})$ from above then
 $$atKey(M, x_{i}) = y_{i} \iff x_{i} \mapsto y_{i} ~\land (x_{i}, y_{i}) \in M$$
 
-\subsection{Select Operations}
+\subsection{Select Operations and Symbols}
 The follow are defined in Chpater 4 (The Mathematical Tool-kit) within the reference manual
 and are used extensively throughout this document. In many cases, the functions listed here
 will serve as Operations in the context of Primitives and Algorithms.
