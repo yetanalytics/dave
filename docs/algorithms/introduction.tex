@@ -55,21 +55,53 @@ The following free type is introduced for values.
   V ::= Scalar ~| ~Collection ~| ~Map
 \end{zed}
 
-Association between a $k$ and $v$ where
-$$k \mapsto v$$
-such that
-$$kv = k \mapsto v$$
-$\\$
-and a collection of Key Value pair(s) is defined as
-$$KV = <kv_{i}..kv_{n}..kv_{j}>$$
-such that
-$$ k_{n} \mapsto v_{n}$$
-and all $k$ within $KV$ are unique
-$$i_{k} \not= n_{k} \not= j_{k} $$
-but the same is not true for all $v$ within $KV$
-$$i_{v} = n_{v} \lor i_{v} \not= n_{v} \
-i_{v} = j_{v} \lor i_{v} \not= j_{v} \
-j_{v} = n_{v} \lor j_{v} \not= n_{v}$$
+\subsubsection{Map}
+Within the Z Notation Introduction section, Maps are introduced using the free type $KV$.
+\begin{zed}
+  KV ::= base ~| ~associate \ldata~KV \cross X \cross Y \rdata
+\end{zed}
+This definition is more accurately
+\begin{zed}
+  KV ::= base ~| ~associate \ldata~KV \cross K \cross V \rdata
+\end{zed}
+which indicates the usage of Key $k$ and Value $v$ within $associate$. Using this updated definition,
+\begin{zed}
+  associate(base, k, v) = \ldata (k, v) \rdata
+\end{zed}
+such that a Map is a Collection of ordered pairs $(k_{n}, v_{n})$ and thus a Collection of mappings
+\begin{zed}
+  (k_{n}, v_{n}) \implies k_{n} \mapsto v_{n}
+\end{zed}
+but Maps are special cases of Collections as $k_{n}$ is the unique identifier of $v_{n}$ within a Map
+but the opposite is not true. In fact, keys are their own identifiers
+\begin{zed}
+  \id v_{n} = k_{n} \\
+  \id k_{n} \not= v_{n} \\
+  \id k_{n} = k_{n}
+\end{zed}
+Given a Map $M = \ldata (k_{i}, v_{i})~..~(k_{n}, v_{n})~..~(k_{j}, v_{j}) \rdata$ the following demonstrates the uniqueness of Keys
+but the same is not true for all $v$ within $M$
+\begin{zed}
+  i_{k} \not= n_{k} \not= j_{k} \\
+  i_{v} = n_{v} \lor i_{v} \not= n_{v} \
+  i_{v} = j_{v} \lor i_{v} \not= j_{v} \
+  j_{v} = n_{v} \lor j_{v} \not= n_{v}
+\end{zed}
+which can all be stated formally as
+\begin{gendef}[K, V]
+  Map : K \cross V \bij KV
+  \where
+  Map = \ldata (k_{i}, v_{i})~..~(k_{n}, v_{n})~..~(k_{j}, v_{j}) \rdata @ \\
+  \t1 \dom Map = \{~ k_{i}~..~k_{n}~..~k_{j}\} \\
+  \t1 \ran Map = \{~v_{i}~..~v_{n}~..~v_{j}\} \\
+  \t1 first(k_{i}, v_{i}) \not= first(k_{n}, v_{n}) \not= first (k_{j}, v_{j}) ~\land \\
+  \t1 i_{v} = n_{v} \lor i_{v} \not= n_{v} \ i_{v} = j_{v} \lor i_{v} \not= j_{v} \ j_{v} = n_{v} \lor j_{v} \not= n_{v} ~\land \\
+  \t1 \id ~v_{i} = k_{i} ~\land \id ~v_{n} = k_{n} ~\land \id ~v_{j} = k_{j} ~\land \\
+  \t1 \id ~k_{i} = k_{i} ~\land \id ~k_{n} = k_{n} ~\land \id k_{j} = k_{j}
+\end{gendef}
+Given that $v$ can be a Map $M$, or a Collection $C$, Arbitrary nesting is allowed within Maps but the properties of a Map hold at any depth.
+$$M = \ldata (k_{i}, v_{i})~..~(k_{n}, \ldata (k_{ni}, v_{ni}) \rdata)~..(k_{j}, \langle v_{ji}~..~\ldata (k_{jn}, v_{jn}) \rdata~..~\langle v_{jji}~..~v_{jjn}~..~v_{jjj}\rangle\rangle) \rdata$$
+such that $\ldata (k_{ni}, v_{ni}) \rdata$ and $\ldata (k_{nj}, v_{nj}) \rdata$ are both Maps and adhere to the constraints enumerated above.
 
 \subsubsection{Statement}
 
