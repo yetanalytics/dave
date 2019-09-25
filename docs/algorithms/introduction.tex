@@ -307,19 +307,17 @@ An Algorithm will return an Algorithm State.
 
 \subsection{Initialization}
 
-First process to run within an Algorithm which returns the starting Algorithm State $state_{0}$
+First process to run within an Algorithm which returns the Algorithm State for the current iteration.
 
-$$ init() = init(state) \lor init() \not= init(state)$$
-where $state_{0}$ does not need to be related to its arguments
-
-$$init() \to state_{0}$$
-but $state_{0}$ can be derived from some other $state$ passed as an argument to $init$
-
-$$init(state) \to state'_{0}$$
-such that
-
-$$state_{0} \not= state'_{0} $$
-but this functionality is dependent upon the $body$ of an Algorithms' $init$
+\begin{schema}{Init[KV]}
+  state?, state! : KV \\
+  init: KV \fun KV
+  \where
+  state! = init(state?) @ state! = state? ~\lor ~state! \not = state?
+\end{schema}
+such that some $state!$ does not need to be related to its arguments $state?$
+but $state!$ could be derived from some seed $state?$.
+This functionality is dependent upon the $body$ of an Algorithms $init$
 
 \subsubsection{Domain}
 
