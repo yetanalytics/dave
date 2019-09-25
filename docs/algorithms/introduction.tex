@@ -146,49 +146,57 @@ Mutable Map $opts$ which is used to alter the result of an Algorithm. The effect
 
 \section{Operation}
 
-Given an input X, an Operation produces output Y
-\begin{figure*}[h]
-  \centering
-  {\includegraphics[page=1]{operation-x}}
-\end{figure*}
-
-$\\$
-If X changes to X' then the Operation results in Y' instead of Y
-\begin{figure*}[h]
-  \centering
-  {\includegraphics[page=1]{operation-x-prime}}
-\end{figure*}
+An Operation is a function of arbitrary arguments and is defined using Z. For example, Operations pulled directly from "The Z Notation: A Reference Manual" include
+\begin{itemize}
+\item $first$
+\item $second$
+\item $succ$
+\item $\min$
+\item $\max$
+\item $count \equiv \#$
+\item $\cat$
+\item $rev$
+\item $head$
+\item $last$
+\item $tail$
+\item $front$
+\item $\extract$
+\item $\filter$
+\item $\dcat$
+\item $\disjoint$
+\item $\partition$
+\item $\otimes$
+\item $\uplus$
+\item $\uminus$
+\item $items$
+\end{itemize}
 
 \subsection{Domain}
-
-Any of the following
+The arguments passed to an Operation can be any of the following but the definition of an Operation may limit the domain to a subset of the following
 \begin{itemize}
 \item Key(s)
 \item Value(s)
-\item Key Value pair(s)
+\item Set(s)
+\item Collection(s)
+\item Bag(s)
+\item Map(s)
 \item Statement(s)
 \item Algorithm State
 \end{itemize}
 
 \subsection{Range}
-
-Any of the following dependent upon the Domain and Functionality of the Operation
+The result of an Operation can be any of the following but the definition of an Operation may limit this range to a subset of the following
 
 \begin{itemize}
 \item Key(s)
 \item Value(s)
-\item Key Value pair(s)
+\item Set(s)
+\item Collection(s)
+\item Bag(s)
+\item Map(s)
 \item Statement(s)
 \item Algorithm State
 \end{itemize}
-
-\subsection{Formal Definition}
-
-A relationship between input and output data which will result in the same $Y$ given the same $X$
-
-$$Operation(X) = Y \land \ Operation(X') = Y'$$
-$$\implies$$
-$$Y = Y' \iff X = X'  \land Y \not= Y' \iff X \not= X'$$
 
 \section{Primitive}
 A collection of Operations where the output of an Operation is passed as the argument to the next Operation
