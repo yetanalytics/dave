@@ -278,15 +278,14 @@ with each process within $A$ is enumerated as
    - return without option(s) provided
    - possibly sets default option(s)
 
-  (result [state opts] body)
+  (result [state opt] body)
    - return with consideration to option(s)
 \end{lstlisting}
-where
 \begin{itemize}
-\item $body$ is a collection of Primitive(s) $P$ which establishes the processing of inputs $\to$ outputs
-\item $state$ is a mutable collection of key value pair(s) $KV$ and synonymous with Algorithm State
-\item $statement$ is a single statement $s$ within the collection of statements $S$ passed as input data to the Algorithm $A$
-\item $opts$ are additional arguments passed to the algorithm $A$ which impact the return value of the algorithm
+\item $body$ is a collection of Primitive(s) which establishes the processing of inputs $\to$ outputs
+\item $state$ is a mutable Map of type $KV$ and synonymous with Algorithm State
+\item $statement$ is a single statement within the collection of statements passed as input data to the Algorithm $A$
+\item $opt$ are additional arguments passed to the algorithm $A$ which impact the return value of the algorithm and synonymous with Option
 \end{itemize}
 Such that the execution of A can be described visually but not exhaustively as
 \begin{figure*}[h]
