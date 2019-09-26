@@ -443,38 +443,48 @@ A change of $state? \to state! @ state! \not= state?$ can be predicted to occur 
 
 \subsection{Result}
 
-Last process to run within an Algorithm which returns the Algorithm State $state$ without preventing subsequent call of $A$
-$$relevant? \prec accept? \prec step \prec result \prec relevant? \iff S \not= \emptyset$$
-$$\implies$$
-$$relevant? \prec accept? \prec step \prec result \iff S = \emptyset$$
-$\\$
-such that if $S(t_{n}) = \emptyset$ and at some future point $j$ within the timeline $i..n..j$ this is no longer true $S(t_{j}) \not= \emptyset$ then
-$$A(state_{n-1}, \ S(t_{n - 1})) = state_{n} = A(init(), \ S(t_{n - i})) \iff A(state_{n},\ S(t_{n})) = state_{n}$$
-$\\$
-such that the statement(s) added to $S$ between $t_{i}$  and $t_{n}$ is
-$$S(t_{n - i})$$
-and the statement(s) added to $S$ between $t_{n}$  and $t_{j}$ be
-$$S(t_{j - n})$$
-such that
-$$ S(t_{n - i}) \ \cup \ S(t_{j - n}) = S(t_{j - i})$$
-which means
-$$ A(init(), \  S(t_{j - i})) = state_{j}$$
-and establishes that $A$ can pick up from a previous $state_{n}$ without losing track of its own history.
-$$A(result(state_{n}), \ S(t_{j-n})) = A(init(),\ S(t_{j - i})) = state_{j}$$
-$$\iff$$
-$$result(state_{n}) = A(init(),\ S(t_{n - i})) = state_{n}$$
-$\\$
-Which makes $A$ capable of taking in some $S_{<i..n..j..\infty>}$ as not all $s \in S_{<i..\infty>}$ have to be considered at once. In other words, the input data does not need to persist across the history of $A$, only the effect of $s$ on $state$ must be persisted.
-$\\\\$
-Additionally, the effect of $opts$ is determined by the $body$ within $result$ such that
-$$A(result(state_{n}), \ S(t_{j-n}), \ opts)$$
-$$\equiv$$
-$$A(init(),\ S(t_{j - i}))$$
-$$\equiv$$
-$$A(init(),\ S(t_{j - i}), \ opts)$$
-$$\equiv$$
-$$A(result(state_{n}), \ S(t_{j-n}))$$
-Which implies that $opts$ may have an effect on $state$ but not in a way which prevents backwards compatibility of $state$
+Last process to run within an Algorithm which returns the Algorithm State $state$
+when all $s \in S$ have been processed by $step$
+
+\begin{zed}
+  relevant? \prec accept? \prec step \prec result \prec relevant? \iff S \not= \emptyset \\
+  relevant? \prec accept? \prec step \prec result \iff S = \emptyset
+\end{zed}
+and does so without preventing subsequent calls of $A$
+\begin{schema}{result[KV, KV]}
+  result!, state?, opt? : KV \\
+  result : KV \cross KV \fun KV
+  \where
+  result! = result(state?, opt?) = state? ~\lor \not = state?
+\end{schema}
+such that if at some future point $j$ within the timeline $i~..~n~..~j$
+\begin{argue}
+  S(t_{n}) = \emptyset & S is empty at $t_{n}$ \\
+  S(t_{j}) \not= \emptyset & S is not empty at $t_{j}$ \\
+  S(t_{n - i}) & stmts(s) added to $S$ between $t_{i}$  and $t_{n}$ \\
+  S(t_{j - n}) & stmts(s) added to $S$ between $t_{n}$  and $t_{j}$ \\
+  S(t_{j - i}) = S(t_{n - i}) \ \cup \ S(t_{j - n}) & stmts(s) added to $S$ between $t_{i}$ and $t_{j}$
+\end{argue}
+Algorithm $A$ can pick up from a previous $state_{n}$ without losing track of its own history.
+\begin{axdef}
+  state_{n-i} = A(state_{i},\ S(t_{n - i})) \\
+  state_{n-1} = A(state_{n-2}, \ S(t_{n - 1})) \\
+  state_{n} = A(state_{n-1},\ S(t_{n})) \\
+  state_{j-n} = A(state_{n}, \ S(t_{j-n})) \\
+  state_{j} = A(state_{i},\ S(t_{j - i}))
+  \where
+  state_{n} = state_{n-1} \iff S(t_{n}) = \emptyset ~\land S(t_{n-1}) \not = \emptyset \\
+  state_{j} = state_{j-n} \iff state_{n-i} = state_{n} = state_{n-1}
+\end{axdef}
+Which makes $A$ capable of taking in some $S_{\langle i..n..j..\infty \rangle}$ as not all $s \in S_{\langle i..\infty \rangle}$ have to be considered at once. In other words, the input data does not need to persist across the history of $A$, only the effect of $s$ on $state$ must be persisted.
+Additionally, the effect of $opt$ is determined by the $body$ within $result$ such that
+\begin{zed}
+  A(state_{n}, \ S(t_{j-n}), \ opt) \\
+  \t1 \equiv A(state_{i}\ S(t_{j - i})) \\
+  \t1 \equiv A(state_{i},\ S(t_{j - i}), \ opt) \\
+  \t1 \equiv A(state_{n}, \ S(t_{j-n}))
+\end{zed}
+implying that the effect of $opt$ doesn't prevent backwards compatibility of $state$.
 
 \subsubsection{Domain}
 
