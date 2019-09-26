@@ -555,11 +555,8 @@ to illustrate how an Algorithm processes a Collection of Statement(s)
   \t5 \ \ ~~passon_{s'} = algorithmIter(state_{s}, tail(S?), opt?) \implies (state_{s'}, tail(tail(S?))) \\
   \t5 \ \ ~~passon_{s''} = algorithmIter(first(passon_{s'}), second(passon_{s'}), opt?)\\
 \end{schema}
-The above schema introduces the $algorithmIter$ function to represent the lifecycle per statement $s \in S$
-which illustrates when processing has finished for the current $s$ and the next iteration of $algorithmIter$ can start.
-This results in $algorithm$ being defined as an iteration of $algorithmIter$ over $S$ such that there is a
+The above introduces $algorithmIter$ to describe the processing per $s \in S$ which results in $algorithm$
+being an iteration of $algorithmIter$ over $S$. This means there is a
 $passon_{s}$ for all $s \in S$ and the result of $algorithm(state, S, opt)$ is
-\begin{zed}
-  first(algorithmIter(state, S, opt) \bsup \# S \esup) \implies first(passon_{result}) \iff second(passon_{result}) = \emptyset
-\end{zed}
+$$first(algorithmIter(state, S, opt) \bsup \# S \esup) \implies first(passon_{result}) \iff second(passon_{result}) = \emptyset$$
 \end{document}
