@@ -499,4 +499,67 @@ implying that the effect of $opt$ doesn't prevent backwards compatibility of $st
 \item Algorithm State
 \end{itemize}
 
+\subsection{Algorithm Formal Definition}
+Given the definitions of Algorithm Components presented above, the previous definition of an Algorithm $A$
+\begin{zed}
+  Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
+\end{zed}
+can be refined using the helper function $recur$
+\begin{schema}{recur[KV, Collection]}
+  state?, state! : KV \\
+  S?, S! : Collection \\
+  recur! : (KV, COllection) \\
+  recur : KV \cross Collection \fun KV \cross Collection
+  \where
+  recur! = recur(state?, S?) \implies (state!, S!) @ \\
+  \t1 state? = state! ~\land ~S! = tail(S?)
+\end{schema}
+to illustrate how an Algorithm processes a Collection of Statement(s)
+\begin{schema}{Algorithm[KV, Collection]}
+  Init[KV] \\
+  Relevant?[KV, STATEMENT] \\
+  Accept?[KV, STATEMENT] \\
+  Step[KV, STATEMENT] \\
+  result[KV, KV] \\
+  recur[KV, Collection] \\
+  opt?, state?, state_{s}!, state_{S}! : KV \\
+  S? : Collection @ \forall s? \in S? ~| ~s? : STATEMENT \\
+  algorithmIter : KV \cross Collection \cross KV \fun KV \cross Collection \\
+  algorithm : KV \cross Collection \cross KV \fun KV
+  \where
+  state_{s}! = algorithmIter(state?, S?, opt?) @ \\
+  \t1 let \ \ ~ s_{current} == head(S?) \\
+  \t2 init! == init(state?) \\
+  \t2 relevant! == relevant?(init!, s_{current}) \\
+  \t2 passon_{relevant}? == recur(init!, S?) \iff relevant! = false \\
+  \t2 accept! == accept?(init!, s_{current}) \iff relevant! = true \\
+  \t2 passon_{accept}? == recur(init!, S?) \iff accept! = false \\
+  \t2 step! == step(init!, s_{current}) \iff accept! = true \\
+  \t2 passon_{step}? == recur(step!, S?) \iff tail(S?) \not = \emptyset \\
+  \t2 result! == result(step!, opt?) \iff tail(S?) = \emptyset\\
+  \t2 passon_{result}? == recur(result!, S?) \\
+  \t2 passon_{s}? == passon_{relevant}? \iff relevant! = false ~\lor \\
+  \t4 \ \ \ \ ~~~passon_{accept}? \iff accept! = false ~\lor \\
+  \t4 \ \ \ \ ~~~passon_{step}? \iff relevant! = true ~\land ~ accept! = true ~\land ~tail(S?) \not = \emptyset \\
+  \t4 \ \ \ \ ~~~passon_{result}? \iff relevant! = true ~\land ~ accept! = true ~\land ~tail(S?) = \emptyset \\
+  \t4 \ \ \ \ \ \  ~~\implies ~ = init! ~\comp ~relevant! ~\lor \\
+  \t5 \ \ \ \ ~ = init! ~\comp ~relevant! ~\comp ~accept! ~\lor \\
+  \t5 \ \ \ \ ~ = init! ~\comp ~relevant! ~\comp ~accept! ~\comp ~step! ~\lor \\
+  \t5 \ \ \ \ ~ = init! ~\comp ~relevant! ~\comp ~accept! ~\comp ~step! ~\comp ~result! \\
+  \t1 \ \ \ ~ = passon_{s}? \implies (first(passon_{relevant}? ~\lor ~ passon_{accept}? ~\lor ~passon_{step} ~\lor passon_{result}), tail(S?)) \\
+  state_{S}! = algorithm(state?, S?, opt?) \\
+  \t1 \ \ \ ~ = first(algorithmIter(state?, S?, opt?) \bsup \# S? \esup) @ \\
+  \t3 \forall ~s? \in S? ~\exists_1 ~passon_{s} : KV \cross Collection @ \\
+  \t4 passon_{s} = algorithmIter(state?, S?, opt?) @ \\
+  \t5 let ~(state_{s} == first(passon_{s})) @ \\
+  \t5 \ \ ~~passon_{s'} = algorithmIter(state_{s}, tail(S?), opt?) \implies (state_{s'}, tail(tail(S?))) \\
+  \t5 \ \ ~~passon_{s''} = algorithmIter(first(passon_{s'}), second(passon_{s'}), opt?)\\
+\end{schema}
+The above schema introduces the $algorithmIter$ function to represent the lifecycle per statement $s \in S$
+which illustrates when processing has finished for the current $s$ and the next iteration of $algorithmIter$ can start.
+This results in $algorithm$ being defined as an iteration of $algorithmIter$ over $S$ such that there is a
+$passon_{s}$ for all $s \in S$ and the result of $algorithm(state, S, opt)$ is
+\begin{zed}
+  first(algorithmIter(state, S, opt) \bsup \# S \esup) \implies first(passon_{result}) \iff second(passon_{result}) = \emptyset
+\end{zed}
 \end{document}
