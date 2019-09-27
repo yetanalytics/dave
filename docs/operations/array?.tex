@@ -3,35 +3,30 @@
 \subsubsection{Array?}
 
 The operation $array?$ will return a boolean which indicates if the passed in argument is a Collection
-$$array?(Arg) = true \lor false$$
-such that if $X$ is a collection $<x_{0}, x_{1}, x_{2}, x_{3}, x_{4}>$
-where
-$$x_{0} = 0$$
-$$x_{1} = foo$$
-$$x_{2} = <baz, \ qux>$$
-$$x_{3} = <abc \mapsto 123, \ def \mapsto 456>$$
-$$x_{4} = <<ghi \mapsto 789, \ jkl \mapsto 101112>, \ <ghi \mapsto 131415, \ jkl \mapsto 161718>>$$
-then the following return true
-$$array?(X) = true$$
-$$array?(x_{2}) = true$$
-$$array?(x_{4}) = true$$
-and the following return false
-$$array?(x_{0}) = false$$
-$$array?(x_{1}) = false$$
-$$array?(x_{3}) = false$$
-Indicating that $array?$ will return true when
-\begin{itemize}
- \item $Arg$ is a Collection or Scalar(s)
-\end{itemize}
-but will return false when
-\begin{itemize}
- \item $Arg$ is a non-array Scalar
-\end{itemize}
-which emphasises the difference between
-\begin{itemize}
-\item an $object$
-  $$x_{3} = <abc \mapsto 123, \ def \mapsto 456> = KV$$
-\item a Collection of $object$(s)
-  $$x_{4} = <<ghi \mapsto 789, \ jkl \mapsto 101112>, \ <ghi \mapsto 131415, \ jkl \mapsto 161718>> = <KV_{0}, KV_{1}>$$
-\end{itemize}
+\begin{schema}{Array?[V]}
+  coll? : V \\
+  bol! : Boolean \\
+  array? : V \fun Boolean
+  \where
+  bol! = array?(coll?) @ bol! = true \iff coll? : Collection \implies V \hide (Scalar, Map)
+\end{schema}
+where $V \hide (Sccalar, Map)$ is used to indicate that $coll?$ is of type $V$
+\begin{zed}
+  V ::= Scalar ~| ~Collection ~| ~Map
+\end{zed}
+but in order for $bol! = true$, $coll?$ must not be of type $Scalar ~\lor Map$ such that
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2}, x_{3}, x_{4} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle baz, \ qux \rangle \\
+  \t1 x_{3} = \ldata abc \mapsto 123, \ def \mapsto 456 \rdata \\
+  \t1 x_{4} = \langle \ldata ghi \mapsto 789, \ jkl \mapsto 101112 \rdata, \ \ldata ghi \mapsto 131415, \ jkl \mapsto 161718 \rdata \rangle \\
+  array?(X) = true & collection by definition\\
+  array?(x_{2}) = true & collection of $0 \mapsto baz$, $1 \mapsto qux$\\
+  array?(x_{4}) = true & collection of maps\\
+  array?(x_{0}) = false & Scalar \\
+  array?(x_{1}) = false & String \\
+  array?(x_{3}) = false & Map
+\end{argue}
 \end{document}

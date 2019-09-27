@@ -3,15 +3,30 @@
 \subsubsection{Append}
 
 The operation $append$ will return a Collection with a Value added at a specified numeric Index.
-$$append(coll, v, idx) \to X'$$
-such that if $X$ is a collection $<x_{0}, x_{1}, x_{2}>$
-where
-$$x_{0} = 0$$
-$$x_{1} = foo$$
-$$x_{2} = <a, b, c>$$
-then the $v$ will be added to $X$ to create $X'$
-$$append(X, bar, 0) = <bar, 0, foo, <a, b, c> > = X'$$
-$$append(X, bar, 1) = <0, bar, foo, <a, b, c> > = X'$$
-$$append(X, bar, 2) = <0, foo, bar, <a, b, c> > = X'$$
-$$append(X, bar, 3) = <0, foo, <a, b, c> , bar > = X'$$
+\begin{schema}{append[Collection, V, \nat_1]}
+  coll?, coll! : Collection \\
+  v? : V \\
+  idx? : \nat_1 \\
+  append : Collection \cross V \cross \nat_1 \fun Collection
+  \where
+  coll! = append(coll?, v?, idx?) @ \\
+  \t1 let ~ ~ coll' == front(\{~ i : \nat_1 ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
+  \t1 \ \ \ ~~~ coll'' == \{~ j : \nat_1 ~| ~ j \in idx?~..~\#~coll?\} \extract coll? @ \\
+  \t1 = coll' \cat coll'' \implies front(coll') \cat v? \cat coll'' ~ \land ~ v? \mapsto idx? \in coll! ~\land ~\#~ coll! = \#~ coll? + 1
+\end{schema}
+where $coll'$ is the items in $coll?$ up to $idx$ but the value at $idx?$ is replaced with $v?$ and
+$coll''$ is the items in $coll?$ from $idx$ to $\#~coll?$ and is inclusive of $coll?_{idx?}$. The
+composition of the two Collections results in $coll!$ which contains $idx? \mapsto v?$ and all subsquent
+$idx \mapsto v \in coll?$ are now $idx+1 \mapsto v_{idx}$. The following example illustrates these properties.
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  \t1 v? = bar \\
+  append(X, v?, 0) = \langle bar, 0, foo, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 1) = \langle 0, bar, foo, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 2) = \langle 0, foo, bar, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 3) = \langle 0, foo, \langle a, b, c \rangle, bar \rangle
+\end{argue}
 \end{document}
