@@ -1,0 +1,50 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Associate}
+The operation $associate$ establishes a relationship between $k?$ and $v?$ at the top level of $m!$.
+\begin{schema}{Associate[KV, K, V]}
+  m?, m!, m' : KV \\
+  k? : K \\
+  v? : V \\
+  associate : KV \cross K \cross V \bij KV\
+  \where
+  m! = associate(m?, k?, v?) @ \\
+  \t1 let ~~ m' == m? ~\ndres ~k? \implies \\
+  \t3 (\dom ~m' = \dom ~(~m? \setminus ~k?)) ~\land \\
+  \t3 (~m? \setminus ~m' = k? \iff k? \in m?) ~\land \\
+  \t3 (~m? \setminus ~m' = \emptyset \iff k? \not \in m? \implies m? = m')\\
+   \ \ \ ~ = \ldata k? \mapsto v? \rdata ~\union ~m'
+\end{schema}
+This implies that any existing mapping at $k? \in m?$ will be overwritten by $associate$
+but an existing mapping is not a precondition.
+\begin{axdef}
+  (k?, m?_{k?}) \in m? ~\lor ~(k?, m?_{k?}) \not \in m? \\
+  (k?, m?_{k?}) \not \in m! \\
+  (k?, v?) \in m!
+  \where
+  m! = associate(m?, k?, v?)
+\end{axdef}
+$associate$ does not alter any other mappings within $m?$ and this property is illustrated by the definition of local variable $m'$
+\begin{axdef}
+  m' : KV ~ | ~ m' = m? \ndres ~k? \implies m' \dres (m? \setminus ~k?)
+  \where
+  \dom ~m? = \{~ k_{i} : K ~|~ 0~..~\# ~m? @ k_{i} \in m? ~\land ~~0 ~\leq ~i ~\leq ~\# ~m?\} \\
+  \dom ~m' = \{~ k'_{i} : K ~|~ 0~..~\# ~m' @ k'_{i} \in m? ~\land ~k'_{i} \not = k? ~\land ~~0 ~\leq ~i ~\leq ~\# ~m'\} \\
+  \dom ~m' = \dom ~m? \iff k? \not \in m? \implies \forall k_{i} \in m? ~|~ k_{i} \not = k? \\
+  \# ~m' = \# ~m? \iff k? \not \in m? \\
+  \# ~m' = \# ~m? - 1 \iff k? \in m?
+\end{axdef}
+and its usage within the definition of $associate$.
+\begin{zed}
+  m! = m? ~\cup ~\ldata ~k? \mapsto v? \rdata \implies k? \not \in m? \\
+  m! = m' ~\cup ~\ldata ~k? \mapsto v? \rdata \implies m' \not = m? ~\land ~~k? \in m?
+\end{zed}
+The following examples demonstrate the intended functionality of $associate$.
+\begin{argue}
+  M = \ldata k_{0}v_{k_{0}}, k_{1}v_{k_{1}} \rdata \\
+  \t1 k_{0} = abc \ \land  v_{k_{0}} = 123 & $k_{0}v_{k_{0}} = abc \mapsto 123$ \\
+  \t1 k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456 & $k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$ \\
+  associate(M, baz, foo) = \ldata abc \mapsto 123, \ def \mapsto xyz \mapsto 456, \ baz \mapsto foo \rdata \\
+  associate(M, abc, 321) = \ldata abc \mapsto 321, \ def \mapsto xyz \mapsto 456 \rdata
+\end{argue}
+\end{document}
