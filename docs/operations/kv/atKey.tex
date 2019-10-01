@@ -1,0 +1,42 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{At Key}
+The operation $atKey$ will return the Value $v$ at some specified
+\begin{itemize}
+\item Top level Key $k$ within $KV$
+  $$atKey(KV, k) \to v$$
+\item Nested location $K = <k_{i}..k_{n}..k_{j}>$ within $KV$
+  $$atKey(KV, K) \to v$$
+\end{itemize}
+such that if $KV$ is a collection of Key Value pair(s) $<k_{0}v_{k_{0}}, k_{1}v_{k_{1}}>$
+where
+$$k_{0} = abc \ \land  v_{k_{0}} = 123$$
+$$\implies$$
+$$k_{0}v_{k_{0}} = abc \mapsto 123$$
+and
+$$k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456$$
+$$\implies$$
+$$k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$$
+such that
+$$KV = <abc \mapsto 123, \ def \mapsto xyz \mapsto 456>$$
+$\\$
+When $k$ is a single Key
+\begin{itemize}
+\item $k \not \in KV$, $atKey$ will return the representation of nothingness
+  $$atKey(KV, cba) = nil$$
+\item $k \in KV$, $atKey$ will return $v_{k}$
+  $$atKey(KV, k_{0}) \implies atKey(KV, abc) = 123$$
+  $$atKey(KV, k_{1}) \implies atKey(KV, def) = xyz \mapsto 456$$
+\end{itemize}
+$\\$
+When $K$ is a Collection of Key(s)
+\begin{itemize}
+\item $K \not \in KV$, $atKey$ will return the representation of nothingness
+  $$atKey(KV, <cba, 321>) = nil$$
+\item $k_{i} \in KV \ \land k_{j} \not \in KV$, $atKey$ will return the representation of nothingness
+  $$atKey(KV, <def, abc>) = nil$$
+\item $k_{i} \in KV \ \land k_{j} \in KV$, $atKey$ will return the nested value
+  $$atKey(KV, <def, xyz>) = 456$$
+\end{itemize}
+
+\end{document}

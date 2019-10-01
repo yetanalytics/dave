@@ -1,0 +1,27 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Dissociate}
+The operation $dissociate$ will remove some $k \mapsto v$ from $KV$ given $k \in KV$
+$$dissociate(KV, k) \to KV'$$
+such that if $KV$ is a collection of Key Value pair(s) $<k_{0}v_{k_{0}}, k_{1}v_{k_{1}}>$
+where
+$$k_{0} = abc \ \land  v_{k_{0}} = 123$$
+$$\implies$$
+$$k_{0}v_{k_{0}} = abc \mapsto 123$$
+and
+$$k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456$$
+$$\implies$$
+$$k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$$
+such that
+$$KV = <abc \mapsto 123, \ def \mapsto xyz \mapsto 456>$$
+$\\$
+Which means $disocciate(KV, k)$ results in
+\begin{itemize}
+\item $KV \not = KV' \iff k \in KV$ where $k \mapsto v_{k}$ is removed from $KV$
+$$dissociate(KV, abc) = <def \mapsto xyz \mapsto 456> = KV'$$
+$$dissociate(KV, def) = <abc \mapsto 123> = KV'$$
+\item $KV = KV' \iff k \not \in KV$ where nothing is removed from $KV$
+$$dissociate(KV, cba) = <abc \mapsto 123, \ def \mapsto xyz \mapsto 456> = KV' = KV$$
+\end{itemize}
+
+\end{document}
