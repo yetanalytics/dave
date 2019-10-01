@@ -1,0 +1,22 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Timeunit To Number of Seconds}
+
+The operation $timeunit \to seconds$ will return the number of seconds corresponding to the input $Timeunit$
+\begin{zed}
+  Timeunit ::= second ~| ~ minute ~| ~hour ~| ~day ~| ~week ~| ~month ~| ~year
+\end{zed}
+such that the following schema defines $timeunit \to second$
+\begin{schema}{toSeconds[Timeunit]}
+  timeunit? : Timeunit \\
+  timeunit \to secdons : Timeunit \fun \nat
+  \where
+  timeunit \to seconds(timeunit?) = 1 \iff timeunit? = second \\
+  timeunit \to seconds(timeunit?) = 60 \iff timeunit? = minute \\
+  timeunit \to seconds(timeunit?) = 3600 \iff timeunit? = hour \\
+  timeunit \to seconds(timeunit?) = 86400 \iff timeunit? = day \\
+  timeunit \to seconds(timeunit?) = 604800 \iff timeunit? = week \\
+  timeunit \to seconds(timeunit?) = 2629743 \iff timeunit? = month \\
+  timeunit \to seconds(timeunit?) = 31556926 \iff timeunit? = year
+\end{schema}
+\end{document}

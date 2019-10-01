@@ -1,0 +1,32 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+
+\subsubsection{Map}
+The $map$ operation takes in an Operation $O$ or Primitive $P$, Collection $coll?$ and additional Arguments $args?$ and returns a modified Collection $coll!$ where each member $coll!_{i}$ is the result of passing $coll?_{i}$ and $args?$ to $P \lor O$. The ordering of $coll?$ is maintained within $coll!$
+\begin{schema}{map[O \lor P, Collection, V]}
+  operation? : O \\
+  primitive? : P \\
+  args?      : V \\
+  coll?, coll! : Collection \\
+  map : (O \lor P \cross Collection \cross V \fun Collection) ~\lor ~(O \lor P \cross Collection \fun Collection)
+  \where
+  coll! = map(operation?, coll?) @ \\
+  \t3 \langle ~\forall i : 0~..~j \in coll? ~| \\
+  \t3 operation?(coll?_{0}) \cat operation?(coll?_{i}) \cat operation?(coll?_{j}) \rangle \\
+  coll! = map(operation?, coll?, args?) @ \\
+  \t3 \langle ~\forall i : 0~..~j \in coll? ~| \\
+  \t3 operation?(coll?_{0}, args?) \cat operation?(coll?_{i}, args?) \cat operation?(coll?_{j}, args?) \rangle \\
+  coll! = map(primitive?, coll?) @ \\
+  \t3 \langle ~\forall i : 0~..~j \in coll? ~| \\
+  \t3 primitive?(coll?_{0}) \cat primitive?(coll?_{i}) \cat primitive?(coll?_{j}) \rangle \\
+  coll! = map(primitive?, coll?, args?) @ \\
+  \t3 \langle ~\forall i : 0~..~j \in coll? ~| \\
+  \t3 primitive?(coll?_{0}, args?) \cat primitive?(coll?_{i}, args?) \cat primitive?(coll?_{j}, args?) \rangle
+\end{schema}
+\begin{argue}
+  X = \langle 1, 2, 3 \rangle \\
+  \t1 map~(succ, X) = \langle 2, 3, 4 \rangle & increment each member of $X$ \\
+  \t1 map~(+, X, 2) = \langle 3, 4, 5 \rangle & add 2 to each member of $X$
+\end{argue}
+
+\end{document}
