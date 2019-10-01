@@ -1,0 +1,32 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Append}
+
+The operation $append$ will return a Collection with a Value added at a specified numeric Index.
+\begin{schema}{append[Collection, V, \nat]}
+  coll?, coll! : Collection \\
+  v? : V \\
+  idx? : \nat \\
+  append : Collection \cross V \cross \nat \fun Collection
+  \where
+  coll! = append(coll?, v?, idx?) @ \\
+  \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
+  \t1 \ \ \ ~~~ coll'' == \{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll? @ \\
+  \t1 = coll' \cat coll'' \implies front(coll') \cat v? \cat coll'' ~ \land ~ v? \mapsto idx? \in coll! ~\land ~\#~ coll! = \#~ coll? + 1
+\end{schema}
+where $coll'$ is the items in $coll?$ up to $idx$ but the value at $idx?$ is replaced with $v?$ and
+$coll''$ is the items in $coll?$ from $idx$ to $\#~coll?$ and is inclusive of $coll?_{idx?}$. The
+composition of the two Collections results in $coll!$ which contains $idx? \mapsto v?$ and all subsquent
+$idx \mapsto v \in coll?$ are now $idx+1 \mapsto v_{idx}$. The following example illustrates these properties.
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  \t1 v? = bar \\
+  append(X, v?, 0) = \langle bar, 0, foo, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 1) = \langle 0, bar, foo, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 2) = \langle 0, foo, bar, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 3) = \langle 0, foo, \langle a, b, c \rangle, bar \rangle
+\end{argue}
+\end{document}

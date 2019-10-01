@@ -1,0 +1,31 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{At Index}
+The operation $atIndex$ will return the Value at a specified index or depth of indices
+\begin{schema}{atIndex[Collection, \nat \lor Collection]}
+  idx? : \nat \\
+  coll? : Collection \\
+  idxColl? : Collection \\
+  atIndex : Collection \cross \nat \fun V ~\lor ~Collection \cross Collection \fun V
+  \where
+  idxColl? = \langle ~\forall ~i \in idxColl? @ i : \nat \rangle \\
+  atIndex(coll?, idx?) = (head (idx? \extract coll?)) \iff \# (idx? \extract coll?) = 1 \\
+  atIndex(coll?, idx?) = (idx? \extract coll?) \iff \# (idx? \extract coll?) \geq 2 \\
+  atIndex(coll?, idxColl?) = \forall i : 0~..~j \in idxColl @ \\
+  \t7 coll! = atIndex((atIndex (atIndex(coll?, i)), i+1), j)
+\end{schema}
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  atIndex(X, 0) = 0 \\
+  atIndex(X, 1) = foo \\
+  atIndex (X, \langle 1, 0 \rangle) = f & foo $\implies \langle f, o, o \rangle$ \\
+  atIndex (X, \langle 1, 2 \rangle) = o & foo $\implies \langle f, o, o \rangle$ \\
+  atIndex(X, 2) = \langle a, b, c \rangle \\
+  atIndex(X, \langle 2, 1 \rangle) = b \\
+  atIndex(X, 3) = \langle  \rangle \\
+  atIndex(X, \langle 2, 3 \rangle) = \langle  \rangle
+\end{argue}
+\end{document}
