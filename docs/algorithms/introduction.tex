@@ -41,10 +41,10 @@ And the following free type is introducted for collections
 
 \subsubsection{Key}
 
-An identifier $k$ paired with some value $v$ to create an ordered pair $(k, v)$. $k$ can take on any valid JSON value (Scalar, Collection, Map)
-but the Scalar null should be avoided. The following free type is introduced for keys.
+An identifier $k$ paired with some value $v$ to create an ordered pair $(k, v)$. $k$ can take on any valid JSON value (Scalar, Collection, KV)
+except for the Scalar null. The following free type is introduced for keys.
 \begin{zed}
-  K ::= Scalar ~| ~Collection ~| ~KV
+  K ::= (Scalar \hide NULL) ~| ~Collection ~| ~KV
 \end{zed}
 
 \subsubsection{Value}
