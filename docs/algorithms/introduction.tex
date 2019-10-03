@@ -503,15 +503,25 @@ Given the definitions of Algorithm Components presented above, the previous defi
 \begin{zed}
   Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
 \end{zed}
-can be refined using the helper function $recur$
-\begin{schema}{recur[KV, Collection]}
-  state?, state! : KV \\
-  S?, S! : Collection \\
-  recur! : (KV, COllection) \\
-  recur : KV \cross Collection \fun KV \cross Collection
+can be refined using the Operation $recur$ and Primitive $algorithmIter$ (defined in following subsections)
+to illustrate how an Algorithm processes a Collection of Statement(s).
+\begin{schema}{Algorithm[KV, Collection, KV]}
+  Algorithm ~Iter, ~Recur, ~Init, ~Result \\
+  opt?, state?, state! : KV \\
+  S? : Collection @ \forall s? \in S? ~| ~s? : STATEMENT \\
+  algorithm : KV \cross Collection \cross KV \surj KV
   \where
-  recur! = recur(state?, S?) \implies (state!, S!) @ \\
-  \t1 state? = state! ~\land ~S! = tail(S?)
+  algorithm = \langle \_~init~\_, \langle ~\_~algorithmIter~\_, ~\_~recur~\_~\rangle \bsup \#~S? \esup, ~\_result~\_\rangle \\
+  state! = algorithm(state?, S?, opt?) @ \\
+  \t1 let \ \ ~ init! == init(state?) @ \\
+  \t1 \forall s_{n} \in S? ~|~ s_{n} : STATEMENT, n : \nat @ i \leq n \leq j ~@ \\
+  \t2 \exists_1 state_{n} ~|~ state_{n} : KV @ \\
+  \t3 let \ \ ~ S?_{n} = tail(S?)\bsup n-i \esup \\
+  \t4 state_{i} = algorithmIter(init!, ~S?_{n}) \implies ~S?_{n} = S? \iff n = i \\
+  \t4 state_{n} = recur(state_{i}, ~S?_{n}, ~\_~algorithmIter~\_)\bsup j-1 \esup \iff n \not = i ~\land n \not = j\\
+  \t4 state_{j} = recur(state_{n}, (\{j-1, j\} \extract S?), ~\_~algorithmIter~\_) \iff n = j \\
+  \t4 state_{j+1}  = state_{j} \implies recur(state_{j}, (j \extract S?), ~\_~algorithmIter~\_) \iff n = j+1\\
+  \t1 \ \ = result(state_{j}, opt?)
 \end{schema}
 to illustrate how an Algorithm processes a Collection of Statement(s)
 \begin{schema}{Algorithm[KV, Collection]}
