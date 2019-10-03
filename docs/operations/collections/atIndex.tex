@@ -1,18 +1,17 @@
 \documentclass[../../main.tex]{subfiles}
 \begin{document}
 \subsubsection{At Index}
-The operation $atIndex$ will return the Value at a specified index or depth of indices
-\begin{schema}{atIndex[Collection, \nat \lor Collection]}
-  idx? : \nat \\
+The operation $atIndex$ will return the Value at a
+specified numeric index within a Collection or
+an empty Collection if there is no value at the specified index.
+\begin{schema}{atIndex[Collection, \nat]}
+  idx? : \nat\\
   coll? : Collection \\
-  idxColl? : Collection \\
-  atIndex : Collection \cross \nat \fun V ~\lor ~Collection \cross Collection \fun V
+  atIndex : Collection \cross \nat \fun V
   \where
-  idxColl? = \langle ~\forall ~i \in idxColl? @ i : \nat \rangle \\
-  atIndex(coll?, idx?) = (head (idx? \extract coll?)) \iff \# (idx? \extract coll?) = 1 \\
-  atIndex(coll?, idx?) = (idx? \extract coll?) \iff \# (idx? \extract coll?) \geq 2 \\
-  atIndex(coll?, idxColl?) = \forall i : 0~..~j \in idxColl @ \\
-  \t7 coll! = atIndex((atIndex (atIndex(coll?, i)), i+1), j)
+  \# ~ idx? = 1 \\
+  coll! = atIndex(coll?, idx?) = (head ~(~idx? \extract coll?)) \iff idx? \in coll? \\
+  coll! = atIndex(coll?, idx?) = \langle  \rangle \iff idx? \not \in coll?
 \end{schema}
 \begin{argue}
   X = \langle x_{0}, x_{1}, x_{2} \rangle \\
