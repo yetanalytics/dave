@@ -288,23 +288,21 @@ with each process within $A$ is enumerated as
 \item $statement$ is a single statement within the collection of statements passed as input data to the Algorithm $A$
 \item $opt$ are additional arguments passed to the algorithm $A$ which impact the return value of the algorithm and synonymous with Option
 \end{itemize}
-Such that the execution of A can be described as
-\begin{zed}
-  Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
-\end{zed}
-\subsection{Domain}
 An Algorithm must be passed an Algorithm State and a Collection of Statement(s). Option is optional.
 \begin{itemize}
 \item Statement(s)
 \item Algorithm State
 \item Option(s)
 \end{itemize}
-
-\subsection{Range}
 An Algorithm will return an Algorithm State.
 \begin{itemize}
 \item Algorithm State
 \end{itemize}
+An Algorithm can be described via its components. A formal definition for an Algorithm
+is presented at the end of this section. The following subsections go into more detail about the components of an Algorithm.
+\begin{zed}
+  Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
+\end{zed}
 
 \subsection{Initialization}
 
@@ -312,7 +310,7 @@ First process to run within an Algorithm which returns the Algorithm State for t
 
 \begin{schema}{Init[KV]}
   state?, state! : KV \\
-  init: KV \fun KV
+  init: KV \surj KV
   \where
   state! = init(state?) @ state! = state? ~\lor ~state! \not = state?
 \end{schema}
@@ -404,7 +402,7 @@ $step$ may or may not update the input Algorithm State given the current Stateme
   S : Collection \\
   stmt_{a}, stmt_{b}, stmt_{c} : STATEMENT \\
   state?, step_{a}!, step_{b}!, step_{c}! : KV \\
-  step : KV \cross STATEMENT \fun KV
+  step : KV \cross STATEMENT \surj KV
   \where
   S = \langle stmt_{a}..stmt_{b}..stmt_{c} \rangle @ a \leq b \leq c \implies a \prec b \prec c \iff a \not= b \not= c \\
   step_{a}! = step(state?, stmt_{a}) @ step_{a}! = state? ~\lor ~step_{a}! \not= state? \\
@@ -415,18 +413,18 @@ In general, this allows $step$ to be defined as
 \begin{schema}{Step[KV, STATEMENT]}
   state?, state! : KV \\
   stmt? : STATEMENT \\
-  step : KV \cross STATEMENT \fun KV
+  step : KV \cross STATEMENT \surj KV
   \where
-  state! = step~(state?, stmt?) = state? ~\lor \not= state?
+  state! = step~(state?, stmt?) = state? ~\lor ~state! \not= state?
 \end{schema}
 A change of $state? \to state! @ state! \not= state?$ can be predicted to occur given
 \begin{itemize}
 \item The definition of individual Operations which constitute a Primitive
 \item The ordering of Operations within a Primitive
-\item The Primitive(s) $p$ chosen for inclusion within $P_{\langle i~..~n~..~j \rangle}$
-\item The ordering of $p \in P_{\langle i~..~n~..~j \rangle}$ which implies the ordering of $o \in p_{\langle i~..~n~..~j \rangle} \in P_{\langle ii~..~ij~..~ni~..~nj~..~ji~..~jj \rangle}$
-\item The key value pair(s) $(K, V) \in stmt$
-\item The ordering of Statement(s) $stmt \in S_{\langle a~..~b~..~c \rangle}$
+\item The Primitive(s) chosen for inclusion within the body of $step$
+\item The ordering of Primitive(s) within the body of $step$
+\item The key value pair(s) in both Algorithm State and the current Statement
+\item The ordering of Statement(s)
 \end{itemize}
 
 \subsubsection{Domain}
@@ -452,11 +450,11 @@ when all $s \in S$ have been processed by $step$
   relevant? \prec accept? \prec step \prec result \iff S = \emptyset
 \end{zed}
 and does so without preventing subsequent calls of $A$
-\begin{schema}{result[KV, KV]}
+\begin{schema}{Result[KV, KV]}
   result!, state?, opt? : KV \\
-  result : KV \cross KV \fun KV
+  result : KV \cross KV \surj KV
   \where
-  result! = result(state?, opt?) = state? ~\lor \not = state?
+  result! = result(state?, opt?) = state? ~\lor ~state! \not= state?
 \end{schema}
 such that if at some future point $j$ within the timeline $i~..~n~..~j$
 \begin{argue}
