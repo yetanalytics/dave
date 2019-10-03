@@ -49,7 +49,7 @@ except for the Scalar null. The following free type is introduced for keys.
 
 \subsubsection{Value}
 
-A value $v$ is paired with an identifier $k$ to create an ordered pair $(k, v)$. $v$ can be any valid JSON value (Scalar, Collection, Map)
+A value $v$ is paired with an identifier $k$ to create an ordered pair $(k, v)$. $v$ can be any valid JSON value (Scalar, Collection, KV)
 The following free type is introduced for values.
 
 \begin{zed}
@@ -134,7 +134,7 @@ to $Statements$ such that every unique $Statement$ in a $Collection$ of $Stateme
 
 Mutable Map $state$ without any domain restriction such that
 \begin{axdef}
-  state?, state! : Map \\
+  state?, state! : KV \\
   k? : K \\
   v? : V
   \where
@@ -180,7 +180,7 @@ The arguments passed to an Operation can be any of the following but the definit
 \item Set(s)
 \item Collection(s)
 \item Bag(s)
-\item Map(s)
+\item KV(s)
 \item Statement(s)
 \item Algorithm State
 \end{itemize}
@@ -194,7 +194,7 @@ The result of an Operation can be any of the following but the definition of an 
 \item Set(s)
 \item Collection(s)
 \item Bag(s)
-\item Map(s)
+\item KV(s)
 \item Statement(s)
 \item Algorithm State
 \end{itemize}
@@ -227,7 +227,7 @@ Any of the following dependent upon the Operations which compose the Primitive
 \item Set(s)
 \item Collection(s)
 \item Bag(s)
-\item Map(s)
+\item KV(s)
 \item Statement(s)
 \item Algorithm State
 \end{itemize}
@@ -241,7 +241,7 @@ Any of the following dependent upon the Domain and Functionality of the Primitiv
 \item Set(s)
 \item Collection(s)
 \item Bag(s)
-\item Map(s)
+\item KV(s)
 \item Statement(s)
 \item Algorithm State
 \end{itemize}
