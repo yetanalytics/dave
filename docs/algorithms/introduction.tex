@@ -20,22 +20,23 @@ To talk about a scalar within a Z Schema, the following free and basic types are
   Boolean :== true ~| ~false \\
   Scalar :== Boolean ~| ~STRING ~| ~NULL ~| ~\num
 \end{zed}
-Arrays and Objects are also valid JSON values but will be referenced using the terms Collection and Map respectively.
+Arrays and Objects are also valid JSON values but will be referenced using the terms Collection and Map $\lor$ KV respectively.
 
 \subsubsection{Collection}
-a sequence $\langle ... \rangle$ of items $c$ such that
+a sequence $\langle ... \rangle$ of items $c$ such that each $c : \nat \cross V \implies (\nat, V) \implies \nat \mapsto V$
 \begin{axdef}
-  C = \langle c_{i}..c_{n}..c_{j} \rangle \implies \{~i \mapsto c_{i}, n \mapsto c_{n}, j \mapsto c_{j} \}
+  C : Collection
   \where
+  C = \langle c_{i}..c_{n}..c_{j} \rangle \implies \{~i \mapsto c_{i}, n \mapsto c_{n}, j \mapsto c_{j} \} @
   i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j
 \end{axdef}
 And the following free type is introducted for collections
 \begin{argue}
-  Collection :== emptyColl ~| ~append \ldata Collection \cross Scalar ~\lor Collection ~\lor Map \cross \nat \rdata \\
+  Collection :== emptyColl ~| ~append \ldata Collection \cross Scalar ~\lor Collection ~\lor KV \cross \nat \rdata \\
   \t1 emptyColl & the empty Collection $\langle  \rangle$ \\
   \t1 append & is a constructor and is infered to be an injection \\
-  \t1 Map & a free type introduced bellow \\
-  append(emptyColl, c?, 0) = \langle c_{0} \rangle \implies \{~0 \mapsto c?\}
+  \t1 KV & a free type introduced bellow \\
+  append(emptyColl, c?, 0) = \langle c_{0} \rangle \implies \{~0 \mapsto c?\} & $append$ adds $c?$ to $\langle  \rangle$ at $\nat$
 \end{argue}
 
 \subsubsection{Key}
