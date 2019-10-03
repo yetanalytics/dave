@@ -523,49 +523,58 @@ to illustrate how an Algorithm processes a Collection of Statement(s).
   \t4 state_{j+1}  = state_{j} \implies recur(state_{j}, (j \extract S?), ~\_~algorithmIter~\_) \iff n = j+1\\
   \t1 \ \ = result(state_{j}, opt?)
 \end{schema}
-to illustrate how an Algorithm processes a Collection of Statement(s)
-\begin{schema}{Algorithm[KV, Collection]}
-  Init[KV] \\
-  Relevant?[KV, STATEMENT] \\
-  Accept?[KV, STATEMENT] \\
-  Step[KV, STATEMENT] \\
-  result[KV, KV] \\
-  recur[KV, Collection] \\
-  opt?, state?, state_{s}!, state_{S}! : KV \\
-  S? : Collection @ \forall s? \in S? ~| ~s? : STATEMENT \\
-  algorithmIter : KV \cross Collection \cross KV \fun KV \cross Collection \\
-  algorithm : KV \cross Collection \cross KV \fun KV
+\subsubsection{Recur}
+The following schema introduces the Operation $recur$ which expects an accumulator ($KV$),
+a $Collection$ of Value(s) ($V$) being iterated over and
+a function ($\_~\pfun~\_$) which will be called as the result of $recur$.
+This Operation has been writen to be as general purpose as possible and represents
+the ability to perform \href{https://cs.stackexchange.com/questions/6230/what-is-tail-recursion}{tail recursion}.
+Given this intention, $recur$ must only ever be the last Operation within a Primitive
+\begin{axdef}
+  p_{i~..~j} : \seq_1 @ \forall o \in p ~|~ o : \_~\pfun~\_
   \where
-  state_{s}! = algorithmIter(state?, S?, opt?) @ \\
-  \t1 let \ \ ~ s_{current} == head(S?) \\
-  \t2 init! == init(state?) \\
-  \t2 relevant! == relevant?(init!, s_{current}) \\
-  \t2 passon_{relevant}? == recur(init!, S?) \iff relevant! = false \\
-  \t2 accept! == accept?(init!, s_{current}) \iff relevant! = true \\
-  \t2 passon_{accept}? == recur(init!, S?) \iff accept! = false \\
-  \t2 step! == step(init!, s_{current}) \iff accept! = true \\
-  \t2 passon_{step}? == recur(step!, S?) \iff tail(S?) \not = \emptyset \\
-  \t2 result! == result(step!, opt?) \iff tail(S?) = \emptyset\\
-  \t2 passon_{result}? == recur(result!, S?) \\
-  \t2 passon_{s}? == passon_{relevant}? \iff relevant! = false ~\lor \\
-  \t4 \ \ \ \ ~~~passon_{accept}? \iff accept! = false ~\lor \\
-  \t4 \ \ \ \ ~~~passon_{step}? \iff relevant! = true ~\land ~ accept! = true ~\land ~tail(S?) \not = \emptyset \\
-  \t4 \ \ \ \ ~~~passon_{result}? \iff relevant! = true ~\land ~ accept! = true ~\land ~tail(S?) = \emptyset \\
-  \t4 \ \ \ \ \ \  ~~\implies ~ = init! ~\comp ~relevant! ~\lor \\
-  \t5 \ \ \ \ ~ = init! ~\comp ~relevant! ~\comp ~accept! ~\lor \\
-  \t5 \ \ \ \ ~ = init! ~\comp ~relevant! ~\comp ~accept! ~\comp ~step! ~\lor \\
-  \t5 \ \ \ \ ~ = init! ~\comp ~relevant! ~\comp ~accept! ~\comp ~step! ~\comp ~result! \\
-  \t1 \ \ \ ~ = passon_{s}? \implies (first(passon_{relevant}? ~\lor ~ passon_{accept}? ~\lor ~passon_{step} ~\lor passon_{result}), tail(S?)) \\
-  state_{S}! = algorithm(state?, S?, opt?) \\
-  \t1 \ \ \ ~ = first(algorithmIter(state?, S?, opt?) \bsup \# S? \esup) @ \\
-  \t3 \forall ~s? \in S? ~\exists_1 ~passon_{s} : KV \cross Collection @ \\
-  \t4 passon_{s} = algorithmIter(state?, S?, opt?) @ \\
-  \t5 let ~(state_{s} == first(passon_{s})) @ \\
-  \t5 \ \ ~~passon_{s'} = algorithmIter(state_{s}, tail(S?), opt?) \implies (state_{s'}, tail(tail(S?))) \\
-  \t5 \ \ ~~passon_{s''} = algorithmIter(first(passon_{s'}), second(passon_{s'}), opt?)\\
+  p_{i~..~j} = \langle ~\forall ~n : \nat ~|~ i \leq n \leq j ~\land~ o_{n} \in p_{i~..~j} @ \\
+  \t2 \exists_1 o_{n} @ o_{n} \not = recur ~\lor ~o_{n}= recur \iff n = j \rangle ~ \implies \\
+  \t3 front(p_{i~..~j}) \filter recur = \langle  \rangle
+\end{axdef}
+and results in a call to the passed in function where the
+accumulator $ack?$ and the Collection (minus the first member)
+are passed as arguments to $fn?$. If this would result in the empty Collection ($\langle  \rangle$)
+being passed to $fn?$, instead the accumulator $ack?$ is returned.
+\begin{schema}{Recur[KV, Collection, (\_~\pfun~\_)]}
+  ack? : KV \\
+  S? : Collection \\
+  fn? : (\_~\pfun~\_) \\
+  recur : KV \cross Collection \cross (\_~\pfun~\_) \rel (KV \cross Collection ~\pfun~\_)
+  \where
+  recur(ack?, S?, fn?) = fn?(ack?, tail(S?)) \iff tail(S?) \not = \langle  \rangle \\
+  recur(ack?, S?, fn?) = first(ack?, tail(S?)) \iff tail(S?) = \langle  \rangle
 \end{schema}
-The above introduces $algorithmIter$ to describe the processing per $s \in S$ which results in $algorithm$
-being an iteration of $algorithmIter$ over $S$. This means there is a
-$passon_{s}$ for all $s \in S$ and the result of $algorithm(state, S, opt)$ is
-$$first(algorithmIter(state, S, opt) \bsup \# S \esup) \implies first(passon_{result}) \iff second(passon_{result}) = \emptyset$$
+In the context of Algorithms,
+\begin{zed}
+  ack? = Algorithm State \\
+  S? = Collection of Statement(s) \\
+  fn? = algorithmIter
+\end{zed}
+\subsubsection{Algorithm Iter}
+The following schema introduce the Primitive $algorithmIter$ which
+demonstrates the life cycle of a single statement as its passed through the components of an Algorithm.
+\begin{schema}{Algorithm Iter[KV, Collection]}
+  Relevant?, ~Accept?, ~Step \\
+  state?, state! : KV \\
+  S? : Collection \\
+  s? : STATEMENT \\
+  algorithmIter : KV \cross STATEMENT \surj KV
+  \where
+  algorithmIter = \langle \_~relevant?~\_, ~~\_~accept?~\_, ~~\_~step~\_ \rangle \\
+  s? = head(S?) \\
+  state! = algorithmIter(state?, s?) @ \\
+  \t1 let \ \ ~ relevant! == relevant?(state?, s?) \\
+  \t2 accept! == accept?(state?, s?) \\
+  \t2 step! == step(state?, s?) @\\
+  state! = (state? \iff relevant! = false ~ \lor ~ accept! = false) ~\lor \\
+  \t1 \ \ \ \ \ (step! \iff relevant! = true ~ \land ~ accept! = true)
+\end{schema}
+If a statement if both relevant and acceptable, $state!$ will be the result of $step$. Otherwise,
+the passed in state is returned $\implies step! = state?$.
 \end{document}
