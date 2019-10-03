@@ -5,7 +5,7 @@ The operation $map?$ will return a boolean which indicates if the passed in argu
 \begin{schema}{Map?[V]}
   m? : V \\
   bol! : Boolean \\
-  map? : V \fun Boolean
+  map?~\_ : V \fun Boolean
   \where
   bol! = map?(m?) @ bol! = true \iff m? : KV \implies V \hide (Scalar, Collection)
 \end{schema}

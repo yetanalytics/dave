@@ -5,7 +5,7 @@ The operation $array?$ will return a boolean which indicates if the passed in ar
 \begin{schema}{Array?[V]}
   coll? : V \\
   bol! : Boolean \\
-  array? : V \fun Boolean
+  array?~\_ : V \fun Boolean
   \where
   bol! = array?(coll?) @ bol! = true \iff coll? : Collection \implies V \hide (Scalar, KV)
 \end{schema}

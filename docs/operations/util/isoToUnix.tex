@@ -6,7 +6,7 @@ to the number of seconds that have elapsed since January 1, 1970
 \begin{schema}{isoToUnixEpoch}
   Timestamp \\
   seconds! : \nat \\
-  isoToUnix : \finset_1 \fun \nat \\
+  isoToUnix~\_ : \finset_1 \fun \nat \\
   \where
   seconds! = isoToUnix(timestamp)
 \end{schema}

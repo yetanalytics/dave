@@ -9,7 +9,7 @@ The operation $remove$ will return a Collection minus the Value removed from the
 \begin{schema}{remove[Collection, \nat]}
   coll?, coll! : Collection \\
   idx? : \nat \\
-  remove : Collection \cross \nat \surj Collection
+  remove~\_ : Collection \cross \nat \surj Collection
   \where
   coll! = remove(coll?, idx?) @ \\
   \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \\

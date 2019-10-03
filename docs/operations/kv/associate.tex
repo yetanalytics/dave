@@ -6,14 +6,14 @@ The operation $associate$ establishes a relationship between $k?$ and $v?$ at th
   m?, m!, m' : KV \\
   k? : K \\
   v? : V \\
-  associate : KV \cross K \cross V \bij KV\
+  associate~\_ : KV \cross K \cross V \bij KV\
   \where
   m! = associate(m?, k?, v?) @ \\
   \t1 let ~~ m' == m? ~\ndres ~k? \implies \\
   \t3 (\dom ~m' = \dom ~(~m? \setminus ~k?)) ~\land \\
   \t3 (~m? \setminus ~m' = k? \iff k? \in m?) ~\land \\
   \t3 (~m? \setminus ~m' = \emptyset \iff k? \not \in m? \implies m? = m')\\
-   \ \ \ ~ = \ldata k? \mapsto v? \rdata ~\union ~m'
+  \ \ \ ~ = \ldata k? \mapsto v? \rdata ~\union ~m'
 \end{schema}
 This implies that any existing mapping at $k? \in m?$ will be overwritten by $associate$
 but an existing mapping is not a precondition.

@@ -310,7 +310,7 @@ First process to run within an Algorithm which returns the Algorithm State for t
 
 \begin{schema}{Init[KV]}
   state?, state! : KV \\
-  init: KV \surj KV
+  init~\_: KV \surj KV
   \where
   state! = init(state?) @ state! = state? ~\lor ~state! \not = state?
 \end{schema}
@@ -336,7 +336,7 @@ First process that each $stmt$ passes through $\implies relevant? \prec accept? 
 \begin{schema}{Relevant?[KV, STATEMENT]}
   state? : KV \\
   stmt? : STATEMENT \\
-  relevant? : KV \cross STATEMENT \fun Boolean
+  relevant?~\_ : KV \cross STATEMENT \fun Boolean
   \where
   relevant?(state?, stmt?) = true ~\lor false
 \end{schema}
@@ -362,7 +362,7 @@ Second process that each $stmt$ passes through $\implies relevant? \prec accept?
 \begin{schema}{Accept?[KV, STATEMENT]}
   state? : KV \\
   stmt? : STATEMENT \\
-  accept? : KV \cross STATEMENT \fun Boolean
+  accept?~\_ : KV \cross STATEMENT \fun Boolean
   \where
   accept?(state?, stmt?) = true ~\lor false
 \end{schema}
@@ -402,7 +402,7 @@ $step$ may or may not update the input Algorithm State given the current Stateme
   S : Collection \\
   stmt_{a}, stmt_{b}, stmt_{c} : STATEMENT \\
   state?, step_{a}!, step_{b}!, step_{c}! : KV \\
-  step : KV \cross STATEMENT \surj KV
+  step~\_ : KV \cross STATEMENT \surj KV
   \where
   S = \langle stmt_{a}..stmt_{b}..stmt_{c} \rangle @ a \leq b \leq c \implies a \prec b \prec c \iff a \not= b \not= c \\
   step_{a}! = step(state?, stmt_{a}) @ step_{a}! = state? ~\lor ~step_{a}! \not= state? \\
@@ -413,7 +413,7 @@ In general, this allows $step$ to be defined as
 \begin{schema}{Step[KV, STATEMENT]}
   state?, state! : KV \\
   stmt? : STATEMENT \\
-  step : KV \cross STATEMENT \surj KV
+  step~\_ : KV \cross STATEMENT \surj KV
   \where
   state! = step~(state?, stmt?) = state? ~\lor ~state! \not= state?
 \end{schema}
@@ -452,7 +452,7 @@ when all $s \in S$ have been processed by $step$
 and does so without preventing subsequent calls of $A$
 \begin{schema}{Result[KV, KV]}
   result!, state?, opt? : KV \\
-  result : KV \cross KV \surj KV
+  result~\_ : KV \cross KV \surj KV
   \where
   result! = result(state?, opt?) = state? ~\lor ~state! \not= state?
 \end{schema}
@@ -509,7 +509,7 @@ to illustrate how an Algorithm processes a Collection of Statement(s).
   Algorithm ~Iter, ~Recur, ~Init, ~Result \\
   opt?, state?, state! : KV \\
   S? : Collection @ \forall s? \in S? ~| ~s? : STATEMENT \\
-  algorithm : KV \cross Collection \cross KV \surj KV
+  algorithm~\_ : KV \cross Collection \cross KV \surj KV
   \where
   algorithm = \langle \_~init~\_, \langle ~\_~algorithmIter~\_, ~\_~recur~\_~\rangle \bsup \#~S? \esup, ~\_result~\_\rangle \\
   state! = algorithm(state?, S?, opt?) @ \\
@@ -545,7 +545,7 @@ being passed to $fn?$, instead the accumulator $ack?$ is returned.
   ack? : KV \\
   S? : Collection \\
   fn? : (\_~\pfun~\_) \\
-  recur : KV \cross Collection \cross (\_~\pfun~\_) \rel (KV \cross Collection ~\pfun~\_)
+  recur~\_ : KV \cross Collection \cross (\_~\pfun~\_) \rel (KV \cross Collection ~\pfun~\_)
   \where
   recur(ack?, S?, fn?) = fn?(ack?, tail(S?)) \iff tail(S?) \not = \langle  \rangle \\
   recur(ack?, S?, fn?) = first(ack?, tail(S?)) \iff tail(S?) = \langle  \rangle
@@ -564,7 +564,7 @@ demonstrates the life cycle of a single statement as its passed through the comp
   state?, state! : KV \\
   S? : Collection \\
   s? : STATEMENT \\
-  algorithmIter : KV \cross STATEMENT \surj KV
+  algorithmIter~\_ : KV \cross STATEMENT \surj KV
   \where
   algorithmIter = \langle \_~relevant?~\_, ~~\_~accept?~\_, ~~\_~step~\_ \rangle \\
   s? = head(S?) \\
