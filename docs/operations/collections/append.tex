@@ -7,7 +7,7 @@ The operation $append$ will return a Collection with a Value added at a specifie
   coll?, coll! : Collection \\
   v? : V \\
   idx? : \nat \\
-  append : Collection \cross V \cross \nat \fun Collection
+  append : Collection \cross V \cross \nat \bij Collection
   \where
   coll! = append(coll?, v?, idx?) @ \\
   \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
