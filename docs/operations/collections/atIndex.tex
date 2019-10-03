@@ -54,13 +54,9 @@ The properties of $atIndex$ are illustrated in the following examples.
   \t1 x_{0} = 0 \\
   \t1 x_{1} = foo \\
   \t1 x_{2} = \langle a, b, c \rangle \\
-  atIndex(X, 0) = 0 \\
-  atIndex(X, 1) = foo \\
-  atIndex (X, \langle 1, 0 \rangle) = f & foo $\implies \langle f, o, o \rangle$ \\
-  atIndex (X, \langle 1, 2 \rangle) = o & foo $\implies \langle f, o, o \rangle$ \\
-  atIndex(X, 2) = \langle a, b, c \rangle \\
-  atIndex(X, \langle 2, 1 \rangle) = b \\
-  atIndex(X, 3) = \langle  \rangle \\
-  atIndex(X, \langle 2, 3 \rangle) = \langle  \rangle
+  atIndex(X, 0) = 0 & $head~(\langle~x_{0}~\rangle)$\\
+  atIndex(X, 1) = foo & $head~(\langle~x_{1}~\rangle)$\\
+  atIndex(X, 2) = \langle a, b, c \rangle & $head~(\langle~x_{2}~\rangle)$\\
+  atIndex(X, 3) = \langle  \rangle & $3 \not \in X \implies x_{3} \not \in X$
 \end{argue}
 \end{document}
