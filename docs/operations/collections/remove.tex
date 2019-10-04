@@ -11,6 +11,7 @@ The operation $remove$ will return a Collection minus the Value removed from the
   idx? : \nat \\
   remove~\_ : Collection \cross \nat \surj Collection
   \where
+  \#~ idx? = 1 \\
   coll! = remove(coll?, idx?) @ \\
   \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \\
   \t1 \ \ \ ~~~ coll'' == tail(\{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll?) @ \\
