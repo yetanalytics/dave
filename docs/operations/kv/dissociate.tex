@@ -1,6 +1,11 @@
 \documentclass[../../main.tex]{subfiles}
 \begin{document}
 \subsubsection{Dissociate}
+% m! = dissociate(m?, k?) @ m! = m? \dres k? \implies
+% (\dom ~m! = \dom ~(~m? \setminus ~k?)) ~\land \\
+% (~m? \setminus ~m! = k? \iff k? \in m?) ~\land \\
+% (~m? \setminus ~m! = \emptyset \iff k? \not \in m? \implies m? = m!) ~\land \\
+% ((k?, m?_{k?}) \not \in m!)
 The operation $dissociate$ will remove some $k \mapsto v$ from $KV$ given $k \in KV$
 $$dissociate(KV, k) \to KV'$$
 such that if $KV$ is a collection of Key Value pair(s) $<k_{0}v_{k_{0}}, k_{1}v_{k_{1}}>$
