@@ -200,23 +200,52 @@ The result of an Operation can be any of the following but the definition of an 
 \end{itemize}
 
 \section{Primitive}
-A collection of Operations where the output of an Operation $o$ is passed as an argument to the next Operation.
+Primitives break the processing of xAPI data down into discrete units that can be composed to create new analytical functions.
+Primitives allow users to address the methodology of answering research questions as a sequence of generic algorithmic steps
+which establish the necessary data transformations, aggregations and calculations required to reach the solution in an implementation agnostic way.
+
+Within this document, they will be defined as a Collection of Operations and/or Primitives where the output is piped from member to member.
+In this section, $o_{n}$ and $p_{n}$ can be used as to describe Primitive members but for simplicity, only $o_{n}$ will be used.
 \begin{zed}
   p_{\langle i~..~n~..~j \rangle} = o_{i} ~\pipe ~o_{n} ~\pipe ~o_{j}
 \end{zed}
-Within any given Primitive $p$, variables local to $p$ and any global variables may be passed as arguments to any $o$ within $p$ and there is no restriction on the ordering of arguments with respect to the piping. In the following, $q?$ is a global variable where as the rest are local.
+Within any given Primitive $p$, variables local to $p$ and any global variables may be passed as arguments to any member of $p$
+and there is no restriction on the ordering of arguments with respect to the piping.
+In the following, $q?$ is a global variable where as the rest are local.
 \begin{axdef}
   x?, y?, z?, i!, n!, j!, p! : Value \\
-  o_{i} : Value \fun Value \\
-  o_{n} : Value \cross Value \fun Value \\
-  o_{j}, p : Value \cross Value \cross Value \fun Value \\
+  o_{i} : Value \pfun Value \\
+  o_{n} : Value \cross Value \pfun Value \\
+  o_{j}, p : Value \cross Value \cross Value \pfun Value \\
   \where
   i! = o_{i}(x?) \\
   n! = o_{n}(i!, y?) \\
   j! = o_{j}(z?, n!, q?) \\
   p! = j! \implies o_{j}(z?, o_{n}(o_{i}(x?), y?), q?)
 \end{axdef}
-Primitives break the processing of xAPI data down into discrete units that can be composed to create new analytical functions. Primitives allow users to address the methodology of answering research questions as a sequence of generic algorithmic steps which establish the necessary data transformations, aggregations and calculations required to reach the solution in an implementation agnostic way.
+In the rest of this document, the following notation is used to distinguish between
+the functionality of a Primitive and its composition. This notation should be used when defining Primitives.
+\begin{axdef}
+  primitiveName~\_ : ~\_~\pfun~\_
+  \where
+  primitiveName = \langle primitiveName_{i}~\_~..~primitiveName_{n}~\_~..~primitiveName_{j}~\_~ \rangle
+\end{axdef}
+\begin{itemize}
+\item The top line indicates the Primitive
+  \begin{itemize}
+  \item should be written using postfix notation within other schemas
+  \item is atleast a partial function from some input to some output
+  \end{itemize}
+\item The bottom line is an enumeration of the composing Operations and/or Primitives and their order of execution
+\end{itemize}
+This means the definition of $p$ from above can be updated as follows.
+\begin{axdef}
+  p~\_ : Value \cross Value \cross Value \pfun Value
+  \where
+  p = \langle ~o_{i}, ~o_{n}, ~o_{j} \rangle \\
+  p(x?, y?, z?) = o_{j}(z?, o_{n}(o_{i}(x?), y?), q?)
+\end{axdef}
+
 
 \subsection{Domain}
 Any of the following dependent upon the Operations which compose the Primitive
