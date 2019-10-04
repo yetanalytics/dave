@@ -13,7 +13,10 @@ The operation $append$ will return a Collection with a Value added at a specifie
   coll! = append(coll?, v?, idx?) @ \\
   \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
   \t1 \ \ \ ~~~ coll'' == \{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll? @ \\
-  \t1 = coll' \cat coll'' \implies front(coll') \cat v? \cat coll'' ~ \land ~ v? \mapsto idx? \in coll! ~\land ~\#~ coll! = \#~ coll? + 1
+  \t1 = coll' \cat coll'' \implies \\
+  \t2 (front(coll')  \cat v? \cat  coll'') ~ \land \\
+  \t2 (~ v? \mapsto idx? \in coll!) ~\land \\
+  \t2 (~\#~ coll! = \#~ coll? + 1)
 \end{schema}
 where $coll'$ is the items in $coll?$ up to $idx$ but the value at $idx?$ is replaced with $v?$ and
 $coll''$ is the items in $coll?$ from $idx$ to $\#~coll?$ and is inclusive of $coll?_{idx?}$. The
