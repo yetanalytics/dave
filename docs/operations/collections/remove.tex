@@ -14,8 +14,11 @@ The operation $remove$ will return a Collection minus the Value removed from the
   \#~ idx? = 1 \\
   coll! = remove(coll?, idx?) @ \\
   \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \\
-  \t1 \ \ \ ~~~ coll'' == tail(\{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll?) @ \\
-  \t1 = coll' \cat coll'' \implies coll?_{idx?} \not \in coll' ~\land coll?_{idx?} \not \in coll'' ~\land ~\#~ coll! = \#~ coll? - 1
+  \t1 \ \ \ ~~~ coll'' == tail(\{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll?) \\
+  \t1 = coll' \cat coll'' \implies \\
+  \t2 (coll?_{idx?} \not \in coll') ~\land \\
+  \t2 (coll?_{idx?} \not \in coll'') ~\land \\
+  \t2 (~\#~ coll! = \#~ coll? - 1)
 \end{schema}
 such that
 \begin{argue}
