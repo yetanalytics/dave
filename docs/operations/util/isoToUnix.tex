@@ -1,9 +1,9 @@
 \documentclass[../../main.tex]{subfiles}
 \begin{document}
 \subsubsection{Iso To Unix Epoch}
-The $isoToUnixEpoch$ operation converts an ISO 8601 Timestamp (see the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#timestamps}{xAPI Specification})
+The $isoToUnix$ operation converts an ISO 8601 Timestamp (see the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#timestamps}{xAPI Specification})
 to the number of seconds that have elapsed since January 1, 1970
-\begin{schema}{isoToUnixEpoch}
+\begin{schema}{IsoToUnix}
   Timestamp \\
   seconds! : \nat \\
   isoToUnix~\_ : \finset_1 \fun \nat \\
