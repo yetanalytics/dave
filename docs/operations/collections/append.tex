@@ -9,6 +9,7 @@ The operation $append$ will return a Collection with a Value added at a specifie
   idx? : \nat \\
   append~\_ : Collection \cross V \cross \nat \bij Collection
   \where
+  \#~idx? = 1 \\
   coll! = append(coll?, v?, idx?) @ \\
   \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
   \t1 \ \ \ ~~~ coll'' == \{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll? @ \\
