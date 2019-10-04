@@ -531,7 +531,10 @@ implying that the effect of $opt$ doesn't prevent backwards compatibility of $st
 \end{itemize}
 
 \subsection{Algorithm Formal Definition}
-Given the definitions of Algorithm Components presented above, the previous definition of an Algorithm $A$
+In previous sections, $A~\_$ was used to indicate calling an Algorithm.
+In the rest of this document, that notation will be replaced with $algorithm~\_$.
+This new notation is defined using the definitions of Algorithm Components presented above.
+The previous definition of an Algorithm
 \begin{zed}
   Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
 \end{zed}
@@ -543,7 +546,7 @@ to illustrate how an Algorithm processes a Collection of Statement(s).
   S? : Collection @ \forall s? \in S? ~| ~s? : STATEMENT \\
   algorithm~\_ : KV \cross Collection \cross KV \surj KV
   \where
-  algorithm = \langle \_~init~\_, \langle ~\_~algorithmIter~\_, ~\_~recur~\_~\rangle \bsup \#~S? \esup, ~\_result~\_\rangle \\
+  algorithm = \langle ~init~\_~, \langle ~algorithmIter~\_~, ~recur~\_~\rangle \bsup \#~S? \esup, ~result~\_~\rangle \\
   state! = algorithm(state?, S?, opt?) @ \\
   \t1 let \ \ ~ init! == init(state?) @ \\
   \t1 \forall s_{n} \in S? ~|~ s_{n} : STATEMENT, n : \nat @ i \leq n \leq j ~@ \\
@@ -555,6 +558,14 @@ to illustrate how an Algorithm processes a Collection of Statement(s).
   \t4 state_{j+1}  = state_{j} \implies recur(state_{j}, (j \extract S?), ~\_~algorithmIter~\_) \iff n = j+1\\
   \t1 \ \ = result(state_{j}, opt?)
 \end{schema}
+Within the schema above, the following notation is intended to show that $algorithm$ is a Primitive $\implies$ Collection of Primitives and/or Operations.
+$$\langle ~init~\_~, \langle ~algorithmIter~\_~, ~recur~\_~\rangle \bsup \#~S? \esup, ~result~\_~\rangle$$
+Within that notation, the following notation is intended to represent the iteration through the Statement(s) via tail recursion.
+$$\langle ~algorithmIter~\_~, ~recur~\_~\rangle \bsup \#~S? \esup$$
+which implies that each Statement is passed to $algorithmIter~\_$ and
+the result is then passed on to the next iteration of the loop.
+The completion of this loop is the prerequisites of $result~\_$
+
 \subsubsection{Recur}
 The following schema introduces the Operation $recur$ which expects an accumulator ($KV$),
 a $Collection$ of Value(s) ($V$) being iterated over and
@@ -598,14 +609,14 @@ demonstrates the life cycle of a single statement as its passed through the comp
   s? : STATEMENT \\
   algorithmIter~\_ : KV \cross STATEMENT \surj KV
   \where
-  algorithmIter = \langle \_~relevant?~\_, ~~\_~accept?~\_, ~~\_~step~\_ \rangle \\
+  algorithmIter = \langle ~relevant?~\_~, ~accept?~\_~, ~step~\_ ~\rangle \\
   s? = head(S?) \\
   state! = algorithmIter(state?, s?) @ \\
   \t1 let \ \ ~ relevant! == relevant?(state?, s?) \\
   \t2 accept! == accept?(state?, s?) \\
-  \t2 step! == step(state?, s?) @\\
-  state! = (state? \iff relevant! = false ~ \lor ~ accept! = false) ~\lor \\
-  \t1 \ \ \ \ \ (step! \iff relevant! = true ~ \land ~ accept! = true)
+  \t2 step! == step(state?, s?)\\
+  \t1 \ ~ = (state? \iff relevant! = false ~ \lor ~ accept! = false) ~\lor \\
+  \t1 \ \ \ \ ~ (step! \iff relevant! = true ~ \land ~ accept! = true)
 \end{schema}
 If a statement if both relevant and acceptable, $state!$ will be the result of $step$. Otherwise,
 the passed in state is returned $\implies step! = state?$.
