@@ -21,9 +21,9 @@ The operation $append$ will return a Collection with a Value added at a specifie
 $append$ results in the composition of $coll'$ and $coll''$ such that
 $$coll! = coll' \cat coll'' ~ \land ~idx? \mapsto v? \in coll!$$
 \begin{itemize}
-\item $coll'$ is the items in $coll?$ up to and including $idx$ but the value at $idx?$ is replaced with $v?$ such that
+\item $coll'$ is the items in $coll?$ up to and including $idx?$ but the value at $idx?$ is replaced with $v?$ such that
   $idx? \mapsto coll?_{idx?} \not \in coll'$
-\item $coll''$ is the items in $coll?$ from $idx$ to $\#~coll? \implies coll?_{idx?} \in coll''$
+\item $coll''$ is the items in $coll?$ from $idx?$ to $\#~coll? \implies coll?_{idx?} \in coll''$
 \end{itemize}
  The following example illustrates these properties.
 \begin{argue}
