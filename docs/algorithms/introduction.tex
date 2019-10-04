@@ -415,9 +415,9 @@ The criteria which determines usability of $stmt$ given $state$ is defined by th
 
 \subsection{Step}
 
-An Algorithm Step consists of a sequential composition of Primitive(s) and therefore sequential composition of all Operation(s)
-where the output of a Primitive is passed as an argument to the next Primitive.
-$$p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \implies o_{ii} ~\pipe ~o_{in} ~\pipe ~o_{ij} ~\pipe ~o_{ni} ~\pipe ~o_{nn} ~\pipe ~o_{nj} ~\pipe ~o_{ji} ~\pipe ~o_{jn} ~\pipe ~o_{jj}$$
+An Algorithm Step consists of a sequential composition of Primitive(s)
+where the output of some function is passed as an argument to the next function both within and across Primitives in $body$.
+$$body = p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \implies o_{ii} ~\pipe ~o_{in} ~\pipe ~o_{ij} ~\pipe ~o_{ni} ~\pipe ~o_{nn} ~\pipe ~o_{nj} ~\pipe ~o_{ji} ~\pipe ~o_{jn} ~\pipe ~o_{jj}$$
 The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic Step determines how the Algorithm State changes during iteration through Statement(s) passed as input to the Algorithm.
 \begin{axdef}
   P = \langle p_{i}~..~p_{n}~..~p_{j} \rangle @ i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j @ p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \\
@@ -445,6 +445,7 @@ In general, this allows $step$ to be defined as
   stmt? : STATEMENT \\
   step~\_ : KV \cross STATEMENT \surj KV
   \where
+  step = \langle body \rangle \\
   state! = step~(state?, stmt?) = state? ~\lor ~state! \not= state?
 \end{schema}
 A change of $state? \to state! @ state! \not= state?$ can be predicted to occur given
@@ -484,6 +485,7 @@ and does so without preventing subsequent calls of $A$
   result!, state?, opt? : KV \\
   result~\_ : KV \cross KV \surj KV
   \where
+  result = \langle body \rangle \\
   result! = result(state?, opt?) = state? ~\lor ~state! \not= state?
 \end{schema}
 such that if at some future point $j$ within the timeline $i~..~n~..~j$
