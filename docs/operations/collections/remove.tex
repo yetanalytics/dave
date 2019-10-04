@@ -6,7 +6,7 @@ The inverse of the $append$ Operations.
   remove(coll, idx) = \inv append(coll, idx)
 \end{zed}
 The operation $remove$ will return a Collection minus the Value removed from the specified Numeric Index
-\begin{schema}{remove[Collection, \nat]}
+\begin{schema}{Remove[Collection, \nat]}
   coll?, coll! : Collection \\
   idx? : \nat \\
   remove~\_ : Collection \cross \nat \surj Collection
