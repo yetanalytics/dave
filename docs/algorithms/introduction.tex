@@ -332,7 +332,6 @@ is presented at the end of this section. The following subsections go into more 
 \begin{zed}
   Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
 \end{zed}
-
 \subsection{Initialization}
 
 First process to run within an Algorithm which returns the Algorithm State for the current iteration.
@@ -341,12 +340,12 @@ First process to run within an Algorithm which returns the Algorithm State for t
   state?, state! : KV \\
   init~\_: KV \surj KV
   \where
+  init = \langle body \rangle \\
   state! = init(state?) @ state! = state? ~\lor ~state! \not = state?
 \end{schema}
 such that some $state!$ does not need to be related to its arguments $state?$
 but $state!$ could be derived from some seed $state?$.
-This functionality is dependent upon the $body$ of an Algorithms $init$
-
+This functionality is dependent upon the composition of $body$ within $init$.
 \subsubsection{Domain}
 
 \begin{itemize}
@@ -367,6 +366,7 @@ First process that each $stmt$ passes through $\implies relevant? \prec accept? 
   stmt? : STATEMENT \\
   relevant?~\_ : KV \cross STATEMENT \fun Boolean
   \where
+  relevant? = \langle body \rangle \\
   relevant?(state?, stmt?) = true ~\lor false
 \end{schema}
 resulting in an indication of whether the $stmt$ is valid within algorithm $A$.
@@ -393,6 +393,7 @@ Second process that each $stmt$ passes through $\implies relevant? \prec accept?
   stmt? : STATEMENT \\
   accept?~\_ : KV \cross STATEMENT \fun Boolean
   \where
+  accept? = \langle body \rangle \\
   accept?(state?, stmt?) = true ~\lor false
 \end{schema}
 resulting in an indication of whether the $stmt$ can be sent to $step$ given the current $state$.
