@@ -1,44 +1,32 @@
 \documentclass[../../main.tex]{subfiles}
 \begin{document}
 \subsubsection{At Key}
-% v! = second(head(\seq m? \filter (k?, m?_{k?}))) \iff k? \in \dom m?
-% v! = \emptyset \iff k? \not \in \dom m?
-The operation $atKey$ will return the Value $v$ at some specified
-\begin{itemize}
-\item Top level Key $k$ within $KV$
-  $$atKey(KV, k) \to v$$
-\item Nested location $K = <k_{i}..k_{n}..k_{j}>$ within $KV$
-  $$atKey(KV, K) \to v$$
-\end{itemize}
-such that if $KV$ is a collection of Key Value pair(s) $<k_{0}v_{k_{0}}, k_{1}v_{k_{1}}>$
-where
-$$k_{0} = abc \ \land  v_{k_{0}} = 123$$
-$$\implies$$
-$$k_{0}v_{k_{0}} = abc \mapsto 123$$
-and
-$$k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456$$
-$$\implies$$
-$$k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$$
-such that
-$$KV = <abc \mapsto 123, \ def \mapsto xyz \mapsto 456>$$
-$\\$
-When $k$ is a single Key
-\begin{itemize}
-\item $k \not \in KV$, $atKey$ will return the representation of nothingness
-  $$atKey(KV, cba) = nil$$
-\item $k \in KV$, $atKey$ will return $v_{k}$
-  $$atKey(KV, k_{0}) \implies atKey(KV, abc) = 123$$
-  $$atKey(KV, k_{1}) \implies atKey(KV, def) = xyz \mapsto 456$$
-\end{itemize}
-$\\$
-When $K$ is a Collection of Key(s)
-\begin{itemize}
-\item $K \not \in KV$, $atKey$ will return the representation of nothingness
-  $$atKey(KV, <cba, 321>) = nil$$
-\item $k_{i} \in KV \ \land k_{j} \not \in KV$, $atKey$ will return the representation of nothingness
-  $$atKey(KV, <def, abc>) = nil$$
-\item $k_{i} \in KV \ \land k_{j} \in KV$, $atKey$ will return the nested value
-  $$atKey(KV, <def, xyz>) = 456$$
-\end{itemize}
-
+The operation $atKey$ will return the Value $v$ at some specified Key $k$.
+\begin{schema}{AtKey[KV, K]}
+  m? : KV \\
+  v! : V \\
+  k? : K \\
+  atKey~\_ : KV \cross K \surj V
+  \where
+  v! = atKey(m?, k?) @ \\
+  \t2 let ~~ coll == ((\seq m?) \filter (k?, m?_{k?})) \implies \langle (k?, m?_{k?}) \rangle \iff k? \in \dom m? \\
+  \ \ \ = (second(head(coll)) \iff k? \mapsto m?_{k?} \in coll) ~\lor \\
+  \t1 (\emptyset \iff k? \not \in \dom m?)
+\end{schema}
+In the schema above, $coll$ is the result of filtering for $(k?, m?_{k?})$ within $\seq m?$.
+If the mapping was in the original $m?$, it will also be in the sequence of mappings. This means
+we can filter over the sequence to look for the mapping and if found, it is returned as $\langle (k?, m?_{k?}) \rangle$.
+To return the mapping itself, $head(coll)$ is used to extract the mapping such that the value mapped to $k?$ can be returned.
+\begin{zed}
+  v! = atKey(m?, k?) = second(head(coll)) = m?_{k?} @ m?_{k?} : V \iff k? \in \dom m?
+\end{zed}
+The follow examples demonstrate the properties of $atKey$
+\begin{argue}
+  M = \ldata k_{0}v_{k_{0}}, k_{1}v_{k_{1}} \rdata \\
+  \t1 k_{0} = abc \ \land  v_{k_{0}} = 123 & $k_{0}v_{k_{0}} = abc \mapsto 123$ \\
+  \t1 k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456 & $k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$ \\
+  atKey(M, abc) = 123 \\
+  atKey(M, def) = xyz \mapsto 456 \\
+  atKey(M, foo) = \emptyset
+\end{argue}
 \end{document}
