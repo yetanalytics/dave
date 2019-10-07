@@ -1,0 +1,47 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Associate At}
+The Primitive $associateAt$ establishes a relationship between $k?_{j}$ and $v?$
+at the nesting $k?_{i}~..k?_{j-1}$ within $m!$
+\begin{axdef}
+  k? = \langle k?_{i}~..~k?_{j} \rangle \\
+  (k?_{j}, m?_{k?_{j}}) \in m? ~\lor ~(k?_{j}, m?_{k?_{j}}) \not \in m? \\
+  (k?_{j}, m?_{k?_{j}}) \not \in m! \\
+  (k?_{j}, v?) \in m!
+  \where
+  m! = associateAt(m?, k?, v?)
+\end{axdef}
+This implies that any existing mapping at $k?_{j} \in m?$ will be overwritten by $associateAt$
+but an existing mapping is not a precondition. The following helper Operation $getFirstKey$ is introduced
+to help with the recursive nature of $associateAt$.
+\begin{schema}{GetFirstKey[KV, Collection]}
+  m? : KV \\
+  k? : Collection \\
+  v! : V \\
+  getFirstKey~\_ : KV \cross Collection \surj V
+  \where
+  v! = getFirstKey(m?, k?) @ v! = atKey(m?, head(k?))
+\end{schema}
+This allows for the recursive aspect of $associateAt$ to be defined as $\langle getFirstKey~\_~, recur~\_ \rangle\bsup \#~k?-1 \esup$
+\begin{schema}{AssociateAt[KV, Collection, V]}
+  GetFirstKey, Recur \\
+  m?, m! : KV \\
+  k? : Collection @ \forall k?_{n} \in k?_{\langle i~..~j \rangle} ~|~ k_{n} : K \\
+  v? : V \\
+  associateAt~\_ : KV \cross Collection \cross V \bij KV\
+  \where
+  associateAt = \langle \langle atFirstKey~\ recur~\_~ \rangle\bsup \#~k?-1 \esup, associate~\_  \rangle \\
+  m! = associateAt(m?, k?, v?) @ \\
+  \t1 \forall n : i~..~j-1 \in k? @ j = first(last(k?)) \implies first(j, k?_{j}) ~|~ \exists_1 v_{n} @\\
+  \t2 let~ ~ ~ \ c_{n} == tail(k?)\bsup n - i \esup \\
+  \t3 v_{i} == getFirstKey(m?, ~c_{n}) \implies \\
+  \t4 c_{n} = k? \iff n = i @ v_{i} = atKey(m?, head(k?)) \\
+  \t3 v_{n} = recur(v_{i}, c_{n}, getFirstKey~\_)\bsup j-1 \esup \\
+  \t3 v_{j-1} == getFirstKey(v_{n}, (j-1 \extract k?)) \iff n = j-2 \\
+  \t3 v_{j} == associate(v_{j-1}, last(k?), v?) \implies \ldata k?_{j} \mapsto v? \rdata \cup v_{j-1} \ndres k?_{j}\\
+  \ \ \ ~~ = (v_{j} \cup v_{n - succ(1)} \ndres k?_{n - succ(0)})\bsup j-1 \esup @ n \leq j-1 \implies \\
+  \t2 v_{j-4} \cup (v_{j-3} \cup (v_{j} \cup v_{j-2} \ndres k?_{j-1}) \ndres k?_{j-2}) \ndres k?_{j-3}
+\end{schema}
+No other mappings which exist at the various levels of depth will be altered
+% WIP - text + demonstration of properties
+\end{document}
