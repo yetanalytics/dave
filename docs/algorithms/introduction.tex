@@ -245,7 +245,37 @@ This means the definition of $p$ from above can be updated as follows.
   p = \langle ~o_{i}, ~o_{n}, ~o_{j} \rangle \\
   p(x?, y?, z?) = o_{j}(z?, o_{n}(o_{i}(x?), y?), q?)
 \end{axdef}
-
+Additionally, this notation supports declaration of recursive iteration via the presence of $recur~\_$ within a Primitive chain
+\begin{axdef}
+  primitiveName_{i} = \langle \langle  primitiveName_{ii}~\_~, primitiveName_{in}~\_ ~\rangle, ~ recur~\_ ~ \rangle \bsup \#~\_ \esup
+  \where
+  \langle \langle primitiveName_{ii}~\_~, primitiveName_{in}~\_ ~\rangle, ~ recur~\_ ~ \rangle \bsup \#~\_ \esup \implies \\
+  \t2 (primtiveName_{ii} ~\pipe ~primitiveName_{in}) \bsup \#~\_ \esup @ \\
+  \t3 \forall ~n : i~..~j @ j = \#~\_ ~ \land ~i ~\leq ~n ~\leq j ~|~ \exists_1 p_{n} : ~\_~\pfun \_\_ \pfun~\_ @ \\
+  \t4 let ~~ \ \ p_{i} == primtiveName_{ii} ~\pipe ~primitiveName_{in} \implies \\
+  \t6 p_{i}~\_ = primitiveName_{in}(primitiveName_{ii}~\_)  \\
+  \t5 p_{n} == p_{i} ~\pipe ~ primtiveName_{ii} ~\pipe ~primitiveName_{in} \implies\\
+  \t6 p_{n}~\_ = primitiveName_{in}(primitiveName_{ii}(p_{i}~\_)) \\
+  \t5 p_{j} == p_{n} ~\pipe ~ primtiveName_{ii} ~\pipe ~primitiveName_{in} \implies\\
+  \t6 p_{j}~\_ = primitiveName_{in}(primitiveName_{ii}(p_{n}~\_)) \\
+  \t3 p_{j} = (primtiveName_{ii} ~\pipe ~primitiveName_{in}) \bsup \#~\_ \esup @ j = 3 \implies \\
+  \t5 ~ (primtiveName_{ii} ~\pipe ~primitiveName_{in}) ~ \pipe \\
+  \t5 ~ (primtiveName_{ii} ~\pipe ~primitiveName_{in}) ~ \pipe \\
+  \t5 ~ (primtiveName_{ii} ~\pipe ~primitiveName_{in}) \implies \\
+  \t6 primitiveName_{in}( \\
+  \t7 primitiveName_{ii}( \\
+  \t8 primitiveName_{in}( \\
+  \t9 primitiveName_{ii}(p_{i}~\_))))
+\end{axdef}
+Here, $p_{i}$ was chosen to only be two primitives $primtiveName_{ii} ~ \land ~ primitiveName_{in}$ for simplicity sake.
+The Primitive chain can be of arbitrary length. The number of iterations is described using the count operation $\#~\_$.
+Above $j = 3$ was used to demonstrate the piping between iterations but $j$ is not exclusively $= 3$. Given above,
+the term Primitive Chain can be defined as:
+\begin{zed}
+  (primtiveName_{i} ~\pipe ~primitiveName_{n} ~ \pipe ~ primitiveName_{j})\bsup \#~\_ \esup @ \\
+  \t1 \#~\_ = 0 \implies primtiveName_{i} ~\pipe ~primitiveName_{n} ~ \pipe ~ primitiveName_{j}
+\end{zed}
+where a Primitive chain iterated to the 0 is just the chain itself hence recursion is not a requirement of, but is supported within, the definition of Primitives.
 
 \subsection{Domain}
 Any of the following dependent upon the Operations which compose the Primitive
