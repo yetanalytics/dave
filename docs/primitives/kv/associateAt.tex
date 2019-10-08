@@ -12,8 +12,9 @@ at the nesting $k?_{i}~..k?_{j-1}$ within $m!$
   m! = associateAt(m?, k?, v?)
 \end{axdef}
 This implies that any existing mapping at $k?_{j} \in m?$ will be overwritten by $associateAt$
-but an existing mapping is not a precondition. The following helper Operation $getFirstKey$ is introduced
-to help with the recursive nature of $associateAt$.
+but an existing mapping is not a precondition.
+The following helper Operation $getFirstKey$ is introduced
+to establish navigation into a nested Map given a Collection of Keys.
 \begin{schema}{GetFirstKey[KV, Collection]}
   m? : KV \\
   k? : Collection \\
@@ -22,7 +23,9 @@ to help with the recursive nature of $associateAt$.
   \where
   v! = getFirstKey(m?, k?) @ v! = atKey(m?, head(k?))
 \end{schema}
-This allows for the recursive aspect of $associateAt$ to be defined as $\langle getFirstKey~\_~, recur~\_ \rangle\bsup \#~k?-1 \esup$
+This allows for the navigation into a nested Map to be defined as $\langle getFirstKey~\_~, recur~\_ \rangle\bsup \#~k?-1 \esup$
+which represents a step down for each $k \in (k? \setminus ~k?_{j})$. Once at $k?_{j-1}$, the mapped value $v_{j-1}$ has $(k?_{j}, v?)$ added to it.
+This update is localized within $m?$ and all other mappings within $m?$ are left alone.
 \begin{schema}{AssociateAt[KV, Collection, V]}
   GetFirstKey, Recur \\
   m?, m! : KV \\
