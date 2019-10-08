@@ -43,7 +43,8 @@ This update is localized within $m?$ and all other mappings within $m?$ are left
   \t3 v_{j-1} == getFirstKey(v_{n}, (j-1 \extract k?)) \iff n = j-2 \\
   \t3 v_{j} == associate(v_{j-1}, last(k?), v?) \implies \ldata k?_{j} \mapsto v? \rdata \cup v_{j-1} \ndres k?_{j}\\
   \ \ \ ~~ = (v_{j} \cup v_{n - succ(1)} \ndres k?_{n - succ(0)})\bsup j-1 \esup @ n \leq j-1 \implies \\
-  \t2 v_{j-4} \cup (v_{j-3} \cup (v_{j} \cup v_{j-2} \ndres k?_{j-1}) \ndres k?_{j-2}) \ndres k?_{j-3}
+  \t2 v_{j-4} \cup (v_{j-3} \cup (v_{j} \cup v_{j-2} \ndres k?_{j-1}) \ndres k?_{j-2}) \ndres k?_{j-3} @ \\
+  m! = associate(m?, k?_{i}, associate(v_{i}, k?_{n}, associate(v_{n}, k?_{j-1}, associate(v_{j-1}, k?_{j}, v?))))
 \end{schema}
 No other mappings which exist at the various levels of depth will be altered
 % WIP - text + demonstration of properties
