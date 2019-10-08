@@ -46,6 +46,32 @@ This update is localized within $m?$ and all other mappings within $m?$ are left
   \t2 v_{j-4} \cup (v_{j-3} \cup (v_{j} \cup v_{j-2} \ndres k?_{j-1}) \ndres k?_{j-2}) \ndres k?_{j-3} @ \\
   m! = associate(m?, k?_{i}, associate(v_{i}, k?_{n}, associate(v_{n}, k?_{j-1}, associate(v_{j-1}, k?_{j}, v?))))
 \end{schema}
-No other mappings which exist at the various levels of depth will be altered
-% WIP - text + demonstration of properties
+In the schema above, the localization of the change and the retention of the other mappings is indicated via
+\begin{zed}
+  (v_{j} \cup v_{n - succ(1)} \ndres k?_{n - succ(0)})\bsup j-1 \esup @ n \leq j-1 \implies \\
+  \t2 v_{j-4} \cup (v_{j-3} \cup (v_{j} \cup v_{j-2} \ndres k?_{j-1}) \ndres k?_{j-2}) \ndres k?_{j-3}
+\end{zed}
+and is the reason why $\langle associate~\_ \rangle \bsup \#~k \esup$ is included in the definition of $associateAt$
+and is equivalent to
+\begin{zed}
+  associate(m?, k?_{i}, associate(v_{i}, k?_{n}, associate(v_{n}, k?_{j-1}, associate(v_{j-1}, k?_{j}, v?))))
+\end{zed}
+which gracefully walks into and  back out of a $KV$ regardless of $k?_{n} \in m?_{k?_{n-1}}$.
+\begin{argue}
+  M = \ldata k_{i} \mapsto v_{i}, \ k_{n} \mapsto \ldata k_{ni} \mapsto v_{ni}, \ k_{nj} \mapsto v_{nj} \rdata \rdata \\
+  \t1 associateAt(M, \langle k_{n}, k_{nn} \rangle, v?) =
+  \ldata k_{i} \mapsto v_{i}, \ k_{n} \mapsto \ldata k_{ni} \mapsto v_{ni}, \ k_{nj} \mapsto v_{nj}, \ k_{nn} \mapsto v? \rdata \rdata \\
+  \t1 associateAt(M, \langle k_{j}, k_{ji} \rangle, v?) =
+  \ldata k_{i} \mapsto v_{i}, \ k_{n} \mapsto \ldata k_{ni} \mapsto v_{ni}, \ k_{nj} \mapsto v_{nj} \rdata, k_{j} \mapsto \ldata k_{ji} \mapsto v? \rdata \rdata \\
+  \t1 associateAt(M, \langle k_{i} \rangle, v?) =
+  \ldata k_{i} \mapsto v?, \ k_{n} \mapsto \ldata k_{ni} \mapsto v_{ni}, \ k_{nj} \mapsto v_{nj} \rdata \rdata \\
+  \t1 associateAt(M, \langle k_{i}, k_{ii} \rangle, v?) =
+  \ldata k_{i} \mapsto \ldata k_{ii} \mapsto v? \rdata, \ k_{n} \mapsto \ldata k_{ni} \mapsto v_{ni}, \ k_{nj} \mapsto v_{nj} \rdata \rdata \\
+\end{argue}
+The last example demonstrates what happens when the value at some key is not a Map.
+\begin{zed}
+  atKey(v_{i}, k_{ii}) = \emptyset \iff k_{ii} \not \in \dom v_{i} @ \\
+  \t1 associateAt(M, \langle k_{i}, k_{ii} \rangle, v?) \implies \\
+  \t2 associate(M, k_{i}, associate(\emptyset, k_{ii}, v?))
+\end{zed}
 \end{document}
