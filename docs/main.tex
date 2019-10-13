@@ -121,6 +121,7 @@ Operations which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 \subfile{operations/collections/append.tex}
 \subfile{operations/collections/remove.tex}
 \subfile{operations/collections/atIndex.tex}
+\subfile{operations/collections/update.tex}
 
 \subsection{Key Value Pairs}
 Operations which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
@@ -143,10 +144,6 @@ Operations which are usefull in many Statement processing contexts.
 Primitives which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 \subfile{primitives/collection/atDepth.tex}
 \subfile{primitives/collection/appendAt.tex}
-% TODO: update for replacing value at index
-% - replace index instead of push index
-% TODO: appendAt - use atDepth in definition
-% - append(remove(n-1, idx_{n}), n+1, idx_{n})
 % TODO: updateAt
 \subsection{Key Value Pairs}
 Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
@@ -158,7 +155,7 @@ Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v
 Primitives which are usefull in many Statement processing contexts.
 % TODO: is accumulate still needed? I have a way of describing this within Z schemas now
 \subfile{primitives/accumulate.tex}
-% TODO: refactor after atNesting has been written
+% TODO: Reference another definition of atJsonPath and just provide examples
 \subfile{primitives/atJsonPath.tex}
 
 \section*{Updated Algorithm Definitions}
