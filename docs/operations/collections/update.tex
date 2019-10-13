@@ -1,0 +1,43 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Update}
+The operation $update$ will return a Collection $coll!$ which is the same as the input Collection $coll?$
+except for at index $idx?$. The existing member $coll?_{idx?}$ is replcaed by the provided Value $v?$ at $idx?$ in $coll!$
+such that
+$$idx? \mapsto v? \in coll! ~ \land ~ idx? \mapsto coll?_{idx?} \not \in coll!$$
+The functionality of $update$ is further explained in the following schema.
+\begin{schema}{Update[Collection, \nat, V]}
+  idx? : \nat \\
+  coll?, coll! : Collection \\
+  v? : V \\
+  update~\_ : Collection \cross \nat \cross V \bij Collection
+  \where
+  1 = \#~idx? \\
+  coll! = update(coll?, idx?, v?) @ \\
+  \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
+  \t1 \ \ \ ~~~ coll'' == \{~ j : \nat ~| ~ j \in idx?+1~..~\#~coll?\} \extract coll? \\
+  \t1 = coll' \cat coll'' \implies \\
+  \t2 (front(coll')  \cat v? \cat  coll'') ~ \land \\
+  \t2 (~ v? \mapsto idx? \in coll!) ~\land \\
+  \t2 (~\#~ coll! = \#~ coll?) ~\land
+\end{schema}
+The value which previously existed at $idx? \in coll?$ is replaced with $v?$ to result in $coll!$
+\begin{itemize}
+\item $coll'$ is the items in $coll?$ up to and including $idx?$ but the value at $idx?$ is replaced with $v?$ such that
+  $idx? \mapsto coll?_{idx?} \not \in coll'$
+\item $coll''$ is the items in $coll?$ from $idx?+!$ to $\#~coll? \implies coll?_{idx?} \not \in coll''$
+\end{itemize}
+The following example illustrates these properties.
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  \t1 v? = bar \\
+  update(X, v?, 0) = \langle bar, foo, \langle a, b, c \rangle \rangle \\
+  update(X, v?, 1) = \langle 0, bar, \langle a, b, c \rangle \rangle \\
+  update(X, v?, 2) = \langle 0, foo, bar \rangle \\
+  update(X, v?, 3) = \langle 0, foo, \langle a, b, c \rangle, bar \rangle \\
+  update(X, v?, 4) = append(X, v?, 3) = update(X, v?, 3) \iff 3 \not \in \dom X
+\end{argue}
+\end{document}
