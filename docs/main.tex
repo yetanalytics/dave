@@ -119,6 +119,7 @@ dictionary of symbols usable within the definition of Operations and Primitives 
 Operations which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 \subfile{operations/collections/array?.tex}
 \subfile{operations/collections/append.tex}
+% TODO: default to j+1 in ^
 \subfile{operations/collections/remove.tex}
 \subfile{operations/collections/atIndex.tex}
 
@@ -135,6 +136,7 @@ Operations which are usefull in many Statement processing contexts.
 \subfile{operations/util/map.tex}
 \subfile{operations/util/isoToUnix.tex}
 \subfile{operations/util/timeUnitToNumberOfSeconds.tex}
+% TODO: format argue and replace rate! and rate! w/ numeric values
 \subfile{operations/util/rateOf.tex}
 
 \section{Common Primitives}
@@ -146,7 +148,8 @@ Primitives which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 % TODO: update for replacing value at index
 % - replace index instead of push index
 % TODO: appendAt - use atDepth in definition
-
+% - append(remove(n-1, idx_{n}), n+1, idx_{n})
+% TODO: updateAt
 \subsection{Key Value Pairs}
 Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
 % TODO: atNesting - use to refactor associateAt
