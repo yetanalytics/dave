@@ -33,7 +33,7 @@ This update is localized within $m?$ and all other mappings within $m?$ are left
   v? : V \\
   associateAt~\_ : KV \cross Collection \cross V \bij KV\
   \where
-  associateAt = \langle \langle atFirstKey~\_~, recur~\_~ \rangle\bsup \#~k?-1 \esup, \langle associate~\_ \rangle \bsup \#~k \esup ~\rangle \\
+  associateAt = \langle \langle getFirstKey~\_~, recur~\_~ \rangle\bsup \#~k?-1 \esup, \langle associate~\_ \rangle \bsup \#~k \esup ~\rangle \\
   m! = associateAt(m?, k?, v?) @ \\
   \t1 \forall n : i~..~j-1 \in \dom k? @ j = first(last(k?)) \implies first(j, k?_{j}) ~|~ \exists_1 v_{n} @\\
   \t2 let~ ~ ~ \ c_{n} == tail(k?)\bsup n - i \esup \\
