@@ -27,14 +27,15 @@ This can be seen in the definition of $rateOf$ bellow.
 \end{schema}
 The only other functionality required by $rateOf$ is supplied via basic arithmetic
 \begin{argue}
-  start = 2015-11-18T12:17:00Z ~ \land ~ end = 2015-11-18T14:17:00Z \\
+  start = 2015-11-18T12:17:00Z \\
+  end = 2015-11-18T14:17:00Z \\
   unit = second \\
-  startN = isoToUnix(start) = 1447849020 \\
-  endN = isoToUnix(end) = 1447856220 \\
-  interval = endN - StartN = 7200\\
-  unitN = toSeconds(unit) = 60 \\
   nO? = 10 \\
-  rate! = rateOf(nO?, start, end, unit) = 0.001389 \implies 10 \div (7200 \div 60) \\
-  rate!! = rateOf(nO?, start, end, hour) = 5 \implies 10 \div (7200 \div 3600)
+  \t1 startN = isoToUnix(start) = 1447849020 \\
+  \t1 endN = isoToUnix(end) = 1447856220 \\
+  \t1 interval = endN - StartN = 7200\\
+  \t1 unitN = toSeconds(unit) = 60 \\
+  0.001389 = rateOf(nO?, start, end, unit) \implies 10 \div (7200 \div 60) \\
+  5 = rateOf(nO?, start, end, hour) \implies 10 \div (7200 \div 3600)
 \end{argue}
 \end{document}
