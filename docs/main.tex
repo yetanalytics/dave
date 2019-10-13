@@ -142,22 +142,23 @@ Operations which are usefull in many Statement processing contexts.
 \subsection{Collections}
 Primitives which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 \subfile{primitives/collection/atDepth.tex}
-
+% TODO: appendAt - use atDepth in definition
 
 \subsection{Key Value Pairs}
 Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
-
+% TODO: atNesting - use to refactor associateAt
 \subfile{primitives/kv/associateAt.tex}
 
 
 \subsection{Utility}
 Primitives which are usefull in many Statement processing contexts.
-% WIP - update to Z + new Operation definitions
+% TODO: is accumulate still needed? I have a way of describing this within Z schemas now
 \subfile{primitives/accumulate.tex}
+% TODO: refactor after atNesting has been written
 \subfile{primitives/atJsonPath.tex}
 
 \section*{Updated Algorithm Definitions}
-% WIP - update to Z and to account for above
+% WIP - update to Z and account for  updates to above
 The following are examples of the new way in which Algorithms were defined. These sections are either in draft form or are a work in progress.
 \subfile{algorithm_definitions/rateOfCompletions.tex}
 \subfile{algorithm_definitions/timelineLearnerSuccess.tex}
