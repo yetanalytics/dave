@@ -35,6 +35,7 @@ $$coll! = coll' \cat coll'' ~ \land ~idx? \mapsto v? \in coll!$$
   append(X, v?, 0) = \langle bar, 0, foo, \langle a, b, c \rangle \rangle \\
   append(X, v?, 1) = \langle 0, bar, foo, \langle a, b, c \rangle \rangle \\
   append(X, v?, 2) = \langle 0, foo, bar, \langle a, b, c \rangle \rangle \\
-  append(X, v?, 3) = \langle 0, foo, \langle a, b, c \rangle, bar \rangle
+  append(X, v?, 3) = \langle 0, foo, \langle a, b, c \rangle, bar \rangle \\
+  append(X, v?, 4) = append(X, v?, 3) \iff 3 \not \in \dom X
 \end{argue}
 \end{document}
