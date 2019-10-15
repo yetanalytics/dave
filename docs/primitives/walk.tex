@@ -1,0 +1,145 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+There will be many Primitives used within Algorithm definitions in DAVE but
+navigation into a nested $Collection$ or $KV$ is most likely to be used
+across nearly all Algorithm definitions. Because of this, the first
+common Primitive to be introduced is $walk$. In order to define $walk$
+using the Operation $recur$, the following helper Operations are introduced.
+These two helper Operations will be used to describe the navigation
+into and then back out of a nested Value based on the provided
+Collection of identifiers.
+\begin{schema}{GetNext[V, Collection]}
+  in?, next! : V \\
+  id? : Collection \\
+  getNext~\_ : V \cross Collection \surj V
+  \where
+  next! = getNext(in?, id?) @\\
+  \t1 \ ~  = (atIndex(in?, head(id?)) \iff (array?(in?) = true) ~\land~ (head(id?) \in \nat)) ~\lor \\
+  \t1 \ \ \ \ ~ (atKey(in?, head(id?)) \iff (array?(in?) = false) ~ \land ~ (map?(in?) = true))
+\end{schema}
+\begin{itemize}
+  \item Navigation down into either a $Collection$ or $KV$ based on the type of $in?$
+\end{itemize}
+\begin{schema}{Merge[(V, V), Collection]}
+  parent?, child?, parent! : V \\
+  at? : Collection \\
+  merge~\_ : (V \cross V) \cross Collection \bij V
+  \where
+  parent! = merge((parent?, child?), at?) @ \\
+  \t1 \ \ \ \ ~ = (associate(parent?, head(at?), child?) \\
+  \t3 \iff map?(parent?) = true) ~ \lor \\
+  \t2 \ ~ (update(parent?, child?, head(at?)) \\
+  \t3 \iff (array?(parent?) = true) ~\land~ (head(at?) \in \nat))
+\end{schema}
+\begin{itemize}
+  \item Updating of $parent?$ to include $child?$ at location indicated by $head(at?)$
+\end{itemize}
+The helper Operations defined above are necessary for describing
+the traversal of a heterogeneous nested Value. Collection and KV have different Fundamental Operations
+for navigation and update. Their usage in $walk$ is touched on within the following
+summary and expanded further within the formal definition.
+\begin{enumerate}
+\item navigate down into the provided value $in?$ up until the second to last value $in?_{path?_{j-1}}$ as described by the provided $path?$
+  \begin{zed}
+    in?_{path?_{j-1}} : V
+    \where
+    path?_{j-1} \implies path? ~\ndres~ j \implies path? \dres ~(~\dom ~path? ~\setminus ~\{j\})
+  \end{zed}
+\item extract any existing data mapped to $atIndex(path?, j)$ from the result of step 1
+  \begin{zed}
+    in?_{path?} : V
+    \where
+    path? \implies path?_{j-1} ~\cup~ (j, atIndex(path?, j))
+  \end{zed}
+\item create the mapping $(atIndex(path?, j), in?_{path?})$ labeled here as $args?$
+  \begin{zed}
+    args? = (atIndex(path?, j), in?_{path?})
+    \where
+    args? \in in?_{path?_{j-1}}\\
+    first(args?) = atIndex(path?, j)
+  \end{zed}
+\item pass $in?_{path?}$ to the provided function $fn?$ to produce some output $fn!$
+  \begin{zed}
+    fn! = fn?(second(args?)) = fn?(in?_{path?})
+   \end{zed}
+\item replace the previous mapping $args?$ within $in?_{path?_{j-1}}$ with $fn!$ at $atIndex(path?, j)$
+  \begin{zed}
+    child_{j} = first(args?) \mapsto fn! \\
+    in!?_{path?_{j-1}} = merge((in?_{path_{j-1}}, fn!), first(args?))
+    \where
+    child_{j} \in in!?_{path?_{j-1}} \\
+    child_{j} \not \in in?_{path?_{j-1}} \iff child_{j} \not= args? \\
+    args? \in in?_{path?_{j-1}} \\
+    args? \not \in in!?_{path?_{j-1}} \iff args? \not= child_{j}
+  \end{zed}
+\item retrace navigation back up from $in!?_{path?_{j-1}}$,
+  updating the mapping at each $path?_{n} \in path?$ without touching any other mappings.
+  \begin{zed}
+    in!?_{path?_{j-1}} \ndres first(args?) = in?_{path?_{j-1}} \ndres first(args?) \iff args? \not= child_{j}
+    \where
+    args? \not= child_{j} \implies second(args?) \not= second(child_{j}) \\
+    in!?_{path?_{j-1}} \ndres first(args?) \implies in!?_{path?_{j-1}} \dres ~(~\dom ~in!?_{path?_{j-1}} ~\setminus ~first(args?))
+  \end{zed}
+\item return $out!$ after the final update is made to $in?$.
+  \begin{zed}
+    child_{i} = atIndex(path?, i) \mapsto in!?_{path?_{i}} \\
+    in!?_{path?_{i}} = merge((in?_{path?_{i}}, in!?_{path?_{i+1}}), atIndex(path?, i+1))
+    \where
+    out! = merge((in?, second(child_{i})), first(child_{i})) @ \\
+    \t1 in? ~\ndres ~head(path?) ~=~ out! ~\ndres ~head(path?) \implies \\
+    \t2 \forall (a,b) \in path? @ b = atIndex(path?, a) ~|~ \exists ~a @ in?_{a} = out!_{a} \iff a \not= head(path?)
+  \end{zed}
+\end{enumerate}
+The summary of $walk$ given above is formalized within the schema $Walk$ bellow where $Walk$
+dives deeper into the properties/constraints provided for each step. The variables names used
+in the summary are NOT used in all cases within $Walk$.
+\begin{schema}{Walk[V, Collection, (~\_~\pfun~\_~)]}
+  GetNext, Merge, Recur \\
+  in?, out!, fn! : V \\
+  path? : Collection \\
+  fn? : (~\_~\pfun~\_~) \\
+  walk~\_ : V \cross Collection \cross (~\_~\pfun~\_~) \bij V
+  \where
+  walk = \langle \langle getNext~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup ~,
+  ~(~\_~\pfun~\_~)~,
+  \langle merge~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup \rangle \\
+  out! = walk(in?, path?, fn?) @ \\
+  \ \forall n : i~..~j-1 @ j = first(last(path?)) \implies \\
+  \t6 first(j, path?_{j}) ~|~ \exists ~ down_{n} @\\
+  \t1 let \ \ path?_{n} == tail(path?)\bsup n-i \esup \\
+  \t1 \ \ \ \ \ down_{i} == getNext(in?, path?_{n}) \implies \\
+  \t5 atIndex(in?, head(path?)) ~\lor~ atKey(in?, head(path?)) \iff n = i\\
+  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, getNext~\_)\bsup j - 1 \esup \\
+  \t1 \ \ \ \ \ down_{j-1} == getNext(down_{n}, path?_{n}) \iff n = j - 2 \\
+  \t1 \ \ \ \ \ down_{j} == getNext(down_{j-1}, path?_{n}) @ \\
+  \t5 path?_{n} \equiv (path? \extract j) \implies \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
+  \ \ \ \ \ fn! = fn?(down_{j}) \\
+  \ \forall z : p~..~q @ ((p = j-1) \land (q = i + 1)) \implies \\
+  \t6 ((z = p \iff n = j-1) \land (z = q \iff n = i + 1)) ~|~ \exists ~ up_{n} @ \\
+  \t1 let \ \ path?_{rev} == rev(path?) \\
+  \t1 \ \ \ \ \ path?_{z} == tail(path?_{rev})\bsup p-z+1 \esup \\
+  \t1 \ \ \ \ \ up_{p} == merge((down_{j-1}, fn!), path?_{z}) \implies \\
+  \t4 (path?_{z} \equiv tail(path?_{rev})) ~ \land \\
+  \t4 \ \ (associate(down_{j-1}, head(path?_{z}), fn!) ~ \lor \\
+  \t4 \ \ update(down_{j-1}, fn!, head(path?_{z}))) \iff z = p \\
+  \t1 \ \ \ \ \ up_{z} == recur((down_{n} , up_{p}), path?_{z}, merge~\_) \bsup p \esup \iff p = n + 1 ~\land~ z = n\\
+  \t1 \ \ \ \ \ up_{q} == merge((down_{i+1}, up_{z}), path?_{z}) \iff z = q + 1 \implies z = i + 2 \\
+  \t1 \ \ \ \ \ up_{i} == merge((down_{i}, up_{q}), path?_{z}) \iff z = q  \implies z = i + 1 \implies up_{i} = up_{q-1} \\
+  out! = merge((in?, up_{i}), path?_{n}) \equiv merge((in?, up_{i}), (path? \extract i)) \iff (n = i = q - 1)
+\end{schema}
+The following examples demonstrate the functionality of the Primitive $walk$
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle ~ \land ~ fn! = fn(val?, idx?) = ZZZ\\
+  \t1 x_{0} = true \\
+  \t1 x_{1} = \langle a, b, c \rangle \\
+  \t1 x_{2} = \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y \rdata \rdata \\
+  walk(X, \langle 0 \rangle, array?~\_) = \langle false, x_{1}, x_{2} \rangle & $true ~\lnot~ Collection$ \\
+  walk(X, \langle 2, foo, z \rangle, fn~\_) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y, z \mapsto ZZZ \rdata \rdata\rangle \\
+  walk(X, \langle 2, foo, x \rangle, fn~\_) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto ZZZ \rdata \rdata\rangle \\
+  walk(X, \langle 2, qux \rangle, fn~\_) = \langle x_{0}, x_{1}, (x_{2} ~\cup~ qux \mapsto ZZZ)\rangle \\
+  walk(X, \langle 1 \rangle, map(succ~\_, x_{1}, 1)) = \langle x_{0}, \langle b, c, d \rangle, x_{2} \rangle \\
+  walk(X, \langle 1, 0 \rangle, succ~\_) = \langle x_{0}, \langle b, b, c \rangle, x_{2} \rangle
+\end{argue}
+
+\end{document}
