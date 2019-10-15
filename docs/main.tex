@@ -139,17 +139,23 @@ Operations which are usefull in many Statement processing contexts.
 \subfile{operations/util/rateOf.tex}
 
 \section{Common Primitives}
-% TODO: intro text for section
+\subfile{primitives/walk.tex}
 \subsection{Collections}
 Primitives which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 \subfile{primitives/collection/atDepth.tex}
+% FIXME: use getNext
 \subfile{primitives/collection/appendAt.tex}
-% TODO: updateAt
+% FIXME: use walk + ditch atDepth
+\subfile{primitives/collection/updateAt.tex}
+% FIXME: use walk + ditch atDepth
+
 \subsection{Key Value Pairs}
 Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
-% TODO: atNesting - use to refactor associateAt
+% TODO: atNesting, use getNext
 \subfile{primitives/kv/associateAt.tex}
-
+% FIXME: refactor with walk
+% associateAt = update in place, doesn't matter what was there
+% TODO: accumulateAt = update in place using what was there
 
 \subsection{Utility}
 Primitives which are usefull in many Statement processing contexts.
