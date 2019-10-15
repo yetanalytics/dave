@@ -36,9 +36,10 @@ Collection of identifiers.
   \item Updating of $parent?$ to include $child?$ at location indicated by $head(at?)$
 \end{itemize}
 The helper Operations defined above are necessary for describing
-the traversal of a heterogeneous nested Value. Collection and KV have different Fundamental Operations
-for navigation and update. Their usage in $walk$ is touched on within the following
-summary and expanded further within the formal definition.
+the traversal of a heterogeneous nested Value. Collection and KV have
+different Fundamental Operations for navigation into, value extraction from
+and mapping update within. Their usage in $walk$ is touched on within the following
+summary but they are heavily used within the formal definition.
 \begin{enumerate}
 \item navigate down into the provided value $in?$ up until the second to last value $in?_{path?_{j-1}}$ as described by the provided $path?$
   \begin{zed}
