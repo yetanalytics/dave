@@ -120,16 +120,39 @@ Both $getIn$ and $backProp$ will be used to define $walk$.
   \t5 \ path?_{n} \equiv (path? \extract j) \implies \\
   \t6 \ \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
 \end{schema}
-% TODO: copy if necessary
+% TODO: copy if necessary (GI)
 % TODO: examples
-
-\begin{schema}{BackProp[V, Collection, (~\_~\pfun~\_~)]}
-  Merge, Recur \\
-
+% TODO: copy if necessary (BP)
+\begin{schema}{BackProp[V, Collection, V]}
+  GetIn, Merge \\
+  in?, fn!, out! : V \\
+  path? : Collection \\
+  backProp~\_ : V \cross Collection \cross V \bij V
+  \where
+  backProp = \langle \langle getIn~\_~, ~merge~\_~ \rangle , ~recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
+  out! = backProp(in?, path?, fn!) @ \\
+  \t1 \forall n : i~..~j-1 @ (i = first(head(path?))) ~\land~ (j = first(last(path?))) ~|~ \exists ~ parent_{n} @ \\
+  \t3 let \ ~ path?_{n} == tail(path?)\bsup n-i \esup \\
+  \t2 parent_{n} = recur(parent_{n-1}, path?_{n}, get~\_)\bsup j - 1 \esup \implies \\
+  \t3 let \ ~ parent_{i} == getIn(in?, path?_{n}) \iff n = i \\
+  \t3 \ \ \ \ ~ parent_{i+1} == getIn(parent_{i}, path?_{n}) \iff n = i+1 \\
+  \t3 \ \ \ \ ~ parent_{j-1} == getIn(parent_{j-2}, path?_{n}) \iff n = j-1 \\
+  \t3 parent_{j} =  getIn(parent_{j-1}, (path? \extract j))
+  \\ ~ \\
+  \t1 \forall z : p~..~q @ (p = j-1) ~\land ~ (q = i + 1) \implies \\
+  \t4 ((z = p \iff n = j-1) \land (z = q \iff n = i + 1)) ~|~ \exists ~ child_{z} @ \\
+  \t3 let \ \ path?_{rev} == rev(path?) \\
+  \t3 \ \ \ \ \ path?_{z} == tail(path?_{rev})\bsup p-z+1 \esup \\
+  \t2 child_{z} = recur((parent_{n}, child_{n+1}), path?_{z}, merge~\_ ) \\
+  \t3 let \ ~ child_{p} == merge((parent_{n}, fn!), path?_{z}) \iff z = p \implies n = j-1 \\
+  \t3 \ \ \ \ ~ child_{p+1} == merge((parent_{n}, child_{p}), path?_{z}) \iff n = j - 2 ~\land ~p = j - 1 \\
+  \t3 \ \ \ \ ~ child_{q} == merge((parent_{n}, child_{q+1}), path?_{z}) \iff z = q \implies n = i + 1
+  \\~\\
+  out! = merge((in?, child_{q}), path?_{n}) \equiv merge((in?, child_{q}), (path? \extract i)) \iff (n = i = q - 1)
 \end{schema}
-
-
-
+% TODO: examples
+% TODO: copy if necessary (walk)
+% FIXME: update Walk to use getIn + BackProp
 \begin{schema}{Walk[V, Collection, (~\_~\pfun~\_~)]}
   Get, Merge, Recur \\
   in?, out!, fn! : V \\
