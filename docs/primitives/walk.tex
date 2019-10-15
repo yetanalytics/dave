@@ -3,18 +3,16 @@
 \begin{document}
 There will be many Primitives used within Algorithm definitions in DAVE but
 navigation into a nested $Collection$ or $KV$ is most likely to be used
-across nearly all Algorithm definitions. Because of this, the first
-common Primitive to be introduced is $walk$. In order to define $walk$
-using the Operation $recur$, the following helper Operations are introduced.
-These two helper Operations will be used to describe the navigation
-into and then back out of a nested Value based on the provided
-Collection of identifiers.
-\begin{schema}{GetNext[V, Collection]}
-  in?, next! : V \\
+across nearly all Algorithm definitions. Because of this, the following
+common Primitives are introduced. Two helper Operations serve as the basis of
+these primitives and are introduced first, followed by $getIn$, $backProp$ and $walk$.
+
+\begin{schema}{Get[V, Collection]}
+  in?, v! : V \\
   id? : Collection \\
-  getNext~\_ : V \cross Collection \surj V
+  get~\_ : V \cross Collection \surj V
   \where
-  next! = getNext(in?, id?) @\\
+  v! = get(in?, id?) @\\
   \t1 \ ~  = (atIndex(in?, head(id?)) \iff (array?(in?) = true) ~\land~ (head(id?) \in \nat)) ~\lor \\
   \t1 \ \ \ \ ~ (atKey(in?, head(id?)) \iff (array?(in?) = false) ~ \land ~ (map?(in?) = true))
 \end{schema}
@@ -94,26 +92,63 @@ summary but they are heavily used within the formal definition.
 \end{enumerate}
 The summary of $walk$ given above is formalized within the schema $Walk$ bellow where $Walk$
 dives deeper into the properties/constraints provided for each step. The variables names used
-in the summary are NOT used in all cases within $Walk$.
+in the summary are NOT used in all cases within the schema $Walk$.
+
+Navigation into a Value is a useful tool to have outside of the context
+of $walk$ so the Primitive $getIn$ is introduced as a stand alone Primitive.
+Additionally, back propagation of an update back up a nested Value where the update
+only effects values along a specified path is also a useful tool to have.
+The stand alone Primitive $backProp$ is introduced to serve that purpose.
+Both $getIn$ and $backProp$ will be used to define $walk$.
+
+\begin{schema}{GetIn[V, Collection]}
+  Get, Recur \\
+  in?, atPath! : V \\
+  path? : Collection \\
+  getIn~\_ : V \cross Collection \surj V
+  \where
+  getIn = \langle get~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
+  atPath! = getIn(in?, path?) @ \\
+  \ \forall n : i~..~j-1 @ j = first(last(path?)) \implies first(j, path?_{j}) ~|~ \exists ~ down_{n} @\\
+  \t1 let \ \ path?_{n} == tail(path?)\bsup n-i \esup \\
+  \t1 \ \ \ \ \ down_{i} == get(in?, path?_{n}) \implies \\
+  \t5 atIndex(in?, head(path?)) ~\lor \\
+  \t5 atKey(in?, head(path?)) \iff n = i\\
+  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, get~\_)\bsup j - 1 \esup \\
+  \t1 \ \ \ \ \ down_{j-1} == get(down_{n}, path?_{n}) \iff n = j - 2 \\
+  atPath! = down_{j} = get(down_{j-1}, path?_{n}) @ \\
+  \t5 \ path?_{n} \equiv (path? \extract j) \implies \\
+  \t6 \ \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
+\end{schema}
+% TODO: copy if necessary
+% TODO: examples
+
+\begin{schema}{BackProp[V, Collection, (~\_~\pfun~\_~)]}
+  Merge, Recur \\
+
+\end{schema}
+
+
+
 \begin{schema}{Walk[V, Collection, (~\_~\pfun~\_~)]}
-  GetNext, Merge, Recur \\
+  Get, Merge, Recur \\
   in?, out!, fn! : V \\
   path? : Collection \\
   fn? : (~\_~\pfun~\_~) \\
   walk~\_ : V \cross Collection \cross (~\_~\pfun~\_~) \bij V
   \where
-  walk = \langle \langle getNext~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup ~,
+  walk = \langle \langle get~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup ~,
   ~(~\_~\pfun~\_~)~,
   \langle merge~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup \rangle \\
   out! = walk(in?, path?, fn?) @ \\
   \ \forall n : i~..~j-1 @ j = first(last(path?)) \implies \\
   \t6 first(j, path?_{j}) ~|~ \exists ~ down_{n} @\\
   \t1 let \ \ path?_{n} == tail(path?)\bsup n-i \esup \\
-  \t1 \ \ \ \ \ down_{i} == getNext(in?, path?_{n}) \implies \\
+  \t1 \ \ \ \ \ down_{i} == get(in?, path?_{n}) \implies \\
   \t5 atIndex(in?, head(path?)) ~\lor~ atKey(in?, head(path?)) \iff n = i\\
-  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, getNext~\_)\bsup j - 1 \esup \\
-  \t1 \ \ \ \ \ down_{j-1} == getNext(down_{n}, path?_{n}) \iff n = j - 2 \\
-  \t1 \ \ \ \ \ down_{j} == getNext(down_{j-1}, path?_{n}) @ \\
+  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, get~\_)\bsup j - 1 \esup \\
+  \t1 \ \ \ \ \ down_{j-1} == get(down_{n}, path?_{n}) \iff n = j - 2 \\
+  \t1 \ \ \ \ \ down_{j} == get(down_{j-1}, path?_{n}) @ \\
   \t5 path?_{n} \equiv (path? \extract j) \implies \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
   \ \ \ \ \ fn! = fn?(down_{j}) \\
   \ \forall z : p~..~q @ ((p = j-1) \land (q = i + 1)) \implies \\
