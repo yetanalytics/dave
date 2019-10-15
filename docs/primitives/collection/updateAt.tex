@@ -1,0 +1,80 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+\subsubsection{Update At}
+The primitive $updateAt$ performs a replacement at some depth within a Collection without changing any other
+values in the source Collection.
+\begin{schema}{UpdateAt[Collection, V,  Collection]}
+  AtDepth \\
+  coll?, coll!, indices? : Collection \\
+  v? : V \\
+  updateAt~\_ : Collection \cross V \cross Collection \bij Collection
+  \where
+  updateAt = \langle atDepth~\_~, update~\_~, \langle atDepth~\_~, update~\_ \rangle \bsup \#~indices?-1 \esup \rangle \\
+  coll! = updateAt(coll?, v?, indices?) @ \\
+  \t1 let \ \ ~~ coll == update(atDepth(coll?, indices? ~\ndres ~ indices?_{j}), v?, indices?_{j}) @ \\
+  \t2 \forall n : i~..~j-1 @ j = first(last(indices?)) ~|~ \exists ~ c_{n} @ \\
+  \t3 let \ \ ~~ c_{i} == atDepth(coll?, (indices? \extract i)) \implies atIndex(coll?, indices?_{i}) \\
+  \t4 c_{n} == atDepth(c_{n-1}, (indices? \extract n)) \\
+  \t4 c_{j-1} == atDepth(c_{n}, (indices? \extract j-1)) \iff n = j-2 \\
+  \t4 c_{j} == update(c_{j-1}, v?, (indices? \extract j)) \implies c_{j} = coll = coll!_{j}\\
+  \t4 coll!_{j-2} == update(c_{j-2}, c_{j}, indices?_{j-1}) \\
+  \t4 coll!_{n} == update(c_{n-1}, coll!_{n}, indices?_{n}) \\
+  \t4 coll!_{i} == update(c_{i}, coll!_{n}, indices?_{n}) \iff n = i + 1 \\
+  \t1 = update(coll?, coll!_{i}, indices?_{i})
+\end{schema}
+The following examples demonstrate the properties of $updateAt$
+\begin{argue}
+X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  updateAt(X, \langle 1, 3 \rangle, z) = \langle x_{0}, fooz, x_{2} \rangle \implies foo = \langle f, o, o \rangle\\
+  updateAt(X, \langle 1, 0 \rangle, z) = \langle x_{0}, zoo, x_{2} \rangle \implies zoo = \langle z, o, o \rangle \\
+  updateAt(X, \langle 0 \rangle, 5) = \langle 5, x_{1}, x_{2} \rangle \\
+  updateAt(X, \langle 0, 0 \rangle, 5) = \langle \langle 5 \rangle, x_{1}, x_{2} \rangle  & 5 in seq \\
+  updateAt(X, \langle 0, 1 \rangle, 5) = \langle \langle 0, 5 \rangle, x_{1}, x_{2} \rangle  & 5 and 0 in seq \\
+  updateAt(X, \langle 2, 0 \rangle, d) = \langle x_{0}, x_{1}, \langle d, b, c \rangle \rangle \\
+  updateAt(X, \langle 2 \rangle, d) = \langle x_{0}, x_{1}, d \rangle
+\end{argue}
+Which indicates that if navigation would result in stepping into a non-nested Value,
+an empty sequence is created and then populated with the non-nested Value so navigation
+can continue.
+\begin{argue}
+  X! = updateAt(X, \langle 0, 0 \rangle, 5) ~ | ~ i \mapsto 0 ~\land~ j \mapsto 0 ~ \land~ i \not= j @\\
+  \t1 let \ \ ~~ X_{i} == atIndex(X, i) = 0 \\
+  \t2 X_{i+1} == atIndex(X_{i}, j) = \langle  \rangle \\
+  \t2 X_{j} == append(X_{i+1}, X_{i}, 0) = \langle 0 \rangle & only item hence 0 index\\
+  \t2 X'_{j} == update(X_{j}, 5, j) = \langle 5 \rangle \\
+  \t1 = update(X, X'_{j}, i) \\
+  \t1 = \langle \langle 5 \rangle, x_{1}, x_{2} \rangle
+\end{argue}
+\begin{itemize}
+\item The nesting which created $\langle 0 \rangle$ also specified that the
+  first index of that sub Collection should have the value of 5
+  which is why $X! = \langle \langle 5 \rangle, x_{1}, x_{2} \rangle$
+\end{itemize}
+\begin{argue}
+  X! = updateAt(X, \langle 0, 1 \rangle, 5) ~ | ~ i \mapsto 0 ~\land~ j \mapsto 1 ~ \land~ i \not= j @\\
+  \t1 let \ \ ~~ X_{i} == atIndex(X, i) = 0 \\
+  \t2 X_{i+1} == atIndex(X_{i}, j) = \langle  \rangle \\
+  \t2 X_{j} == append(X_{i+1}, X_{i}, 0) = \langle 0 \rangle & only item hence 0 index\\
+  \t2 X'_{j} == update(X_{j}, 5, j) = \langle 0, 5 \rangle \\
+  \t1 = update(X, X'_{j}, i) \\
+  \t1 = \langle \langle 0, 5 \rangle, x_{1}, x_{2} \rangle
+\end{argue}
+\begin{itemize}
+\item The nesting which created $\langle 0 \rangle$ now indicates that the
+  second index of that sub Collection should have the value of 5
+  which is why $X! = \langle \langle 0, 5 \rangle, x_{1}, x_{2} \rangle$
+\end{itemize}
+\begin{argue}
+  X! = updateAt(X, \langle 0 \rangle, 5) ~ | ~ i \mapsto 0 @\\
+  \t2 \#~indices? = 1 \implies updateAt(X, \langle 0 \rangle, 5) \equiv update(X, i, 5) @ \\
+  \ \ \ \ = update(X, i, 5) = \langle 5, x_{1}, x_{2} \rangle
+\end{argue}
+\begin{itemize}
+\item Here there is no further nesting which can't be performed so the update happens as if the Operation $update$ was used.
+\end{itemize}
+
+\end{document}
