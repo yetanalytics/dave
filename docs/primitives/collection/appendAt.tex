@@ -21,7 +21,7 @@ is equivalent to $coll?$ except for at the value at the path $idxs?_{i}~..~idxs?
   \t4 c_{j-1} == atDepth(c_{n}, (idxs? \extract j-1)) \iff n = j-2 \\
   \t4 c_{j} == append(c_{j-1}, v?, (idxs? \extract j)) \implies c_{j} = coll = coll!_{j}\\
   \t4 coll!_{j-1} == append(remove(c_{j-2}, idxs?_{j-1}), c_{j}, idxs?_{j-1}) \\
-  \t4 coll!_{n} == append(remove(c_{n-1}, idxs?_{n}), coll!_{n+1}, idxs?_{n}) \\
+  \t4 coll!_{n} == append(remove(c_{n-1}, idxs?_{n}), coll!_{n}, idxs?_{n}) \\
   \t4 coll!_{i} == append(remove(c_{i}, idxs?_{n}), coll!_{n}, idxs?_{n}) \iff n = i + 1 \\
   \t1 = append(remove(coll?, idxs?_{i}), coll!_{i}, idxs?_{i})
 \end{schema}
@@ -38,8 +38,8 @@ The following examples demonstrate the properties of $appendAt$ described above.
   \t1 x_{1} = foo \\
   \t1 x_{2} = \langle a, b, c \rangle \\
   appendAt(X, \langle 1, 3 \rangle, z) = \langle x_{0}, fooz, x_{2} \rangle \implies foo = \langle f, o, o \rangle\\
-  appendAt(X, \langle 1 \rangle, 5) = \langle \langle 0, 5 \rangle, x_{1}, x_{2} \rangle  & existing item gets 0 index \\
-  appendAt(X, \langle 1, 0 \rangle, 5) = \langle \langle 5, 0 \rangle, x_{1}, x_{2} \rangle  & overwritting default behavior \\
+  appendAt(X, \langle 0 \rangle, 5) = \langle \langle 0, 5 \rangle, x_{1}, x_{2} \rangle  & existing item gets 0 index \\
+  appendAt(X, \langle 0, 0 \rangle, 5) = \langle \langle 5, 0 \rangle, x_{1}, x_{2} \rangle  & overwritting default behavior \\
   appendAt(X, \langle 2, 0 \rangle, d) = \langle x_{0}, x_{1}, \langle d, a, b, c \rangle \rangle \\
   appendAt(X, \langle 2 \rangle, d) = \langle x_{0}, x_{1}, \langle a, b, c, d \rangle \rangle \\
 \end{argue}
