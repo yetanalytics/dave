@@ -3,10 +3,12 @@
 \begin{document}
 There will be many Primitives used within Algorithm definitions in DAVE but
 navigation into a nested $Collection$ or $KV$ is most likely to be used
-across nearly all Algorithm definitions. Because of this, the following
-common Primitives are introduced. Two helper Operations serve as the basis of
-these primitives and are introduced first, followed by $getIn$, $backProp$ and $walk$.
+across nearly all Algorithm definitions. In the following section,
+two helper Operations are introduced for navigation into and back out of a
+nested Value. These Operations are then used to define the common Primitives centered around
+traversal of nested data structures ie. xAPI Statements and Algorithm State.
 
+\subsection{Traversal Operations}
 \begin{schema}{Get[V, Collection]}
   in?, v! : V \\
   id? : Collection \\
