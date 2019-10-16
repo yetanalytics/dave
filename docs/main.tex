@@ -136,19 +136,21 @@ Operations which are usefull in many Statement processing contexts.
 % - updateAt [TODO - distinguish from replaceAt]
 % - appendAt [TODO - define new fn?_{nav}]
 
-\subsection{Key Value Pairs}
-Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
-\subfile{primitives/kv/associateAt.tex}
-% FIXME: refactor with walk
-% associateAt = update in place, doesn't matter what was there
-% TODO: accumulateAt = update in place using what was there (also uses walk)
 
-\subsection{Utility}
-Primitives which are usefull in many Statement processing contexts.
-% TODO: is accumulate still needed? I have a way of describing this within Z schemas now
-\subfile{primitives/accumulate.tex}
-% TODO: Reference another definition of atJsonPath and just provide examples
-\subfile{primitives/atJsonPath.tex}
+% TODO: remove Collections and Key Value Pair sections after completion of above FIXME:
+% - also delete the corresponding .tex files
+
+%\subsection{Collections}
+%Primitives which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
+%\subfile{primitives/collection/appendAt.tex}
+
+%\subsection{Key Value Pairs}
+%Primitives which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
+%\subfile{primitives/kv/associateAt.tex}
+
+%\subsection{Utility}
+%Primitives which are usefull in many Statement processing contexts.
+%\subfile{primitives/accumulate.tex}
 
 \section*{Updated Algorithm Definitions}
 % WIP - update to Z and account for  updates to above
