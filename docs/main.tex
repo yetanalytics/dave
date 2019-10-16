@@ -70,37 +70,20 @@ $\\\\$
 The structure of this documents is as follows:
 \begin{enumerate}
 \item An Introduction to Z notation and its usage in this document
-\item A formal specification for xAPI written in Z
-\item An Introduction to Terminology of Operations, Primitives and Algorithms
+\item A formal specification for xAPI written in Z % FIXME: review + refactor as necessary
+\item Terminology: Operations, Primitives and Algorithms
 \item What is an Operation
 \item What is a Primitive
 \item What is an Algorithm
 \item Foundational Operations
-\item Example Primitives
-\item An algorithm definition including
+\item Common Primitives                 % WIP: - see FIXMEs
+\item An algorithm definition including % WIP: - update to Z, blocked by common primitives
   \begin{enumerate}
   \item Init
   \item Relevant?
   \item Accept?
   \item Step
   \item Result
-  \end{enumerate}
-\item Previous Algorithm definitions where each consists of
-  \begin{enumerate}
-  \item an introduction for the algorithm
-  \item the structure of the ideal input data
-  \item how to retrieve input data from an LRS
-  \item the statement parameters which the algorithm will utilize
-  \item notices regarding data collected during the 2018 pilot test of
-    the TLA
-  \item a summary of the algorithm
-  \item the formal specification of the algorithm
-  \item pseudocode representation of the algorithm
-  \item JSONSchema for the output of the algorithm
-  \item a description of the associated visualization
-  \item a prototype of the visualization
-  \item a collection of suggestions describing how the algorithm could be
-    adapted to improve the quality of the visualization prototype
   \end{enumerate}
 \end{enumerate}
 
@@ -112,7 +95,9 @@ The structure of this documents is as follows:
 The Operations in this section use the Operations pulled from the Z Reference Manual (section 1,4) within their own definitions.
 They are defined as Operations opposed to Primitives because they represent core functionality needed in the context
 of processing xAPI data given the definition of an Algorithm above. As such, these Operations are added to the global
-dictionary of symbols usable within the definition of Operations and Primitives throughout the rest of this document.
+dictionary of symbols usable, without a direct reference to the components schema,
+within the definition of Operations and Primitives throughout the rest of this document.
+
 \subsection{Collections}
 Operations which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
 \subfile{operations/collections/array?.tex}
