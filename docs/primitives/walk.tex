@@ -35,11 +35,223 @@ traversal of nested data structures ie. xAPI Statements and Algorithm State.
 \begin{itemize}
   \item Updating of $parent?$ to include $child?$ at location indicated by $head(at?)$
 \end{itemize}
-The helper Operations defined above are necessary for describing
-the traversal of a heterogeneous nested Value. Collection and KV have
-different Fundamental Operations for navigation into, value extraction from
-and mapping update within. Their usage in $walk$ is touched on within the following
-summary but they are heavily used within the formal definition.
+\subsection{Traversal Primitives}
+The helper Operations defined above are used to describe the traversal of a heterogeneous nested Value.
+In the following subsections, examples which demonstrate the functionality of Primitives will be passed $X$ as $in?$.
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = true \\
+  \t1 x_{1} = \langle a, b, c \rangle \\
+  \t1 x_{2} = \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y , z \mapsto \langle 3, 2, 1 \rangle \rdata \rdata \\
+  fn! = fn(X_{path?_{j-1}}, arg?) = ZZZ & $fn~\_$ always returns $ZZZ$
+\end{argue}
+
+\subsubsection{Get In}
+Collection and KV have different Fundamental Operations for navigation into, value extraction from
+and application of updates to. Navigation into an arbitrary Value without concern
+for its type is a useful tool to have and has been defined as the Primitive $getIn$.
+\begin{schema}{GetIn[V, Collection]}
+  Get, Recur \\
+  in?, atPath! : V \\
+  path? : Collection \\
+  getIn~\_ : V \cross Collection \surj V
+  \where
+  getIn = \langle get~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
+  atPath! = getIn(in?, path?) @ \\
+  \ \forall n : i~..~j-1 @ j = first(last(path?)) \implies first(j, path?_{j}) ~|~ \exists ~ down_{n} @\\
+  \t1 let \ \ path?_{n} == tail(path?)\bsup n-i \esup \\
+  \t1 \ \ \ \ \ down_{i} == get(in?, path?_{n}) \implies \\
+  \t5 atIndex(in?, head(path?)) ~\lor \\
+  \t5 atKey(in?, head(path?)) \iff n = i\\
+  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, get~\_)\bsup j - 1 \esup \\
+  \t1 \ \ \ \ \ down_{j-1} == get(down_{n}, path?_{n}) \iff n = j - 2 \\ ~ \\
+  atPath! = down_{j} = get(down_{j-1}, path?_{n}) @ \\
+  \t5 \ path?_{n} \equiv (path? \extract j) \implies \\
+  \t6 \ \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
+\end{schema}
+The following examples demonstrate the functionality of the Primitive $getIn$
+\begin{argue}
+  getIn(X, \langle 1, 1 \rangle) = b \\
+  getIn(X, \langle 0 \rangle) = true \\
+  getIn(X, \langle 2, foo, z, 0 \rangle) = 3
+\end{argue}
+% FIXME: wordsmith...sounds like english translation of Z schema. Can be said in a more clear/concise way.
+Additionally, the propagation of an update, starting at some depth within a passed in Value and bubbling up to the top level,
+such that the update is only applied to values along a specified path as necessary, is also a useful tool to have.
+The following sections introduce Primitives which address performing these types of updates and ends with a summary of
+the functional steps described in the sections bellow. $replaceAt$ is introduced first and serves as a point of comparison
+when describing the more abstract Primitives $backProp$ and $walkBack$.
+
+\subsubsection{Replace At}
+The schema $ReplaceAt$ uses the helper Operation $merge$ to apply updates while climbing up from some arbitrary depth.
+\begin{schema}{ReplaceAt[V, Collection, V]}
+  GetIn, Merge \\
+  in?, with?, out! : V \\
+  path? : Collection \\
+  replaceAt~\_ : V \cross Collection \cross V \bij V
+  \where
+  replaceAt = \langle \langle getIn~\_~, ~merge~\_~ \rangle , ~recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
+  out! = replaceAt(in?, path?, with?) @ \\
+  \t1 \forall n : i~..~j-1 @ (i = first(head(path?))) ~\land~ (j = first(last(path?))) ~|~ \exists ~ parent_{n} @ \\
+  \t3 let \ ~ path?_{n} == tail(path?)\bsup n-i \esup \\
+  \t2 parent_{n} = recur(parent_{n-1}, path?_{n}, get~\_)\bsup j - 1 \esup \implies \\
+  \t3 let \ ~ parent_{i} == getIn(in?, path?_{n}) \iff n = i \\
+  \t3 \ \ \ \ ~ parent_{i+1} == getIn(parent_{i}, path?_{n}) \iff n = i+1 \\
+  \t3 \ \ \ \ ~ parent_{j-1} == getIn(parent_{j-2}, path?_{n}) \iff n = j-1 \\
+  \t3 parent_{j} =  getIn(parent_{j-1}, (path? \extract j))
+  \\ ~ \\
+  \t1 \forall z : p~..~q @ (p = j-1) ~\land ~ (q = i + 1) \implies \\
+  \t4 ((z = p \iff n = j-1) \land (z = q \iff n = i + 1)) ~|~ \exists ~ child_{z} @ \\
+  \t3 let \ \ path?_{rev} == rev(path?) \\
+  \t3 \ \ \ \ \ path?_{z} == tail(path?_{rev})\bsup p-z+1 \esup \\
+  \t2 child_{z} = recur((parent_{n}, child_{n+1}), path?_{z}, merge~\_ ) \\
+  \t3 let \ ~ child_{p} == merge((parent_{n}, with?), path?_{z}) \iff z = p \implies n = j-1 \\
+  \t3 \ \ \ \ ~ child_{p+1} == merge((parent_{n}, child_{p}), path?_{z}) \iff n = j - 2 ~\land ~p = j - 1 \\
+  \t3 \ \ \ \ ~ child_{q} == merge((parent_{n}, child_{q+1}), path?_{z}) \iff z = q \implies n = i + 1
+  \\~\\
+  out! = merge((in?, child_{q}), path?_{n}) \equiv merge((in?, child_{q}), (path? \extract i)) \iff (n = i = q - 1)
+\end{schema}
+\begin{itemize}
+\item The range of indices $i~..~j-1$ is used to describe navigation into some Value given $path?$
+  \begin{itemize}
+  \item Used to reference preceding level of depth
+  \item keeps track of parent from previous steps
+  \end{itemize}
+\item The range of indices $p~..~q$ is used to describe navigation up from target depth indicated by $path?$
+  \begin{itemize}
+  \item Used to reference current level of depth
+  \item keeps track of child after the update has been applied
+  \end{itemize}
+\item The propagation of the update starts with $child_{p}$
+  \begin{itemize}
+  \item $with?$ is added to $parent_{j-1}$ at $get~(path?, \langle ~j~ \rangle)$
+  \item parent nodes need to be notified of the change within their children
+  \end{itemize}
+\end{itemize}
+The following examples demonstrate the functionality of the Primitive $replaceAt$
+\begin{argue}
+  replaceAt(X, \langle 2, foo, q \rangle, fn!) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y, q \mapsto ZZZ \rdata \rdata\rangle \\
+  replaceAt(X, \langle 2, foo, x \rangle, fn!) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto ZZZ \rdata \rdata\rangle \\
+\end{argue}
+This Primitive can be made more general purpose by replacing $merge$ with a placeholder $fn?$
+representing a passed in Operation or Primitive.
+
+\subsubsection{Back Prop}
+Being able to pass a function as an argument allows for, in this context, the arbitrary handling of
+how update(s) are applied at each level of nesting. The arbitrary $fn?$ should expect
+a (Parent, Child) tuple and a Collection of indices as arguments and return a potentially modified version of the parent.
+\begin{schema}{BackProp~[V, Collection, V, (~\_\pfun~\_~)]}
+  GetIn \\
+  in?, fnSeed?, out! : V \\
+  path? : Collection \\
+  fn? : (~\_\pfun~\_~) \\
+  backProp~\_ : V \cross Collection \cross V \cross (~\_\pfun~\_~) \bij V
+  \where
+  backProp = \langle \langle getIn~\_~, fn?~\_ \rangle , ~recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
+  out! = backProp~(in?, path?, fnSeed?, fn?) @ \\
+  \t1 \forall n : i~..~j-1 @ (i = first(head(path?))) ~\land~ (j = first(last(path?))) ~|~ \exists ~ parent_{n} @ \\
+  \t3 let \ ~ path?_{n} == tail(path?)\bsup n-i \esup \\
+  \t2 parent_{n} = recur(parent_{n-1}, path?_{n}, get~\_)\bsup j - 1 \esup \implies \\
+  \t3 let \ ~ parent_{i} == getIn(in?, path?_{n}) \iff n = i \\
+  \t3 \ \ \ \ ~ parent_{i+1} == getIn(parent_{i}, path?_{n}) \iff n = i+1 \\
+  \t3 \ \ \ \ ~ parent_{j-1} == getIn(parent_{j-2}, path?_{n}) \iff n = j-1 \\
+  \t3 parent_{j} =  getIn(parent_{j-1}, (path? \extract j))
+  \\ ~ \\
+  \t1 \forall z : p~..~q @ (p = j-1) ~\land ~ (q = i + 1) \implies \\
+  \t4 ((z = p \iff n = j-1) \land (z = q \iff n = i + 1)) ~|~ \exists ~ child_{z} @ \\
+  \t3 let \ \ path?_{rev} == rev(path?) \\
+  \t3 \ \ \ \ \ path?_{z} == tail(path?_{rev})\bsup p-z+1 \esup \\
+  \t2 child_{z} = recur((parent_{n}, child_{n+1}), path?_{z}, fn?) \\
+  \t3 let \ ~ child_{p} == fn?((parent_{n}, fnSeed?), path?_{z}) \iff z = p \implies n = j-1 \\
+  \t3 \ \ \ \ ~ child_{p+1} == fn?((parent_{n}, child_{p}), path?_{z}) \iff n = j - 2 ~\land ~p = j - 1 \\
+  \t3 \ \ \ \ ~ child_{q} == fn?((parent_{n}, child_{q+1}), path?_{z}) \iff z = q \implies n = i + 1
+  \\~\\
+  out! = fn?((in?, child_{q}), path?_{n}) \equiv fn?((in?, child_{q}), (path? \extract i)) \iff (n = i = q - 1)
+\end{schema}
+The schema $ReplaceAt$ was introduced before $BackProp$ so the process underlying both
+could be explicitly demonstrated and defined. The hope is that this made the introduction of
+the more abstract Primtive $backProp$ easier to follow. A quick comparison of $ReplaceAt$ and
+$BackProp$ reveals that the only major difference between them is $fn?$ vs $merge~\_$.
+This implies the Primitive $backProp$ can be used to replicate $replaceAt$.
+\begin{zed}
+  replaceAt(in?, path?, with?) \equiv \\
+  \t1 backProp~(in?, path?, fnSeed?, merge~\_) \iff with? = fnSeed?
+\end{zed}
+Above highlights the arguments $with? ~\land~ fnSeed?$ which serve the same purpose within $backProp$ and $replaceAt$.
+\begin{itemize}
+\item Within $ReplaceAt$, the naming $with?$ indicates its usage with respect to $merge$ and the overall functionality of the Primitive
+\item Within $BackProp$, the naming $fnSeed?$ indicates that the usage of the variable within $fn?$ is unknowable but this value
+will be passed to $fn?$ on the very first iteration of the Primitive
+\end{itemize}
+In both cases, the variable is put into a tuple and passed to $fn?$.
+\begin{zed}
+  backProp(X, \langle 2, foo, x \rangle, fn!, merge~\_) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto ZZZ \rdata \rdata\rangle \\
+\end{zed}
+The notable limitation of $backProp$ are enumerated in the bullets bellow and the Primitive $walkBack$ is introduced to address them.
+\begin{itemize}
+\item expectation of a seeding value ($fnSeed?$) as a passed in argument
+\item the general dismissal of the value ($parent_{j}$) located at $path?$ which is potentially being overwritten
+\end{itemize}
+
+\subsubsection{Walk Back}
+
+In the Primitive $walkBack$, $fnSeed?$ is assumed to be the result of a function $fn?_{\delta}$
+which is passed in as an argument. $fn?_{\delta}$ will be passed $parent_{j}$ as an argument in order to produce $fnSeed?$.
+This Value will then be used exactly as it was in $backProp$ given $walkBack$ expects another function argument $fn?_{nav}$.
+\begin{zed}
+  walkBack(in?, path?, fn?_{\delta}, fn?_{nav})
+\end{zed}
+In fact, the usage of $fn?_{nav}$ in $WalkBack$ is exactly the same as the usage of $fn?$
+in $BackProp$ as $fn?_{nav}$ is passed to $backProp$ as $fn?$.
+
+\begin{schema}{WalkBack[V, Collection, (~\_~\pfun~\_~), (~\_~\pfun~\_~)]}
+  BackProp \\
+  in?, out! : V \\
+  path? : Collection \\
+  fn?_{\delta}, fn?_{nav} : (~\_~\pfun~\_~) \\
+  walkBack~\_ : V \cross Collection \cross (~\_~\pfun~\_~) \cross (~\_~\pfun~\_~) \bij V
+  \where
+  walkBack = \langle getIn~\_ ~, ~fn?_{\delta}~\_~, ~backProp~\_ \rangle \\ ~ \\
+  out! = walkBack(in?, path?, fn?_{\delta}, fn?_{nav}) @ \\
+  \t1 let \ ~ fnSeed == fn?_{\delta}(getIn(in?, path?)) \\
+  \t1 = backProp(in?, path?, fnSeed, fn?_{nav})
+\end{schema}
+By replacing $fnSeed?$ with $fn?_{\delta}$ as an argument
+\begin{itemize}
+\item $walkBack$ can be used to describe predicate based traversal of $in?$
+\item $walkBack$ can be used to update Values at arbitrary nesting within $in?$ and at the same time describe how those changes affect the rest of $in?$
+\end{itemize}
+$walkBack$ serves as a graph traversal template Primitive whose behavior is defined in terms of the nodes within $in?$
+and the interpertation of those nodes via $fn?_{\delta}$ and $fn?_{nav}$. This establishes the means for defining Primitives which can make
+longitudinal updates as needed before making horizonal movements through some $in?$. In order for $backProp$ to be used in the same way, the required state must be managed by
+\begin{itemize}
+\item $fn_{nav}$
+\item some higher level Primitive that contains $backProp$ (see $WalkBack$)
+\end{itemize}
+This important difference means $walkBack$ can be used to replicate $backProp$ but the opposite is not always true.
+\begin{zed}
+  walkBack(in?, path?, fn?_{\delta}, fn?_{nav}) \equiv \\
+  \t1 backProp(in?, path?, fnSeed?, fn?_{nav}) \iff fnSeed? = fn?_{\delta}(getIn(in?, path?))
+\end{zed}
+This means $replaceAt$ can also be replicated.
+\begin{zed}
+  replaceAt(in?, path?, with?) \equiv \\
+  \t1 (backProp~(in?, path?, fnSeed?, merge~\_) \iff with? = fnSeed?) \equiv \\
+  \t2 walkBack(in?, path?, fn?_{\delta}, merge~\_) \iff \\
+  \t3 fn?_{\delta}(getIn(in?, path?)) = fnSeed? = with?
+\end{zed}
+The following examples demonstrate the functionality of $walkBack$
+\begin{argue}
+  walkBack(X, \langle 0 \rangle, array?~\_~, merge~\_) = \langle false, x_{1}, x_{2} \rangle \\
+  walkBack(X, \langle 2, qux \rangle, fn~\_~, merge~\_) = \langle x_{0}, x_{1}, (x_{2} ~\cup~ qux \mapsto ZZZ)\rangle \\
+  walkBack(X, \langle 1 \rangle, map(succ~\_, x_{1}, 1), merge~\_) = \langle x_{0}, \langle b, c, d \rangle, x_{2} \rangle \\
+  walkBack(X, \langle 1, 0 \rangle, succ~\_, merge~\_) = \langle x_{0}, \langle b, b, c \rangle, x_{2} \rangle
+\end{argue}
+
+\subsection{Summary}
+The following is a summary of the general process which has been described in the previous sections.
+The variable names here are NOT intended to be 1:1 with those in the formal definitions (but
+there is some overlap) and the summary utilizes the Traversal Operations defined at the start of the section.
 \begin{enumerate}
 \item navigate down into the provided value $in?$ up until the second to last value $in?_{path?_{j-1}}$ as described by the provided $path?$
   \begin{zed}
@@ -92,115 +304,4 @@ summary but they are heavily used within the formal definition.
     \t2 \forall (a,b) \in path? @ b = atIndex(path?, a) ~|~ \exists ~a @ in?_{a} = out!_{a} \iff a \not= head(path?)
   \end{zed}
 \end{enumerate}
-The summary of $walk$ given above is formalized within the schema $Walk$ bellow where $Walk$
-dives deeper into the properties/constraints provided for each step. The variables names used
-in the summary are NOT used in all cases within the schema $Walk$.
-
-Navigation into a Value is a useful tool to have outside of the context
-of $walk$ so the Primitive $getIn$ is introduced as a stand alone Primitive.
-Additionally, back propagation of an update back up a nested Value where the update
-only effects values along a specified path is also a useful tool to have.
-The stand alone Primitive $backProp$ is introduced to serve that purpose.
-Both $getIn$ and $backProp$ will be used to define $walk$.
-
-\begin{schema}{GetIn[V, Collection]}
-  Get, Recur \\
-  in?, atPath! : V \\
-  path? : Collection \\
-  getIn~\_ : V \cross Collection \surj V
-  \where
-  getIn = \langle get~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
-  atPath! = getIn(in?, path?) @ \\
-  \ \forall n : i~..~j-1 @ j = first(last(path?)) \implies first(j, path?_{j}) ~|~ \exists ~ down_{n} @\\
-  \t1 let \ \ path?_{n} == tail(path?)\bsup n-i \esup \\
-  \t1 \ \ \ \ \ down_{i} == get(in?, path?_{n}) \implies \\
-  \t5 atIndex(in?, head(path?)) ~\lor \\
-  \t5 atKey(in?, head(path?)) \iff n = i\\
-  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, get~\_)\bsup j - 1 \esup \\
-  \t1 \ \ \ \ \ down_{j-1} == get(down_{n}, path?_{n}) \iff n = j - 2 \\
-  atPath! = down_{j} = get(down_{j-1}, path?_{n}) @ \\
-  \t5 \ path?_{n} \equiv (path? \extract j) \implies \\
-  \t6 \ \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
-\end{schema}
-% TODO: copy if necessary (GI)
-% TODO: examples
-% TODO: copy if necessary (BP)
-\begin{schema}{BackProp[V, Collection, V]}
-  GetIn, Merge \\
-  in?, fn!, out! : V \\
-  path? : Collection \\
-  backProp~\_ : V \cross Collection \cross V \bij V
-  \where
-  backProp = \langle \langle getIn~\_~, ~merge~\_~ \rangle , ~recur~\_ \rangle \bsup \#~path? - 1 \esup \\ ~ \\
-  out! = backProp(in?, path?, fn!) @ \\
-  \t1 \forall n : i~..~j-1 @ (i = first(head(path?))) ~\land~ (j = first(last(path?))) ~|~ \exists ~ parent_{n} @ \\
-  \t3 let \ ~ path?_{n} == tail(path?)\bsup n-i \esup \\
-  \t2 parent_{n} = recur(parent_{n-1}, path?_{n}, get~\_)\bsup j - 1 \esup \implies \\
-  \t3 let \ ~ parent_{i} == getIn(in?, path?_{n}) \iff n = i \\
-  \t3 \ \ \ \ ~ parent_{i+1} == getIn(parent_{i}, path?_{n}) \iff n = i+1 \\
-  \t3 \ \ \ \ ~ parent_{j-1} == getIn(parent_{j-2}, path?_{n}) \iff n = j-1 \\
-  \t3 parent_{j} =  getIn(parent_{j-1}, (path? \extract j))
-  \\ ~ \\
-  \t1 \forall z : p~..~q @ (p = j-1) ~\land ~ (q = i + 1) \implies \\
-  \t4 ((z = p \iff n = j-1) \land (z = q \iff n = i + 1)) ~|~ \exists ~ child_{z} @ \\
-  \t3 let \ \ path?_{rev} == rev(path?) \\
-  \t3 \ \ \ \ \ path?_{z} == tail(path?_{rev})\bsup p-z+1 \esup \\
-  \t2 child_{z} = recur((parent_{n}, child_{n+1}), path?_{z}, merge~\_ ) \\
-  \t3 let \ ~ child_{p} == merge((parent_{n}, fn!), path?_{z}) \iff z = p \implies n = j-1 \\
-  \t3 \ \ \ \ ~ child_{p+1} == merge((parent_{n}, child_{p}), path?_{z}) \iff n = j - 2 ~\land ~p = j - 1 \\
-  \t3 \ \ \ \ ~ child_{q} == merge((parent_{n}, child_{q+1}), path?_{z}) \iff z = q \implies n = i + 1
-  \\~\\
-  out! = merge((in?, child_{q}), path?_{n}) \equiv merge((in?, child_{q}), (path? \extract i)) \iff (n = i = q - 1)
-\end{schema}
-% TODO: examples
-% TODO: copy if necessary (walk)
-% FIXME: update Walk to use getIn + BackProp
-\begin{schema}{Walk[V, Collection, (~\_~\pfun~\_~)]}
-  Get, Merge, Recur \\
-  in?, out!, fn! : V \\
-  path? : Collection \\
-  fn? : (~\_~\pfun~\_~) \\
-  walk~\_ : V \cross Collection \cross (~\_~\pfun~\_~) \bij V
-  \where
-  walk = \langle \langle get~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup ~,
-  ~(~\_~\pfun~\_~)~,
-  \langle merge~\_~, recur~\_ \rangle \bsup \#~path? - 1 \esup \rangle \\
-  out! = walk(in?, path?, fn?) @ \\
-  \ \forall n : i~..~j-1 @ j = first(last(path?)) \implies \\
-  \t6 first(j, path?_{j}) ~|~ \exists ~ down_{n} @\\
-  \t1 let \ \ path?_{n} == tail(path?)\bsup n-i \esup \\
-  \t1 \ \ \ \ \ down_{i} == get(in?, path?_{n}) \implies \\
-  \t5 atIndex(in?, head(path?)) ~\lor~ atKey(in?, head(path?)) \iff n = i\\
-  \t1 \ \ \ \ \ down_{n} == recur(down_{i}, path?_{n}, get~\_)\bsup j - 1 \esup \\
-  \t1 \ \ \ \ \ down_{j-1} == get(down_{n}, path?_{n}) \iff n = j - 2 \\
-  \t1 \ \ \ \ \ down_{j} == get(down_{j-1}, path?_{n}) @ \\
-  \t5 path?_{n} \equiv (path? \extract j) \implies \langle j \mapsto atIndex(path?, j) \rangle \iff n = j-1 \\
-  \ \ \ \ \ fn! = fn?(down_{j}) \\
-  \ \forall z : p~..~q @ ((p = j-1) \land (q = i + 1)) \implies \\
-  \t6 ((z = p \iff n = j-1) \land (z = q \iff n = i + 1)) ~|~ \exists ~ up_{n} @ \\
-  \t1 let \ \ path?_{rev} == rev(path?) \\
-  \t1 \ \ \ \ \ path?_{z} == tail(path?_{rev})\bsup p-z+1 \esup \\
-  \t1 \ \ \ \ \ up_{p} == merge((down_{j-1}, fn!), path?_{z}) \implies \\
-  \t4 (path?_{z} \equiv tail(path?_{rev})) ~ \land \\
-  \t4 \ \ (associate(down_{j-1}, head(path?_{z}), fn!) ~ \lor \\
-  \t4 \ \ update(down_{j-1}, fn!, head(path?_{z}))) \iff z = p \\
-  \t1 \ \ \ \ \ up_{z} == recur((down_{n} , up_{p}), path?_{z}, merge~\_) \bsup p \esup \iff p = n + 1 ~\land~ z = n\\
-  \t1 \ \ \ \ \ up_{q} == merge((down_{i+1}, up_{z}), path?_{z}) \iff z = q + 1 \implies z = i + 2 \\
-  \t1 \ \ \ \ \ up_{i} == merge((down_{i}, up_{q}), path?_{z}) \iff z = q  \implies z = i + 1 \implies up_{i} = up_{q-1} \\
-  out! = merge((in?, up_{i}), path?_{n}) \equiv merge((in?, up_{i}), (path? \extract i)) \iff (n = i = q - 1)
-\end{schema}
-The following examples demonstrate the functionality of the Primitive $walk$
-\begin{argue}
-  X = \langle x_{0}, x_{1}, x_{2} \rangle ~ \land ~ fn! = fn(val?, idx?) = ZZZ\\
-  \t1 x_{0} = true \\
-  \t1 x_{1} = \langle a, b, c \rangle \\
-  \t1 x_{2} = \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y \rdata \rdata \\
-  walk(X, \langle 0 \rangle, array?~\_) = \langle false, x_{1}, x_{2} \rangle & $true ~\lnot~ Collection$ \\
-  walk(X, \langle 2, foo, z \rangle, fn~\_) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y, z \mapsto ZZZ \rdata \rdata\rangle \\
-  walk(X, \langle 2, foo, x \rangle, fn~\_) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto ZZZ \rdata \rdata\rangle \\
-  walk(X, \langle 2, qux \rangle, fn~\_) = \langle x_{0}, x_{1}, (x_{2} ~\cup~ qux \mapsto ZZZ)\rangle \\
-  walk(X, \langle 1 \rangle, map(succ~\_, x_{1}, 1)) = \langle x_{0}, \langle b, c, d \rangle, x_{2} \rangle \\
-  walk(X, \langle 1, 0 \rangle, succ~\_) = \langle x_{0}, \langle b, b, c \rangle, x_{2} \rangle
-\end{argue}
-
 \end{document}
