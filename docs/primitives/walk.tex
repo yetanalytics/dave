@@ -375,10 +375,9 @@ This syntax is used for the placeholder $X_{path?}$ so that the role of $fn?_{\d
 passed to $walkBack$. This notation can be used to describe how arguments passed to a top level function get used within
 component functions without writing the equivalent Z schema. This shorthand can also be used within Z schemas.
 \begin{argue}
-  walkBack(X, \langle 1 \rangle, map(conj~\_, X_{\langle 1 \rangle}, a), merge~\_) = \langle x_{0}, \langle \langle a, a \rangle, \langle b, a \rangle, \langle c, a \rangle \rangle, x_{2} \rangle \\
-  walkBack(X, \langle 1 \rangle, conj(X_{\langle 1 \rangle}, a),  merge~\_) = \langle x_{0}, \langle a, b, c, a \rangle, x_{2} \rangle
+  walkBack(X, \langle 1 \rangle, map~\_(conj~\_, X_{\langle 1 \rangle}, a), merge~\_) = \langle x_{0}, \langle \langle a, a \rangle, \langle b, a \rangle, \langle c, a \rangle \rangle, x_{2} \rangle \\
+  walkBack(X, \langle 1 \rangle, conj~\_(X_{\langle 1 \rangle}, a),  merge~\_) = \langle x_{0}, \langle a, b, c, a \rangle, x_{2} \rangle
 \end{argue}
-
 Addative updates are another common type of updating encountered when working with xAPI data. $Conj$ is a derivative
 of $\cat$ but scoped to DAVE and used to define the Primitive $appendAt$.
 \begin{schema}{AppendAt[V, Collection, V]}
@@ -389,37 +388,36 @@ of $\cat$ but scoped to DAVE and used to define the Primitive $appendAt$.
   \where
   appendAt = \langle walkBack~\_ \rangle \\ ~ \\
   out! = appendAt(in?, path?, toEnd?) \equiv \\
-  \t2 walkBack(in?, path?, conj~\_~, merge~\_) \implies \\
-  \t3 backProp(in?, path?, fnSeed?, merge~\_) \iff \\
-  \t4 fnSeed? = conj(getIn(in?, path?), toEnd?)
+  \t2 walkBack(in?, path?, conj~\_(in?_{path?}, toEnd?)~, merge~\_) \implies \\
+  \t3 backProp(in?, path?, fn!_{\delta}, merge~\_) \iff \\
+  \t4 fn!_{\delta} = fn?_{\delta}(in?_{path?}, toEnd?) @ \\
+  \t5 fn?_{\delta}~\_(in?_{path?}, toEnd?) = fn?_{\delta} \rel (in?_{path?}, toEnd?) @ \\
+  \t5 conj~\_(in?_{path?}, toEnd?) = conj~\_ \rel (in?_{path?}, toEnd?) \implies \\
+  \t6 (fn?_{\delta} = conj~\_) ~\land \\
+  \t6 (fn!_{\delta} \not= conj~\_(in?_{path?}, toEnd?)) ~\land~ \\
+  \t6 (fn!_{\delta} = conj(in?_{path?}, toEnd?))
 \end{schema}
-
-The syntax defined above for describing component functions can be further extended
-to indicate whether the notation should be interpreted to mean the unevaluated representation
-of the function or the realized output of the function.
-\begin{axdef}
-  walkBack(in?, path?, conj(in?_{path?}, toEnd?), merge~\_)
-  \where
-  conj(in?_{path?}, toEnd?) \implies (in?_{path?} \cross toEnd? \bij conj!) @ \\
-  \t1 conj! = (conj(in?_{path?}, toEnd?)) \not \equiv conj(in?_{path?}, toEnd?)
-\end{axdef}
-
+This schema features a new notation which highlights evaluation nuances.
 \begin{itemize}
-\item Correct usage: $backProp(in?, path?, (conj(in?_{path?}, toEnd?)), merge~\_)$
-\item Incorrect usage: $backProp(in?, path?, conj(in?_{path?}, toEnd?), merge~\_)$
+\item $fn?_{\delta}$ is used to represent the function itself
+\item $fn?_{\delta}~\_(in?_{path?}, toEnd?)$ is used to represent the relationship between the function and the arguments it WILL be passed
+\item $fn!_{\delta} \equiv fn?_{\delta}(in?_{path?}, toEnd?)$ is used to represent the output of $fn?_{\delta}$ given the passed in arguments
 \end{itemize}
-This means we can define $appendAt$ as
+Such that the following are all equivalent expressions.
 \begin{zed}
   appendAt(in?, path?, toEnd?) \equiv \\
-  \t1 walkBack(in?, path?, conj(in?_{path?}, toEnd?), merge~\_) \equiv \\
-  \t2 backProp(in?, path?, (conj(in?_{path?}, toEnd?)), merge~\_)
+  \t1 walkBack(in?, path?, fn?_{\delta}, merge~\_) \equiv \\
+  \t1 walkBack(in?, path?, conj~\_(in?_{path?}, toEnd?), merge~\_) \equiv \\
+  \t1 walkBack(in?, path?, fn?_{\delta}~\_(in?_{path?}, toEnd?), merge~\_) \equiv \\
+  \t2 backProp(in?, path?, fn!_{\delta}, merge~\_) \equiv \\
+  \t2 backProp(in?, path?, conj(in?_{path?}, toEnd?), merge~\_)
 \end{zed}
-To avoid confusion with Tuples, the above notation should only ever contain one member at the top level.
-\begin{itemize}
-\item Correct usage: $backProp(in?, path?, (conj(conj(in?_{path?}, toEnd?), FINE)), merge~\_)$
-\item Incorrect usage: $backProp(in?, path?, (conj(in?_{path?}, toEnd?), BAD), merge~\_)$
-\end{itemize}
-
+The following example demonstrates this usage.
+\begin{axdef}
+  walkBack(X, \langle 1 \rangle, map~\_(append~\_, X_{\langle 1 \rangle}, a), merge~\_) = \langle x_{0}, \langle \langle a, a \rangle, \langle b, a \rangle, \langle c, a \rangle \rangle, x_{2} \rangle \\
+  \where
+  map~\_(append~\_, X_{\langle 1 \rangle}, a) \equiv map~\_(append~\_(X_{\langle 1, n \rangle}, a) , X_{\langle 1 \rangle}, a) @ n \in \dom X_{\langle 1 \rangle}
+\end{axdef}
 The following examples demonstrate the functionality of $appendAt$.
 \begin{argue}
   appendAt(X, \langle 1 \rangle, e) = \langle x_{0}, \langle a, b, c, e \rangle, x_{2} \rangle \\
@@ -442,7 +440,7 @@ $replaceAt$ and $appendAt$ using $updateAt$.
   updateAt = \langle walkBack~\_ \rangle \\ ~ \\
   out! = updateAt(in?, path?, fn?_{\delta}) = \\
   \t2 walkBack(in?, path?, fn?_{\delta}, merge~\_) \implies \\
-  \t3 backProp(in?, path?, (fn?_{\delta}(getIn(in?, path?))), merge~\_)
+  \t3 backProp(in?, path?, fn!_{\delta}, merge~\_)
 \end{schema}
 \begin{itemize}
 \item The item found at the target path $getIn(in?, path?)$ is passed to $fn?_{\delta}$ such that the calculation of the
@@ -451,13 +449,14 @@ $replaceAt$ and $appendAt$ using $updateAt$.
 The following examples demonstrate the functionality of the Primitive $updateAt$
 \begin{argue}
   updateAt(X, \langle 0 \rangle, array?~\_) = \langle false, x_{1}, x_{2} \rangle \\
-  updateAt(X, \langle 1, 0 \rangle, succ~\_) = \langle x_{0}, \langle b, b, c \rangle, x_{2} \rangle
+  updateAt(X, \langle 1, 0 \rangle, fn?_{\delta}~\_(X_{\langle 1, 0 \rangle})) = \langle x_{0}, \langle z, b, c \rangle, x_{2} \rangle \iff fn?_{\delta}(X_{\langle 1, 0 \rangle}) = z
 \end{argue}
-and the following shows how $updateAt$ can be used to define $appendAt$ and $replaceAt$.
+and the following shows how $updateAt$ can be used to define $appendAt$
 \begin{zed}
-  appendAt(in?, path?, toEnd?) \equiv updateAt(in?, path?, conj(in?_{path?}, toEnd?))
-  \where
-  replaceAt(in?, path?, with?) \equiv updateAt(in?, path?, merge((in?_{path?_{j-1}}, with?), \langle ~path?_{j} \rangle~))
+  appendAt(in?, path?, toEnd?) \equiv updateAt(in?, path?, conj~\_(in?_{path?}, toEnd?))
 \end{zed}
-
+and $replaceAt$.
+\begin{zed}
+  replaceAt(in?, path?, with?) \equiv updateAt(in?, path?, merge~\_((in?_{path?_{j-1}}, with?), \langle ~path?_{j} \rangle~))
+\end{zed}
 \end{document}
