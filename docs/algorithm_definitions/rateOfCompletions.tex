@@ -112,11 +112,34 @@ $$\land$$
 $$completionVerb?(verbId) = true \ \lor \ resultCompletion = true$$
 
 \subsection{Accept?}
+\begin{schema}{RateOfCompletionsAccept?[KV, STATEMENT]}
+  Accept? \\
+  state? : KV \\
+  stmt? : STATEMENT \\
+  accept! : Boolean \\
+  accept?~\_ : KV \cross STATEMENT \fun Boolean
+  \where
+  Accept?.accept? = \langle body \rangle \\
+  \langle body \rangle \bindsto accept? = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
+  accept! = accept?(state?, stmt?) @ FIXME: ~what ~happens?
+\end{schema}
+% WIP - bellow -> Z
 $rateOfCompletions$ does not require further boolean logic to determine if $stmt$ and $state$ can be passed to $step$
 $$accept?(state, stmt) = object?(stmt)$$
 which should always return true assuming valid xAPI Statements are passed to $rateOfCompletions$
 
 \subsection{Step}
+\begin{schema}{RateOfCompletionsStep[KV, STATEMENT]}
+  Step \\
+  state?, step! : KV \\
+  stmt? : STATEMENT \\
+  step~\_ : KV \cross STATEMENT \surj KV
+  \where
+  Step.step = \langle body \rangle \\
+  \langle body \rangle \bindsto step = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
+  step! = step(state?, stmt?) @  FIXME: ~what ~happens?
+\end{schema}
+% WIP - bellow -> Z
 \subsubsection{summary}
 $step(state, stmt)$ updates $state$ to include
 $$\$.object.id \mapsto <domain, statementCount, name>$$
