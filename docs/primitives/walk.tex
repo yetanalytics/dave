@@ -304,4 +304,40 @@ there is some overlap) and the summary utilizes the Traversal Operations defined
     \t2 \forall (a,b) \in path? @ b = atIndex(path?, a) ~|~ \exists ~a @ in?_{a} = out!_{a} \iff a \not= head(path?)
   \end{zed}
 \end{enumerate}
+
+\subsection{Replace At, Append At and Update At}
+In the summary of $walkBack$ above, the update at the target location within $in?$ takes place at setp 4.
+The result of step 4, $fn!$, will overwrite the mapping $args$ such that $fn!$ replaces $in?_{path?}$ due to $fn?_{nav} = merge~\_~$.
+This results in the replacement of one mapping at each level of nesting such that the overall structure, composition and
+size of $out!$ is comparable to $in?$ unless $fn?_{\delta}$ dictates otherwise. While the functionality of $fn_{nav}$ has been
+constrained here to always be an overwritting process, the same constraint is not placed on $fn?_{\delta}$.
+\subsubsection{Replace At}
+The Primitive $replaceAt$ was first defined in terms of the Traversal Operations and then servered as the starting point
+for abstracting away aspects of functionality and delegating their responsibility to some passed in function until $WalkBack$
+was reached. An alternate form of this formal definition is presented bellow such that $replaceAt$ is defined in terms of $walkBack$.
+\begin{schema}{ReplaceAt[V, Collection, V]}
+  WalkBack, Merge \\
+  in?, with?, out!, fn!_{\delta} : V \\
+  path? : Collection \\
+  fn_{\delta} : V \pfun V \\
+  replaceAt~\_ : V \cross Collection \cross V \bij V
+  \where
+  replaceAt = \langle walkBack~\_ \rangle \\ ~ \\
+  out! = replaceAt(in?, path?, with?) = walkBack(in?, path?, fn_{\delta}, merge~\_) @ \\
+  \t1 let \ ~ fn!_{\delta} == fn_{\delta}(getIn(in?, path?)) = with? \implies \\
+  \t2 walkBack(in?, path?, fn_{\delta}, merge~\_) \equiv \\
+  \t3 backProp(in?, path?, fn!_{\delta}, merge~\_) \equiv \\
+  \t4 backProp(in?, path?, with?, merge~\_)
+\end{schema}
+\begin{itemize}
+\item $fn_{\delta}$ is defined within $ReplaceAt$ as it performs a very simple task; ignore $getIn(in?, path?)$ and return $with?$
+\item Here, $fn_{\delta}$ represents one of the main general categories of update; replacement of a value
+  such that the result of the replacement is in no way dependent upon the thing being replaced.
+\end{itemize}
+The following examples were pulled from the section containing the first version of $ReplaceAt$ as they still hold true.
+\begin{argue}
+  replaceAt(X, \langle 2, foo, q \rangle, fn!) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y, q \mapsto ZZZ \rdata \rdata\rangle \\
+  replaceAt(X, \langle 2, foo, x \rangle, fn!) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto ZZZ \rdata \rdata\rangle \\
+\end{argue}
+
 \end{document}
