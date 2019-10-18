@@ -58,6 +58,18 @@ that story is the rate of completion of the various digital resources within the
 % - if its not there, add it to the passed in state and return the result.
 
 \subsection{Relevant?}
+\begin{schema}{RateOfCompletionsRelevant?[KV, STATEMENT]}
+  Relevant? \\
+  state? : KV \\
+  stmt? : STATEMENT \\
+  relevant! : Boolean \\
+  relevant?~\_ : KV \cross STATEMENT \fun Boolean
+  \where
+  Relevant.relevant? = \langle body \rangle \\
+  \langle body \rangle \bindsto relevant? = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
+  relevant! = relevant?(state?, stmt?) @ FIXME: ~what ~happens?
+\end{schema}
+% WIP - bellow -> Z
 $relevant?(state, stmt)$ determines if $stmt$ is valid for use within $step$ of $rateOfCompletions$ and does so by
 looking into various $k \to v$ within $stmt$. The following Primitives are used as the $body$ of $relevant?(state, stmt)$
 \begin{itemize}
