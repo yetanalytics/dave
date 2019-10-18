@@ -44,16 +44,18 @@ that story is the rate of completion of the various digital resources within the
 \end{itemize}
 
 \subsection{Initialization}
-$init(state)$ sets up an empty $KV$ within $state$ for the Algorithm to update at each $step$
-$$init(state) = state_{0}$$
-where
-$$state_{0} = associate(state, <state, completions>, <>) \iff atKey(state, <state, completions>) = nil$$
-otherwise
-$$state_{0} = state$$
-such that if
-$$state = <a \mapsto b>$$
-then
-$$state_{0} = <a \mapsto b, state \mapsto completions \mapsto <>>$$
+\begin{schema}{RateOfCompletionsInit[KV]}
+  Init \\
+  state?, state! : KV \\
+  init~\_ : KV \surj KV
+  \where
+  Init.init = \langle body \rangle \\
+  \langle body \rangle \bindsto init = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
+  state! = init(state?) @ FIXME: ~what ~happens?
+\end{schema}
+% check to see if \langle state, completions \rangle exists in passed in state
+% - if its there, return state without alteration
+% - if its not there, add it to the passed in state and return the result.
 
 \subsection{Relevant?}
 $relevant?(state, stmt)$ determines if $stmt$ is valid for use within $step$ of $rateOfCompletions$ and does so by
