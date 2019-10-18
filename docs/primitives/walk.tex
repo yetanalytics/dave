@@ -58,7 +58,8 @@ In the following subsections, examples which demonstrate the functionality of Pr
   \t1 x_{0} = true \\
   \t1 x_{1} = \langle a, b, c \rangle \\
   \t1 x_{2} = \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto y , z \mapsto \langle 3, 2, 1 \rangle \rdata \rdata \\
-  fn! = fn(X_{path?_{j-1}}) @ \forall X_{path?_{j-1}} ~|~ fn! = ZZZ & always return $ZZZ$
+  fn! = fn(X_{\langle path?_{i}~..path?_{j-1} \rangle}, v?) @ \\
+  \t2 \forall X_{\langle path?_{i}~..path?_{j-1} \rangle} ~\land~ v? ~|~ fn! = ZZZ & always return $ZZZ$ \\
 \end{argue}
 
 \subsubsection{Get In}
