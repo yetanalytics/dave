@@ -82,10 +82,10 @@ but the opposite is not true. In fact, keys are their own identifiers
 Given a Map $M = \ldata (k_{i}, v_{i})~..~(k_{n}, v_{n})~..~(k_{j}, v_{j}) \rdata$ the following demonstrates the uniqueness of Keys
 but the same is not true for all $v$ within $M$
 \begin{zed}
-  i_{k} \not= n_{k} \not= j_{k} \\
-  i_{v} = n_{v} \lor i_{v} \not= n_{v} \
-  i_{v} = j_{v} \lor i_{v} \not= j_{v} \
-  j_{v} = n_{v} \lor j_{v} \not= n_{v}
+  k_{i} \not= k_{n} \not= k_{j} \\
+  v_{i} = v_{n} \lor v_{i} \not= v_{n} \
+  v_{i} = v_{j} \lor v_{i} \not= v_{j} \
+  v_{j} = v_{n} \lor v_{j} \not= v_{n}
 \end{zed}
 which can all be stated formally as
 \begin{gendef}[K, V]
@@ -95,7 +95,7 @@ which can all be stated formally as
   \t1 \dom Map = \{~ k_{i}~..~k_{n}~..~k_{j}\} \\
   \t1 \ran Map = \{~v_{i}~..~v_{n}~..~v_{j}\} \\
   \t1 first(k_{i}, v_{i}) \not= first(k_{n}, v_{n}) \not= first (k_{j}, v_{j}) ~\land \\
-  \t1 i_{v} = n_{v} \lor i_{v} \not= n_{v} \ i_{v} = j_{v} \lor i_{v} \not= j_{v} \ j_{v} = n_{v} \lor j_{v} \not= n_{v} ~\land \\
+  \t1 v_{i} = v_{n} \lor v_{i} \not= v_{n} \ v_{i} = v_{j} \lor v_{i} \not= v_{j} \ v_{j} = v_{n} \lor v_{j} \not= v_{n} ~\land \\
   \t1 \id ~v_{i} = k_{i} ~\land \id ~v_{n} = k_{n} ~\land \id ~v_{j} = k_{j} ~\land \\
   \t1 \id ~k_{i} = k_{i} ~\land \id ~k_{n} = k_{n} ~\land \id k_{j} = k_{j}
 \end{gendef}
