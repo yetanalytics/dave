@@ -9,6 +9,40 @@ learner, such as the Total Learning Architecture (TLA), it becomes
 possible to retell their learning story through data and data visualization. One important aspect of
 that story is the rate of completion of the various digital resources within the learning ecosystem.
 
+\begin{schema}{RateOfCompletions[KV, Collection, KV]}
+  Algorithm \\
+  RateOfCompletionsInit \\
+  RateOfCompletionsRelevant? \\
+  RateOfCompletionsAccept? \\
+  RateOfCompletionsStep \\
+  RateOfCompletionsResult \\
+  rateOfCompletions~\_ : KV \cross Collection \cross KV \surj KV \\
+  state?, opt?, rateOfCompletions! : KV \\
+  S? : Collection
+  \where
+  Algorithm.algorithm.algorithmIter = \langle relevant?~\_~, accept?~\_~, step~\_ \rangle \\
+  ROCalgorithmIter = \langle RateOfCompletionsRelevant?.relevant?~\_~, \\
+  \t5 \ RateOfCompletionsAccept?.accept?~\_~, \\
+  \t5 \ RateOfCompletionsStep.step~\_ \rangle \\ ~ \\
+
+  Algorithm.algorithm.algorithmIter~\_~ \bindsto ROCalgorithmIter~\_~ \implies \\
+  \t1 (Algorithm.algorithm.algorithmIter.relevant?~\_ \bindsto \\
+  \t3 RateOfCompletionsRelevant?.relevant?~\_)  ~\land \\
+  \t1 (Algorithm.algorithm.algorithmIter.accept?~\_ \bindsto \\
+  \t3 RateOfCompletionsAccept?.accept?~\_) ~\land \\
+  \t1 (Algorithm.algorithm.algorithmIter.step~\_ \bindsto \\
+  \t3 RateOfCompletionsStep.step~\_) \\ ~ \\
+
+  rateOfCompletions! = rateOfCompletions(state?, S?, opt?) = algorithm(state?, S?, opt?) @ \\
+  \t1 (Algorithm.algorithm.init~\_ \bindsto RateOfCompletionsInit.init~\_) ~\land \\
+  \t1 (Algorithm.algorithm.algorithmIter~\_ \bindsto ROCalgorithmIter~\_) ~ \land \\
+  \t1 (Algorithm.algorithm.result~\_ \bindsto RateOfCompletionsResult.result~\_)
+\end{schema}
+\begin{itemize}
+\item FIXME: explain usage of $\bindsto$
+\item FIXME: explan usage of $SchemaName.component.subcomponent$
+\end{itemize}
+
 \subsection{Initialization}
 $init(state)$ sets up an empty $KV$ within $state$ for the Algorithm to update at each $step$
 $$init(state) = state_{0}$$
