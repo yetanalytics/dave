@@ -425,4 +425,37 @@ The following examples demonstrate the functionality of $appendAt$.
   appendAt(X, \langle 0 \rangle, bar) = \langle \langle x_{0}, bar \rangle, x_{1}, x_{2} \rangle
 \end{argue}
 
+\subsubsection{Update At}
+The Primitive $updateAt$ does not make any assumptions about how the relationship between
+$getIn(in?, path?)$ and $fn!_{\delta}$ is established. This makes it possible to define both
+$replaceAt$ and $appendAt$ using $updateAt$.
+
+\begin{schema}{UpdateAt[V, Collection, (~\_~\pfun~\_)]}
+  WalkBack, Merge \\
+  in?, out! : V \\
+  path? : Collection \\
+  fn?_{\delta} : (~\_~\pfun~\_~) \\
+  updateAt~\_ : V \cross Collection \cross (~\_~\pfun~\_) \bij V
+  \where
+  updateAt = \langle walkBack~\_ \rangle \\ ~ \\
+  out! = updateAt(in?, path?, fn?_{\delta}) = \\
+  \t2 walkBack(in?, path?, fn?_{\delta}, merge~\_) \implies \\
+  \t3 backProp(in?, path?, (fn?_{\delta}(getIn(in?, path?))), merge~\_)
+\end{schema}
+\begin{itemize}
+\item The item found at the target path $getIn(in?, path?)$ is passed to $fn?_{\delta}$ such that the calculation of the
+  replacement $fn!_{\delta}$ CAN be dependent upon $getIn(in?, path?)$.
+\end{itemize}
+The following examples demonstrate the functionality of the Primitive $updateAt$
+\begin{argue}
+  updateAt(X, \langle 0 \rangle, array?~\_) = \langle false, x_{1}, x_{2} \rangle \\
+  updateAt(X, \langle 1, 0 \rangle, succ~\_) = \langle x_{0}, \langle b, b, c \rangle, x_{2} \rangle
+\end{argue}
+and the following shows how $updateAt$ can be used to define $appendAt$ and $replaceAt$.
+\begin{zed}
+  appendAt(in?, path?, toEnd?) \equiv updateAt(in?, path?, conj(in?_{path?}, toEnd?))
+  \where
+  replaceAt(in?, path?, with?) \equiv updateAt(in?, path?, merge((in?_{path?_{j-1}}, with?), \langle ~path?_{j} \rangle~))
+\end{zed}
+
 \end{document}
