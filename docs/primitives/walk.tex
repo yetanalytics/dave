@@ -35,6 +35,21 @@ traversal of nested data structures ie. xAPI Statements and Algorithm State.
 \begin{itemize}
   \item Updating of $parent?$ to include $child?$ at location indicated by $head(at?)$
 \end{itemize}
+
+\begin{schema}{Conj[V, V]}
+  parent?, data? : V \\
+  conj! : Collection \\
+  conj~\_ : V \cross V \bij Collection
+  \where
+  conj! = conj(parent?, data?) @ \\
+  \t3 let \ ~ j == first(last(parent?)) \\
+  \t4 parent?_{coll} == append(\langle  \rangle, parent?, 0) \\
+  \t1 \ = (append(~parent?~, ~data?, (j + 1)) \iff array?(parent?) = true) ~ \lor \\
+  \t1 \ \ \ \ (append(parent?_{coll}, ~data?, (j + 1)) \iff array(parent?) = false)
+\end{schema}
+\begin{itemize}
+  \item $conj!$ is a collection with $data?$ at the last index $conj!_{j} = data?$.
+\end{itemize}
 \subsection{Traversal Primitives}
 The helper Operations defined above are used to describe the traversal of a heterogeneous nested Value.
 In the following subsections, examples which demonstrate the functionality of Primitives will be passed $X$ as $in?$.
@@ -341,21 +356,10 @@ The following examples were pulled from the section containing the first version
 \end{argue}
 
 \subsubsection{Append At}
-In order to define the Primitive $appendAt$, the Traversal Operation $conj$ is introduced.
-\begin{schema}{Conj[V, V]}
-  parent?, data? : V \\
-  conj! : Collection \\
-  conj~\_ : V \cross V \bij Collection
-  \where
-  conj! = conj(parent?, data?) @ \\
-  \t3 let \ ~ j == first(last(parent?)) \\
-  \t4 parent?_{coll} == append(\langle  \rangle, parent?, 0) \\
-  \t1 \ = (append(~parent?~, ~data?, (j + 1)) \iff array?(parent?) = true) ~ \lor \\
-  \t1 \ \ \ \ (append(parent?_{coll}, ~data?, (j + 1)) \iff array(parent?) = false)
-\end{schema}
-
-As indicated in $Conj$, the result of the Operation $conj!$ is a collection with $data?$ at the last index $conj!_{j} = data?$.
-This behavior is demonstrated in the following examples.
+In order to define the Primitive $appendAt$, the Traversal Operation $conj$ is used.
+In order to demonstrate the usage of $conj$ as $fn?_{\delta}$ of $walkBack$,
+a syntax not yet formally defined in this document is defined. It is an extension of the shorthand
+$val_{index} = get(Val, index)$ as seen in examples like
 \begin{argue}
   conj(x_{0}, false) = \langle true, false \rangle = \langle x_{0}, false \rangle\\
   conj(X, X) = \langle x_{0}, x_{1}, x_{2}, \langle x_{0}, x_{1}, x_{2} \rangle \rangle \\
