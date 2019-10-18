@@ -364,9 +364,7 @@ $val_{index} = get(Val, index)$ as seen in examples like
   conj(x_{0}, false) = \langle true, false \rangle = \langle x_{0}, false \rangle\\
   conj(X, X) = \langle x_{0}, x_{1}, x_{2}, \langle x_{0}, x_{1}, x_{2} \rangle \rangle \\
 \end{argue}
-In order to demonstrate the usage of $conj$ as $fn?_{\delta}$ of $walkBack$,
-a syntax not yet formally defined in this document is defined. It is an extension of the shorthand
-$val_{index} = get(val, index) @ val : Collection ~\lor~ KV$.
+The following expands that usage to describe following some $path?$ into a $Collection$ or $KV$.
 \begin{axdef}
   X_{path?} = getIn(X, path?)
   \where
