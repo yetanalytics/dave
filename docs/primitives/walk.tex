@@ -260,7 +260,6 @@ The following examples demonstrate the functionality of $walkBack$
 \begin{argue}
   walkBack(X, \langle 0 \rangle, array?~\_~, merge~\_) = \langle false, x_{1}, x_{2} \rangle \\
   walkBack(X, \langle 2, qux \rangle, fn~\_~, merge~\_) = \langle x_{0}, x_{1}, (x_{2} ~\cup~ qux \mapsto ZZZ)\rangle \\
-  walkBack(X, \langle 1 \rangle, map(append~\_, X_{1}, a), merge~\_) = \langle x_{0}, \langle \langle a, a \rangle, \langle b, a \rangle, \langle c, a \rangle \rangle, x_{2} \rangle \\
   walkBack(X, \langle 1, 0 \rangle, succ~\_, merge~\_) = \langle x_{0}, \langle b, b, c \rangle, x_{2} \rangle
 \end{argue}
 
