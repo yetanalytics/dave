@@ -97,8 +97,11 @@ The structure of this documents is as follows:
 The Operations in this section use the Operations pulled from the Z Reference Manual (section 1,4) within their own definitions.
 They are defined as Operations opposed to Primitives because they represent core functionality needed in the context
 of processing xAPI data given the definition of an Algorithm above. As such, these Operations are added to the global
-dictionary of symbols usable, without a direct reference to the components schema,
-within the definition of Operations and Primitives throughout the rest of this document.
+dictionary of symbols usable, without a direct reference to the components schema, within the definition of
+Operations and Primitives throughout the rest of this document. In general, Operations are intended to be
+simple, and should not contain any recursive calls. They are building blocks which are used across Primitives
+of varying functionality. When defining an Operation not already in the set of Foundational Operations defined here, its schema
+MUST be referenced at the top of all Schemas which utilize the new Operation.
 
 \subsection{Collections}
 Operations which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
