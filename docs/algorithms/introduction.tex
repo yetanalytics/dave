@@ -359,7 +359,7 @@ An Algorithm will return an Algorithm State.
 An Algorithm can be described via its components. A formal definition for an Algorithm
 is presented at the end of this section. The following subsections go into more detail about the components of an Algorithm.
 \begin{zed}
-  Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
+  Algorithm ::= Init ~\pipe ~Relevant? ~\pipe ~Accept? ~\pipe ~Step ~\pipe Result
 \end{zed}
 \subsection{Initialization}
 
@@ -565,7 +565,7 @@ In the rest of this document, that notation will be replaced with $algorithm~\_$
 This new notation is defined using the definitions of Algorithm Components presented above.
 The previous definition of an Algorithm
 \begin{zed}
-  Algorithm ::= Init \semi Relevant? \semi Accept? \semi Step \semi Result
+  Algorithm ::= Init ~\pipe ~Relevant? ~\pipe ~Accept? ~\pipe ~Step ~\pipe Result
 \end{zed}
 can be refined using the Operation $recur$ and Primitive $algorithmIter$ (defined in following subsections)
 to illustrate how an Algorithm processes a Collection of Statement(s).
