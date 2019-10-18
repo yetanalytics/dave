@@ -248,6 +248,16 @@ such that
 $$step(state, stmt) = p_{updateNames}(state''', stmt)$$
 
 \subsection{Result}
+\begin{schema}{RateOfCompletionsResult[KV, KV]}
+  Result \\
+  opt?, state?, result! : KV \\
+  result~\_ : KV \cross KV \surj KV
+  \where
+  Result.result = \langle body \rangle \\
+  \langle body \rangle \bindsto result = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
+  result! = result(state?, opt?) @ FIXME: ~what ~happens?
+\end{schema}
+% WIP - bellow -> Z
 The only $opts$ used by $rateOfCompletions$ is $timeUnit$
 $$timeUnit = second \ \lor minute \ \lor \ hour \ \lor day \ \lor month \ \lor year$$
 and will default to $day$ if not passed to $rateOfCompletions$
