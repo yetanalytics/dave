@@ -19,7 +19,7 @@ traversal of nested data structures ie. xAPI Statements and Algorithm State.
   \t1 \ \ \ \ ~ (atKey(in?, head(id?)) \iff (array?(in?) = false) ~ \land ~ (map?(in?) = true))
 \end{schema}
 \begin{itemize}
-  \item Navigation down into either a $Collection$ or $KV$ based on the type of $in?$
+  \item retrieval of a $V$ located at $id?$ within $in?$ where $in?$ can be a $Collection$ or $KV$
 \end{itemize}
 \begin{schema}{Merge[(V, V), Collection]}
   parent?, child?, parent! : V \\
