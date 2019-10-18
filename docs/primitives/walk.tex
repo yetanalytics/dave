@@ -340,4 +340,89 @@ The following examples were pulled from the section containing the first version
   replaceAt(X, \langle 2, foo, x \rangle, fn!) = \langle x_{0}, x_{1}, \ldata foo \mapsto \ldata bar \mapsto buz, x \mapsto ZZZ \rdata \rdata\rangle \\
 \end{argue}
 
+\subsubsection{Append At}
+In order to define the Primitive $appendAt$, the Traversal Operation $conj$ is introduced.
+\begin{schema}{Conj[V, V]}
+  parent?, data? : V \\
+  conj! : Collection \\
+  conj~\_ : V \cross V \bij Collection
+  \where
+  conj! = conj(parent?, data?) @ \\
+  \t3 let \ ~ j == first(last(parent?)) \\
+  \t4 parent?_{coll} == append(\langle  \rangle, parent?, 0) \\
+  \t1 \ = (append(~parent?~, ~data?, (j + 1)) \iff array?(parent?) = true) ~ \lor \\
+  \t1 \ \ \ \ (append(parent?_{coll}, ~data?, (j + 1)) \iff array(parent?) = false)
+\end{schema}
+
+As indicated in $Conj$, the result of the Operation $conj!$ is a collection with $data?$ at the last index $conj!_{j} = data?$.
+This behavior is demonstrated in the following examples.
+\begin{argue}
+  conj(x_{0}, false) = \langle true, false \rangle = \langle x_{0}, false \rangle\\
+  conj(X, X) = \langle x_{0}, x_{1}, x_{2}, \langle x_{0}, x_{1}, x_{2} \rangle \rangle \\
+\end{argue}
+In order to demonstrate the usage of $conj$ as $fn?_{\delta}$ of $walkBack$,
+a syntax not yet formally defined in this document is defined. It is an extension of the shorthand
+$val_{index} = get(val, index) @ val : Collection ~\lor~ KV$.
+\begin{axdef}
+  X_{path?} = getIn(X, path?)
+  \where
+  X_{\langle 1 \rangle} = x_{1} =  \langle a, b, c \rangle \\
+  X_{\langle 1, 0 \rangle} = a
+\end{axdef}
+This syntax is used for the placeholder $X_{path?}$ so that the role of $fn?_{\delta}$ can be demonstrated within the arguments
+passed to $walkBack$. This notation can be used to describe how arguments passed to a top level function get used within
+component functions without writing the equivalent Z schema. This shorthand can also be used within Z schemas.
+\begin{argue}
+  walkBack(X, \langle 1 \rangle, map(conj~\_, X_{\langle 1 \rangle}, a), merge~\_) = \langle x_{0}, \langle \langle a, a \rangle, \langle b, a \rangle, \langle c, a \rangle \rangle, x_{2} \rangle \\
+  walkBack(X, \langle 1 \rangle, conj(X_{\langle 1 \rangle}, a),  merge~\_) = \langle x_{0}, \langle a, b, c, a \rangle, x_{2} \rangle
+\end{argue}
+
+Addative updates are another common type of updating encountered when working with xAPI data. $Conj$ is a derivative
+of $\cat$ but scoped to DAVE and used to define the Primitive $appendAt$.
+\begin{schema}{AppendAt[V, Collection, V]}
+  WalkBack, Conj, Merge \\
+  in?, toEnd?, out! : V \\
+  path? : Collection \\
+  appendAt~\_ : V \cross Collection \cross V \bij V
+  \where
+  appendAt = \langle walkBack~\_ \rangle \\ ~ \\
+  out! = appendAt(in?, path?, toEnd?) \equiv \\
+  \t2 walkBack(in?, path?, conj~\_~, merge~\_) \implies \\
+  \t3 backProp(in?, path?, fnSeed?, merge~\_) \iff \\
+  \t4 fnSeed? = conj(getIn(in?, path?), toEnd?)
+\end{schema}
+
+The syntax defined above for describing component functions can be further extended
+to indicate whether the notation should be interpreted to mean the unevaluated representation
+of the function or the realized output of the function.
+\begin{axdef}
+  walkBack(in?, path?, conj(in?_{path?}, toEnd?), merge~\_)
+  \where
+  conj(in?_{path?}, toEnd?) \implies (in?_{path?} \cross toEnd? \bij conj!) @ \\
+  \t1 conj! = (conj(in?_{path?}, toEnd?)) \not \equiv conj(in?_{path?}, toEnd?)
+\end{axdef}
+
+\begin{itemize}
+\item Correct usage: $backProp(in?, path?, (conj(in?_{path?}, toEnd?)), merge~\_)$
+\item Incorrect usage: $backProp(in?, path?, conj(in?_{path?}, toEnd?), merge~\_)$
+\end{itemize}
+This means we can define $appendAt$ as
+\begin{zed}
+  appendAt(in?, path?, toEnd?) \equiv \\
+  \t1 walkBack(in?, path?, conj(in?_{path?}, toEnd?), merge~\_) \equiv \\
+  \t2 backProp(in?, path?, (conj(in?_{path?}, toEnd?)), merge~\_)
+\end{zed}
+To avoid confusion with Tuples, the above notation should only ever contain one member at the top level.
+\begin{itemize}
+\item Correct usage: $backProp(in?, path?, (conj(conj(in?_{path?}, toEnd?), FINE)), merge~\_)$
+\item Incorrect usage: $backProp(in?, path?, (conj(in?_{path?}, toEnd?), BAD), merge~\_)$
+\end{itemize}
+
+The following examples demonstrate the functionality of $appendAt$.
+\begin{argue}
+  appendAt(X, \langle 1 \rangle, e) = \langle x_{0}, \langle a, b, c, e \rangle, x_{2} \rangle \\
+  appendAt(X, \langle 2 \rangle, \langle 1, 2, 3 \rangle) = \langle x_{0}, x_{1}, \langle x_{2}, \langle 1, 2, 3 \rangle \rangle \rangle \\
+  appendAt(X, \langle 0 \rangle, bar) = \langle \langle x_{0}, bar \rangle, x_{1}, x_{2} \rangle
+\end{argue}
+
 \end{document}
