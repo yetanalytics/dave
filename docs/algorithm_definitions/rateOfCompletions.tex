@@ -368,86 +368,107 @@ Additionally, if false would be returned, $Accept$ can take the appropriate step
 is updated such that $accept?(state!, stmt?) = true$.
 
 \subsection{Step}
-\begin{schema}{RateOfCompletionsStep[KV, STATEMENT]}
-  Step \\
-  state?, step! : KV \\
-  stmt? : STATEMENT \\
-  step~\_ : KV \cross STATEMENT \surj KV
-  \where
-  Step.step = \langle body \rangle \\
-  \langle body \rangle \bindsto step = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
-  step! = step(state?, stmt?) @  FIXME: ~what ~happens?
-\end{schema}
-% WIP - bellow -> Z
-\subsubsection{summary}
-$step(state, stmt)$ updates $state$ to include
-$$\$.object.id \mapsto <domain, statementCount, name>$$
-where
-$$domain \mapsto <start, end> $$
-$$statementCount \mapsto \real$$
-$$name \mapsto <\$.object.definition.name>$$
-at
-$$<state, completions, \$.object.id>$$
+The actual processing of $stmt?$ happens within $step$ and may or may not result in an updated Algorithm State $state!$.
+In the case of $rateOfCompletions$, each call to $step$ is expected to return an altered state such that $state! \not= state?$
+and the schema $RateOfCompletionsStep$ is prefixed with $\Delta$ accordingly. The updated $state!$ will either
+have an existing mapping for $objectId \in state?$ altered or a completely new mapping for $objectId$ added to $state?$.
 
-\subsubsection{processing}
-$step$ starts by extracting the relevant information from $stmt$
+\subsubsection{Processing Summary}
+The execution of $step$ can be summarized as:
+\begin{enumerate}
+\item parse the relevant information from $stmt$
+  \begin{itemize}
+  \item $currentTime$
+  \item $objectName$
+  \item $objectId$
+  \end{itemize}
+\item resolve previous state (if it exists) given $objectId$
+\item update the range of time to include $currentTime$ if not already within the existing interval for $objectId$
+\item update the counter tracking the number of times $objectId$ has been in a $stmt?$ passed to $step$
+\item add $objectName$ to the set of names associated with $objectId$ if not already a member.
+\end{enumerate}
+
+\subsubsection{Helper Functions}
+The following Operations and Primitives are defined for abstracting the functionality
+of each process within $step$ in order to reduce the noise within $RateOfCompletionsStep$.
+\begin{schema}{ParseCompletionStatement[STATEMENT]}
+  GetIn \\
+  stmt? : STATEMENT \\
+  currentTime : TIMESTAMP \\
+  objectName, parseStmt! : KV \\
+  objectId : STRING \\
+  parseStmt~\_ : STATEMENT \bij KV
+  \where
+  parseStmt = \langle getIn~\_~, ~associate~\_ \rangle \bsup 2 \esup \\ ~ \\
+
+  currentTime = getIn(stmt?, \langle timestamp \rangle) \\
+  objectName = getIn(stmt?, \langle object, definition, name \rangle) \\
+  objectId = getIn(stmt?, \langle object, id \rangle) \\ ~ \\
+
+  parseStmt! = parseStmt(stmt?) @ \\
+  \t1 let \ ~ ~ withTime == associate(\ldata \rdata, currentT, currentTime) \\
+  \t2 withName == associate(withTime, objName, objectName) \\
+  \t2 \ \ \ ~ = associate(withName, objId, objectId) \implies \\
+  \t1 \ldata currentT \mapsto currentTime, ~objName \mapsto objectName, ~objId \mapsto objectId \rdata
+\end{schema}
 \begin{itemize}
-\item $currentTime$
-  $$currentTime = atKey(stmt, timestamp)$$
-\item $name$
-  $$name_{stmt} = atKey(stmt, <object, definition, name>)$$
-\item $objectId$
-  $$objectId = atKey(stmt, <object, id>)$$
+  \item parse timestamp, object name and object id from $stmt?$
 \end{itemize}
-which allows for the previous $state$ to be resolved using $objectId$
+
+\begin{schema}{ResolvePreviousCompletionState[KV, KV]}
+  GetIn \\
+  state?, parsed?, prevState! : KV \\
+  getPreviousState~\_ : KV \cross KV \pfun KV
+  \where
+  getPreviousState = \langle getIn~\_~,~getIn~\_ \rangle \\
+
+  objectId = getIn(parsed?, objId) \\
+  prevState! = getPreviousState(state?, parsed?) = getIn(state?, \langle roc, completions, objectId \rangle)
+\end{schema}
 \begin{itemize}
-\item $domain$
-  $$domain_{state} = atKey(state, <state, completions, objectId, domain>)$$
-  $$start_{state} = first(domain_{state})$$
-  $$end_{state} = last(domain_{state})$$
-\item $statementCount$
-  $$statementCount_{state} = atKey(state, <state, completions, objectId, statementCount>)$$
-\item $name$
-  $$name_{state} = atKey(state, <state, completions, objectId, name>)$$
+  \item look in $state?$ for any previous record of $objectId$
 \end{itemize}
-so that the previous state can be used along side the information parsed from $stmt$
+
+\begin{schema}{IntervalValGiven[TIMESTAMP, TIMESTAMP (~\_~\pfun~\_~)]}
+  IsoToUnix \\
+  stmt_{ts}, state_{ts}, intervalValGiven! : TIMESTAMP \\
+  fn_{pred} : (~\_~\pfun~\_~) \\
+  fn_{pred}! : \nat \\
+  intervalValGiven~\_ : TIMESTAMP \cross TIMESTAMP \cross (~\_~\pfun~\_~) \pfun TIMESTAMP
+  \where
+  intervalValGiven = \langle isoToUnix~\_~, ~isoToUnix~\_~, ~fn_{pred}~\_~ \rangle \\ ~ \\
+  nSeconds_{stmt} = isoToUnix(stmt_{ts}) \\
+  nSeconds_{state} = isoToUnix(state_{ts}) \\
+  fn_{pred}! = fn_{pred}(nSeconds_{stmt}, nSeconds_{state}) \\
+
+  intervalValGiven! = intervalValGiven(stmt_{ts}, state_{ts}, fn_{pred}) \\
+  \t4 \ ~ = (stmt_{ts} \iff fn_{pred}! = nSeconds_{stmt}) ~\lor \\
+  \t4 \ \ \ \ ~ (state_{ts} \iff fn_{pred}! = nSeconds_{state})
+\end{schema}
+
 \begin{itemize}
-\item does $start_{state}$ need to be updated to $currentTime$?
-  $\\\\$
-  where
-  $$inSeconds_{stmt} = isoToUnixEpoch(currentTime)$$
-  $$inSeconds_{start} = isoToUnixEpoch(start_{state}) \iff start_{state} \not = nil$$
-  such that
-  $$start(state, stmt) = currentTime$$
-  $$\iff$$
-  $$start_{state} = nil$$
-  $$\lor$$
-  $$inSeconds_{stmt} \leq inSeconds_{start}$$
-  otherwise
-  $$start(state, stmt) = start_{state}$$
-\item does $end_{state}$ need to be updated to $currentTime$?
-  $\\\\$
-  where
-  $$inSeconds_{stmt} = isoToUnixEpoch(currentTime)$$
-  $$inSeconds_{end} = isoToUnixEpoch(end_{state}) \iff end_{state} \not = nil$$
-  such that
-  $$end(state, stmt) = currentTime$$
-  $$\iff$$
-  $$end_{state} = nil$$
-  $$\lor$$
-  $$inSeconds_{stmt} \geq inSeconds_{end}$$
-  otherwise
-  $$end(state, stmt) = end_{state}$$
-\item what should $statementCount$ be?
-  $$nStmts(state) = 1 \iff statementCount_{state} = 0 \ \lor \ nil$$
-  $$\lor$$
-  $$nStmts(state) = 1 + statementCount_{state} \iff statementCount_{state} \geq 1$$
-\item do we need to add a new $name$?
-  $$allNames(state, stmt) = append(name_{state}, name_{stmt}, count(name_{state}))$$
-  $$\iff$$
-  $$name_{stmt} \not \in name_{state}$$
-  otherwise
-  $$allNames(state, stmt) = name_{state}$$
+  \item return $stmt_{ts}$ or $state_{ts}$ based on result of $fn_{pred}$
+\end{itemize}
+
+\begin{schema}{ReturnIntervalStart[TIMESTAMP, TIMESTAMP]}
+  IntervalValGiven \\
+  stmt_{ts}, state_{ts}, interval_{start} : TIMESTAMP \\
+  fn_{\delta}! : \nat \\
+  fn_{\delta} : \nat \cross \nat \pfun \nat \\
+  returnIntervalStart~\_ : TIMESTAMP \cross TIMESTAMP \pfun TIMESTAMP
+  \where
+  returnIntervalStart = \langle intervalValGiven~\_ \rangle \\ ~ \\
+
+  fn_{\delta}! = fn_{\delta}(nSeconds_{stmt}, nSeconds_{state}) \\
+  \t1 = (nSeconds_{stmt} \iff nSeconds_{stmt} \leq nSeconds_{state}) ~\lor \\
+  \t1 \ \ \  ~ (nSeconds_{state} \iff nSeconds_{stmt} > nSeconds_{state}) \\
+
+  interval_{start} = intervalValGiven(stmt_{ts}, state_{ts}, fn_{\delta}) \\
+  \t2 \ \ \ \ \ = (stmt_{ts} \iff fn_{\delta}! = nSeconds_{stmt}) ~ \lor \\
+  \t3 \ \ ~(state_{ts} \iff fn_{\delta}! = nSeconds_{state})
+\end{schema}
+\begin{itemize}
+  \item return $stmt_{ts}$ or $state_{ts}$, which ever one is further back in the past.
 \end{itemize}
 which allows for the following primitives to be defined
 $$p_{start}(state, stmt) = start(state, stmt)$$
