@@ -102,18 +102,70 @@ definition of an Algorithm to an Implementation of that methedology much like th
 \end{itemize}
 
 \subsection{Initialization}
+The first example of a component to component alignment is found within $RateOfCompletionsInit$ which shows
+how the primitive $RateOfCompletionsInit.init$ is bound to $\langle body \rangle$ within $Algorithm.algorithm.init$. Specifically,
+the schema $RateOfCompletionsInit$ uses the Primtive $updateAt$ such that $init_{\delta}$ can be used to establish the initialization logic.
+
+\subsubsection{Formal Definition}
+In the following, $init_{\delta}$ could have been a stand alone Operation referenced within $RateOfCompletionsInit$.
 \begin{schema}{RateOfCompletionsInit[KV]}
-  Init \\
+  Init, UpdateAt \\
   state?, state! : KV \\
-  init~\_ : KV \surj KV
+  init~\_ : KV \surj KV \\
+  init_{\delta} : V \surj KV \\
   \where
   Init.init = \langle body \rangle \\
-  \langle body \rangle \bindsto init = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
-  state! = init(state?) @ FIXME: ~what ~happens?
+  init = \langle updateAt~\_ \rangle \\
+  Init.init \bindsto init \implies \langle body \rangle \equiv \langle updateAt~\_ \rangle
+
+  \\ ~ \\
+  init_{\delta}! ~= init_{\delta}(state?_{\langle roc, completions \rangle}) @ \\
+  \t1 ~~~~ = \ (\emptyset \iff \langle roc, completions \rangle \not \in state?) ~\lor \\
+  \t2 (state?_{\langle roc, completions \rangle} \iff \langle roc, completions \rangle \in state?) \\ ~ \\
+
+  state! = init(state?) = updateAt(state?, \langle roc, completions \rangle, init_{\delta}) @ \\
+  \t1 \ \  = ~ (\ldata roc \mapsto completions \mapsto \emptyset \rdata \cup state? \iff init_{\delta}! = \emptyset) ~\lor \\
+  \t2 (state? \iff init_{\delta}! \not= \emptyset)
 \end{schema}
-% check to see if \langle state, completions \rangle exists in passed in state
-% - if its there, return state without alteration
-% - if its not there, add it to the passed in state and return the result.
+The output of $RateOfCompletionsInit.init$ is $state!$ which can be one of two things given the definition of $init_{\delta}$
+\begin{itemize}
+\item $state! = \ldata roc \mapsto completions \mapsto \emptyset \rdata \cup state?$
+\item $state! = state?$
+\end{itemize}
+This means that the result of any previous runs of $rateOfCompletions$ will not be overwritten
+but if this is the first iteration of the Algorithm, the necessary storage location is established
+within the Algorithm State such that
+\begin{itemize}
+\item $RateOfCompletionsStep.step$ can write its output to $state!_{\langle roc, completions \rangle}$
+\item $RateOfCompletionsResult.result$ can read from $state!_{\langle roc, completions \rangle}$
+\end{itemize}
+and by defining $RateOfCompletionsInit.init$ in this way, it allows for chaining of calls to $rateOfCompletion$ such that
+\begin{itemize}
+\item the Algorithm can pick back up from the result of a previous iteration
+\item Other Algorithms can use the result of $rateOfCompletions$ within their processing
+\end{itemize}
+which highlights the importance of establishing a unique path for individual Algorithms to write their results to.
+The example $path?$ of $\langle roc, completions \rangle$ is very simple but is sufficient for the current Algorithm.
+This $path?$ can be made more complex to suppport more advanced $init_{\delta}$ definitions. For example, each run of
+$rateOfCompletions$ could have its own unique subpath. In this scenario, $init_{\delta}$ could be updated to look for
+the most recent run of $rateOfCompletions$ and use it as the seed state for the current iteration among other things.
+\begin{itemize}
+\item $\langle roc, completions, run1 \rangle$
+\item $\langle roc, completions, run2 \rangle$
+\end{itemize}
+
+\subsubsection{Big Picture}
+When Algorithms write to a unique location within an Algorithm State, high level Algorithms can be designed which
+chain together individual Algorithms such that the result of one is used to seed the next. Chaining together of Algorithms
+is a subject not yet covered within this report and its exact form is still under active development. It is mentioned here
+to highlight the ideal usage of Algorithm State in the context of $init$; Algorithm State is a mutable $Map$ which
+serves as a storage location for a collection of Algorithm(s) to write to and/or read from such that an Algorithm
+can
+\begin{itemize}
+\item pick up from a previous iteration
+\item use the output of other Algorithm(s) to initialize the current state
+\item process quantities of data too large to store in local memory all at once
+\end{itemize}
 
 \subsection{Relevant?}
 \begin{schema}{RateOfCompletionsRelevant?[KV, STATEMENT]}
