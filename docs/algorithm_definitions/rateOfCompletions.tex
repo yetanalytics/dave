@@ -602,6 +602,8 @@ $opt$ named $timeUnit$ such that for each unique $stmt_{objId}$, the metric n co
 can be calculated and added to $state_{\langle roc, completions, stmt_{objId}, rate \rangle}$.
 \begin{schema}{RateOfCompletionsResult[KV, KV]}
   Result \\
+  RateOf \\
+  replaceAt \\
   opt?, state?, result! : KV \\
   result~\_ : KV \cross KV \surj KV
   \where
