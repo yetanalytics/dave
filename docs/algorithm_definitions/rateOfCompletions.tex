@@ -597,6 +597,9 @@ in $state_{\langle roc, completions \rangle}$ which looks like
 \end{zed}
 
 \subsection{Result}
+The interval of $interval_{start}!$ to $interval_{end}!$ can be partitioned based on the passed in
+$opt$ named $timeUnit$ such that for each unique $stmt_{objId}$, the metric n completions per time unit
+can be calculated and added to $state_{\langle roc, completions, stmt_{objId}, rate \rangle}$.
 \begin{schema}{RateOfCompletionsResult[KV, KV]}
   Result \\
   opt?, state?, result! : KV \\
