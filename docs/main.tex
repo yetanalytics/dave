@@ -1,6 +1,11 @@
 \documentclass{article}
 
 %%% Package imports
+% cross .tex document references,
+% sources: (https://texfaq.org/FAQ-extref), (http://www-users.york.ac.uk/~pjh503/LaTeX/ref.html)
+\usepackage{xr}
+\usepackage{xr-hyper}
+
 \usepackage{graphicx}
 \graphicspath{{../../resources/plots/} {../resources/plots/} {../../resources/figures/} {../resources/figures/}}
 \usepackage{placeins}
@@ -88,6 +93,9 @@ The structure of this documents is as follows:
   \item Result % WIP: - functionality in Z
   \end{enumerate}
 \end{enumerate}
+
+% FIXME: direct section references using cross-refering mechanism
+% - \label + \externaldocument + \nameref, \ref, pageref
 
 \subfile{z/introduction.tex}
 \subfile{z/xapi.tex}
