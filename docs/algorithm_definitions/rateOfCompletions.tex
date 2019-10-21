@@ -7,11 +7,65 @@
 As learners engage in activities supported by a learning ecosystem, they will build
 up a history of learning experiences. When the digital resources of that learning ecosystem
 adhere to a framework dedicated to supporting and understanding the
-learner, such as the Total Learning Architecture (TLA), it becomes
-possible to retell their learning story through data and data visualization. One important aspect of
-that story is the rate of completion of the various digital resources within the learning ecosystem.
+learner, such as the Total Learning Architecture (TLA), the data produced by the learning ecosystem
+will contribute to each learner's digital footprint. One way that footprint can be made actionable is
+through analysis of trends and/or patterns of activity. The following
+Algorithm does exactly this but scoped to:
+\begin{itemize}
+\item events describing or asserting that a learner completed a learning activity or exercise.
+\item events which happened within some target window of time
+\end{itemize}
+\subsection{Alignment to DAVE Algorithm Definition}
+The schema $RateOfCompletions$ serves as the first formal definition of an Algorithm which implements
+the definition of a DAVE Algorithm presented in the section \nameref{AFD_ref}(\ref{AFD_ref}) on page \pageref{AFD_ref}.
+$RateOfCompletions$ is used to introduce the alignment between the generic components of $Algorithm$ and their
+corresponding definitions within this domain specific use case. In general, all DAVE Algorithm definitions must reference the
+schema $Algorithm$ and the schemas corresponding to the different components of $Algorithm$. Within $RateOfCompletions$,
+both $Algorithm.algorithm.algorithmIter$ and $ROCalgorithmIter$ are fully expanded for clarity. This is not a requirement
+of alignment schemas, but alignment schemas should feature:
+\begin{itemize}
+\item an expanded definition of the use case specific $algorithmIter$
+\item binding of the use case specific $algorithmIter$ to $Algorithm.algorithm.algorithmIter$
+\end{itemize}
+Typically, an alignment schema would be defined after its component schemas but because $RateOfCompletions$
+is the first of its kind, it is featured first to introduce the notation by example and set the stage
+for the following component definitions. The alignments established in $RateOfCompletions$ are further
+expanded upon within the corresponding definition of each individual component.
 
-\begin{schema}{RateOfCompletions[KV, Collection, KV]}
+\subsubsection{Components}
+Within each component definition, in order to connect the dots between
+\begin{itemize}
+  \item $Algorithm$ and its components
+  \item $RateOfCompletions$ and its components
+\end{itemize}
+the symbol $\bindsto$ is used. This establishes that the constraints defined in the more generic
+component formal definitions apply to the schema being binded to. This is formalized within each of
+the $RateOfCompletions$ component schemas via
+\begin{axdef}
+  genericSchema.primitiveName = \langle body \rangle
+  \where
+  \langle body \rangle \bindsto localSchema.primitiveName = localSchema.primitiveChain
+\end{axdef}
+
+\subsection{Formal Definition}
+The application of the notation described above to $RateOfCompletions$ results
+in the following definition with respect to schemas
+\begin{zed}
+  RateOfCompletions ::= \\
+  \t2 Algorithm ~\comp RateOfCompletions ~\implies \\
+  \t4 (Init ~\comp ~RateOfCompletionsInit) ~ \land \\
+  \t4 (Relevant? ~\comp ~RateOfCompletionsRelevant?) ~\land \\
+  \t4 (Accept? ~\comp ~RateOfCompletionsAccept?) ~\land \\
+  \t4 (Step ~\comp ~RateOfCompletionsStep) ~\land \\
+  \t4 (Result ~\comp ~RateOfCompletionsResult)
+\end{zed}
+such that the $\langle body \rangle$ within each of the generic schema definitions is substituted for
+the Primitive chain defined within each of the local schemas. Here, the components of $RateOfCompletions$
+use a naming scheme of Container + AlgorithmComponent but this pattern is not required. It is used here
+strictly for additional highlighting of the syntax introduced above for connecting the generic
+definition of an Algorithm to an Implementation of that methedology much like the concepts underlying
+\href{https://docs.oracle.com/javase/tutorial/java/concepts/interface.html}{Java Interfaces}.
+\begin{schema}{\Delta RateOfCompletions[KV, Collection, KV]}
   Algorithm \\
   RateOfCompletionsInit \\
   RateOfCompletionsRelevant? \\
@@ -19,7 +73,7 @@ that story is the rate of completion of the various digital resources within the
   RateOfCompletionsStep \\
   RateOfCompletionsResult \\
   rateOfCompletions~\_ : KV \cross Collection \cross KV \surj KV \\
-  state?, opt?, rateOfCompletions! : KV \\
+  state?, opt?, state! : KV \\
   S? : Collection
   \where
   Algorithm.algorithm.algorithmIter = \langle relevant?~\_~, accept?~\_~, step~\_ \rangle \\
@@ -35,14 +89,16 @@ that story is the rate of completion of the various digital resources within the
   \t1 (Algorithm.algorithm.algorithmIter.step~\_ \bindsto \\
   \t3 RateOfCompletionsStep.step~\_) \\ ~ \\
 
-  rateOfCompletions! = rateOfCompletions(state?, S?, opt?) = algorithm(state?, S?, opt?) @ \\
-  \t1 (Algorithm.algorithm.init~\_ \bindsto RateOfCompletionsInit.init~\_) ~\land \\
-  \t1 (Algorithm.algorithm.algorithmIter~\_ \bindsto ROCalgorithmIter~\_) ~ \land \\
-  \t1 (Algorithm.algorithm.result~\_ \bindsto RateOfCompletionsResult.result~\_)
+  state! = rateOfCompletions(state?, S?, opt?) \equiv algorithm(state?, S?, opt?) \iff \\
+  \t3 (Algorithm.algorithm.init~\_ \bindsto RateOfCompletionsInit.init~\_) ~\land \\
+  \t3 (Algorithm.algorithm.algorithmIter~\_ \bindsto ROCalgorithmIter~\_) ~ \land \\
+  \t3 (Algorithm.algorithm.result~\_ \bindsto RateOfCompletionsResult.result~\_)
 \end{schema}
 \begin{itemize}
-\item FIXME: explain usage of $\bindsto$
-\item FIXME: explan usage of $SchemaName.component.subcomponent$
+\item the $.$ notation is used to reference components within a schema
+\item the $\bindsto$ represents alignment between components of $Algorithm$ and $RateOfCompletions$
+\item the $\Delta$ in the schema name indicates that $RateOfCompletions$ alters the state space of $Algorithm$
+  due to usage of $\bindsto$
 \end{itemize}
 
 \subsection{Initialization}
