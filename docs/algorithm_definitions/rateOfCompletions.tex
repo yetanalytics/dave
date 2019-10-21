@@ -1,217 +1,646 @@
 \documentclass[../main.tex]{subfiles}
+\externaldocument{../algorithms/introduction}
+
 \begin{document}
 
 \section{Rate of Completions}
 As learners engage in activities supported by a learning ecosystem, they will build
 up a history of learning experiences. When the digital resources of that learning ecosystem
 adhere to a framework dedicated to supporting and understanding the
-learner, such as the Total Learning Architecture (TLA), it becomes
-possible to retell their learning story through data and data visualization. One important aspect of
-that story is the rate of completion of the various digital resources within the learning ecosystem.
+learner, such as the Total Learning Architecture (TLA), the data produced by the learning ecosystem
+will contribute to each learner's digital footprint. One way that footprint can be made actionable is
+through analysis of trends and/or patterns of activity. The following
+Algorithm does exactly this but scoped to:
+\begin{itemize}
+\item events describing or asserting that a learner completed a learning activity or exercise.
+\item events which happened within some target window of time
+\end{itemize}
+\subsection{Alignment to DAVE Algorithm Definition}
+The schema $RateOfCompletions$ serves as the first formal definition of an Algorithm which implements
+the definition of a DAVE Algorithm presented in the section \nameref{AFD_ref}(\ref{AFD_ref}) on page \pageref{AFD_ref}.
+$RateOfCompletions$ is used to introduce the alignment between the generic components of $Algorithm$ and their
+corresponding definitions within this domain specific use case. In general, all DAVE Algorithm definitions must reference the
+schema $Algorithm$ and the schemas corresponding to the different components of $Algorithm$. Within $RateOfCompletions$,
+both $Algorithm.algorithm.algorithmIter$ and $ROCalgorithmIter$ are fully expanded for clarity. This is not a requirement
+of alignment schemas, but alignment schemas should feature:
+\begin{itemize}
+\item an expanded definition of the use case specific $algorithmIter$
+\item binding of the use case specific $algorithmIter$ to $Algorithm.algorithm.algorithmIter$
+\end{itemize}
+Typically, an alignment schema would be defined after its component schemas but because $RateOfCompletions$
+is the first of its kind, it is featured first to introduce the notation by example and set the stage
+for the following component definitions. The alignments established in $RateOfCompletions$ are further
+expanded upon within the corresponding definition of each individual component.
+
+\subsubsection{Components}
+Within each component definition, in order to connect the dots between
+\begin{itemize}
+  \item $Algorithm$ and its components
+  \item $RateOfCompletions$ and its components
+\end{itemize}
+the symbol $\bindsto$ is used. This establishes that the constraints defined in the more generic
+component formal definitions apply to the schema being binded to. This is formalized within each of
+the $RateOfCompletions$ component schemas via
+\begin{axdef}
+  genericSchema.primitiveName = \langle body \rangle
+  \where
+  \langle body \rangle \bindsto localSchema.primitiveName = localSchema.primitiveChain
+\end{axdef}
+
+\subsection{Formal Definition}
+The application of the notation described above to $RateOfCompletions$ results
+in the following definition with respect to schemas
+\begin{zed}
+  RateOfCompletions ::= \\
+  \t2 Algorithm ~\comp RateOfCompletions ~\implies \\
+  \t4 (Init ~\comp ~RateOfCompletionsInit) ~ \land \\
+  \t4 (Relevant? ~\comp ~RateOfCompletionsRelevant?) ~\land \\
+  \t4 (Accept? ~\comp ~RateOfCompletionsAccept?) ~\land \\
+  \t4 (Step ~\comp ~RateOfCompletionsStep) ~\land \\
+  \t4 (Result ~\comp ~RateOfCompletionsResult)
+\end{zed}
+such that the $\langle body \rangle$ within each of the generic schema definitions is substituted for
+the Primitive chain defined within each of the local schemas. Here, the components of $RateOfCompletions$
+use a naming scheme of Container + AlgorithmComponent but this pattern is not required. It is used here
+strictly for additional highlighting of the syntax introduced above for connecting the generic
+definition of an Algorithm to an Implementation of that methedology much like the concepts underlying
+\href{https://docs.oracle.com/javase/tutorial/java/concepts/interface.html}{Java Interfaces}.
+\begin{schema}{\Delta RateOfCompletions[KV, Collection, KV]}
+  Algorithm \\
+  RateOfCompletionsInit \\
+  RateOfCompletionsRelevant? \\
+  RateOfCompletionsAccept? \\
+  RateOfCompletionsStep \\
+  RateOfCompletionsResult \\
+  rateOfCompletions~\_ : KV \cross Collection \cross KV \surj KV \\
+  state?, opt?, state! : KV \\
+  S? : Collection
+  \where
+  Algorithm.algorithm.algorithmIter = \langle relevant?~\_~, accept?~\_~, step~\_ \rangle \\
+  ROCalgorithmIter = \langle RateOfCompletionsRelevant?.relevant?~\_~, \\
+  \t5 \ RateOfCompletionsAccept?.accept?~\_~, \\
+  \t5 \ RateOfCompletionsStep.step~\_ \rangle \\ ~ \\
+
+  Algorithm.algorithm.algorithmIter~\_~ \bindsto ROCalgorithmIter~\_~ \implies \\
+  \t1 (Algorithm.algorithm.algorithmIter.relevant?~\_ \bindsto \\
+  \t3 RateOfCompletionsRelevant?.relevant?~\_)  ~\land \\
+  \t1 (Algorithm.algorithm.algorithmIter.accept?~\_ \bindsto \\
+  \t3 RateOfCompletionsAccept?.accept?~\_) ~\land \\
+  \t1 (Algorithm.algorithm.algorithmIter.step~\_ \bindsto \\
+  \t3 RateOfCompletionsStep.step~\_) \\ ~ \\
+
+  state! = rateOfCompletions(state?, S?, opt?) \equiv algorithm(state?, S?, opt?) \iff \\
+  \t3 (Algorithm.algorithm.init~\_ \bindsto RateOfCompletionsInit.init~\_) ~\land \\
+  \t3 (Algorithm.algorithm.algorithmIter~\_ \bindsto ROCalgorithmIter~\_) ~ \land \\
+  \t3 (Algorithm.algorithm.result~\_ \bindsto RateOfCompletionsResult.result~\_)
+\end{schema}
+\begin{itemize}
+\item the $.$ notation is used to reference components within a schema
+\item the $\bindsto$ represents alignment between components of $Algorithm$ and $RateOfCompletions$
+\item the $\Delta$ in the schema name indicates that $RateOfCompletions$ alters the state space of $Algorithm$
+  due to usage of $\bindsto$
+\end{itemize}
 
 \subsection{Initialization}
-$init(state)$ sets up an empty $KV$ within $state$ for the Algorithm to update at each $step$
-$$init(state) = state_{0}$$
-where
-$$state_{0} = associate(state, <state, completions>, <>) \iff atKey(state, <state, completions>) = nil$$
-otherwise
-$$state_{0} = state$$
-such that if
-$$state = <a \mapsto b>$$
-then
-$$state_{0} = <a \mapsto b, state \mapsto completions \mapsto <>>$$
+The first example of a component to component alignment is found within $RateOfCompletionsInit$ which shows
+how the primitive $RateOfCompletionsInit.init$ is bound to $\langle body \rangle$ within $Algorithm.algorithm.init$. Specifically,
+the schema $RateOfCompletionsInit$ uses the Primtive $updateAt$ such that $init_{\delta}$ can be used to establish the initialization logic.
+
+\subsubsection{Formal Definition}
+In the following, $init_{\delta}$ could have been a stand alone Operation referenced within $RateOfCompletionsInit$.
+\begin{schema}{RateOfCompletionsInit[KV]}
+  Init, UpdateAt \\
+  state?, state! : KV \\
+  init~\_ : KV \surj KV \\
+  init_{\delta} : V \surj KV \\
+  \where
+  Init.init = \langle body \rangle \\
+  init = \langle updateAt~\_ \rangle \\
+  Init.init \bindsto init \implies \langle body \rangle \equiv \langle updateAt~\_ \rangle
+
+  \\ ~ \\
+  init_{\delta}! ~= init_{\delta}(state?_{\langle roc, completions \rangle}) @ \\
+  \t1 ~~~~ = \ (\emptyset \iff \langle roc, completions \rangle \not \in state?) ~\lor \\
+  \t2 (state?_{\langle roc, completions \rangle} \iff \langle roc, completions \rangle \in state?) \\ ~ \\
+
+  state! = init(state?) = updateAt(state?, \langle roc, completions \rangle, init_{\delta}) @ \\
+  \t1 \ \  = ~ (\ldata roc \mapsto completions \mapsto \emptyset \rdata \cup state? \iff init_{\delta}! = \emptyset) ~\lor \\
+  \t2 (state? \iff init_{\delta}! \not= \emptyset)
+\end{schema}
+The output of $RateOfCompletionsInit.init$ is $state!$ which can be one of two things given the definition of $init_{\delta}$
+\begin{itemize}
+\item $state! = \ldata roc \mapsto completions \mapsto \emptyset \rdata \cup state?$
+\item $state! = state?$
+\end{itemize}
+This means that the result of any previous runs of $rateOfCompletions$ will not be overwritten
+but if this is the first iteration of the Algorithm, the necessary storage location is established
+within the Algorithm State such that
+\begin{itemize}
+\item $RateOfCompletionsStep.step$ can write its output to $state!_{\langle roc, completions \rangle}$
+\item $RateOfCompletionsResult.result$ can read from $state!_{\langle roc, completions \rangle}$
+\end{itemize}
+and by defining $RateOfCompletionsInit.init$ in this way, it allows for chaining of calls to $rateOfCompletion$ such that
+\begin{itemize}
+\item the Algorithm can pick back up from the result of a previous iteration
+\item Other Algorithms can use the result of $rateOfCompletions$ within their processing
+\end{itemize}
+which highlights the importance of establishing a unique path for individual Algorithms to write their results to.
+The example $path?$ of $\langle roc, completions \rangle$ is very simple but is sufficient for the current Algorithm.
+This $path?$ can be made more complex to suppport more advanced $init_{\delta}$ definitions. For example, each run of
+$rateOfCompletions$ could have its own unique subpath. In this scenario, $init_{\delta}$ could be updated to look for
+the most recent run of $rateOfCompletions$ and use it as the seed state for the current iteration among other things.
+\begin{itemize}
+\item $\langle roc, completions, run1 \rangle$
+\item $\langle roc, completions, run2 \rangle$
+\end{itemize}
+
+\subsubsection{Big Picture}
+When Algorithms write to a unique location within an Algorithm State, high level Algorithms can be designed which
+chain together individual Algorithms such that the result of one is used to seed the next. Chaining together of Algorithms
+is a subject not yet covered within this report and its exact form is still under active development. It is mentioned here
+to highlight the ideal usage of Algorithm State in the context of $init$; Algorithm State is a mutable $Map$ which
+serves as a storage location for a collection of Algorithm(s) to write to and/or read from such that an Algorithm
+can
+\begin{itemize}
+\item pick up from a previous iteration
+\item use the output of other Algorithm(s) to initialize the current state
+\item process quantities of data too large to store in local memory all at once
+\end{itemize}
 
 \subsection{Relevant?}
-$relevant?(state, stmt)$ determines if $stmt$ is valid for use within $step$ of $rateOfCompletions$ and does so by
-looking into various $k \to v$ within $stmt$. The following Primitives are used as the $body$ of $relevant?(state, stmt)$
+Given that the purpose of $relevant?$ is to determine if the current Statement ($stmt?$)
+is valid for use within $step$ of $rateOfCompletions$, the validation check itself can
+be implemented in several different ways but idealy, the predicate logic is expressed using the
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-about.md}{xAPI Profiles spec}.
+
+\subsubsection{xAPI Profile Validation}
+The specification defines
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#statment-templates}{xAPI Statement Tempaltes}
+which feature a built in
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#81-statement-template-rules}{xAPI property predicate language}
+for defining the uniquely identifying properties of an xAPI Statement. These requirements are used within
+validation logic aligned to/based off of the
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-communication.md#statement-template-valid}{Statement Template Validation Logic}
+defined in the spec. The formal definition of Statement Template validation logic is outside the scope
+of this document but the following basic type is introduced to represent an xAPI Statement Tempalte
+$$[TEMPLATE_{stmt}]$$
+such that the following is an Operation definition for validation of an xAPI Statement $stmt?$ against an xAPI Statement Template.
+%FIXME: footnote, the Operation returns a boolean so it ends with a ?, one instance of overlap between input arg and pred fn naming conventions
+\begin{schema}{ValidateStatement[STATEMENT, TEMPLATE_{stmt}]}
+  stmt? : STATEMENT \\
+  template? : TEMPLATE_{stmt} \\
+  validateStmt! : Boolean \\
+  validateStmt~\_ : STATEMENT \cross TEMPLATE_{stmt} \fun Boolean
+  \where
+  validateStmt! = validateStmt(stmt?, template?) = true ~\lor false
+\end{schema}
+This Operation can be composed with other xAPI Profile centered Operations to define more complex
+predicate/validation logic like:
+\begin{itemize}
+  \item $stmt?$ matches target xAPI Statement Template(s) defined within some xAPI Profile(s)
+  \item $stmt?$ matches pred (ie, any/none/etc.) xAPI Statement Template(s) defined within some xAPI Profile(s)
+  \item $stmt?$ matches target/pred xAPI Statement Template(s) within target/pred xAPI Pattern(s) defined within some xAPI Profile(s)
+\end{itemize}
+
+\subsubsection{xAPI Predicates}
+In order to avoid brining in additional xAPI Profile complexity, the logic of
+$RateOfCompletionsRelevant?$ is implemented using predicates which correspond to
+checks which would happen during $validateStmt$ given Statement Templates containing
+the following constraints.
 \begin{itemize}
 \item is the Object of the Statement an Activity?
-  $$activityType = atKey(stmt, <object, objectType>)$$
-  $$activity?(activityType) = true \iff activityType = Activity \ \lor activityType = nil$$
 \item is the Verb indicative of a completion event?
-  $$verbId = atKey(stmt, <verb, id>)$$
-  $$completionVerb?(verbId) = true$$
-  $$\iff$$
-  $$verbId = http://adlnet.gov/expapi/verbs/passed$$
-  $$\lor$$
-  $$verbId = https://w3id.org/xapi/dod-isd/verbs/answered$$
-  $$\lor$$
-  $$verbId = http://adlnet.gov/expapi/verbs/completed$$
-\item does the $stmt$ indicate completion using Result?
-  $$result = atKey(stmt, <result, completion>)$$
-  $$resultCompletion = true \iff result = true$$
+\item is Result.completion used to indicate completion?
 \end{itemize}
-$\\$
-such that the body of $relevant?$ contains
-$$p_{a}(stmt) = activity?(atKey(stmt, <object, objectType>))$$
-and
-$$p_{v}(stmt) = completionVerb?(atKey(stmt, <verb, id>))$$
-and
-$$p_{r}(stmt) = resultCompletion(atKey(stmt, <result, completion>))$$
-which are used to form higher level Primitives
-$$p_{continue}(stmt) = stmt \iff p_{a}(stmt) = true$$
-and
-$$p_{completed?}(stmt) = stmt \iff p_{v}(stmt) = true \ \lor \ p_{r}(stmt) = true$$
-which results in a final Primitive $p_{return?}$
-$$p_{return?}(stmt) = object?(p_{completed?}(p_{continue}(stmt)))$$
-which defines the $body$ of $relevant?$
-$$relevant?(stmt) = p_{return?}(stmt) \implies object?(p_{completed?}(p_{continue}(stmt)))$$
-and can be summarized as
-$$relevant?(state, stmt) = true$$
-$$\iff$$
-$$activity?(activitType) = true$$
-$$\land$$
-$$completionVerb?(verbId) = true \ \lor \ resultCompletion = true$$
+In general, each of these Primitives navigates into a Statement to retrieve the value at a target
+$path?$ and check it against the predicate defined in the schema. This generic functionality is defined
+as the Primitive $stmtPred$.
+\begin{schema}{StatementPredicate[STATEMENT, Collection, (~\_~\pfun~\_~)]}
+  GetIn \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}? : (~\_~\pfun~\_~) \\
+  stmtPred~\_ : STATEMENT \cross Collection \cross (~\_~\pfun~\_~) \fun Boolean
+  \where
+  stmtPred = \langle getIn~\_~, fn_{pred}?(stmt?_{path?}) \rangle \\ ~ \\
+  fn_{pred}! = stmtPred(stmt?, path?, fn_{pred?}) \\
+  \t1 \ \ \ ~ = fn_{pred}?(getIn(stmt?, path?)) @ \\
+  \t1 \ \ \ ~ = true ~\lor~ false
+\end{schema}
+This Primitive covers the most basic kind of check performed when validating an xAPI Statement
+against an xAPI Statement Template; does the Statement property found at $stmt?_{path?}$ adhere to
+the expectation(s) defined within the provided predicate. The next three schemas will define
+the statement predicates used within $RateOfCompletionsRelevant?$ but these predicates
+could have been contained within some number of xAPI Statement Template(s).
+
+\begin{schema}{ActivityObject?[STATEMENT]}
+  StatementPredicate \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}~\_ : V \fun Boolean \\
+  activityObject?~\_ : STATEMENT \fun Boolean
+  \where
+  activityObject? = \langle stmtPred~\_ \rangle \\ ~ \\
+
+  path? = \langle object, objectType \rangle \\ ~ \\
+
+  fn_{pred}! = activityObject?(stmt?) \\
+  \t1 \ \ \ \ = stmtPred(stmt?, path?, fn_{pred}) \\
+  \t1 \ \ \ \ = fn_{pred}(stmt?_{path?}) \\
+  \t1 \ \ \ \ = true \iff stmt?_{path?} = Activity ~\lor ~ \emptyset
+\end{schema}
+\begin{itemize}
+  \item Determine if the Object of $stmt?$ is an \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-About.md#def-activity}{Activity}
+\end{itemize}
+
+\begin{schema}{CompletionVerb?[STATEMENT]}
+  StatementPredicate \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}~\_ : V \fun Boolean \\
+  completionVerb?~\_ : STATEMENT \fun Boolean
+  \where
+  completionVerb? = \langle stmtPred~\_ \rangle \\ ~ \\
+
+  path? = \langle verb, id \rangle \\ ~ \\
+
+  fn_{pred}! = completionVerb?(stmt?) \\
+  \t1 \ \ \ \ = stmtPred(stmt?, path?, fn_{pred}) \\
+  \t1 \ \ \ \ = fn_{pred}(stmt?_{path?}) \\
+  \t1 \ \ \ \ = true \iff stmt?_{path?} = \\
+  \t3 http://adlnet.gov/expapi/verbs/passed ~~\lor \\
+  \t3 https://w3id.org/xapi/dod-isd/verbs/answered ~~\lor \\
+  \t3 http://adlnet.gov/expapi/verbs/completed
+\end{schema}
+
+\begin{itemize}
+\item Determine if the Verb id within $stmt?$ is one of
+  \begin{itemize}
+  \item passed
+  \item answered
+  \item completed
+  \end{itemize}
+\item List of target Verb ids can be expanded as needed
+\end{itemize}
+
+\begin{schema}{CompletionResult?[STATEMENT]}
+  StatementPredicate \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}~\_ : V \fun Boolean \\
+  completionResult?~\_ : STATEMENT \fun Boolean
+  \where
+  completionResult? = \langle stmtPred~\_ \rangle \\ ~ \\
+
+  path? = \langle result, completion \rangle \\ ~ \\
+
+  fn_{pred}! = completionResult?(stmt?) \\
+  \t1 \ \ \ \ = stmtPred(stmt?, path?, fn_{pred}) \\
+  \t1 \ \ \ \ = fn_{pred}(stmt?_{path?}) \\
+  \t1 \ \ \ \ = true \iff stmt?_{path?} = true \\
+\end{schema}
+
+\begin{itemize}
+  \item Determine if completion is set to true within result field of an xAPI Statement
+\end{itemize}
+
+\subsubsection{Formal Definition}
+The xAPI Predicates defined above are used within $RateOfCompletionsRelevant?$ to
+establish the logic which decides if $stmt?$ is
+\begin{itemize}
+\item passed on to the next step
+\item discarded for the next Statement in the batch passed to $rateOfCompletions$
+\end{itemize}
+
+\begin{schema}{\Xi RateOfCompletionsRelevant?[KV, STATEMENT]}
+  Relevant? \\
+  state? : KV \\
+  stmt? : STATEMENT \\
+  relevant! : Boolean \\
+  relevant?~\_ : KV \cross STATEMENT \fun Boolean
+  \where
+  Relevant.relevant? = \langle body \rangle \\
+  \langle body \rangle \bindsto relevant? = \langle ~activityObject?~\_~, \langle ~completionVerb?~\_~, ~completionResult?~\_ \rangle  \rangle \\ ~ \\
+  relevant! = relevant?(state?, stmt?) \\
+  \t2 ~ = true \iff (activityObject(stmt?) = true) ~\land \\
+  \t6 \ ~ ((completionVerb?(stmt?) = true) ~\lor \\
+  \t6 \ \ ~ (completionResult?(stmt?) = true))
+\end{schema}
+The schema prefix $\Xi$ is used to indicate that here, $relevant?$ does not modify $state?$.
+Regardless, in order for $relevant?$ to return true
+\begin{itemize}
+\item The object of $stmt?$ must be an activity
+\item The Verb of $stmt?$ has an id which matches one of the target IDs
+\item The Result of $stmt$ indicates that a completion happened
+\end{itemize}
 
 \subsection{Accept?}
-$rateOfCompletions$ does not require further boolean logic to determine if $stmt$ and $state$ can be passed to $step$
-$$accept?(state, stmt) = object?(stmt)$$
-which should always return true assuming valid xAPI Statements are passed to $rateOfCompletions$
+The $Accept?$ component of a DAVE Algorithm is a secondary validation check prior to the potential
+passing of $stmt?$ off to $Step$. At this point, $stmt?$ has been validated to be relevant to the
+execution of an Algorithm so the final check is based off of the current Algorithm State $state?$.
+In many cases this check will not be necessary but this step matters when the ability to process $stmt?$
+is dependent upon some property of $state?$. This component of an Algorithm could be used to establish
+the placeholder mapping within $state!$ if it doesn't exist for the current $stmt?$ but this can also
+be handled within $step$ as done in the schema $ProcessCompletionStatement$ defined later on.
+
+\begin{schema}{\Xi RateOfCompletionsAccept?[KV, STATEMENT]}
+  Accept? \\
+  state? : KV \\
+  stmt? : STATEMENT \\
+  accept! : Boolean \\
+  fn_{pred} : KV \cross STATEMENT \fun Boolean \\
+  accept?~\_ : KV \cross STATEMENT \fun Boolean
+  \where
+  Accept?.accept? = \langle body \rangle \\
+  accept? = \langle fn_{pred}~\_ \rangle \\
+  Accept?.accept? \bindsto accept? \implies \langle body \rangle \equiv \langle fn_{pred}~\_ \rangle \\ ~ \\
+  accept! = accept?(state?, stmt?) \\
+  \t1 \ \ \ ~ = fn_{pred}(state?, stmt?) = true
+\end{schema}
+The Algorithm $rateOfCompletions$ does not need to check $state?$ before passing $stmt?$ to $step$ so
+$fn_{pred}$ will always return true. If this was not the case, $fn_{pred}$ would be defined as a predicate
+describing the relationship between $state?$ and $stmt?$ which determines if true or false is returned.
+Additionally, if false would be returned, $Accept$ can take the appropriate steps to ensure $state!$
+is updated such that $accept?(state!, stmt?) = true$.
 
 \subsection{Step}
-\subsubsection{summary}
-$step(state, stmt)$ updates $state$ to include
-$$\$.object.id \mapsto <domain, statementCount, name>$$
-where
-$$domain \mapsto <start, end> $$
-$$statementCount \mapsto \real$$
-$$name \mapsto <\$.object.definition.name>$$
-at
-$$<state, completions, \$.object.id>$$
+The actual processing of $stmt?$ happens within $step$ and may or may not result in an updated Algorithm State $state!$.
+In the case of $rateOfCompletions$, each call to $step$ is expected to return an altered state such that $state! \not= state?$
+and the schema $RateOfCompletionsStep$ is prefixed with $\Delta$ accordingly. The updated $state!$ will either
+have an existing mapping for $objectId \in state?$ altered or a completely new mapping for $objectId$ added to $state?$.
 
-\subsubsection{processing}
-$step$ starts by extracting the relevant information from $stmt$
+\subsubsection{Processing Summary}
+The execution of $step$ can be summarized as:
+\begin{enumerate}
+\item parse the relevant information from $stmt$
+  \begin{itemize}
+  \item $currentTime$
+  \item $objectName$
+  \item $objectId$
+  \end{itemize}
+\item resolve previous state (if it exists) given $objectId$
+\item update the range of time to include $currentTime$ if not already within the existing interval for $objectId$
+\item update the counter tracking the number of times $objectId$ has been in a $stmt?$ passed to $step$
+\item add $objectName$ to the set of names associated with $objectId$ if not already a member.
+\end{enumerate}
+
+\subsubsection{Helper Functions}
+The following Operations and Primitives are defined for abstracting the functionality
+of each process within $step$ in order to reduce the noise within $RateOfCompletionsStep$.
+\begin{schema}{ParseCompletionStatement[STATEMENT]}
+  GetIn \\
+  stmt? : STATEMENT \\
+  currentTime : TIMESTAMP \\
+  objectName, parseStmt! : KV \\
+  objectId : STRING \\
+  parseStmt~\_ : STATEMENT \bij KV
+  \where
+  parseStmt = \langle getIn~\_~, ~associate~\_ \rangle \bsup 2 \esup \\ ~ \\
+
+  currentTime = getIn(stmt?, \langle timestamp \rangle) \\
+  objectName = getIn(stmt?, \langle object, definition, name \rangle) \\
+  objectId = getIn(stmt?, \langle object, id \rangle) \\ ~ \\
+
+  parseStmt! = parseStmt(stmt?) @ \\
+  \t1 let \ ~ ~ withTime == associate(\ldata \rdata, currentT, currentTime) \\
+  \t2 withName == associate(withTime, objName, objectName) \\
+  \t2 \ \ \ ~ = associate(withName, objId, objectId) \implies \\
+  \t1 \ldata currentT \mapsto currentTime, ~objName \mapsto objectName, ~objId \mapsto objectId \rdata
+\end{schema}
 \begin{itemize}
-\item $currentTime$
-  $$currentTime = atKey(stmt, timestamp)$$
-\item $name$
-  $$name_{stmt} = atKey(stmt, <object, definition, name>)$$
-\item $objectId$
-  $$objectId = atKey(stmt, <object, id>)$$
+  \item parse timestamp, object name and object id from $stmt?$
 \end{itemize}
-which allows for the previous $state$ to be resolved using $objectId$
+
+\begin{schema}{ResolvePreviousCompletionState[KV, KV]}
+  GetIn \\
+  state?, parsed?, prevState! : KV \\
+  getPreviousState~\_ : KV \cross KV \pfun KV
+  \where
+  getPreviousState = \langle getIn~\_~,~getIn~\_ \rangle \\
+
+  objectId = getIn(parsed?, objId) \\
+  prevState! = getPreviousState(state?, parsed?) = getIn(state?, \langle roc, completions, objectId \rangle)
+\end{schema}
 \begin{itemize}
-\item $domain$
-  $$domain_{state} = atKey(state, <state, completions, objectId, domain>)$$
-  $$start_{state} = first(domain_{state})$$
-  $$end_{state} = last(domain_{state})$$
-\item $statementCount$
-  $$statementCount_{state} = atKey(state, <state, completions, objectId, statementCount>)$$
-\item $name$
-  $$name_{state} = atKey(state, <state, completions, objectId, name>)$$
+  \item look in $state?$ for any previous record of $objectId$
 \end{itemize}
-so that the previous state can be used along side the information parsed from $stmt$
+
+\begin{schema}{IntervalValGiven[TIMESTAMP, TIMESTAMP (~\_~\pfun~\_~)]}
+  IsoToUnix \\
+  stmt_{ts}, state_{ts}, intervalValGiven! : TIMESTAMP \\
+  fn_{pred} : (~\_~\pfun~\_~) \\
+  fn_{pred}! : \nat \\
+  intervalValGiven~\_ : TIMESTAMP \cross TIMESTAMP \cross (~\_~\pfun~\_~) \pfun TIMESTAMP
+  \where
+  intervalValGiven = \langle isoToUnix~\_~, ~isoToUnix~\_~, ~fn_{pred}~\_~ \rangle \\ ~ \\
+  nSeconds_{stmt} = isoToUnix(stmt_{ts}) \\
+  nSeconds_{state} = isoToUnix(state_{ts}) \\
+  fn_{pred}! = fn_{pred}(nSeconds_{stmt}, nSeconds_{state}) \\
+
+  intervalValGiven! = intervalValGiven(stmt_{ts}, state_{ts}, fn_{pred}) \\
+  \t4 \ ~ = (stmt_{ts} \iff fn_{pred}! = nSeconds_{stmt}) ~\lor \\
+  \t4 \ \ \ \ ~ (state_{ts} \iff fn_{pred}! = nSeconds_{state})
+\end{schema}
+
 \begin{itemize}
-\item does $start_{state}$ need to be updated to $currentTime$?
-  $\\\\$
-  where
-  $$inSeconds_{stmt} = isoToUnixEpoch(currentTime)$$
-  $$inSeconds_{start} = isoToUnixEpoch(start_{state}) \iff start_{state} \not = nil$$
-  such that
-  $$start(state, stmt) = currentTime$$
-  $$\iff$$
-  $$start_{state} = nil$$
-  $$\lor$$
-  $$inSeconds_{stmt} \leq inSeconds_{start}$$
-  otherwise
-  $$start(state, stmt) = start_{state}$$
-\item does $end_{state}$ need to be updated to $currentTime$?
-  $\\\\$
-  where
-  $$inSeconds_{stmt} = isoToUnixEpoch(currentTime)$$
-  $$inSeconds_{end} = isoToUnixEpoch(end_{state}) \iff end_{state} \not = nil$$
-  such that
-  $$end(state, stmt) = currentTime$$
-  $$\iff$$
-  $$end_{state} = nil$$
-  $$\lor$$
-  $$inSeconds_{stmt} \geq inSeconds_{end}$$
-  otherwise
-  $$end(state, stmt) = end_{state}$$
-\item what should $statementCount$ be?
-  $$nStmts(state) = 1 \iff statementCount_{state} = 0 \ \lor \ nil$$
-  $$\lor$$
-  $$nStmts(state) = 1 + statementCount_{state} \iff statementCount_{state} \geq 1$$
-\item do we need to add a new $name$?
-  $$allNames(state, stmt) = append(name_{state}, name_{stmt}, count(name_{state}))$$
-  $$\iff$$
-  $$name_{stmt} \not \in name_{state}$$
-  otherwise
-  $$allNames(state, stmt) = name_{state}$$
+  \item return $stmt_{ts}$ or $state_{ts}$ based on result of $fn_{pred}$
 \end{itemize}
-which allows for the following primitives to be defined
-$$p_{start}(state, stmt) = start(state, stmt)$$
-$$p_{end}(state, stmt) = end(state, stmt)$$
-$$p_{stmtCount}(state, stmt) = nStmts(state)$$
-$$p_{names}(state, stmt) = allNames(state, stmt)$$
-and establish relevant paths into $state$
-$$K_{domain} = <state, completions, objectId, domain>$$
-$$K_{stmtCount} = <state, completions, objectId, statementCount>$$
-$$K_{names} = <state, completions, objectId, name>$$
-which are used within higher level primitives concerned with updating $state$
-$$p_{updateStart}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{domain}, append(remove(domain_{state}, 0), p_{start}(state, stmt), 0))$$
-and
-$$p_{updateEnd}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{domain}, append(remove(domain_{state}, 1), p_{end}(state, stmt), 1))$$
-and
-$$p_{updatedCount}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{stmtCount} , p_{stmtCount}(state, stmt))$$
-and
-$$p_{updatedNames}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{names}, p_{names}(state, stmt))$$
-$\\$
-such that $body$ of $step$ is defined as
-$$step(state, stmt) = p_{updateNames}(p_{updateCount}(p_{updateEnd}(p_{updateStart}(state, stmt), stmt), stmt), stmt)$$
-where
-$$state' = p_{updateStart}(state, stmt)$$
-and
-$$state'' = p_{updateEnd}(state', stmt)$$
-and
-$$state''' = p_{updateCount}(state'', stmt)$$
-such that
-$$step(state, stmt) = p_{updateNames}(state''', stmt)$$
+
+\begin{schema}{ReturnIntervalStart[TIMESTAMP, TIMESTAMP]}
+  IntervalValGiven \\
+  stmt_{ts}, state_{ts}, interval_{start} : TIMESTAMP \\
+  fn_{\delta}! : \nat \\
+  fn_{\delta} : \nat \cross \nat \pfun \nat \\
+  returnIntervalStart~\_ : TIMESTAMP \cross TIMESTAMP \pfun TIMESTAMP
+  \where
+  returnIntervalStart = \langle intervalValGiven~\_ \rangle \\ ~ \\
+
+  fn_{\delta}! = fn_{\delta}(nSeconds_{stmt}, nSeconds_{state}) \\
+  \t1 = (nSeconds_{stmt} \iff nSeconds_{stmt} \leq nSeconds_{state}) ~\lor \\
+  \t1 \ \ \  ~ (nSeconds_{state} \iff nSeconds_{stmt} > nSeconds_{state}) \\
+
+  interval_{start} = intervalValGiven(stmt_{ts}, state_{ts}, fn_{\delta}) \\
+  \t2 \ \ \ \ \ = (stmt_{ts} \iff fn_{\delta}! = nSeconds_{stmt}) ~ \lor \\
+  \t3 \ \ ~(state_{ts} \iff fn_{\delta}! = nSeconds_{state})
+\end{schema}
+\begin{itemize}
+  \item return $stmt_{ts}$ or $state_{ts}$, which ever one is further back in the past.
+\end{itemize}
+
+\begin{schema}{ReturnIntervalEnd[TIMESTAMP, TIMESTAMP]}
+  IntervalValGiven \\
+  stmt_{ts}, state_{ts}, interval_{end} : TIMESTAMP \\
+  fn_{\delta}! : \nat \\
+  fn_{\delta} : \nat \cross \nat \pfun \nat \\
+  returnIntervalEnd~\_ : TIMESTAMP \cross TIMESTAMP \pfun TIMESTAMP
+  \where
+  returnIntervalEnd = \langle intervalValGiven~\_ \rangle \\ ~ \\
+
+  fn_{\delta}! = fn_{\delta}(nSeconds_{stmt}, nSeconds_{state}) \\
+  \t1 = (nSeconds_{stmt} \iff nSeconds_{stmt} \geq nSeconds_{state}) ~\lor \\
+  \t1 \ \ \  ~ (nSeconds_{state} \iff nSeconds_{stmt} < nSeconds_{state}) \\ ~ \\
+
+  interval_{end} = intervalValGiven(stmt_{ts}, state_{ts}, fn_{\delta}) \\
+  \t2 \ \ \ \ = (stmt_{ts} \iff fn_{\delta}! = nSeconds_{stmt}) ~ \lor \\
+  \t3 \ \ ~(state_{ts} \iff fn_{\delta}! = nSeconds_{state})
+\end{schema}
+\begin{itemize}
+  \item return $stmt_{ts}$ or $state_{ts}$, which ever one is later on chronologically
+\end{itemize}
+
+\begin{schema}{ReturnUpdatedCount[V]}
+  count? : V \\
+  count! : \nat \\
+  returnUpdatedCount~\_ : V \fun \nat
+  \where
+  count! = returnUpdatedCount(count?) \\
+  \t1 \ \ ~ = (count? + 1 \iff count? \not= \emptyset) ~\lor \\
+  \t2 (1 \iff (count? = 0) ~\lor~ (count? = \emptyset))
+\end{schema}
+\begin{itemize}
+  \item return an incremented value or 1 otherwise
+\end{itemize}
+
+\begin{schema}{ReturnUpdatedNames[Collection, STRING]}
+  names?, names! : Collection \\
+  targetName : STRING \\
+  returnUpdatedNames~\_ : Collection \cross STRING \surj Collection
+  \where
+  names?_{targetName} = names? \extract targetName \\
+  names! = returnUpdatedNames(names?, targetName) \\
+  \t1 \ \ \ \ = (names? ~\cat~ targetName \iff names?_{targetName} = \emptyset \implies targetName \not \in names?) ~ \lor \\
+  \t2 \ (names? \iff names?_{targetName} \not= emptyset \implies targetName \in names?)
+\end{schema}
+\begin{itemize}
+  \item add $targetName$ to the end of $names?$ if $targetName \not \in names?$
+\end{itemize}
+
+\subsubsection{Formal Definition}
+The schema $ProcessCompletionStatement$ is used to define the core functionality of $RateOfCompletionsStep.step$
+using the Primitive $replaceAt$ to produce $state!$.
+\begin{schema}{\Delta ProcessCompletionStatement[STATEMENT, KV]}
+  ReplaceAt \\
+  ParseCompletionStatement \\
+  ResolvePreviousCompletionState \\
+  ReturnIntervalStart \\
+  ReturnIntervalEnd \\
+  ReturnUpdatedCount \\
+  ReturnUpdatedNames \\
+
+  stmt? : STATEMENT \\
+  state?, state!, state_{objectId} : KV \\
+  processStatement~\_ : STATEMENT \cross KV \bij KV
+  \where
+  processStatement = \langle \langle parseStmt~\_~,~getPreviousState~\_~ \rangle, \\
+  \t5 \langle returnIntervalStart~\_~,~returnIntervalEnd~\_~,~ replaceAt~\_~ \rangle, \\
+  \t5 \langle returnUpdatedCount~\_~,~ replaceAt~\_~ \rangle , \\
+  \t5 \langle returnUpdatedNames~\_~,~ replaceAt~\_~ \rangle \rangle \\ ~ \\
+
+  parsed_{stmt?} = parseStmt(stmt?) \\
+  stmt_{timestamp} = get(parsed_{stmt?}, currentT) \\
+  stmt_{objName} = get(parsed_{stmt?}, objName) \\
+  stmt_{objId} = get(parsed_{stmt?}, objId) \\ ~ \\
+
+  state_{objectId} = getPreviousState(state?, parsed_{stmt?}) \\
+  interval_{start} = getIn(state_{objectId}, \langle domain, start \rangle) \\
+  interval_{end} = getIn(state_{objectId}, \langle domain, end \rangle) \\
+  state_{nStmts} = get(state_{objectId}, nStmts) \\
+  state_{names} = get(state_{objectId}, names) \\ ~ \\
+
+  interval_{start}! = returnIntervalStart(stmt_{timestamp}, interval_{start}) \\
+  interval_{end}! = returnIntervalEnd(stmt_{timestamp}, interval_{end}) \\
+  interval! = \ldata start \mapsto interval_{start}!, end \mapsto interval_{end}! \rdata \\ ~ \\
+
+  nStmts! = returnUpdatedCount(state_{nStmts}) \\
+  names! = returnUpdatedNames(state_{names}, stmt_{objName}) \\ ~ \\
+
+  state! = processStatement(stmt?, state?) @ \\
+  ~ \ let \ ~interval_{\delta} == replaceAt(state?, \langle roc, completions, stmt_{objId}, domain \rangle, interval!) \\
+  \t1 nStmts_{\delta} == replaceAt(interval_{\delta}, \langle roc, completions, stmt_{objId}, nStmts \rangle, nStmts!) \\
+  \t1 \ ~ = replaceAt(nStmts_{\delta}, \langle roc, completions, stmt_{objId}, names \rangle, names!)
+\end{schema}
+\begin{itemize}
+  \item update $state!$ to include a mapping with Key $stmt_{objId}$ or update an existing mapping identified by $stmt_{objId}$
+\end{itemize}
+The schema $RateOfCompletionsStep$ introduces the alignment with $Algorithm.step$ such that
+$\langle body \rangle = processStatement$ as defined by $ProcessCompletionStatement$.
+
+\begin{schema}{\Delta RateOfCompletionsStep[KV, STATEMENT]}
+  Step \\
+  ProcessCompletionStatement \\
+  state?, state! : KV \\
+  stmt? : STATEMENT \\
+  step~\_ : KV \cross STATEMENT \surj KV
+  \where
+  Step.step = \langle body \rangle \\
+  step = \langle processStatement~\_ \rangle \\
+  Step.step \bindsto step \implies \\
+  \t3 \langle body \rangle \equiv \langle \langle parseStmt~\_~,~getPreviousState~\_~ \rangle, \\
+  \t5 ~\ \langle returnIntervalStart~\_~,~returnIntervalEnd~\_~,~ replaceAt~\_~ \rangle, \\
+  \t5 ~\ \langle returnUpdatedCount~\_~,~ replaceAt~\_~ \rangle , \\
+  \t5 ~\ \langle returnUpdatedNames~\_~,~ replaceAt~\_~ \rangle \rangle \\ \\ ~ \\
+
+  state! = step(state?, stmt?) = processStatement(stmt?, state?) @ \\
+  \t1 state! \not= state? ~\land \\
+  \t1 getIn(state!, \langle roc, completions, stmt_{objId} \rangle) \not= \emptyset
+\end{schema}
+For each unique $stmt_{objId}$ passed to $step$, there should be a corresponding mapping
+in $state_{\langle roc, completions \rangle}$ which looks like
+\begin{zed}
+  stmt_{objId} \mapsto \ldata domain \mapsto \ldata (start, interval_{start}!), (end, interval_{end}!) \rdata \\
+  \t3 nStmts \mapsto nStmts! \\
+  \t3 names \mapsto names! \rdata
+\end{zed}
 
 \subsection{Result}
-The only $opts$ used by $rateOfCompletions$ is $timeUnit$
-$$timeUnit = second \ \lor minute \ \lor \ hour \ \lor day \ \lor month \ \lor year$$
-and will default to $day$ if not passed to $rateOfCompletions$
-$$result(state) = result(state, <timeUnit \mapsto day>)$$
-which is passed to $rateOf$ along with the arguments parsed from $state$
-$$unit = atKey(opts, timeUnit)$$
-$$allCompletions(state) = atKey(state, <state, completions>)$$
-such that
-$$\forall k_{n} : i..n..j \in allCompletions(state)$$
-the following primitives are called each iteration
-$$getCount(state, k_{n}) = atKey(allCompletions(state), <k_{n}, statementCount>)$$
-$$getStart(state, k_{n}) = atKey(allCompletions(state), <k_{n}, domain, start>)$$
-$$getEnd(state, k_{n}) = atKey(allCompletions(state), <k_{n}, domain, end>)$$
-$$getName(state, k_{n}) = atKey(allCompletions(state), <k_{n}, name>) $$
-which allows for
-$$rate_{n}(state, k_{n}, unit) = rateOf(getCount(state, k_{n}), getStart(state, k_{n}), getEnd(state, k_{n}), unit)$$
-such that
-$$value_{n}(state, k_{n}, unit) = <x_{n}, y_{n}>$$
-where
-$$name_{n}(state, k_{n}) = first(getName(state, k_{n}))$$
-$$x_{n} = x \mapsto name_{n}(state, k_{n}) \iff name_{n}(state, k_{n}) \not = nil$$
-otherwise
-$$x_{n} = x \mapsto k_{n}$$
-and
-$$y_{n} = y \mapsto rate_{n}(state, k_{n}, unit)$$
-such that
-$$value_{n}(state, k_{n}, unit) = <name_{n}(state, k_{n}), \ rate_{n}(state, k_{n}, unit)>$$
-and
-$$value(state, unit) = \forall k_{n} : i..n..j \in allCompletions(state) \exists! value_{n}(state, k_{n}, unit) = <x_{n}, y_{n}>$$
-$$\implies$$
-$$value(state, unit) = <value_{i}(state, k_{i}, unit)..value_{n}(state, k_{n}, unit)..value_{j}(state, k_{j}, unit)>$$
-which allows the body of $result$ to be defined using
-$$unit = atKey(opts, timeUnit)$$
-$$K_{store} = <state, completions, values, unit>$$
-so that $result$ returns an updated $state$ with the rate of completions per $unit$ located at $K_{store}$
-$$result(state, opts) = associate(state, K_{store}, value(state, unit))$$
+The interval of $interval_{start}!$ to $interval_{end}!$ can be partitioned based on the passed in
+$opt$ named $timeUnit$ such that for each unique $stmt_{objId}$, the metric n completions per time unit
+can be calculated and added to $state_{\langle roc, completions, stmt_{objId}, rate \rangle}$.
+\begin{schema}{RateOfCompletionsResult[KV, KV]}
+  Result \\
+  RateOf \\
+  replaceAt \\
+  opt?, state?, result! : KV \\
+  result~\_ : KV \cross KV \surj KV
+  \where
+  Result.result = \langle body \rangle \\
+  \langle body \rangle \bindsto result = \langle replaceAt~\_ \rangle \bsup \# \dom (state_{\langle roc, completions \rangle}) \esup \\  ~ \\
+
+  state! = result(state?, opt?) @  \\
+  \t2 let \  timeUnit == atKey(opt?, timeUnit) @ \\
+  \t1 \forall stmt_{objId} \in state_{\langle roc, completions \rangle} ~|~ \exists_1 state!_{objId} @ \\
+  \t3 \ let \ \ nO == getIn(state?, \langle roc, completions, stmt_{objId}, nStmts \rangle) \\
+  \t4 start == getIn(state?, \langle roc, completions, stmt_{objId}, domain, start \rangle) \\
+  \t4 end == getIn(state?, \langle roc, completions, stmt_{objId}, domain, end \rangle) \\
+  \t4 rate_{objId} == rateOf(nO, start, end, timeUnit) \\
+  \t2 state!_{objId} = replaceAt(state?, \langle roc, completions, stmt_{objId}, rate \rangle, rate_{objId}) \\
+  \t1 = \sum state!_{objId} @ \forall stmt_{objId} ~|~ getIn(state!, \langle roc, completions, stmt_{objId}, rate \rangle) \in \num
+\end{schema}
+\begin{itemize}
+\item $state! = \sum state!_{objId}$ is an alternative way to describe the aggregation of all changes made to $state?$.
+\item $rateOf$ performs the calculation which is used to update $state?$ with consideration to $opt?$
+\item $timeUnit$ will default to $day$ if not specified within $opt?$
+\end{itemize}
+The output of $rateOfCompletions$ is a $state!$ which contains a mapping of following shape for each
+unique $stmt_{objId}$ passed to $rateOfCompletions$, each of which can be found at the path $\langle roc, completions, stmt_{objId} \rangle$.
+\begin{zed}
+  stmt_{objId} \mapsto \ldata domain \mapsto \ldata (start, interval_{start}!), (end, interval_{end}!) \rdata \\
+  \t3 nStmts \mapsto nStmts! \\
+  \t3 names \mapsto names! \\
+  \t3 rate \mapsto rate_{objId} \rdata
+\end{zed}
+Any mapping within this structure can be used within a corresponding visualization but the core piece of information
+the visualization should convey is $rate_{objId}$.
+\subsection{Conclusion}
+
+This concludes the first example of a DAVE Algorithm formal definition. The conventions established within this section
+should be used across all DAVE Algorithm formal definitions in this document. If any aspect of this section requires
+further explanation or clarification, please post an issue to the DAVE github repo describing the issue or reach out
+to the Author(s) of this report via some other medium.
+
 
 \end{document}

@@ -1,6 +1,11 @@
 \documentclass{article}
 
 %%% Package imports
+% cross .tex document references,
+% sources: (https://texfaq.org/FAQ-extref), (http://www-users.york.ac.uk/~pjh503/LaTeX/ref.html)
+\usepackage{xr}
+\usepackage{xr-hyper}
+
 \usepackage{graphicx}
 \graphicspath{{../../resources/plots/} {../resources/plots/} {../../resources/figures/} {../resources/figures/}}
 \usepackage{placeins}
@@ -57,28 +62,29 @@
 
 \section*{Introduction}
 
-This report introduces the updated definition of learning analytics algorithms in terms of
-\textbf{Operations}, \textbf{Primitives} and \textbf{Algorithms} and presents an updated definition for
-each of the previously defined algorithms. The previous definitions will be included for reference.
-In a more general sense, this report establishes a set of style guidelines for the reporting of algorithms and associated visualization templates.
-
-This document will be updated to include additional Operations, Primitives and Algorithms
-as they are defined by the Author of this report or members of the Open Source Community.
-Updates may also address refinement of existing definitions and this document should be
-understood to be an example of algorithm presentation and not the
-final state of any defined algorithm.
-
+This report introduces a language for defining the functionality of learning analytics algorithms in terms of
+\textbf{Operations}, \textbf{Primitives} and \textbf{Algorithms} which will be used to define Aglorithms corresponding to
+an inital set of learning anlayitcs questions. Additional questions may be added to this set in the future.
+This document will be updated to include additional Operations, Primitives and Algorithms as they are defined by the Author(s)
+of this report or by members of the Open Source Community. Updates may also address refinement of existing definitions,
+thus this document is subject to continious change but those which are significant will be documented within the DAVE change log.
+Any changes made to this report or to the \href{https://github.com/yetanalytics/dave}{DAVE github repository} should follow
+the conventions established in the \href{https://github.com/yetanalytics/dave/wiki/Contributing}{Contributing Wiki Page}.
+The formal definitions in this document are optimized for understandability and conceptual presentation meaning they are not
+presented as, or intended to be, the most computationaly effecient definition possible. The formal definitions are intended
+to serve as referential documentation of methedologies and programatic strategies for handling the processing of xAPI data.
 $\\\\$
 The structure of this documents is as follows:
 \begin{enumerate}
-\item A formal specification for xAPI written in Z
-\item An Introduction to Terminology of Operations, Primitives and Algorithms
+\item An Introduction to Z notation and its usage in this document
+\item A formal specification for xAPI written in Z % FIXME: review + refactor as necessary
+\item Terminology: Operations, Primitives and Algorithms
 \item What is an Operation
 \item What is a Primitive
 \item What is an Algorithm
 \item Foundational Operations
-\item Example Primitives
-\item An algorithm definition including
+\item Common Primitives
+\item Example Algorithm
   \begin{enumerate}
   \item Init
   \item Relevant?
@@ -86,74 +92,74 @@ The structure of this documents is as follows:
   \item Step
   \item Result
   \end{enumerate}
-\item Previous Algorithm definitions where each consists of
-  \begin{enumerate}
-  \item an introduction for the algorithm
-  \item the structure of the ideal input data
-  \item how to retrieve input data from an LRS
-  \item the statement parameters which the algorithm will utilize
-  \item notices regarding data collected during the 2018 pilot test of
-    the TLA
-  \item a summary of the algorithm
-  \item the formal specification of the algorithm
-  \item pseudocode representation of the algorithm
-  \item JSONSchema for the output of the algorithm
-  \item a description of the associated visualization
-  \item a prototype of the visualization
-  \item a collection of suggestions describing how the algorithm could be
-    adapted to improve the quality of the visualization prototype
-  \end{enumerate}
 \end{enumerate}
 
+% FIXME: direct section references using cross-refering mechanism
+% - \label + \externaldocument + \nameref, \ref, pageref
+
+\subfile{z/introduction.tex}
 \subfile{z/xapi.tex}
-\subfile{algorithms/introduction}
+\subfile{algorithms/introduction.tex}
 
 \section{Foundational Operations}
+The Operations in this section use the Operations pulled from the Z Reference Manual (section 1,4) within their own definitions.
+They are defined as Operations opposed to Primitives because they represent core functionality needed in the context
+of processing xAPI data given the definition of an Algorithm above. As such, these Operations are added to the global
+dictionary of symbols usable, without a direct reference to the components schema, within the definition of
+Operations and Primitives throughout the rest of this document. In general, Operations are intended to be
+simple, and should not contain any recursive calls. They are building blocks which are used across Primitives
+of varying functionality. When defining an Operation not already in the set of Foundational Operations defined here, its schema
+MUST be referenced at the top of all Schemas which utilize the new Operation.
 
 \subsection{Collections}
-Operations which expect a Collection of Scalar(s)
-$$X = <x_{i}..x_{n}..x_{j}>$$
-\subfile{operations/array?.tex}
-\subfile{operations/append.tex}
-\subfile{operations/remove.tex}
-\subfile{operations/atIndex.tex}
+Operations which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
+\subfile{operations/collections/array?.tex}
+\subfile{operations/collections/append.tex}
+\subfile{operations/collections/remove.tex}
+\subfile{operations/collections/atIndex.tex}
+\subfile{operations/collections/update.tex}
 
 \subsection{Key Value Pairs}
-Operations which expect a Collection of Key Value pair(s)
-$$KV = <k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}}>$$
-\subfile{operations/object?.tex}
-\subfile{operations/associate.tex}
-\subfile{operations/dissociate.tex}
-\subfile{operations/atKey.tex}
+Operations which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
+
+\subfile{operations/kv/map?.tex}
+\subfile{operations/kv/associate.tex}
+\subfile{operations/kv/dissociate.tex}
+\subfile{operations/kv/atKey.tex}
 
 \subsection{Utility}
-\subfile{operations/map.tex}
-\subfile{operations/count.tex}
-\subfile{operations/first.tex}
-\subfile{operations/last.tex}
-\subfile{operations/isoToUnix.tex}
-\subfile{operations/timeUnitToNumberOfSeconds.tex}
+Operations which are usefull in many Statement processing contexts.
+\subfile{operations/util/map.tex}
+\subfile{operations/util/isoToUnix.tex}
+\subfile{operations/util/timeUnitToNumberOfSeconds.tex}
+\subfile{operations/util/rateOf.tex}
+% FIXME: Define atJSONPath as Operation (special case, hence utility categorization).
+% - Reference another definition of atJsonPath by URL within copy and establish likeness to getIn
+% - in the case of JSONPath, the arg $path?$ is a domain specific structured string but that language is defined outside of this document
+% - further details are outside the scope of this document
+% - update file path, prev version = \subfile{primitives/atJsonPath.tex}
 
 \section{Common Primitives}
-\subfile{primitives/accumulate.tex}
-\subfile{primitives/atJsonPath.tex}
-\subfile{primitives/rateOf.tex}
+% Low Priority:
+% TODO: update file name?
+% TODO: split into multiple files?
+% TODO: clean~\_ primitive - removes all mappings where V \mapsto \emptyset
+\subfile{primitives/walk.tex}
 
-\section*{Updated Algorithm Definitions}
-The following are examples of the new way in which Algorithms were defined. These sections are either in draft form or are a work in progress.
+% New section handled within rateOfCompletions
 \subfile{algorithm_definitions/rateOfCompletions.tex}
-\subfile{algorithm_definitions/timelineLearnerSuccess.tex}
-\subfile{algorithm_definitions/mostDifficultAssessmentQuestions.tex}
-\subfile{algorithm_definitions/followedRecommendations.tex}
 
-\section*{Previous Algorithm Definitions}
-The following are examples of the previous way in which Algorithms were defined.
-\subfile{algorithms/rate_of_completions.tex}
-\subfile{algorithms/timeline_learner_success.tex}
-\subfile{algorithms/most_difficult_assessment_questions.tex}
-\subfile{algorithms/followed_recommendations.tex}
+% TODO: update legacy versions to Z
+%\subfile{algorithm_definitions/timelineLearnerSuccess.tex}
+%\subfile{algorithm_definitions/mostDifficultAssessmentQuestions.tex}
+%\subfile{algorithm_definitions/followedRecommendations.tex}
+
+% TODO: remove references to legacy versions of Algorithms
+%\subfile{algorithms/rate_of_completions.tex}
+%\subfile{algorithms/timeline_learner_success.tex}
+%\subfile{algorithms/most_difficult_assessment_questions.tex}
+%\subfile{algorithms/followed_recommendations.tex}
 
 \subfile{appendices/a.tex}
-
 
 \end{document}

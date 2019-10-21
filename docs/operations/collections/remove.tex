@@ -1,0 +1,34 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Remove}
+The inverse of the $append$ Operations.
+\begin{zed}
+  remove(coll, idx) = \inv append(coll, idx)
+\end{zed}
+The operation $remove$ will return a Collection minus the Value removed from the specified Numeric Index
+\begin{schema}{Remove[Collection, \nat]}
+  coll?, coll! : Collection \\
+  idx? : \nat \\
+  remove~\_ : Collection \cross \nat \surj Collection
+  \where
+  \#~ idx? = 1 \\
+  coll! = remove(coll?, idx?) @ \\
+  \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \\
+  \t1 \ \ \ ~~~ coll'' == tail(\{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll?) \\
+  \t1 = coll' \cat coll'' \implies \\
+  \t2 (coll?_{idx?} \not \in coll') ~\land \\
+  \t2 (coll?_{idx?} \not \in coll'') ~\land \\
+  \t2 (~\#~ coll! = \#~ coll? - 1)
+\end{schema}
+such that
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = baz \\
+  remove(X, 0) = \langle foo, baz \rangle & 0 was removed from $X$\\
+  remove(X, 1) = \langle 0, baz \rangle & foo was removed from $X$ \\
+  remove(X, 2) = \langle 0, foo \rangle & baz was removed from $X$ \\
+  remove(X, 3) = \langle 0, foo, baz \rangle = X & nothing at 3, X unaltered
+\end{argue}
+\end{document}

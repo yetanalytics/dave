@@ -1,0 +1,62 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{At Index}
+The operation $atIndex$ will return the Value at a
+specified numeric index within a Collection or
+an empty Collection if there is no value at the specified index.
+\begin{schema}{AtIndex[Collection, \nat]}
+  idx? : \nat\\
+  coll? : Collection \\
+  atIndex~\_ : Collection \cross \nat \surj V
+  \where
+  \# ~ idx? = 1 \\
+  coll! = atIndex(coll?, idx?) = (head ~(~idx? \extract coll?)) \iff idx? \in coll? \\
+  coll! = atIndex(coll?, idx?) = \langle  \rangle \iff idx? \not \in coll?
+\end{schema}
+Given the definition of the $Collection$ and $V$ free types
+\begin{zed}
+  Collection :== emptyColl ~| ~append \ldata Collection \cross Scalar ~\lor Collection ~\lor KV \cross \nat \rdata \\
+  V ::= Scalar ~| ~Collection ~| ~KV
+\end{zed}
+The collection member $coll?_{idx?} : V$ is implied from $append$ accepting the argument of type $Scalar ~\lor Collection ~\lor KV \equiv V$ which means each Collection member is of type $V$. Given that extraction ($~\_~\extract~\_$) returns a Collection,
+\begin{axdef}
+  \seq X : Collection
+  \where
+  \_~\extract~\_ : \power \nat_1 \cross \seq X \fun \seq X
+\end{axdef}
+in order for $atIndex$ to return the collection member without altering its type,
+the first member of $atIdx'$ must be returned, not $atIdx'$ itself.
+\begin{axdef}
+  atIdx' : Collection \\
+  coll!, coll?_{idx?} : V \\
+  \where
+  atIdx' = (~idx? \extract coll?) \implies \langle coll?_{idx?} \rangle \\
+  coll! = head(atIdx') = coll?_{idx?}
+\end{axdef}
+The $head$ call is made possible by restricting $idx?$ to be a single numeric value.
+\begin{argue}
+  idx?, idx' : \nat \\
+  \t1 \# ~ idx? = 1 @ (~idx? \extract coll?) = \langle coll?_{idx?} \rangle @ \\
+  \t2 (head (~idx? \extract coll?)) = coll?_{idx?} & expected return given $idx?$ \\
+  \t1 \# ~ idx' \geq 2 @ (~idx' \extract coll?) = \langle coll?_{idx'_{i}}~..~~coll?_{idx'_{j}} \rangle @ \\
+  \t2 (head (~idx' \extract coll?)) = coll?_{idx'_{i}} & unexpected return given $idx'$
+\end{argue}
+Additionally, if the provided $idx? \not \in coll?$ then an empty Collection will be returned
+given that $head$ must be passed a non-empty Collection.
+\begin{axdef}
+  head : \seq_1 X \fun X
+  \where
+  idx? \not \in coll? \implies (~idx? \extract coll?) = \langle  \rangle ~ \lnot ~\seq_1
+\end{axdef}
+The properties of $atIndex$ are illustrated in the following examples.
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  atIndex(X, 0) = 0 & $head~(\langle~x_{0}~\rangle)$\\
+  atIndex(X, 1) = foo & $head~(\langle~x_{1}~\rangle)$\\
+  atIndex(X, 2) = \langle a, b, c \rangle & $head~(\langle~x_{2}~\rangle)$\\
+  atIndex(X, 3) = \langle  \rangle & $3 \not \in X \implies x_{3} \not \in X$
+\end{argue}
+\end{document}

@@ -1,0 +1,31 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Map?}
+The operation $map?$ will return a boolean which indicates if the passed in argument is a $KV$
+\begin{schema}{Map?[V]}
+  m? : V \\
+  bol! : Boolean \\
+  map?~\_ : V \fun Boolean
+  \where
+  bol! = map?(m?) @ bol! = true \iff m? : KV \implies V \hide (Scalar, Collection)
+\end{schema}
+where $V \hide (Scalar, Collection)$ is used to indicate that $m?$ is of type $V$
+\begin{zed}
+  V ::= Scalar ~| ~Collection ~| ~KV
+\end{zed}
+but in order for $bol! = true$, $m?$ must not be of type $Scalar ~\lor Collection$ such that
+\begin{argue}
+  X = \ldata x_{0}, x_{1}, x_{2}, x_{3}, x_{4} \rdata \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle baz, \ qux \rangle \\
+  \t1 x_{3} = \ldata abc \mapsto 123, \ def \mapsto 456 \rdata \\
+  \t1 x_{4} = \langle \ldata ghi \mapsto 789, \ jkl \mapsto 101112 \rdata, \ \ldata ghi \mapsto 131415, \ jkl \mapsto 161718 \rdata \rangle \\
+  map?(X) = true & KV by definition\\
+  map?(x_{3}) = true & KV \\
+  map?(x_{2}) = false & Collection \\
+  map?(x_{4}) = false & Collection of maps\\
+  map?(x_{0}) = false & Scalar \\
+  map?(x_{1}) = false & String
+\end{argue}
+\end{document}

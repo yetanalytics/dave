@@ -1,0 +1,41 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{Append}
+
+The operation $append$ will return a Collection with a Value added at a specified numeric Index.
+\begin{schema}{Append[Collection, V, \nat]}
+  coll?, coll! : Collection \\
+  v? : V \\
+  idx? : \nat \\
+  append~\_ : Collection \cross V \cross \nat \bij Collection
+  \where
+  \#~idx? = 1 \\
+  coll! = append(coll?, v?, idx?) @ \\
+  \t1 let ~ ~ coll' == front(\{~ i : \nat ~| ~ i \in 0~..~idx?\} \extract coll?) \cat v? \\
+  \t1 \ \ \ ~~~ coll'' == \{~ j : \nat ~| ~ j \in idx?~..~\#~coll?\} \extract coll? \\
+  \t1 = coll' \cat coll'' \implies \\
+  \t2 (front(coll')  \cat v? \cat  coll'') ~ \land \\
+  \t2 (~ v? \mapsto idx? \in coll!) ~\land \\
+  \t2 (~\#~ coll! = \#~ coll? + 1)
+\end{schema}
+$append$ results in the composition of $coll'$ and $coll''$ such that
+$$coll! = coll' \cat coll'' ~ \land ~idx? \mapsto v? \in coll!$$
+\begin{itemize}
+\item $coll'$ is the items in $coll?$ up to and including $idx?$ but the value at $idx?$ is replaced with $v?$ such that
+  $idx? \mapsto coll?_{idx?} \not \in coll'$
+\item $coll''$ is the items in $coll?$ from $idx?$ to $\#~coll? \implies coll?_{idx?} \in coll''$
+\end{itemize}
+ The following example illustrates these properties.
+\begin{argue}
+  X = \langle x_{0}, x_{1}, x_{2} \rangle \\
+  \t1 x_{0} = 0 \\
+  \t1 x_{1} = foo \\
+  \t1 x_{2} = \langle a, b, c \rangle \\
+  \t1 v? = bar \\
+  append(X, v?, 0) = \langle bar, 0, foo, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 1) = \langle 0, bar, foo, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 2) = \langle 0, foo, bar, \langle a, b, c \rangle \rangle \\
+  append(X, v?, 3) = \langle 0, foo, \langle a, b, c \rangle, bar \rangle \\
+  append(X, v?, 4) = append(X, v?, 3) \iff 3 \not \in \dom X
+\end{argue}
+\end{document}
