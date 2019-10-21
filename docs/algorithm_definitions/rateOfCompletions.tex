@@ -470,42 +470,131 @@ of each process within $step$ in order to reduce the noise within $RateOfComplet
 \begin{itemize}
   \item return $stmt_{ts}$ or $state_{ts}$, which ever one is further back in the past.
 \end{itemize}
-which allows for the following primitives to be defined
-$$p_{start}(state, stmt) = start(state, stmt)$$
-$$p_{end}(state, stmt) = end(state, stmt)$$
-$$p_{stmtCount}(state, stmt) = nStmts(state)$$
-$$p_{names}(state, stmt) = allNames(state, stmt)$$
-and establish relevant paths into $state$
-$$K_{domain} = <state, completions, objectId, domain>$$
-$$K_{stmtCount} = <state, completions, objectId, statementCount>$$
-$$K_{names} = <state, completions, objectId, name>$$
-which are used within higher level primitives concerned with updating $state$
-$$p_{updateStart}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{domain}, append(remove(domain_{state}, 0), p_{start}(state, stmt), 0))$$
-and
-$$p_{updateEnd}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{domain}, append(remove(domain_{state}, 1), p_{end}(state, stmt), 1))$$
-and
-$$p_{updatedCount}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{stmtCount} , p_{stmtCount}(state, stmt))$$
-and
-$$p_{updatedNames}(state, stmt)$$
-$$\equiv$$
-$$associate(state, K_{names}, p_{names}(state, stmt))$$
-$\\$
-such that $body$ of $step$ is defined as
-$$step(state, stmt) = p_{updateNames}(p_{updateCount}(p_{updateEnd}(p_{updateStart}(state, stmt), stmt), stmt), stmt)$$
-where
-$$state' = p_{updateStart}(state, stmt)$$
-and
-$$state'' = p_{updateEnd}(state', stmt)$$
-and
-$$state''' = p_{updateCount}(state'', stmt)$$
-such that
-$$step(state, stmt) = p_{updateNames}(state''', stmt)$$
+
+\begin{schema}{ReturnIntervalEnd[TIMESTAMP, TIMESTAMP]}
+  IntervalValGiven \\
+  stmt_{ts}, state_{ts}, interval_{end} : TIMESTAMP \\
+  fn_{\delta}! : \nat \\
+  fn_{\delta} : \nat \cross \nat \pfun \nat \\
+  returnIntervalEnd~\_ : TIMESTAMP \cross TIMESTAMP \pfun TIMESTAMP
+  \where
+  returnIntervalEnd = \langle intervalValGiven~\_ \rangle \\ ~ \\
+
+  fn_{\delta}! = fn_{\delta}(nSeconds_{stmt}, nSeconds_{state}) \\
+  \t1 = (nSeconds_{stmt} \iff nSeconds_{stmt} \geq nSeconds_{state}) ~\lor \\
+  \t1 \ \ \  ~ (nSeconds_{state} \iff nSeconds_{stmt} < nSeconds_{state}) \\ ~ \\
+
+  interval_{end} = intervalValGiven(stmt_{ts}, state_{ts}, fn_{\delta}) \\
+  \t2 \ \ \ \ = (stmt_{ts} \iff fn_{\delta}! = nSeconds_{stmt}) ~ \lor \\
+  \t3 \ \ ~(state_{ts} \iff fn_{\delta}! = nSeconds_{state})
+\end{schema}
+\begin{itemize}
+  \item return $stmt_{ts}$ or $state_{ts}$, which ever one is later on chronologically
+\end{itemize}
+
+\begin{schema}{ReturnUpdatedCount[V]}
+  count? : V \\
+  count! : \nat \\
+  returnUpdatedCount~\_ : V \fun \nat
+  \where
+  count! = returnUpdatedCount(count?) \\
+  \t1 \ \ ~ = (count? + 1 \iff count? \not= \emptyset) ~\lor \\
+  \t2 (1 \iff (count? = 0) ~\lor~ (count? = \emptyset))
+\end{schema}
+\begin{itemize}
+  \item return an incremented value or 1 otherwise
+\end{itemize}
+
+\begin{schema}{ReturnUpdatedNames[Collection, STRING]}
+  names?, names! : Collection \\
+  targetName : STRING \\
+  returnUpdatedNames~\_ : Collection \cross STRING \surj Collection
+  \where
+  names?_{targetName} = names? \extract targetName \\
+  names! = returnUpdatedNames(names?, targetName) \\
+  \t1 \ \ \ \ = (names? ~\cat~ targetName \iff names?_{targetName} = \emptyset \implies targetName \not \in names?) ~ \lor \\
+  \t2 \ (names? \iff names?_{targetName} \not= emptyset \implies targetName \in names?)
+\end{schema}
+\begin{itemize}
+  \item add $targetName$ to the end of $names?$ if $targetName \not \in names?$
+\end{itemize}
+
+\subsubsection{Formal Definition}
+The schema $ProcessCompletionStatement$ is used to define the core functionality of $RateOfCompletionsStep.step$
+using the Primitive $replaceAt$ to produce $state!$.
+\begin{schema}{\Delta ProcessCompletionStatement[STATEMENT, KV]}
+  ReplaceAt \\
+  ParseCompletionStatement \\
+  ResolvePreviousCompletionState \\
+  ReturnIntervalStart \\
+  ReturnIntervalEnd \\
+  ReturnUpdatedCount \\
+  ReturnUpdatedNames \\
+
+  stmt? : STATEMENT \\
+  state?, state!, state_{objectId} : KV \\
+  processStatement~\_ : STATEMENT \cross KV \bij KV
+  \where
+  processStatement = \langle \langle parseStmt~\_~,~getPreviousState~\_~ \rangle, \\
+  \t5 \langle returnIntervalStart~\_~,~returnIntervalEnd~\_~,~ replaceAt~\_~ \rangle, \\
+  \t5 \langle returnUpdatedCount~\_~,~ replaceAt~\_~ \rangle , \\
+  \t5 \langle returnUpdatedNames~\_~,~ replaceAt~\_~ \rangle \rangle \\ ~ \\
+
+  parsed_{stmt?} = parseStmt(stmt?) \\
+  stmt_{timestamp} = get(parsed_{stmt?}, currentT) \\
+  stmt_{objName} = get(parsed_{stmt?}, objName) \\
+  stmt_{objId} = get(parsed_{stmt?}, objId) \\ ~ \\
+
+  state_{objectId} = getPreviousState(state?, parsed_{stmt?}) \\
+  interval_{start} = getIn(state_{objectId}, \langle domain, start \rangle) \\
+  interval_{end} = getIn(state_{objectId}, \langle domain, end \rangle) \\
+  state_{nStmts} = get(state_{objectId}, nStmts) \\
+  state_{names} = get(state_{objectId}, names) \\ ~ \\
+
+  interval_{start}! = returnIntervalStart(stmt_{timestamp}, interval_{start}) \\
+  interval_{end}! = returnIntervalEnd(stmt_{timestamp}, interval_{end}) \\
+  interval! = \ldata start \mapsto interval_{start}!, end \mapsto interval_{end}! \rdata \\ ~ \\
+
+  nStmts! = returnUpdatedCount(state_{nStmts}) \\
+  names! = returnUpdatedNames(state_{names}, stmt_{objName}) \\ ~ \\
+
+  state! = processStatement(stmt?, state?) @ \\
+  ~ \ let \ ~interval_{\delta} == replaceAt(state?, \langle roc, completions, stmt_{objId}, domain \rangle, interval!) \\
+  \t1 nStmts_{\delta} == replaceAt(interval_{\delta}, \langle roc, completions, stmt_{objId}, nStmts \rangle, nStmts!) \\
+  \t1 \ ~ = replaceAt(nStmts_{\delta}, \langle roc, completions, stmt_{objId}, names \rangle)
+\end{schema}
+\begin{itemize}
+  \item update $state!$ to include a mapping with Key $stmt_{objId}$ or update an existing mapping identified by $stmt_{objId}$
+\end{itemize}
+The schema $RateOfCompletionsStep$ introduces the alignment with $Algorithm.step$ such that
+$\langle body \rangle = processStatement$ as defined by $ProcessCompletionStatement$.
+
+\begin{schema}{\Delta RateOfCompletionsStep[KV, STATEMENT]}
+  Step \\
+  ProcessCompletionStatement \\
+  state?, state! : KV \\
+  stmt? : STATEMENT \\
+  step~\_ : KV \cross STATEMENT \surj KV
+  \where
+  Step.step = \langle body \rangle \\
+  step = \langle processStatement~\_ \rangle \\
+  Step.step \bindsto step \implies \\
+  \t3 \langle body \rangle \equiv \langle \langle parseStmt~\_~,~getPreviousState~\_~ \rangle, \\
+  \t5 ~\ \langle returnIntervalStart~\_~,~returnIntervalEnd~\_~,~ replaceAt~\_~ \rangle, \\
+  \t5 ~\ \langle returnUpdatedCount~\_~,~ replaceAt~\_~ \rangle , \\
+  \t5 ~\ \langle returnUpdatedNames~\_~,~ replaceAt~\_~ \rangle \rangle \\ \\ ~ \\
+
+  state! = step(state?, stmt?) = processStatement(stmt?, state?) @ \\
+  \t1 state! \not= state? ~\land \\
+  \t1 getIn(state!, \langle roc, completions, stmt_{objId} \rangle) \not= \emptyset
+\end{schema}
+For each unique $stmt_{objId}$ passed to $step$, there should be a corresponding mapping
+in $state_{\langle roc, completions \rangle}$ which looks like
+\begin{zed}
+  stmt_{objId} \mapsto \ldata domain \mapsto \ldata (start, interval_{start}!), (end, interval_{end}!) \rdata \\
+  \t3 nStmts \mapsto nStmts! \\
+  \t3 names \mapsto names! \rdata
+\end{zed}
 
 \subsection{Result}
 \begin{schema}{RateOfCompletionsResult[KV, KV]}
