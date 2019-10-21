@@ -608,8 +608,17 @@ can be calculated and added to $state_{\langle roc, completions, stmt_{objId}, r
   result~\_ : KV \cross KV \surj KV
   \where
   Result.result = \langle body \rangle \\
-  \langle body \rangle \bindsto result = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
-  result! = result(state?, opt?) @ FIXME: ~what ~happens?
+  \langle body \rangle \bindsto result = \langle replaceAt~\_ \rangle \bsup \# \dom (state_{\langle roc, completions \rangle}) \esup \\  ~ \\
+
+  state! = result(state?, opt?) @  \\
+  \t2 let \  timeUnit == atKey(opt?, timeUnit) @ \\
+  \t1 \forall stmt_{objId} \in state_{\langle roc, completions \rangle} ~|~ \exists_1 state!_{objId} @ \\
+  \t3 \ let \ \ nO == getIn(state?, \langle roc, completions, stmt_{objId}, nStmts \rangle) \\
+  \t4 start == getIn(state?, \langle roc, completions, stmt_{objId}, domain, start \rangle) \\
+  \t4 end == getIn(state?, \langle roc, completions, stmt_{objId}, domain, end \rangle) \\
+  \t4 rate_{objId} == rateOf(nO, start, end, timeUnit) \\
+  \t2 state!_{objId} = replaceAt(state?, \langle roc, completions, stmt_{objId}, rate \rangle, rate_{objId}) \\
+  \t1 = \sum state!_{objId} @ \forall stmt_{objId} ~|~ getIn(state!, \langle roc, completions, stmt_{objId}, rate \rangle) \in \num
 \end{schema}
 % WIP - bellow -> Z
 The only $opts$ used by $rateOfCompletions$ is $timeUnit$
