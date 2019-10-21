@@ -561,7 +561,7 @@ using the Primitive $replaceAt$ to produce $state!$.
   state! = processStatement(stmt?, state?) @ \\
   ~ \ let \ ~interval_{\delta} == replaceAt(state?, \langle roc, completions, stmt_{objId}, domain \rangle, interval!) \\
   \t1 nStmts_{\delta} == replaceAt(interval_{\delta}, \langle roc, completions, stmt_{objId}, nStmts \rangle, nStmts!) \\
-  \t1 \ ~ = replaceAt(nStmts_{\delta}, \langle roc, completions, stmt_{objId}, names \rangle)
+  \t1 \ ~ = replaceAt(nStmts_{\delta}, \langle roc, completions, stmt_{objId}, names \rangle, names!)
 \end{schema}
 \begin{itemize}
   \item update $state!$ to include a mapping with Key $stmt_{objId}$ or update an existing mapping identified by $stmt_{objId}$
