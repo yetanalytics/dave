@@ -339,21 +339,33 @@ Regardless, in order for $relevant?$ to return true
 \end{itemize}
 
 \subsection{Accept?}
-\begin{schema}{RateOfCompletionsAccept?[KV, STATEMENT]}
+The $Accept?$ component of a DAVE Algorithm is a secondary validation check prior to the potential
+passing of $stmt?$ off to $Step$. At this point, $stmt?$ has been validated to be relevant to the
+execution of an Algorithm so the final check is based off of the current Algorithm State $state?$.
+In many cases this check will not be necessary but this step matters when the ability to process $stmt?$
+is dependent upon some property of $state?$. This component of an Algorithm could be used to establish
+the placeholder mapping within $state!$ if it doesn't exist for the current $stmt?$ but this can also
+be handled within $step$ as done in the schema $ProcessCompletionStatement$ defined later on.
+
+\begin{schema}{\Xi RateOfCompletionsAccept?[KV, STATEMENT]}
   Accept? \\
   state? : KV \\
   stmt? : STATEMENT \\
   accept! : Boolean \\
+  fn_{pred} : KV \cross STATEMENT \fun Boolean \\
   accept?~\_ : KV \cross STATEMENT \fun Boolean
   \where
   Accept?.accept? = \langle body \rangle \\
-  \langle body \rangle \bindsto accept? = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
-  accept! = accept?(state?, stmt?) @ FIXME: ~what ~happens?
+  accept? = \langle fn_{pred}~\_ \rangle \\
+  Accept?.accept? \bindsto accept? \implies \langle body \rangle \equiv \langle fn_{pred}~\_ \rangle \\ ~ \\
+  accept! = accept?(state?, stmt?) \\
+  \t1 \ \ \ ~ = fn_{pred}(state?, stmt?) = true
 \end{schema}
-% WIP - bellow -> Z
-$rateOfCompletions$ does not require further boolean logic to determine if $stmt$ and $state$ can be passed to $step$
-$$accept?(state, stmt) = object?(stmt)$$
-which should always return true assuming valid xAPI Statements are passed to $rateOfCompletions$
+The Algorithm $rateOfCompletions$ does not need to check $state?$ before passing $stmt?$ to $step$ so
+$fn_{pred}$ will always return true. If this was not the case, $fn_{pred}$ would be defined as a predicate
+describing the relationship between $state?$ and $stmt?$ which determines if true or false is returned.
+Additionally, if false would be returned, $Accept$ can take the appropriate steps to ensure $state!$
+is updated such that $accept?(state!, stmt?) = true$.
 
 \subsection{Step}
 \begin{schema}{RateOfCompletionsStep[KV, STATEMENT]}
