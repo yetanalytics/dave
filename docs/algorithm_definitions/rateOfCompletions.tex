@@ -168,7 +168,155 @@ can
 \end{itemize}
 
 \subsection{Relevant?}
-\begin{schema}{RateOfCompletionsRelevant?[KV, STATEMENT]}
+Given that the purpose of $relevant?$ is to determine if the current Statement ($stmt?$)
+is valid for use within $step$ of $rateOfCompletions$, the validation check itself can
+be implemented in several different ways but idealy, the predicate logic is expressed using the
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-about.md}{xAPI Profiles spec}.
+
+\subsubsection{xAPI Profile Validation}
+The specification defines
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#statment-templates}{xAPI Statement Tempaltes}
+which feature a built in
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#81-statement-template-rules}{xAPI property predicate language}
+for defining the uniquely identifying properties of an xAPI Statement. These requirements are used within
+validation logic aligned to/based off of the
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-communication.md#statement-template-valid}{Statement Template Validation Logic}
+defined in the spec. The formal definition of Statement Template validation logic is outside the scope
+of this document but the following basic type is introduced to represent an xAPI Statement Tempalte
+$$[TEMPLATE_{stmt}]$$
+such that the following is an Operation definition for validation of an xAPI Statement $stmt?$ against an xAPI Statement Template.
+%FIXME: footnote, the Operation returns a boolean so it ends with a ?, one instance of overlap between input arg and pred fn naming conventions
+\begin{schema}{ValidateStatement[STATEMENT, TEMPLATE_{stmt}]}
+  stmt? : STATEMENT \\
+  template? : TEMPLATE_{stmt} \\
+  validateStmt! : Boolean \\
+  validateStmt~\_ : STATEMENT \cross TEMPLATE_{stmt} \fun Boolean
+  \where
+  validateStmt! = validateStmt(stmt?, template?) = true ~\lor false
+\end{schema}
+This Operation can be composed with other xAPI Profile centered Operations to define more complex
+predicate/validation logic like:
+\begin{itemize}
+  \item $stmt?$ matches target xAPI Statement Template(s) defined within some xAPI Profile(s)
+  \item $stmt?$ matches pred (ie, any/none/etc.) xAPI Statement Template(s) defined within some xAPI Profile(s)
+  \item $stmt?$ matches target/pred xAPI Statement Template(s) within target/pred xAPI Pattern(s) defined within some xAPI Profile(s)
+\end{itemize}
+
+\subsubsection{xAPI Predicates}
+In order to avoid brining in additional xAPI Profile complexity, the logic of
+$RateOfCompletionsRelevant?$ is implemented using predicates which correspond to
+checks which would happen during $validateStmt$ given Statement Templates containing
+the following constraints.
+\begin{itemize}
+\item is the Object of the Statement an Activity?
+\item is the Verb indicative of a completion event?
+\item is Result.completion used to indicate completion?
+\end{itemize}
+In general, each of these Primitives navigates into a Statement to retrieve the value at a target
+$path?$ and check it against the predicate defined in the schema. This generic functionality is defined
+as the Primitive $stmtPred$.
+\begin{schema}{StatementPredicate[STATEMENT, Collection, (~\_~\pfun~\_~)]}
+  GetIn \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}? : (~\_~\pfun~\_~) \\
+  stmtPred~\_ : STATEMENT \cross Collection \cross (~\_~\pfun~\_~) \fun Boolean
+  \where
+  stmtPred = \langle getIn~\_~, fn_{pred}?(stmt?_{path?}) \rangle \\ ~ \\
+  fn_{pred}! = stmtPred(stmt?, path?, fn_{pred?}) \\
+  \t1 \ \ \ ~ = fn_{pred}?(getIn(stmt?, path?)) @ \\
+  \t1 \ \ \ ~ = true ~\lor~ false
+\end{schema}
+This Primitive covers the most basic kind of check performed when validating an xAPI Statement
+against an xAPI Statement Template; does the Statement property found at $stmt?_{path?}$ adhere to
+the expectation(s) defined within the provided predicate. The next three schemas will define
+the statement predicates used within $RateOfCompletionsRelevant?$ but these predicates
+could have been contained within some number of xAPI Statement Template(s).
+
+\begin{schema}{ActivityObject?[STATEMENT]}
+  StatementPredicate \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}~\_ : V \fun Boolean \\
+  activityObject?~\_ : STATEMENT \fun Boolean
+  \where
+  activityObject? = \langle stmtPred~\_ \rangle \\ ~ \\
+
+  path? = \langle object, objectType \rangle \\ ~ \\
+
+  fn_{pred}! = activityObject?(stmt?) \\
+  \t1 \ \ \ \ = stmtPred(stmt?, path?, fn_{pred}) \\
+  \t1 \ \ \ \ = fn_{pred}(stmt?_{path?}) \\
+  \t1 \ \ \ \ = true \iff stmt?_{path?} = Activity ~\lor ~ \emptyset
+\end{schema}
+\begin{itemize}
+  \item Determine if the Object of $stmt?$ is an \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-About.md#def-activity}{Activity}
+\end{itemize}
+
+\begin{schema}{CompletionVerb?[STATEMENT]}
+  StatementPredicate \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}~\_ : V \fun Boolean \\
+  completionVerb?~\_ : STATEMENT \fun Boolean
+  \where
+  completionVerb? = \langle stmtPred~\_ \rangle \\ ~ \\
+
+  path? = \langle verb, id \rangle \\ ~ \\
+
+  fn_{pred}! = completionVerb?(stmt?) \\
+  \t1 \ \ \ \ = stmtPred(stmt?, path?, fn_{pred}) \\
+  \t1 \ \ \ \ = fn_{pred}(stmt?_{path?}) \\
+  \t1 \ \ \ \ = true \iff stmt?_{path?} = \\
+  \t3 http://adlnet.gov/expapi/verbs/passed ~~\lor \\
+  \t3 https://w3id.org/xapi/dod-isd/verbs/answered ~~\lor \\
+  \t3 http://adlnet.gov/expapi/verbs/completed
+\end{schema}
+
+\begin{itemize}
+\item Determine if the Verb id within $stmt?$ is one of
+  \begin{itemize}
+  \item passed
+  \item answered
+  \item completed
+  \end{itemize}
+\item List of target Verb ids can be expanded as needed
+\end{itemize}
+
+\begin{schema}{CompletionResult?[STATEMENT]}
+  StatementPredicate \\
+  stmt? : STATEMENT \\
+  path? : Collection \\
+  fn_{pred}! : Boolean \\
+  fn_{pred}~\_ : V \fun Boolean \\
+  completionResult?~\_ : STATEMENT \fun Boolean
+  \where
+  completionResult? = \langle stmtPred~\_ \rangle \\ ~ \\
+
+  path? = \langle result, completion \rangle \\ ~ \\
+
+  fn_{pred}! = completionResult?(stmt?) \\
+  \t1 \ \ \ \ = stmtPred(stmt?, path?, fn_{pred}) \\
+  \t1 \ \ \ \ = fn_{pred}(stmt?_{path?}) \\
+  \t1 \ \ \ \ = true \iff stmt?_{path?} = true \\
+\end{schema}
+
+\begin{itemize}
+  \item Determine if completion is set to true within result field of an xAPI Statement
+\end{itemize}
+
+\subsubsection{Formal Definition}
+The xAPI Predicates defined above are used within $RateOfCompletionsRelevant?$ to
+establish the logic which decides if $stmt?$ is
+\begin{itemize}
+\item passed on to the next step
+\item discarded for the next Statement in the batch passed to $rateOfCompletions$
+\end{itemize}
+
+\begin{schema}{\Xi RateOfCompletionsRelevant?[KV, STATEMENT]}
   Relevant? \\
   state? : KV \\
   stmt? : STATEMENT \\
@@ -176,50 +324,19 @@ can
   relevant?~\_ : KV \cross STATEMENT \fun Boolean
   \where
   Relevant.relevant? = \langle body \rangle \\
-  \langle body \rangle \bindsto relevant? = \langle FIXME: ~what ~primitives ~are ~needed? \rangle \\
-  relevant! = relevant?(state?, stmt?) @ FIXME: ~what ~happens?
+  \langle body \rangle \bindsto relevant? = \langle ~activityObject?~\_~, \langle ~completionVerb?~\_~, ~completionResult?~\_ \rangle  \rangle \\ ~ \\
+  relevant! = relevant?(state?, stmt?) \\
+  \t2 ~ = true \iff (activityObject(stmt?) = true) ~\land \\
+  \t6 \ ~ ((completionVerb?(stmt?) = true) ~\lor \\
+  \t6 \ \ ~ (completionResult?(stmt?) = true))
 \end{schema}
-% WIP - bellow -> Z
-$relevant?(state, stmt)$ determines if $stmt$ is valid for use within $step$ of $rateOfCompletions$ and does so by
-looking into various $k \to v$ within $stmt$. The following Primitives are used as the $body$ of $relevant?(state, stmt)$
+The schema prefix $\Xi$ is used to indicate that here, $relevant?$ does not modify $state?$.
+Regardless, in order for $relevant?$ to return true
 \begin{itemize}
-\item is the Object of the Statement an Activity?
-  $$activityType = atKey(stmt, <object, objectType>)$$
-  $$activity?(activityType) = true \iff activityType = Activity \ \lor activityType = nil$$
-\item is the Verb indicative of a completion event?
-  $$verbId = atKey(stmt, <verb, id>)$$
-  $$completionVerb?(verbId) = true$$
-  $$\iff$$
-  $$verbId = http://adlnet.gov/expapi/verbs/passed$$
-  $$\lor$$
-  $$verbId = https://w3id.org/xapi/dod-isd/verbs/answered$$
-  $$\lor$$
-  $$verbId = http://adlnet.gov/expapi/verbs/completed$$
-\item does the $stmt$ indicate completion using Result?
-  $$result = atKey(stmt, <result, completion>)$$
-  $$resultCompletion = true \iff result = true$$
+\item The object of $stmt?$ must be an activity
+\item The Verb of $stmt?$ has an id which matches one of the target IDs
+\item The Result of $stmt$ indicates that a completion happened
 \end{itemize}
-$\\$
-such that the body of $relevant?$ contains
-$$p_{a}(stmt) = activity?(atKey(stmt, <object, objectType>))$$
-and
-$$p_{v}(stmt) = completionVerb?(atKey(stmt, <verb, id>))$$
-and
-$$p_{r}(stmt) = resultCompletion(atKey(stmt, <result, completion>))$$
-which are used to form higher level Primitives
-$$p_{continue}(stmt) = stmt \iff p_{a}(stmt) = true$$
-and
-$$p_{completed?}(stmt) = stmt \iff p_{v}(stmt) = true \ \lor \ p_{r}(stmt) = true$$
-which results in a final Primitive $p_{return?}$
-$$p_{return?}(stmt) = object?(p_{completed?}(p_{continue}(stmt)))$$
-which defines the $body$ of $relevant?$
-$$relevant?(stmt) = p_{return?}(stmt) \implies object?(p_{completed?}(p_{continue}(stmt)))$$
-and can be summarized as
-$$relevant?(state, stmt) = true$$
-$$\iff$$
-$$activity?(activitType) = true$$
-$$\land$$
-$$completionVerb?(verbId) = true \ \lor \ resultCompletion = true$$
 
 \subsection{Accept?}
 \begin{schema}{RateOfCompletionsAccept?[KV, STATEMENT]}
