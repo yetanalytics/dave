@@ -29,11 +29,11 @@ a sequence $\langle ... \rangle$ of items $c$ such that each $c : \nat \cross V 
   C = \langle c_{i}..c_{n}..c_{j} \rangle \implies \{~i \mapsto c_{i}, n \mapsto c_{n}, j \mapsto c_{j} \} @
   i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j
 \end{axdef}
-And the following free type is introducted for collections
+And the following free type is introduced for collections
 \begin{argue}
   Collection :== emptyColl ~| ~append \ldata Collection \cross Scalar ~\lor Collection ~\lor KV \cross \nat \rdata \\
   \t1 emptyColl & the empty Collection $\langle  \rangle$ \\
-  \t1 append & is a constructor and is infered to be an injection \\
+  \t1 append & is a constructor and is inferred to be an injection \\
   \t1 KV & a free type introduced bellow \\
   append(emptyColl, c?, 0) = \langle c_{0} \rangle \implies \{~0 \mapsto c?\} & $append$ adds $c?$ to $\langle  \rangle$ at $\nat$
 \end{argue}
@@ -105,7 +105,7 @@ such that $\ldata (k_{ni}, v_{ni}) \rdata$ and $\ldata (k_{nj}, v_{nj}) \rdata$ 
 
 \subsubsection{Statement}
 
-Immutable Map conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification} as described in the xAPI Formal Definition section of this document. The imutability of a Statement $s$ is demonstrated by the following
+Immutable Map conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification} as described in the xAPI Formal Definition section of this document. The immutability of a Statement $s$ is demonstrated by the following
 which indicates that $s$ was not altered when passed to $associate$.
 \begin{axdef}
   s!, s? : STATEMENT \\
@@ -210,7 +210,7 @@ In this section, $o_{n}$ and $p_{n}$ can be used as to describe Primitive member
 \end{zed}
 Within any given Primitive $p$, variables local to $p$ and any global variables may be passed as arguments to any member of $p$
 and there is no restriction on the ordering of arguments with respect to the piping.
-In the following, $q?$ is a global variable where as the rest are local.
+In the following, $q?$ is a global variable whereas the rest are local.
 \begin{axdef}
   x?, y?, z?, i!, n!, j!, p! : Value \\
   o_{i} : Value \pfun Value \\
@@ -233,7 +233,7 @@ the functionality of a Primitive and its composition. This notation should be us
 \item The top line indicates the Primitive
   \begin{itemize}
   \item should be written using postfix notation within other schemas
-  \item is atleast a partial function from some input to some output
+  \item is at least a partial function from some input to some output
   \end{itemize}
 \item The bottom line is an enumeration of the composing Operations and/or Primitives and their order of execution
 \end{itemize}
@@ -599,7 +599,7 @@ The completion of this loop is the prerequisites of $result~\_$
 The following schema introduces the Operation $recur$ which expects an accumulator ($KV$),
 a $Collection$ of Value(s) ($V$) being iterated over and
 a function ($\_~\pfun~\_$) which will be called as the result of $recur$.
-This Operation has been writen to be as general purpose as possible and represents
+This Operation has been written to be as general purpose as possible and represents
 the ability to perform \href{https://cs.stackexchange.com/questions/6230/what-is-tail-recursion}{tail recursion}.
 Given this intention, $recur$ must only ever be the last Operation within a Primitive
 \begin{axdef}
