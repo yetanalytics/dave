@@ -13,8 +13,8 @@ chapter 1, "Tutorial Introduction" from pages 1 to 23. For the $LaTeX$ symbols u
 see the reference document found at dave/docs/z/zed-csp-documentation.pdf.
 
 \subsection{Decorations}
-The following decorations are used through this document and are taken directly from the reference manual.
-For a complete summary of the Syntax of Z, see chapter 6, Syntax Summary, startingon page 142.
+The following decorations are used throughout this document and are taken directly from the reference manual.
+For a complete summary of the Syntax of Z, see chapter 6, Syntax Summary, starting on page 142.
 \begin{argue}
   ' & indicates final state of an operation \\
   ? & indicates input to an operation \\
@@ -27,10 +27,8 @@ For a complete summary of the Syntax of Z, see chapter 6, Syntax Summary, starti
 \subsection{Types}
 Objects have a type which characterizes them and distinguish them from other kinds of objects.
 \begin{itemize}
-\item Basic types are sets of objects which have no internal structure of interest meaning the concrete definition of the members
-  is not relevant, only their shared type.
-\item Free types are used to describe (potentially nested and/or recursive) sets of objects. In the most simple case, a free type
-  can be an enumeration of constants.
+\item Basic types are sets of objects which have no internal structure of interest meaning the concrete definition of the members is not relevant, only their shared type.
+\item Free types are used to describe (potentially nested and/or recursive) sets of objects. In the most simple case, a free type can be an enumeration of constants.
 \end{itemize}
 Within the xAPI Formal Specification, both of these types are used to describe the
 \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#inversefunctional}{Inverse Functional Identifier}
@@ -93,7 +91,7 @@ as seen on page 115. Additionally, $\iseq$ is used to describe a sequence whose 
 A collection of elements where the number of times an element appears in the collection is meaningful.
 $$\lbag a_{1},...,a_{n} \rbag \implies \{a_{1} \mapsto k_{1},...,k_{n} \mapsto k_{n}\}$$
 As described on page 124, each element $a_{i}$ appears $k_{i}$ times in the list $a_{1},...,a_{n}$
-such that the number of occurances of $a_{i}$ within bag $A$ is returned by
+such that the number of occurrences of $a_{i}$ within bag $A$ is returned by
 $$count ~A ~a_{i} \ \equiv A ~\# ~a_{i}$$
 
 \subsection{Maps}
@@ -107,7 +105,7 @@ $$KV ::= base ~| ~associate\ldata KV \cross X \cross Y \rdata$$
 where
 \begin{argue}
   base & is a constant which is the empty $KV \implies \ldata \rdata$ \\
-  associate & is a constructor and is infered to be an injection
+  associate & is a constructor and is inferred to be an injection
 \end{argue}
 The full enumeration of all properties, constraints and functions
 specific to a $map$ with type $KV$ will be defined elsewhere but
@@ -118,7 +116,7 @@ such that if $M$ is the result of $associate(base, x_{i}, y_{i})$ from above the
 $$atKey(M, x_{i}) = y_{i} \iff x_{i} \mapsto y_{i} ~\land (x_{i}, y_{i}) \in M$$
 
 \subsection{Select Operations and Symbols}
-The follow are defined in Chpater 4 (The Mathematical Tool-kit) within the reference manual
+The follow are defined in Chapter 4 (The Mathematical Tool-kit) within the reference manual
 and are used extensively throughout this document. In many cases, the functions listed here
 will serve as Operations in the context of Primitives and Algorithms.
 
@@ -148,8 +146,8 @@ will serve as Operations in the context of Primitives and Algorithms.
   first & returns the first element of an ordered pair, page 93 \\
   second & returns the second element of an ordered pair, page 93 \\
   \mapsto & maplet is a graphic way of expressing an ordered pair, page 95 \\
-  \dom & set of all x $\in$ X related to atleast one y $\in$ Y by R, page 96 \\
-  \ran & set of all y $\in$ Y related to atleast one x $\in$ X by R, page 96 \\
+  \dom & set of all x $\in$ X related to at least one y $\in$ Y by R, page 96 \\
+  \ran & set of all y $\in$ Y related to at least one x $\in$ X by R, page 96 \\
   \comp & The composition of two relationships, page 97 \\
   \circ & The backward composition of two relationships, page 97
 \end{argue}
@@ -299,9 +297,9 @@ will serve as Operations in the context of Primitives and Algorithms.
 \begin{argue}
   count, \# & the number of times something appears in a bag, page 124 \\
   \otimes & scaling across a bag, page 124 \\
-  \uplus & union of two bags, sum of occurances, page 126 \\
-  \uminus & bag difference, subtract occurances or zero if negative, page 126 \\
-  items & converstion from $\seq$ to $\bag$, page 127
+  \uplus & union of two bags, sum of occurrences, page 126 \\
+  \uminus & bag difference, subtract occurrences or zero if negative, page 126 \\
+  items & conversion from $\seq$ to $\bag$, page 127
 \end{argue}
 
 \begin{gendef}[X]
