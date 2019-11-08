@@ -95,7 +95,7 @@ The following examples demonstrate the functionality of the Primitive $getIn$
 Additionally, the propagation of an update, starting at some depth within a passed in Value and bubbling up to the top level,
 such that the update is only applied to values along a specified path as necessary, is also a useful tool to have.
 The following sections introduce Primitives which address performing these types of updates and ends with a summary of
-the functional steps described in the sections bellow. $replaceAt$ is introduced first and serves as a point of comparison
+the functional steps described in the sections below. $replaceAt$ is introduced first and serves as a point of comparison
 when describing the more abstract Primitives $backProp$ and $walkBack$.
 
 \subsubsection{Replace At}
@@ -186,7 +186,7 @@ a (Parent, Child) tuple and a Collection of indices as arguments and return a po
 \end{schema}
 The schema $ReplaceAt$ was introduced before $BackProp$ so the process underlying both
 could be explicitly demonstrated and defined. The hope is that this made the introduction of
-the more abstract Primtive $backProp$ easier to follow. A quick comparison of $ReplaceAt$ and
+the more abstract Primitive $backProp$ easier to follow. A quick comparison of $ReplaceAt$ and
 $BackProp$ reveals that the only major difference between them is $fn?$ vs $merge~\_$.
 This implies the Primitive $backProp$ can be used to replicate $replaceAt$.
 \begin{zed}
@@ -238,8 +238,8 @@ By replacing $fnSeed?$ with $fn?_{\delta}$ as an argument
 \item $walkBack$ can be used to update Values at arbitrary nesting within $in?$ and at the same time describe how those changes affect the rest of $in?$
 \end{itemize}
 $walkBack$ serves as a graph traversal template Primitive whose behavior is defined in terms of the nodes within $in?$
-and the interpertation of those nodes via $fn?_{\delta}$ and $fn?_{nav}$. This establishes the means for defining Primitives which can make
-longitudinal updates as needed before making horizonal movements through some $in?$. In order for $backProp$ to be used in the same way, the required state must be managed by
+and the interpretation of those nodes via $fn?_{\delta}$ and $fn?_{nav}$. This establishes the means for defining Primitives which can make
+longitudinal updates as needed before making horizontal movements through some $in?$. In order for $backProp$ to be used in the same way, the required state must be managed by
 \begin{itemize}
 \item $fn_{nav}$
 \item some higher level Primitive that contains $backProp$ (see $WalkBack$)
@@ -321,15 +321,15 @@ there is some overlap) and the summary utilizes the Traversal Operations defined
 \end{enumerate}
 
 \subsection{Replace At, Append At and Update At}
-In the summary of $walkBack$ above, the update at the target location within $in?$ takes place at setp 4.
+In the summary of $walkBack$ above, the update at the target location within $in?$ takes place at step 4.
 The result of step 4, $fn!$, will overwrite the mapping $args$ such that $fn!$ replaces $in?_{path?}$ due to $fn?_{nav} = merge~\_~$.
 This results in the replacement of one mapping at each level of nesting such that the overall structure, composition and
 size of $out!$ is comparable to $in?$ unless $fn?_{\delta}$ dictates otherwise. While the functionality of $fn_{nav}$ has been
-constrained here to always be an overwritting process, the same constraint is not placed on $fn?_{\delta}$.
+constrained here to always be an overwriting process, the same constraint is not placed on $fn?_{\delta}$.
 \subsubsection{Replace At}
-The Primitive $replaceAt$ was first defined in terms of the Traversal Operations and then servered as the starting point
+The Primitive $replaceAt$ was first defined in terms of the Traversal Operations and then served as the starting point
 for abstracting away aspects of functionality and delegating their responsibility to some passed in function until $WalkBack$
-was reached. An alternate form of this formal definition is presented bellow such that $replaceAt$ is defined in terms of $walkBack$.
+was reached. An alternate form of this formal definition is presented below such that $replaceAt$ is defined in terms of $walkBack$.
 \begin{schema}{ReplaceAt[V, Collection, V]}
   WalkBack, Merge \\
   in?, with?, out!, fn!_{\delta} : V \\
@@ -378,7 +378,7 @@ component functions without writing the equivalent Z schema. This shorthand can 
   walkBack(X, \langle 1 \rangle, map~\_(conj~\_, X_{\langle 1 \rangle}, a), merge~\_) = \langle x_{0}, \langle \langle a, a \rangle, \langle b, a \rangle, \langle c, a \rangle \rangle, x_{2} \rangle \\
   walkBack(X, \langle 1 \rangle, conj~\_(X_{\langle 1 \rangle}, a),  merge~\_) = \langle x_{0}, \langle a, b, c, a \rangle, x_{2} \rangle
 \end{argue}
-Addative updates are another common type of updating encountered when working with xAPI data. $Conj$ is a derivative
+Additive updates are another common type of updating encountered when working with xAPI data. $Conj$ is a derivative
 of $\cat$ but scoped to DAVE and used to define the Primitive $appendAt$.
 \begin{schema}{AppendAt[V, Collection, V]}
   WalkBack, Conj, Merge \\
