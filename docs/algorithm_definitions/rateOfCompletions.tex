@@ -63,7 +63,7 @@ such that the $\langle body \rangle$ within each of the generic schema definitio
 the Primitive chain defined within each of the local schemas. Here, the components of $RateOfCompletions$
 use a naming scheme of Container + AlgorithmComponent but this pattern is not required. It is used here
 strictly for additional highlighting of the syntax introduced above for connecting the generic
-definition of an Algorithm to an Implementation of that methedology much like the concepts underlying
+definition of an Algorithm to an Implementation of that methodology much like the concepts underlying
 \href{https://docs.oracle.com/javase/tutorial/java/concepts/interface.html}{Java Interfaces}.
 \begin{schema}{\Delta RateOfCompletions[KV, Collection, KV]}
   Algorithm \\
@@ -104,7 +104,7 @@ definition of an Algorithm to an Implementation of that methedology much like th
 \subsection{Initialization}
 The first example of a component to component alignment is found within $RateOfCompletionsInit$ which shows
 how the primitive $RateOfCompletionsInit.init$ is bound to $\langle body \rangle$ within $Algorithm.algorithm.init$. Specifically,
-the schema $RateOfCompletionsInit$ uses the Primtive $updateAt$ such that $init_{\delta}$ can be used to establish the initialization logic.
+the schema $RateOfCompletionsInit$ uses the Primitive $updateAt$ such that $init_{\delta}$ can be used to establish the initialization logic.
 
 \subsubsection{Formal Definition}
 In the following, $init_{\delta}$ could have been a stand alone Operation referenced within $RateOfCompletionsInit$.
@@ -146,7 +146,7 @@ and by defining $RateOfCompletionsInit.init$ in this way, it allows for chaining
 \end{itemize}
 which highlights the importance of establishing a unique path for individual Algorithms to write their results to.
 The example $path?$ of $\langle roc, completions \rangle$ is very simple but is sufficient for the current Algorithm.
-This $path?$ can be made more complex to suppport more advanced $init_{\delta}$ definitions. For example, each run of
+This $path?$ can be made more complex to support more advanced $init_{\delta}$ definitions. For example, each run of
 $rateOfCompletions$ could have its own unique subpath. In this scenario, $init_{\delta}$ could be updated to look for
 the most recent run of $rateOfCompletions$ and use it as the seed state for the current iteration among other things.
 \begin{itemize}
@@ -170,19 +170,19 @@ can
 \subsection{Relevant?}
 Given that the purpose of $relevant?$ is to determine if the current Statement ($stmt?$)
 is valid for use within $step$ of $rateOfCompletions$, the validation check itself can
-be implemented in several different ways but idealy, the predicate logic is expressed using the
+be implemented in several different ways but ideally, the predicate logic is expressed using the
 \href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-about.md}{xAPI Profiles spec}.
 
 \subsubsection{xAPI Profile Validation}
 The specification defines
-\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#statment-templates}{xAPI Statement Tempaltes}
+\href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#statment-templates}{xAPI Statement Templates}
 which feature a built in
 \href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-structure.md#81-statement-template-rules}{xAPI property predicate language}
 for defining the uniquely identifying properties of an xAPI Statement. These requirements are used within
 validation logic aligned to/based off of the
 \href{https://github.com/adlnet/xapi-profiles/blob/master/xapi-profiles-communication.md#statement-template-valid}{Statement Template Validation Logic}
 defined in the spec. The formal definition of Statement Template validation logic is outside the scope
-of this document but the following basic type is introduced to represent an xAPI Statement Tempalte
+of this document but the following basic type is introduced to represent an xAPI Statement Template
 $$[TEMPLATE_{stmt}]$$
 such that the following is an Operation definition for validation of an xAPI Statement $stmt?$ against an xAPI Statement Template.
 %FIXME: footnote, the Operation returns a boolean so it ends with a ?, one instance of overlap between input arg and pred fn naming conventions
@@ -468,7 +468,7 @@ of each process within $step$ in order to reduce the noise within $RateOfComplet
   \t3 \ \ ~(state_{ts} \iff fn_{\delta}! = nSeconds_{state})
 \end{schema}
 \begin{itemize}
-  \item return $stmt_{ts}$ or $state_{ts}$, which ever one is further back in the past.
+  \item return $stmt_{ts}$ or $state_{ts}$, whichever one is further back in the past.
 \end{itemize}
 
 \begin{schema}{ReturnIntervalEnd[TIMESTAMP, TIMESTAMP]}
@@ -489,7 +489,7 @@ of each process within $step$ in order to reduce the noise within $RateOfComplet
   \t3 \ \ ~(state_{ts} \iff fn_{\delta}! = nSeconds_{state})
 \end{schema}
 \begin{itemize}
-  \item return $stmt_{ts}$ or $state_{ts}$, which ever one is later on chronologically
+  \item return $stmt_{ts}$ or $state_{ts}$, whichever one is later on chronologically
 \end{itemize}
 
 \begin{schema}{ReturnUpdatedCount[V]}
