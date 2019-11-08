@@ -266,7 +266,7 @@ $\\\\\\\\\\\\$ %%% Header with content
 \end{schema}
 \begin{itemize}
 \item The schema $Instructor$ introduces the component $instructor$
-  which can be ether an $agent$ or a $group$
+  which can be either an $agent$ or a $group$
 \end{itemize}
 
 \begin{schema}{Team}
@@ -334,7 +334,7 @@ $\\\\\\\\\\\\$ %%% Header with content
 
 \begin{schema}{Attachments}
   display, description, attachment, attachments: \finset_1 \\
-  usageType, sha2, fileUrl, contexntType : \finset_1 \#1 \\
+  usageType, sha2, fileUrl, contentType : \finset_1 \#1 \\
   length : \nat
   \where
   attachment = \{usageType, display, contentType, length, sha2 \}
@@ -342,11 +342,11 @@ $\\\\\\\\\\\\$ %%% Header with content
   attachments = \{a : attachment\}
 \end{schema}
 \begin{itemize}
-\item The schema $Attachments$ introduces the componenet
+\item The schema $Attachments$ introduces the component
   $attachments$ which is a non-empty, finite set of the component
   $attachment$
 \item The component $attachment$ is a non-empty, finite set of the
-  componenets $usageType$, $display$, $contentType$, $length$,
+  components $usageType$, $display$, $contentType$, $length$,
   $sha2$ with optionally $description$ and/or $fileUrl$
 \end{itemize}
 
@@ -363,7 +363,6 @@ $\\\\\\\\\\\\$ %%% Header with content
   Stored \\
   Attachments \\
   statement : STATEMENT
-
   \where
   statement = \{actor, verb, object, stored\} \cup \\\t3 \power \{\id,
   result, context, timestamp, attachments \} \\
@@ -374,7 +373,7 @@ $\\\\\\\\\\\\$ %%% Header with content
   $stored$ and the optional components $id$, $result$, $context$,
   $timestamp$, and/or $attachments$
 \item The schema $Statement$ allows for subcomponent of $statement$
-  to refrenced via the $.$ (selection) operator
+  to referenced via the $.$ (selection) operator
 \end{itemize}
 
 \begin{schema}{Statements}
