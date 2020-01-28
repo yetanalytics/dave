@@ -1,14 +1,9 @@
 # filter-scratch
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
+Scratch code area for experimental implementations of DAVE xAPI statement filtering methodology.
 
 ## License
 
-Copyright © 2020 FIXME
+Copyright © 2020 Yet Analytics
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Apache 2.0 License. See the file LICENSE for more information.

@@ -92,6 +92,6 @@ And all project artifacts can be deleted:
 
 ## License
 
-Copyright © 2018-2019 Yet Analytics Inc
+Copyright © 2018-2020 Yet Analytics Inc
 
 Distributed under the Apache 2.0 License. See the file LICENSE for more information.
