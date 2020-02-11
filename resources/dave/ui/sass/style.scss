@@ -9,6 +9,8 @@
 @import "dave/ui/sass/dialog.scss";
 @import "dave/ui/sass/wizard.scss";
 @import "dave/ui/sass/debug.scss";
+@import "dave/ui/sass/codemirror.scss";
+@import "dave/ui/sass/solarized.scss";
 
 body {
   margin: 0 0 0 0;
@@ -46,4 +48,20 @@ body {
       @include mdc-layout-grid-cell('desktop', 4, 2px)
     }
   }
+}
+
+.analysis-grid {
+  @include mdc-layout-grid('desktop', 16px);
+}
+
+.analysis-inner {
+  @include mdc-layout-grid-inner('desktop', 4px, 4px);
+}
+
+.cell-6 {
+  @include mdc-layout-grid-cell('desktop', 6, 2px);
+}
+
+.cell-12 {
+  @include mdc-layout-grid-cell('desktop', 12, 2px);
 }

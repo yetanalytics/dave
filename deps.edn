@@ -14,7 +14,11 @@
         com.andrewmcveigh/cljs-time {:mvn/version "0.5.2"}
         clj-time {:mvn/version "0.15.0"}
         org.clojure/data.json {:mvn/version "0.2.6"}
-        net.cgrand/macrovich {:mvn/version "0.2.1"}}
+        net.cgrand/macrovich {:mvn/version "0.2.1"}
+        re-codemirror        {:git/url    "git@github.com:yetanalytics/re-codemirror.git"
+                              :sha        "1408fc5cb3cc0f5800a7e498d3e6dbaac6d981ad"
+                              :exclusions [org.clojure/clojurescript
+                                           reagent]}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}

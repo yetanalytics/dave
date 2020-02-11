@@ -1,7 +1,8 @@
 (ns com.yetanalytics.dave.ui.views.workbook
   (:require [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.workbook.question :as question]
-            [com.yetanalytics.dave.ui.views.workbook.data :as data]))
+            [com.yetanalytics.dave.ui.views.workbook.data :as data]
+            [com.yetanalytics.dave.ui.views.workbook.analysis :as analysis]))
 
 (defn descendant-counts
   [id]
@@ -41,8 +42,9 @@
       [:div.testdatasetblock.gridblock
        (when data
          [data/info id])]
-      [:div
-       [:h1 "Questions"]
+      [analysis/grid]
+      #_#_[:div
+       [:h1 "Analysis"]
        [:button.newblock
         {:on-click #(dispatch [:workbook.question/new id])}
         "New Question"]]

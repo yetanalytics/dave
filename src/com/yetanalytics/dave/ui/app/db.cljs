@@ -109,6 +109,15 @@
 (s/def ::db-version
   #{"0.1.0"})
 
+(s/def :analysis/query string?)
+(s/def :analysis/viz string?)
+(s/def :analysis/render string?)
+
+(s/def ::analysis
+  (s/keys :opt [:analysis/query
+                :analysis/viz
+                :analysis/render]))
+
 (def db-state-spec
   (s/keys
    :req-un [::db-version]
@@ -116,7 +125,8 @@
             ::nav
             ::workbooks
             ::dialog
-            ::wizard]))
+            ::wizard
+            ::analysis]))
 
 
 ;; This will include the default workbooks for DAVE
