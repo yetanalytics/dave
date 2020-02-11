@@ -289,7 +289,9 @@
 
 (defn ->tx
   [schema data]
-  (let [conformed (s/conform ::xs/statements data)]
+  (let [conformed (s/conform (s/coll-of ::xs/statement
+                                        :kind vector?
+                                        :into []) data)]
     (if (= conformed ::s/invalid)
       (throw (ex-info "Invalid Statement Data"
                       {:type ::invalid-statements
