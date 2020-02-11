@@ -50,7 +50,25 @@
                :clj {:num-tests 10 :max-size 3})
             }))))))
 
-(deftest account-test
+
+(deftest idempotency-test
+  (testing "transactions to datalog db are idempotent"
+    (let [tx (datalog/->tx schema/xapi statements)
+          db-1 (-> (d/init-db [] schema/xapi)
+                   (d/db-with tx))
+          db-1-datoms (d/datoms db-1 :eavt)
+          db-1-attr-freqs (frequencies (map :a db-1-datoms))
+          db-2 (-> db-1
+                   (d/db-with tx))
+          db-2-datoms (d/datoms db-2 :eavt)
+          db-2-attr-freqs (frequencies (map :a db-2-datoms))
+          ]
+      (is (= db-1
+             db-2))
+      (is (= db-1-attr-freqs
+             db-2-attr-freqs)))))
+
+(deftest account-upsert-test
   (testing "some strange behaviours of agent/group accounts"
     (testing "agent"
       (let [statement {"id" "0a029ae8-bd87-441e-b879-a4c5da2d6722",
@@ -67,23 +85,6 @@
                        (d/db-with tx)
                        (d/db-with tx))))))))
 
-(deftest idempotency-test
-  (testing "transactions to datalog db are idempotent"
-    (let [tx (datalog/->tx schema/xapi statements)
-          db-1 (-> (d/init-db [] schema/xapi)
-                   (d/db-with tx))
-          db-1-datoms (d/datoms db-1 :eavt)
-          db-1-attr-freqs (frequencies (map :a db-1-datoms))
-          db-2 (-> db-1
-                   (d/db-with tx))
-          db-2-datoms (d/datoms db-2 :eavt)
-          db-2-attr-freqs (frequencies (map :a db-2-datoms))
-          ]
-      (is (= db-1-attr-freqs
-             db-2-attr-freqs)))))
-
-
-
 #?(:clj (defspec idempotency-gen-test 10
           (prop/for-all
            [ss (s/gen ::xs/lrs-statements)]
@@ -98,5 +99,7 @@
                  db-2-datoms (d/datoms db-2 :eavt)
                  db-2-attr-freqs (frequencies (map :a db-2-datoms))
                  ]
+             (is (= db-1
+                    db-2))
              (is (= db-1-attr-freqs
                     db-2-attr-freqs))))))
