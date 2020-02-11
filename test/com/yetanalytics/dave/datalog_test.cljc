@@ -40,15 +40,14 @@
                         :where
                         [?s :statement/id]]
                       db))))))
-  (testing "generated statements"
-    (is (empty?
-         (failures
-          (stest/check
-           `datalog/->tx
-           {stc-opts
-            #?(:cljs {:num-tests 1 :max-size 1}
-               :clj {:num-tests 10 :max-size 3})
-            }))))))
+  #?(:clj (testing "generated statements"
+            (is (empty?
+                 (failures
+                  (stest/check
+                   `datalog/->tx
+                   {stc-opts
+                    {:num-tests 10 :max-size 3}
+                    })))))))
 
 
 (deftest idempotency-test
