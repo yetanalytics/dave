@@ -7,6 +7,10 @@
    [clojure.string :as cs]
    clojure.test.check
    clojure.test.check.properties
+   #?@(:cljs [[cljs.nodejs :as node]
+              ]
+       :clj [[clojure.data.json :as json]
+             [clojure.java.io :as io]])
    ))
 
 #?(:clj (alias 'stc 'clojure.spec.test.check))
@@ -39,3 +43,13 @@
                 :result
                 true?)
            check-results)))
+
+
+(defn read-json
+  [path]
+  #?(:clj (with-open [r (io/reader path)]
+            (json/read r))
+     :cljs (let [fs (node/require "fs")]
+             (js->clj (.parse js/JSON
+                              (.readFileSync fs path "utf8"))
+                      :keywordize-keys false))))
