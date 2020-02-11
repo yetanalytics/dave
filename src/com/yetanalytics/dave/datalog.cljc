@@ -374,3 +374,14 @@
                 :else (recur (z/next loc)
                              tx
                              tempid)))))))))
+
+(defn transact-xapi
+  "Given a DB and some statements, transact them.
+  Omits statements that are already known to the DB!"
+  [db statements]
+  (d/db-with db
+             (->tx schema/xapi
+                   (filterv
+                    (fn [{:strs [id]}]
+                      (nil? (d/entid db [:statement/id id])))
+                    statements))))
