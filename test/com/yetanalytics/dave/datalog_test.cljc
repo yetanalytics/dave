@@ -50,36 +50,36 @@
                     })))))))
 
 
-(deftest idempotency-test
-  (testing "transactions to datalog db are idempotent"
-    (let [tx (datalog/->tx schema/xapi statements)
-          db-1 (-> (d/init-db [] schema/xapi)
-                   (d/db-with tx))
-          db-1-datoms (d/datoms db-1 :eavt)
-          db-1-attr-freqs (frequencies (map :a db-1-datoms))
-          db-2 (-> db-1
-                   (d/db-with tx))
-          db-2-datoms (d/datoms db-2 :eavt)
-          db-2-attr-freqs (frequencies (map :a db-2-datoms))
-          ]
-      (is (= db-1
-             db-2))
-      (is (= db-1-attr-freqs
-             db-2-attr-freqs))))
-  (testing "even more so with transact-xapi"
-    (let [db-1 (-> (d/init-db [] schema/xapi)
-                   (datalog/transact-xapi statements))
-          db-1-datoms (d/datoms db-1 :eavt)
-          db-1-attr-freqs (frequencies (map :a db-1-datoms))
-          db-2 (-> db-1
-                   (datalog/transact-xapi statements)) ;; should be a no-op
-          db-2-datoms (d/datoms db-2 :eavt)
-          db-2-attr-freqs (frequencies (map :a db-2-datoms))
-          ]
-      (is (= db-1
-             db-2))
-      (is (= db-1-attr-freqs
-             db-2-attr-freqs)))))
+#?(:clj (deftest idempotency-test
+          (testing "transactions to datalog db are idempotent"
+            (let [tx (datalog/->tx schema/xapi statements)
+                  db-1 (-> (d/init-db [] schema/xapi)
+                           (d/db-with tx))
+                  db-1-datoms (d/datoms db-1 :eavt)
+                  db-1-attr-freqs (frequencies (map :a db-1-datoms))
+                  db-2 (-> db-1
+                           (d/db-with tx))
+                  db-2-datoms (d/datoms db-2 :eavt)
+                  db-2-attr-freqs (frequencies (map :a db-2-datoms))
+                  ]
+              (is (= db-1
+                     db-2))
+              (is (= db-1-attr-freqs
+                     db-2-attr-freqs))))
+          (testing "even more so with transact-xapi"
+            (let [db-1 (-> (d/init-db [] schema/xapi)
+                           (datalog/transact-xapi statements))
+                  db-1-datoms (d/datoms db-1 :eavt)
+                  db-1-attr-freqs (frequencies (map :a db-1-datoms))
+                  db-2 (-> db-1
+                           (datalog/transact-xapi statements)) ;; should be a no-op
+                  db-2-datoms (d/datoms db-2 :eavt)
+                  db-2-attr-freqs (frequencies (map :a db-2-datoms))
+                  ]
+              (is (= db-1
+                     db-2))
+              (is (= db-1-attr-freqs
+                     db-2-attr-freqs))))))
 
 (deftest account-upsert-test
   (testing "some strange behaviours of agent/group accounts"
