@@ -24,10 +24,10 @@
      [:div.cell-6
       [:div.analysis-inner
        [:div.cell-12
-        [:h4 "Query"]
+        [:h4 "Query Editor"]
         [textarea :analysis/query "clojure"]]
        [:div.cell-12
-        [:h4 "Viz"]
+        [:h4 "Visualization Editor"]
         [textarea :analysis/viz "application/json"]]]]
      [:div.cell-6
       [:div.analysis-inner

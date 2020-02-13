@@ -1,10 +1,11 @@
 (ns com.yetanalytics.dave.workbook
   "Workbooks reference an xAPI dataset and contain questions that use the data
   as a basis. They also contain contextual + display information."
-  (:require [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha                      :as s]
             [com.yetanalytics.dave.workbook.question :as question]
-            [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.workbook.data :as data]))
+            [com.yetanalytics.dave.workbook.analysis :as analysis]
+            [com.yetanalytics.dave.util.spec         :as su]
+            [com.yetanalytics.dave.workbook.data     :as data]))
 
 (s/def ::id
   uuid?)
@@ -21,6 +22,11 @@
           question/question-spec)
          (comp su/sequential-indices? vals)))
 
+(s/def ::analysis
+  (s/and (s/map-of ::analysis/id
+                   analysis/analysis-spec)
+         (comp su/sequential-indices? vals)))
+
 (s/def ::data
   data/data-spec)
 
@@ -30,4 +36,5 @@
                    ::description
                    ::questions]
 
-          :opt-un [::data]))
+          :opt-un [::data
+                   ::analysis]))
