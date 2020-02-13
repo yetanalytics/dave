@@ -86,24 +86,3 @@
 (re-frame/reg-fx :stop-timer
                  (fn [id]
                    (swap! timers stop-timer id)))
-
-(re-frame/reg-event-db
- :analysis/query
- (fn [db [_ query]]
-   (assoc-in db [::db/analysis :analysis/query]
-             query)))
-
-(re-frame/reg-event-db
- :analysis/viz
- (fn [db [_ viz]]
-   (assoc-in db [::db/analysis :analysis/viz]
-             viz)))
-
-(re-frame/reg-event-db
- :analysis/run
- (fn [db _]
-   (let [query (-> db ::db/analysis :analysis/query cljs.reader/read-string)
-         viz   (-> db ::db/analysis :analysis/viz js/JSON.parse)]
-     ;; do something with query and viz
-     (assoc-in db [::db/analysis :analysis/render]
-               (str query " - " (js/JSON.stringify viz))))))

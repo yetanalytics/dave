@@ -109,15 +109,6 @@
 (s/def ::db-version
   #{"0.1.0"})
 
-(s/def :analysis/query string?)
-(s/def :analysis/viz string?)
-(s/def :analysis/render string?)
-
-(s/def ::analysis
-  (s/keys :opt [:analysis/query
-                :analysis/viz
-                :analysis/render]))
-
 (def db-state-spec
   (s/keys
    :req-un [::db-version]
@@ -125,9 +116,7 @@
             ::nav
             ::workbooks
             ::dialog
-            ::wizard
-            ::analysis]))
-
+            ::wizard]))
 
 ;; This will include the default workbooks for DAVE
 (def db-default
@@ -148,7 +137,7 @@
                             :index 0
                             :query "{:a [1 2 3]}"
                             :vega  "{\"a\": [1 2 3]}"}}
-                :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
+                #_#_:questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                              :text "When do learners do their best work?"
                              :function {:id :com.yetanalytics.dave.func/success-timeline
