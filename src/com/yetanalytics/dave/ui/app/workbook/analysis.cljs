@@ -76,22 +76,25 @@
  (fn [{:keys [db]} [_
                     workbook-id
                     analysis-id
-                    form-map]]
+                    {:keys [query] :as form-map}]]
    (let [analysis         (get-in db [:workbooks
                                       workbook-id
                                       :analyses
                                       analysis-id])
-         updated-analysis (merge analysis
-                                 form-map)]
-     (if-let [spec-error (s/explain-data analysis/analysis-spec
-                                         updated-analysis)]
-       {:notify/snackbar
-        {:message "Invalid Analysis"}}
-       {:dispatch-n [[:dialog/dismiss]
-                     [:crud/update-silent!
-                      updated-analysis
-                      workbook-id
-                      analysis-id]]}))))
+         query-data (s/conform ::analysis/query-data query)
+         new-analysis (if (= ::s/invalid query-data)
+                        (merge (dissoc analysis ::query-data)
+                               form-map
+                               {:query-parse-error
+                                (s/explain-str ::analysis/query-data
+                                               query)})
+                        (assoc (merge analysis form-map)
+                               :query-data query-data))]
+     {:dispatch-n [[:dialog/dismiss]
+                   [:crud/update-silent!
+                    new-analysis
+                    workbook-id
+                    analysis-id]]})))
 
 (re-frame/reg-event-fx
  :workbook.analysis/run
@@ -126,9 +129,10 @@
        [_ _ _ ?path-analysis-id & _ :as path]] [_
                                                 _
                                                 ?analysis-id]]
-   (get-in workbook [:analyses
-                     (or ?analysis-id
-                         ?path-analysis-id)])))
+   (s/unform analysis/analysis-spec
+             (get-in workbook [:analyses
+                               (or ?analysis-id
+                                   ?path-analysis-id)]))))
 
 (re-frame/reg-sub
  :workbook.analysis/text
@@ -142,7 +146,24 @@
  (fn [[_ & args] _]
    (re-frame/subscribe (into [:workbook/analysis] args)))
  (fn [analysis _]
-   (:query analysis)))
+   (:query analysis
+           ;; derive from query-data if not available.
+           (when-let [qd (:query-data analysis)]
+             (pr-str qd)))))
+
+(re-frame/reg-sub
+ :workbook.analysis/query-data
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:query-data analysis)))
+
+(re-frame/reg-sub
+ :workbook.analysis/query-parse-error
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:query-parse-error analysis)))
 
 (re-frame/reg-sub
  :workbook.analysis/vega

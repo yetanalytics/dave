@@ -5,6 +5,8 @@
             [xapi-schema.spec :as xs]
             [clojure.walk :as w]
             [datascript.core :as d]
+            [datascript.query :as dq]
+            [datascript.parser :as dp]
             [com.yetanalytics.dave.datalog.schema :as schema]
             [com.yetanalytics.dave.datalog.rules :as rules]
             [clojure.string :as cstr]
@@ -286,6 +288,19 @@
 (defn empty-db
   []
   (d/empty-db schema/xapi))
+
+(s/def ::query
+  (s/with-gen dp/parse-query
+    #(sgen/return '[:find [?datum ...]
+                    :where
+                    [?s :statement/timestamp ?t]
+                    [?s :statement.result.score/scaled ?score]
+                    [(array-map :x ?t :y ?score) ?datum]])))
+
+(s/fdef q
+  :args (s/cat :query ::query
+               :db ::db
+               :extra-inputs (s/* any?)))
 
 (defn q
   "Wrapper for datascript.core/q, always expects DB as a second arg, and injects
