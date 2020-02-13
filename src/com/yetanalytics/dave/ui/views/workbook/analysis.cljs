@@ -19,6 +19,20 @@
                                    analysis-id
                                    {dis-key (.getValue cm)}]))}}])
 
+(defn edit-button
+  [workbook-id analysis-id]
+  [:button.minorbutton
+   {:on-click #(dispatch
+                [:workbook.analysis/edit workbook-id analysis-id])}
+   "Edit"])
+
+(defn delete-button
+  [workbook-id analysis-id]
+  [:button.minorbutton
+   {:on-click #(dispatch
+                [:crud/delete-confirm workbook-id analysis-id])}
+   "Delete"])
+
 (defn page
   []
   (let [{:keys [id
@@ -31,7 +45,9 @@
      [:div.splash]
      [:div
       [:div.testdatasetblock
-       [:p.hometitle (str "Analysis: " text)]]]
+       [:p.hometitle (str "Analysis: " text)]
+       [edit-button workbook-id id]
+       [delete-button workbook-id id]]]
      [:div.analysis-grid
       [:div.analysis-inner
        [:div.cell-6
