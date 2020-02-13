@@ -2,6 +2,7 @@
   "Handle top-level app state & persistence"
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
+            [com.yetanalytics.dave.datalog :as d]
             [com.yetanalytics.dave.ui.app.nav :as nav]
             [com.yetanalytics.dave.ui.app.picker :as picker]
             [cognitect.transit :as t]
@@ -133,7 +134,8 @@
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "data/dave/ds.json"
                        :built-in? true
-                       :state {:statement-idx -1}}
+                       :state {:statement-idx -1
+                               :db (d/empty-db)}}
                 :analyses {#uuid "609851e5-5bb0-4980-963a-725422312214"
                            {:id    #uuid "609851e5-5bb0-4980-963a-725422312214"
                             :text  "Test Analysis"
