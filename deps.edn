@@ -18,7 +18,9 @@
         re-codemirror        {:git/url    "git@github.com:yetanalytics/re-codemirror.git"
                               :sha        "1408fc5cb3cc0f5800a7e498d3e6dbaac6d981ad"
                               :exclusions [org.clojure/clojurescript
-                                           reagent]}}
+                                           reagent]}
+        datascript {:mvn/version "0.18.8"}
+        datascript-transit {:mvn/version "0.3.0"}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}

@@ -8,7 +8,8 @@
    [com.yetanalytics.dave.func-test]
    [com.yetanalytics.dave.func.util-test]
    [com.yetanalytics.dave.func.common-test]
+   [com.yetanalytics.dave.datalog-test]
    [figwheel.main.testing :refer-macros [run-tests-async]]))
 
 (defn -main [& args]
-  (run-tests-async 50000))
+  (run-tests-async 120000))

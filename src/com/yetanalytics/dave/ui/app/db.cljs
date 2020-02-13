@@ -5,6 +5,7 @@
             [com.yetanalytics.dave.ui.app.nav :as nav]
             [com.yetanalytics.dave.ui.app.picker :as picker]
             [cognitect.transit :as t]
+            [datascript.transit :as dt]
             [com.yetanalytics.dave.workbook :as workbook]
             [com.yetanalytics.dave.ui.interceptor :as i]
             [com.cognitect.transit.types :as ty]
@@ -22,50 +23,52 @@
 ;; Set handlers for our funcs
 ;; TODO: figure out a better way to handle (de)serialization
 (def read-handlers
-  {"com.yetanalytics.dave.func/SuccessTimeline"
-   (fn [m]
-     (func/map->SuccessTimeline (update-in m
-                                           [:state
-                                            :successes]
-                                           #(into (sorted-map) %))))
-   "com.yetanalytics.dave.func/DifficultQuestions"
-   (fn [m]
-     (func/map->DifficultQuestions m))
-   "com.yetanalytics.dave.func/CompletionRate"
-   (fn [m]
-     (func/map->CompletionRate m))
-   "com.yetanalytics.dave.func/FollowedRecommendations"
-   (fn [m]
-     (func/map->FollowedRecommendations
-      (update-in m
-                 [:state
-                  :statements]
-                 #(into (sorted-map) %))))
-   "com.yetanalytics.dave.func/LearningPath"
-   (fn [m]
-     (func/map->LearningPath m))})
+  (into {"com.yetanalytics.dave.func/SuccessTimeline"
+         (fn [m]
+           (func/map->SuccessTimeline (update-in m
+                                                 [:state
+                                                  :successes]
+                                                 #(into (sorted-map) %))))
+         "com.yetanalytics.dave.func/DifficultQuestions"
+         (fn [m]
+           (func/map->DifficultQuestions m))
+         "com.yetanalytics.dave.func/CompletionRate"
+         (fn [m]
+           (func/map->CompletionRate m))
+         "com.yetanalytics.dave.func/FollowedRecommendations"
+         (fn [m]
+           (func/map->FollowedRecommendations
+            (update-in m
+                       [:state
+                        :statements]
+                       #(into (sorted-map) %))))
+         "com.yetanalytics.dave.func/LearningPath"
+         (fn [m]
+           (func/map->LearningPath m))}
+        dt/read-handlers))
 
 (def write-handlers
-  {func/SuccessTimeline
-   (t/write-handler (constantly "com.yetanalytics.dave.func/SuccessTimeline")
-                    (fn [st]
-                      (into {} st)))
-   func/DifficultQuestions
-   (t/write-handler (constantly "com.yetanalytics.dave.func/DifficultQuestions")
-                    (fn [st]
-                      (into {} st)))
-   func/CompletionRate
-   (t/write-handler (constantly "com.yetanalytics.dave.func/CompletionRate")
-                    (fn [st]
-                      (into {} st)))
-   func/FollowedRecommendations
-   (t/write-handler (constantly "com.yetanalytics.dave.func/FollowedRecommendations")
-                    (fn [st]
-                      (into {} st)))
-   func/LearningPath
-   (t/write-handler (constantly "com.yetanalytics.dave.func/LearningPath")
-                    (fn [st]
-                      (into {} st)))})
+  (into {func/SuccessTimeline
+         (t/write-handler (constantly "com.yetanalytics.dave.func/SuccessTimeline")
+                          (fn [st]
+                            (into {} st)))
+         func/DifficultQuestions
+         (t/write-handler (constantly "com.yetanalytics.dave.func/DifficultQuestions")
+                          (fn [st]
+                            (into {} st)))
+         func/CompletionRate
+         (t/write-handler (constantly "com.yetanalytics.dave.func/CompletionRate")
+                          (fn [st]
+                            (into {} st)))
+         func/FollowedRecommendations
+         (t/write-handler (constantly "com.yetanalytics.dave.func/FollowedRecommendations")
+                          (fn [st]
+                            (into {} st)))
+         func/LearningPath
+         (t/write-handler (constantly "com.yetanalytics.dave.func/LearningPath")
+                          (fn [st]
+                            (into {} st)))}
+        dt/write-handlers))
 ;; Persistence
 (defonce w (t/writer :json {:handlers write-handlers}))
 (defonce r (t/reader :json {:handlers read-handlers}))

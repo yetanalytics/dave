@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Time scatter plot with point Y-axis
 - Learning Path algorithm
 - Common xAPI Statement parsers
+- Low-level Datalog parsing and query for xAPI
 
 ### Changed
 - Changes to the Wizard navigation footer and other DAVE related buttons
