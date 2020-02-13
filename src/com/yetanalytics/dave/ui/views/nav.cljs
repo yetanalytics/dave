@@ -26,7 +26,7 @@
     "Data Analytics and Visualization Environment for xAPI and the Total Learning Architecture"]
    [:p.description
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
-   [:button
+   #_[:button
     {:on-click #(dispatch [:wizard/start])}
     "Create Your First Workbook"]])
 
