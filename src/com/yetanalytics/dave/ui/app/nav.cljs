@@ -40,7 +40,7 @@
                    (str (when ?w
                           (format "/workbooks/%s" ?w))
                         (when ?a
-                          (format "/analyses/%s" ?q))
+                          (format "/analyses/%s" ?a))
                         #_(when ?v
                           (format "/visualizations/%s" ?v))))
                  (sgen/vector (sgen/string-alphanumeric) 0 3)))))
@@ -219,6 +219,9 @@
                      :db db}
                     (partition 2 path)))))
 
+(def singularize
+  {:workbooks :workbook
+   :analyses  :analysis})
 
 (re-frame/reg-sub
  :nav/context
@@ -228,16 +231,13 @@
      nil :loading
      [] :root
      ;; singularized path resource
-     (keyword
-      (apply str
-             (butlast
-              (name
-               (last
-                (filter #{:workbooks
-                          :analyses
-                          #_#_:questions
-                          :visualizations}
-                        path)))))))))
+     (get singularize
+          (last
+           (filter #{:workbooks
+                     :analyses
+                     #_#_:questions
+                     :visualizations}
+                   path))))))
 
 (re-frame/reg-sub
  :nav/focus
@@ -263,6 +263,7 @@
    (if-let [child-key (case context
                         :root     :workbooks
                         :workbook :analyses #_:questions
+                        :analysis :editor
                         ;;:question :visualizations
                         nil)]
      (mapv second (get focus child-key))

@@ -6,14 +6,11 @@
 (s/def ::id
   uuid?)
 
-(s/def ::title
+(s/def ::text
   su/string-not-empty-spec)
 
 (s/def ::index
   su/index-spec)
-
-(s/def ::description
-  su/string-not-empty-spec)
 
 (s/def ::query
   su/string-not-empty-spec)
@@ -27,8 +24,7 @@
 
 (def analysis-spec
   (s/keys :req-un [::id
-                   ::title
-                   ::description
+                   ::text
                    ::index
                    ::query
                    ::vega]

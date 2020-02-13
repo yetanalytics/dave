@@ -7,6 +7,7 @@
    [com.yetanalytics.dave.ui.app.http]
    [com.yetanalytics.dave.ui.app.notify]
    [com.yetanalytics.dave.ui.app.workbook]
+   [com.yetanalytics.dave.ui.app.workbook.analysis]
    [com.yetanalytics.dave.ui.app.workbook.data]
    [com.yetanalytics.dave.ui.app.workbook.data.lrs]
    [com.yetanalytics.dave.ui.app.workbook.question]

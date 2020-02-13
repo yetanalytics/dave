@@ -70,7 +70,6 @@
         :active? (= :workbook context)
         :href (when ?workbook
                 (format "#/workbooks/%s" (:id ?workbook)))}]
-
       ;; TODO: figure out contextual behaviour for questions/vis
       [crumb
        {:title   (if ?analysis

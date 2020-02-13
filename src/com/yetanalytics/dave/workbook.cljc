@@ -22,7 +22,7 @@
           question/question-spec)
          (comp su/sequential-indices? vals)))
 
-(s/def ::analysis
+(s/def ::analyses
   (s/and (s/map-of ::analysis/id
                    analysis/analysis-spec)
          (comp su/sequential-indices? vals)))
@@ -33,8 +33,8 @@
 (def workbook-spec
   (s/keys :req-un [::id
                    ::title
-                   ::description
-                   ::questions]
+                   ::description]
 
           :opt-un [::data
-                   ::analysis]))
+                   ::analyses
+                   ::questions]))

@@ -4,6 +4,7 @@
             [com.yetanalytics.dave.ui.views.snackbar :refer [snackbar]]
             [com.yetanalytics.dave.ui.views.root :as root]
             [com.yetanalytics.dave.ui.views.workbook :as workbook]
+            [com.yetanalytics.dave.ui.views.workbook.analysis :as analysis]
             [com.yetanalytics.dave.ui.views.workbook.question :as question]
             [com.yetanalytics.dave.ui.views.workbook.question.visualization
              :as visualization]
@@ -25,6 +26,9 @@
 
 (defmethod page :workbook [_]
   [workbook/page])
+
+(defmethod page :analysis [_]
+  [analysis/page])
 
 (defmethod page :question [_]
   [question/page])

@@ -142,6 +142,12 @@
                        :uri "data/dave/ds.json"
                        :built-in? true
                        :state {:statement-idx -1}}
+                :analyses {#uuid "609851e5-5bb0-4980-963a-725422312214"
+                           {:id    #uuid "609851e5-5bb0-4980-963a-725422312214"
+                            :text  "Test Analysis"
+                            :index 0
+                            :query "{:a [1 2 3]}"
+                            :vega  "{\"a\": [1 2 3]}"}}
                 :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                             {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
                              :text "When do learners do their best work?"

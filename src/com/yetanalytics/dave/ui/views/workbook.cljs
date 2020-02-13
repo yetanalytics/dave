@@ -31,6 +31,7 @@
                 title
                 description
                 questions
+                analyses
                 data]
          :as workbook} @(subscribe [:nav/focus])]
     [:div.page.workbook
@@ -44,9 +45,14 @@
       [:div.testdatasetblock.gridblock
        (when data
          [data/info id])]
-      [analysis/grid]
-      #_#_[:div
+      [:div
        [:h1 "Analysis"]
+       [:button.newblock
+        {:on-click #(dispatch [:workbook.analysis/new id])}
+        "New Analysis"]]
+      [analysis/grid-list id analyses]
+      #_#_[:div
+       [:h1 "Question"]
        [:button.newblock
         {:on-click #(dispatch [:workbook.question/new id])}
         "New Question"]]
