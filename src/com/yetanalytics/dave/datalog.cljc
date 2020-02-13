@@ -253,6 +253,21 @@
                    (uniqify-component :statement/object :statement/id)))
              conformed)))))
 
+(s/def ::db
+  (s/with-gen d/db?
+    (fn []
+      (sgen/return (d/empty-db schema/xapi)))))
+
+(s/fdef transact
+  :args (s/cat :db ::db
+               :statements (s/with-gen ::xs/statements
+                             (fn []
+                               (sgen/fmap
+                                (fn [ss]
+                                  (mapv #(dissoc % "authority") ss))
+                                (s/gen ::xs/lrs-statements)))))
+  :ret ::db)
+
 (defn transact
   "Given a DB and some statements, transact them.
   Omits statements that are already known to the DB!"
