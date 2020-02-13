@@ -6,7 +6,7 @@
             [clojure.walk :as w]
             [datascript.core :as d]
             [com.yetanalytics.dave.datalog.schema :as schema]
-            [clojure.zip :as z]
+            [com.yetanalytics.dave.datalog.rules :as rules]
             [clojure.string :as cstr]
             #?@(:cljs [[goog.string :as gstring :refer [format]]
                        [goog.string.format]])))
@@ -278,3 +278,17 @@
                     (fn [{:strs [id]}]
                       (nil? (d/entid db [:statement/id id])))
                     statements))))
+
+(s/fdef empty-db
+  :args (s/cat)
+  :ret ::db)
+
+(defn empty-db
+  []
+  (d/empty-db schema/xapi))
+
+(defn q
+  "Wrapper for datascript.core/q, always expects DB as a second arg, and injects
+   core rules as a third"
+  [query db & extra-inputs]
+  (apply d/q query db rules/core extra-inputs))

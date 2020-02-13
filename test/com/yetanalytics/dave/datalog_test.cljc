@@ -116,3 +116,21 @@
                     db-2))
              (is (= db-1-attr-freqs
                     db-2-attr-freqs))))))
+
+#?(:clj (deftest transact-test
+          (is (empty?
+               (failures
+                (stest/check
+                 `datalog/transact
+                 {stc-opts
+                  {:num-tests 10 :max-size 3}
+                  }))))))
+
+(deftest empty-db-test
+  (is (empty?
+       (failures
+        (stest/check
+         `datalog/empty-db
+         {stc-opts
+          {:num-tests 10 :max-size 3}
+          })))))
