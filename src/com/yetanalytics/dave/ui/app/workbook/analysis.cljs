@@ -76,23 +76,14 @@
  (fn [{:keys [db]} [_
                     workbook-id
                     analysis-id
-                    {:keys [query] :as form-map}]]
+                    form-map]]
    (let [analysis         (get-in db [:workbooks
                                       workbook-id
                                       :analyses
-                                      analysis-id])
-         query-data (s/conform ::analysis/query-data query)
-         new-analysis (if (= ::s/invalid query-data)
-                        (merge (dissoc analysis ::query-data)
-                               form-map
-                               {:query-parse-error
-                                (s/explain-str ::analysis/query-data
-                                               query)})
-                        (assoc (merge analysis form-map)
-                               :query-data query-data))]
+                                      analysis-id])]
      {:dispatch-n [[:dialog/dismiss]
                    [:crud/update-silent!
-                    new-analysis
+                    (analysis/update-analysis analysis form-map)
                     workbook-id
                     analysis-id]]})))
 
@@ -178,3 +169,10 @@
    (re-frame/subscribe (into [:workbook/analysis] args)))
  (fn [analysis _]
    (:visualization analysis)))
+
+(re-frame/reg-sub
+ :workbook.analysis/result
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:result analysis)))

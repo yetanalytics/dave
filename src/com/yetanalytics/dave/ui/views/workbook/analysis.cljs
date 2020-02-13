@@ -42,6 +42,7 @@
   (let [{:keys [id
                 text
                 query
+                query-parse-error
                 vega
                 visualization]}    @(subscribe [:nav/focus])
         [workbook-id & _] @(subscribe [:nav/path-ids])]
@@ -62,7 +63,9 @@
                      :analysis-id id
                      :sub-key     :workbook.analysis/query
                      :dis-key     :query
-                     :opts        {:mode "text/x-clojure"}}]]
+                     :opts        {:mode "text/x-clojure"}}]
+          (when query-parse-error
+            [:div.error query-parse-error])]
          [:div.cell-12
           [:h4 "Visualization Editor"]
           [textarea {:workbook-id workbook-id

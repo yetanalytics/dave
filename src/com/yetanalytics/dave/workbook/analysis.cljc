@@ -36,14 +36,14 @@
   string?)
 
 
-
-
-
 (s/def ::vega string?)
 
 (s/def ::visualization
   (s/or :viz v/visualization-spec
         :str string?))
+
+(s/def ::result
+  any?)
 
 (def analysis-spec
   (s/keys :req-un [::id
@@ -53,4 +53,31 @@
                    ::query-data
                    ::query-parse-error
                    ::vega
-                   ::visualization]))
+                   ::visualization
+                   ::result]))
+
+(def form-spec
+  (s/keys :opt-un [::query ::vega]))
+
+(s/fdef update-analysis
+  :args (s/cat :extant analysis-spec
+               :form form-spec)
+  :ret analysis-spec)
+
+(defn update-analysis
+  [{:as extant}
+   {query :query
+    :as form}]
+  (if query
+    (let [query-data (s/conform ::query-data query)]
+      (if (= ::s/invalid query-data)
+        (merge (dissoc extant ::query-data)
+               form
+               {:query-parse-error
+                (s/explain-str ::query-data
+                               query)})
+        (dissoc (assoc (merge extant form)
+                       :query-data query-data)
+                :query-parse-error)))
+    ;; TODO:: vis parse, etc
+    (merge extant form)))
