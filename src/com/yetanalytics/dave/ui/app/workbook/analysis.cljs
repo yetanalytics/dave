@@ -1,6 +1,7 @@
 (ns com.yetanalytics.dave.ui.app.workbook.analysis
   (:require [clojure.spec.alpha                      :as s]
             [re-frame.core                           :as re-frame]
+            [com.yetanalytics.dave.datalog           :as d]
             [com.yetanalytics.dave.workbook.analysis :as analysis]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,36 +81,41 @@
    (let [analysis         (get-in db [:workbooks
                                       workbook-id
                                       :analyses
-                                      analysis-id])
-         updated-analysis (merge analysis
-                                 form-map)]
-     (if-let [spec-error (s/explain-data analysis/analysis-spec
-                                         updated-analysis)]
-       {:notify/snackbar
-        {:message "Invalid Analysis"}}
-       {:dispatch-n [[:dialog/dismiss]
-                     [:crud/update-silent!
-                      updated-analysis
-                      workbook-id
-                      analysis-id]]}))))
+                                      analysis-id])]
+     {:dispatch-n [[:dialog/dismiss]
+                   [:crud/update-silent!
+                    (analysis/update-analysis analysis form-map)
+                    workbook-id
+                    analysis-id]]})))
 
 (re-frame/reg-event-fx
  :workbook.analysis/run
  (fn [{:keys [db]} [_
                     workbook-id
                     analysis-id]]
-   (let [analysis         (get-in db [:workbooks
-                                      workbook-id
-                                      :analyses
-                                      analysis-id])
-         query            (-> analysis :query)
-         viz              (-> analysis :vega)
-         updated-analysis (merge analysis
-                                 {:visualization (str query " - " viz)})]
-     {:dispatch [:crud/update!
-                 updated-analysis
-                 workbook-id
-                 analysis-id]})))
+   (let [{:keys [query-data]
+          :as analysis} (get-in db [:workbooks
+                                    workbook-id
+                                    :analyses
+                                    analysis-id])]
+     (when query-data
+       (if-let [db (get-in db [:workbooks
+                               workbook-id
+                               :data
+                               :state
+                               :db])]
+         (try (let [result (d/q query-data db)]
+                {:dispatch [:crud/update!
+                            (assoc analysis :result result)
+                            workbook-id
+                            analysis-id]})
+              (catch js/Error e
+                {:notify/snackbar
+                 ;; TODO: HUMAN READ
+                 {:message (str "Query Error! " (ex-message e))}}))
+         {:notify/snackbar
+          ;; TODO: HUMAN READ
+          {:message "Can't find db"}})))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subs
@@ -126,9 +132,10 @@
        [_ _ _ ?path-analysis-id & _ :as path]] [_
                                                 _
                                                 ?analysis-id]]
-   (get-in workbook [:analyses
-                     (or ?analysis-id
-                         ?path-analysis-id)])))
+   (s/unform analysis/analysis-spec
+             (get-in workbook [:analyses
+                               (or ?analysis-id
+                                   ?path-analysis-id)]))))
 
 (re-frame/reg-sub
  :workbook.analysis/text
@@ -142,7 +149,24 @@
  (fn [[_ & args] _]
    (re-frame/subscribe (into [:workbook/analysis] args)))
  (fn [analysis _]
-   (:query analysis)))
+   (:query analysis
+           ;; derive from query-data if not available.
+           (when-let [qd (:query-data analysis)]
+             (pr-str qd)))))
+
+(re-frame/reg-sub
+ :workbook.analysis/query-data
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:query-data analysis)))
+
+(re-frame/reg-sub
+ :workbook.analysis/query-parse-error
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:query-parse-error analysis)))
 
 (re-frame/reg-sub
  :workbook.analysis/vega
@@ -157,3 +181,10 @@
    (re-frame/subscribe (into [:workbook/analysis] args)))
  (fn [analysis _]
    (:visualization analysis)))
+
+(re-frame/reg-sub
+ :workbook.analysis/result
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:result analysis)))

@@ -5,8 +5,10 @@
             [xapi-schema.spec :as xs]
             [clojure.walk :as w]
             [datascript.core :as d]
+            [datascript.query :as dq]
+            [datascript.parser :as dp]
             [com.yetanalytics.dave.datalog.schema :as schema]
-            [clojure.zip :as z]
+            [com.yetanalytics.dave.datalog.rules :as rules]
             [clojure.string :as cstr]
             #?@(:cljs [[goog.string :as gstring :refer [format]]
                        [goog.string.format]])))
@@ -253,7 +255,22 @@
                    (uniqify-component :statement/object :statement/id)))
              conformed)))))
 
-(defn transact-xapi
+(s/def ::db
+  (s/with-gen d/db?
+    (fn []
+      (sgen/return (d/empty-db schema/xapi)))))
+
+(s/fdef transact
+  :args (s/cat :db ::db
+               :statements (s/with-gen ::xs/statements
+                             (fn []
+                               (sgen/fmap
+                                (fn [ss]
+                                  (mapv #(dissoc % "authority") ss))
+                                (s/gen ::xs/lrs-statements)))))
+  :ret ::db)
+
+(defn transact
   "Given a DB and some statements, transact them.
   Omits statements that are already known to the DB!"
   [db statements]
@@ -263,3 +280,30 @@
                     (fn [{:strs [id]}]
                       (nil? (d/entid db [:statement/id id])))
                     statements))))
+
+(s/fdef empty-db
+  :args (s/cat)
+  :ret ::db)
+
+(defn empty-db
+  []
+  (d/empty-db schema/xapi))
+
+(s/def ::query
+  (s/with-gen dp/parse-query
+    #(sgen/return '[:find [?datum ...]
+                    :where
+                    [?s :statement/timestamp ?t]
+                    [?s :statement.result.score/scaled ?score]
+                    [(array-map :x ?t :y ?score) ?datum]])))
+
+(s/fdef q
+  :args (s/cat :query ::query
+               :db ::db
+               :extra-inputs (s/* any?)))
+
+(defn q
+  "Wrapper for datascript.core/q, always expects DB as a second arg, and injects
+   core rules as a third"
+  [query db & extra-inputs]
+  (apply d/q query db rules/core extra-inputs))

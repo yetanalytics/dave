@@ -2,6 +2,7 @@
   "Handle top-level app state & persistence"
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
+            [com.yetanalytics.dave.datalog :as d]
             [com.yetanalytics.dave.ui.app.nav :as nav]
             [com.yetanalytics.dave.ui.app.picker :as picker]
             [cognitect.transit :as t]
@@ -133,102 +134,25 @@
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "data/dave/ds.json"
                        :built-in? true
-                       :state {:statement-idx -1}}
+                       :state {:statement-idx -1
+                               :db (d/empty-db)}}
                 :analyses {#uuid "609851e5-5bb0-4980-963a-725422312214"
                            {:id    #uuid "609851e5-5bb0-4980-963a-725422312214"
                             :text  "Test Analysis"
                             :index 0
-                            :query "{:a [1 2 3]}"
-                            :vega  "{\"a\": [1 2 3]}"}}
-                #_#_:questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
-                            {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
-                             :text "When do learners do their best work?"
-                             :function {:id :com.yetanalytics.dave.func/success-timeline
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                               (func/get-func
-                                                :com.yetanalytics.dave.func/success-timeline))}
-                             :index 0
-                             :visualizations
-                             {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                              {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                               :title "Scores of Successful Statements"
-                               :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter
-                                     :args {}}
-                               :index 0}}}
-                            #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
-                            {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
-                             :text "What activities are most difficult?"
-                             :function {:id :com.yetanalytics.dave.func/difficult-questions
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                                (func/get-func
-                                                 :com.yetanalytics.dave.func/difficult-questions))}
-                             :index 1
-                             :visualizations
-                             {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                              {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                               :title "Failed Attempts Bar"
-                               :vis {:id :com.yetanalytics.dave.vis.bar/base
-                                     :args {}}
-                               :index 0}
-                              #uuid "5147c763-7e77-4e1b-80e1-1054d2225ec5"
-                              {:id #uuid "5147c763-7e77-4e1b-80e1-1054d2225ec5"
-                               :title "Failed Attempts Pie"
-                               :vis {:id :com.yetanalytics.dave.vis.pie/base
-                                     :args {}}
-                               :index 1}}}
-                            #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
-                            {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
-                             :text "What activities are completed the most?"
-                             :function {:id :com.yetanalytics.dave.func/completion-rate
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                                (func/get-func
-                                                 :com.yetanalytics.dave.func/completion-rate))
-                                        :args {:time-unit :day}}
-                             :index 2
-                             :visualizations
-                             {#uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
-                              {:id #uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
-                               :title "Rate of Activity Completion"
-                               :vis {:id :com.yetanalytics.dave.vis.bar/base
-                                     :args {}}
-                               :index 0}}}
-                            #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
-                            {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
-                             :text "How often are recommendations followed?"
-                             :function {:id :com.yetanalytics.dave.func/followed-recommendations
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                                (func/get-func
-                                                 :com.yetanalytics.dave.func/followed-recommendations))
-                                        :args {:time-unit :day}}
-                             :index 3
-                             :visualizations
-                             {#uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
-                              {:id #uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
-                               :title "Recommendations, Launches and Follows"
-                               :vis {:id :com.yetanalytics.dave.vis.bar/base
-                                     :args {}}
-                               :index 0}}}
-                            #uuid "e25e517c-1fd8-4f9b-b073-ad0117ddcfa9"
-                            {:id #uuid "e25e517c-1fd8-4f9b-b073-ad0117ddcfa9"
-                             :text "What paths do learners take?"
-                             :function {:id :com.yetanalytics.dave.func/learning-path
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                               (func/get-func
-                                                :com.yetanalytics.dave.func/learning-path))
-                                        :args {}}
-                             :index 4
-                             :visualizations
-                             {#uuid "73da0a5a-614d-4f47-97fb-b72bae720857"
-                              {:id #uuid "73da0a5a-614d-4f47-97fb-b72bae720857"
-                               :title "Learning Path"
-                               :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter-point
-                                     :args {}}
-                               :index 0}}}}}}})
+                            :query
+                            "[:find [?datum ...]
+  :where
+  [?s :statement/timestamp ?t]
+  [?s :statement.result.score/scaled ?score]
+  [(array-map :x ?t :y ?score) ?datum]]"
+                            :query-data
+                            '[:find [?datum ...]
+                              :where
+                              [?s :statement/timestamp ?t]
+                              [?s :statement.result.score/scaled ?score]
+                              [(array-map :x ?t :y ?score) ?datum]]
+                            :vega  "{\"a\": [1 2 3]}"}}}}})
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))
