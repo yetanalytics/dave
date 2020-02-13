@@ -12,11 +12,9 @@
 (s/def ::index
   su/index-spec)
 
-(s/def ::query
-  su/string-not-empty-spec)
+(s/def ::query string?)
 
-(s/def ::vega
-  su/string-not-empty-spec)
+(s/def ::vega string?)
 
 (s/def ::visualization
   (s/or :viz v/visualization-spec
@@ -25,7 +23,7 @@
 (def analysis-spec
   (s/keys :req-un [::id
                    ::text
-                   ::index
-                   ::query
-                   ::vega]
-          :opt-un [::visualization]))
+                   ::index]
+          :opt-un [::query
+                   ::vega
+                   ::visualization]))

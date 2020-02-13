@@ -24,22 +24,23 @@
  (fn [_ [_ workbook-id form-map]]
    (let [{:keys [id]
           :as   new-analysis} (merge form-map
-                                     {:id            (random-uuid)
-                                      :index         0
-                                      :visualization {}})]
+                                     {:id    (random-uuid)
+                                      :index 0
+                                      :query ""
+                                      :vega  ""})]
      (if-let [spec-error (s/explain-data analysis/analysis-spec
                                          new-analysis)]
        {:notify/snackbar
         ;; TODO: HUMAN READ
         {:message "Invalid Analysis"}}
-       (:dispatch-n [[:dialog/dismiss]
+       {:dispatch-n [[:dialog/dismiss]
                      [:crud/create!
                       new-analysis
                       workbook-id
                       id]
                      [:workbook.analysis/after-create
                       workbook-id
-                      id]])))))
+                      id]]}))))
 
 (re-frame/reg-event-fx
  :workbook.analysis/after-create
@@ -87,7 +88,7 @@
        {:notify/snackbar
         {:message "Invalid Analysis"}}
        {:dispatch-n [[:dialog/dismiss]
-                     [:crud/update!
+                     [:crud/update-silent!
                       updated-analysis
                       workbook-id
                       analysis-id]]}))))
@@ -97,14 +98,18 @@
  (fn [{:keys [db]} [_
                     workbook-id
                     analysis-id]]
-   (let [analysis (get-in db [:workbooks
-                              workbook-id
-                              :analyses
-                              analysis-id])
-         query    (-> analysis :query)
-         viz      (-> analysis :viz)]
-     (println (str query " - " viz))
-     {})))
+   (let [analysis         (get-in db [:workbooks
+                                      workbook-id
+                                      :analyses
+                                      analysis-id])
+         query            (-> analysis :query)
+         viz              (-> analysis :vega)
+         updated-analysis (merge analysis
+                                 {:visualization (str query " - " viz)})]
+     {:dispatch [:crud/update!
+                 updated-analysis
+                 workbook-id
+                 analysis-id]})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subs

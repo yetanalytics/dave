@@ -23,7 +23,7 @@
 (re-frame/reg-event-fx
  ::delete!
  (fn [{:keys [db] :as ctx} [_ & object-path]]
-   (let [db-path (interleave [:workbooks :questions :visualizations]
+   (let [db-path (interleave [:workbooks :analyses #_#_:questions :visualizations]
                              object-path)
          parent-map-path (butlast db-path)
          new-db (-> db
@@ -42,7 +42,7 @@
 (re-frame/reg-event-fx
  :crud/create!
  (fn [{:keys [db] :as ctx} [_ item & object-path]]
-   (let [db-path (interleave [:workbooks :questions :visualizations]
+   (let [db-path (interleave [:workbooks :analyses #_#_:questions :visualizations]
                              object-path)
          parent-map-path (butlast db-path)
          new-db (-> db
@@ -59,7 +59,7 @@
 (re-frame/reg-event-fx
  :crud/update!
  (fn [{:keys [db] :as ctx} [_ item & object-path]]
-   (let [db-path (interleave [:workbooks :questions :visualizations]
+   (let [db-path (interleave [:workbooks :analyses #_#_:questions :visualizations]
                              object-path)
          parent-map-path (butlast db-path)
          new-db (-> db
@@ -71,3 +71,19 @@
       :dispatch [:db/save]
       :notify/snackbar
       {:message "Success"}})))
+
+;; Same as the main CRUD update! function, but it does not fire off a toast
+(re-frame/reg-event-fx
+ :crud/update-silent!
+ (fn [{:keys [db] :as ctx} [_ item & object-path]]
+   (let [db-path (interleave [:workbooks :analyses]
+                             object-path)
+         parent-map-path (butlast db-path)
+         new-db (-> db
+                    (assoc-in db-path
+                              item)
+                    (update-in parent-map-path
+                               re-index))]
+     {:db new-db
+      :dispatch [:db/save]})))
+
