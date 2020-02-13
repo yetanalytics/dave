@@ -253,7 +253,7 @@
                    (uniqify-component :statement/object :statement/id)))
              conformed)))))
 
-(defn transact-xapi
+(defn transact
   "Given a DB and some statements, transact them.
   Omits statements that are already known to the DB!"
   [db statements]
