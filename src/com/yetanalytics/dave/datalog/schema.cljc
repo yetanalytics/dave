@@ -1,163 +1,118 @@
 (ns com.yetanalytics.dave.datalog.schema
   "Datascript schema for xAPI")
 
+;; Try to squeeze down the number of datoms by removing intermediate
+;; entities + components
 (def xapi
-  {:definition/source
+  {:activity/id                   {:db/unique :db.unique/identity},
+   :activity.definition/choices
    {:db/isComponent true,
     :db/cardinality :db.cardinality/many,
     :db/valueType   :db.type/ref},
-   :definition/extensions
+   :activity.definition/correctResponsesPattern
+   {:db/cardinality :db.cardinality/many},
+   :activity.definition/description
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :activity.definition/extensions
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :activity.definition/name
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :activity.definition/scale
    {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
+    :db/cardinality :db.cardinality/many,
     :db/valueType   :db.type/ref},
-   :definition/description
+   :activity.definition/source
    {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
+    :db/cardinality :db.cardinality/many,
+    :db/valueType   :db.type/ref},
+   :activity.definition/steps
+   {:db/isComponent true,
+    :db/cardinality :db.cardinality/many,
+    :db/valueType   :db.type/ref},
+   :activity.definition/target
+   {:db/isComponent true,
+    :db/cardinality :db.cardinality/many,
     :db/valueType   :db.type/ref},
    :agent/mbox                    {:db/unique :db.unique/identity},
-   :result/response               {:db/index true},
-   :statement/result              {:db/isComponent true, :db/valueType :db.type/ref},
-
-   :statement/id                  {:db/index true, :db/unique :db.unique/identity},
-   :context/extensions
-   {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :activity/id                   {:db/unique :db.unique/identity},
-   :statement/context             {:db/isComponent true, :db/valueType :db.type/ref},
-   :context/team                  {:db/valueType :db.type/ref},
-   :definition/steps
-   {:db/isComponent true,
-    :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :statement-ref/id        {:db/unique :db.unique/identity},
-   :context/contextActivities     {:db/isComponent true, :db/valueType :db.type/ref},
-
-   :sub-statement/verb            {:db/valueType :db.type/ref},
-   :contextActivities/other
-   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
-   :group/mbox                    {:db/unique :db.unique/identity},
-   :contextActivities/category
-   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :agent/mbox_sha1sum            {:db/unique :db.unique/identity},
    :agent/openid                  {:db/unique :db.unique/identity},
-   :agent/account
-   {; :db/unique      :db.unique/identity,
-    :db/isComponent true,
-    :db/valueType   :db.type/ref},
-   :statement/timestamp           {:db/index true},
-   :context/instructor            {:db/valueType :db.type/ref},
+   :agent.account/mash            {:db/unique :db.unique/identity},
+   :anon-group/member             {:db/unique :db.unique/identity
+                                   },
+   :attachment/description
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :attachment/display
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :component/unique-to           {:db/unique :db.unique/identity},
+   :group/mbox                    {:db/unique :db.unique/identity},
+   :group/mbox_sha1sum            {:db/unique :db.unique/identity},
    :group/member
    {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
-   :anon-group/member
-   {; :db/cardinality :db.cardinality/many,
-    ; :db/valueType :db.type/ref,
-    :db/unique :db.unique/identity}
-   :definition/target
-   {:db/isComponent true,
-    :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :statement/exact-stored?       {:db/index true},
-   :agent/account-mash            {:db/unique :db.unique/identity},
-   :sub-statement/attachments
-   {:db/isComponent true, :db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
-   :statement/object              {:db/valueType :db.type/ref},
-   :statement/actor               {:db/valueType :db.type/ref},
-   :statement/stored              {:db/index true},
-   :sub-statement/context
-   {:db/isComponent true, :db/valueType :db.type/ref},
-   :account/mash                  {:db/unique :db.unique/identity},
    :group/openid                  {:db/unique :db.unique/identity},
-   :group/account
-   {; :db/unique      :db.unique/identity,
-    :db/isComponent true,
-    :db/valueType   :db.type/ref},
-   :attachment/display
-   {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :result/score                  {:db/isComponent true, :db/valueType :db.type/ref},
+   :group.account/mash            {:db/unique :db.unique/identity},
    :interaction-component/description
-   {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :context/statement             {:db/valueType :db.type/ref},
-   :contextActivities/parent
-   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
-   :agent/mbox_sha1sum            {:db/unique :db.unique/identity},
-   :definition/correctResponsesPattern
-   {:db/cardinality :db.cardinality/many},
-   ;; :definition/interactionType    {:db/valueType :db.type/ref},
-   :definition/choices
-   {:db/isComponent true,
-    :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :activity/definition
    {:db/isComponent true, :db/valueType :db.type/ref},
-   :attachment/description
-   {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :statement-reference/statement {:db/valueType :db.type/ref},
-   :verb/id                       {:db/unique :db.unique/identity},
-   :score/scaled                  {:db/index true},
-   :sub-statement/result
-   {:db/isComponent true, :db/valueType :db.type/ref},
-   :verb/display
-   {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :extension/iri                 {:db/index true},
-   :group/account-mash            {:db/unique :db.unique/identity},
-   :statement/verb                {:db/valueType :db.type/ref},
-   :definition/scale
-   {:db/isComponent true,
-    :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :result/extensions
-   {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref},
-   :contextActivities/grouping
-   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
-   :sub-statement/timestamp       {:db/index true},
+
+   :statement/actor               {:db/valueType :db.type/ref},
+   :sub-statement/actor           {:db/valueType :db.type/ref},
+
    :statement/attachments
    {:db/isComponent true,
     :db/cardinality :db.cardinality/many,
     :db/valueType   :db.type/ref},
-   :statement/authority           {:db/valueType :db.type/ref},
-   :language-map/mash             {:db/index true, :db/unique :db.unique/identity},
-   :sub-statement/object          {:db/valueType :db.type/ref},
-   :group/mbox_sha1sum            {:db/unique :db.unique/identity},
-   ;; :definition/activity-iri       {:db/unique :db.unique/identity},
-   :sub-statement/actor           {:db/valueType :db.type/ref},
-   :definition/name
+   :sub-statement/attachments
    {:db/isComponent true,
-    ; :db/cardinality :db.cardinality/many,
-    :db/valueType   :db.type/ref}
+    :db/cardinality :db.cardinality/many,
+    :db/valueType   :db.type/ref},
 
-   ;; Additional unique attrs for idempotency
-   ;; TODO, these suck, remove
-   ;; :extension/unique-to           {:db/unique :db.unique/identity}, ;; parent ident + ext id
+   :statement/authority           {:db/valueType :db.type/ref},
+   :statement/id                  {:db/index true, :db/unique :db.unique/identity},
+   :statement/object              {:db/valueType :db.type/ref},
+   :sub-statement/object          {:db/valueType :db.type/ref},
 
-   ;; :interaction-component/unique-to ;; activity + icomp key + icomp id
-   ;; {:db/unique :db.unique/identity, :db/isComponent false},
+   :statement/stored              {:db/index true},
+   :statement/timestamp           {:db/index true},
+   :sub-statement/timestamp       {:db/index true},
+   :statement/verb                {:db/valueType :db.type/ref},
+   :sub-statement/verb            {:db/valueType :db.type/ref},
+   :statement-ref/id              {:db/unique :db.unique/identity},
+   :statement.context/extensions
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :sub-statement.context/extensions
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :statement.context/instructor  {:db/valueType :db.type/ref},
+   :sub-statement.context/instructor  {:db/valueType :db.type/ref},
+   :statement.context/statement   {:db/valueType :db.type/ref},
+   :sub-statement.context/statement   {:db/valueType :db.type/ref},
+   :statement.context/team        {:db/valueType :db.type/ref},
+   :sub-statement.context/team        {:db/valueType :db.type/ref},
 
-   ;; :result/unique-to {:db/unique :db.unique/identity
-   ;;                    :db/valueType :db.type/ref} ;; statement | sub
-
-   ;; :score/unique-to {:db/unique :db.unique/identity
-   ;;                   :db/valueType :db.type/ref} ;; statement | sub
-
-   ;; :context/unique-to {:db/unique :db.unique/identity
-   ;;                     :db/valueType :db.type/ref} ;; statement | sub
-   ;; :contextActivities/unique-to {:db/unique :db.unique/identity
-   ;;                               :db/valueType :db.type/ref} ;; statement | sub
-   ;; :sub-statement/unique-to {:db/unique :db.unique/identity} ;; statement
-
-   ;; let's try universal uniqueness on a string ident
-   :component/unique-to {:db/unique :db.unique/identity}
-   })
-
+   :statement.context.contextActivities/category
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :sub-statement.context.contextActivities/category
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :statement.context.contextActivities/grouping
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :sub-statement.context.contextActivities/grouping
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :statement.context.contextActivities/other
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :sub-statement.context.contextActivities/other
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :statement.context.contextActivities/parent
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :sub-statement.context.contextActivities/parent
+   {:db/cardinality :db.cardinality/many, :db/valueType :db.type/ref},
+   :statement.result/extensions
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :sub-statement.result/extensions
+   {:db/isComponent true, :db/valueType :db.type/ref},
+   :statement.result/response     {:db/index true},
+   :sub-statement.result/response     {:db/index true},
+   :statement.result.score/scaled {:db/index true},
+   :sub-statement.result.score/scaled {:db/index true},
+   :verb/display                  {:db/isComponent true, :db/valueType :db.type/ref},
+   :verb/id                       {:db/unique :db.unique/identity}})
 
 (comment
   (clojure.pprint/pprint (for [[attr {is-comp? :db/isComponent
