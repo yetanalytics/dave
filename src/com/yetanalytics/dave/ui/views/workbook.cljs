@@ -8,6 +8,8 @@
   [id]
   [:div.descendant-counts
    [:div.tag
+    [:p "Analyses: " (str @(subscribe [:workbook/analysis-count id]))]]
+   #_#_[:div.tag
     [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
    [:div.tag.visualtag
     [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])

@@ -203,7 +203,7 @@ div.app-description {
     }
     /* the active breadcrumb (that matches current context) */
     > div.active {
-      @include mdc-layout-grid-cell('desktop', 6, 2px);
+      @include mdc-layout-grid-cell('desktop', 8, 2px);
     }
     /* the breadcrumbs to the right of the active one can't really do anything, so we should indicate that visually */
     div.active ~ div {

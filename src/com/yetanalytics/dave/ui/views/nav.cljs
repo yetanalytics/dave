@@ -50,7 +50,8 @@
   []
   (let [context @(subscribe [:nav/context])
         [?workbook
-         ?question
+         ?analysis
+         #_#_?question
          ?visualization] @(subscribe [:nav/path-items])]
     [:div.breadcrumbs
      [:div.breadcrumbcorner ;; inner
@@ -72,6 +73,18 @@
 
       ;; TODO: figure out contextual behaviour for questions/vis
       [crumb
+       {:title   (if ?analysis
+                   (format "Analysis %d" (inc (:index ?analysis)))
+                   "Analyses")
+        :text    (if ?analysis
+                   (:text ?analysis)
+                   "Analyses feature custom queries and data viz to gain insight.")
+        :active? (= :analysis context)
+        :href    (when ?analysis
+                   (format "#/workbooks/%s/analyses/%s"
+                           (:id ?workbook)
+                           (:id ?analysis)))}]
+      #_[crumb
        {:title (if ?question
                  (format "Question %d" (inc (:index ?question)))
                  "Questions")
@@ -84,7 +97,7 @@
                 (format "#/workbooks/%s/questions/%s"
                         (:id ?workbook)
                         (:id ?question)))}]
-      [crumb
+      #_[crumb
        {:title (if ?visualization
                  (format "Visualization %d" (inc (:index ?visualization)))
                  "Visualizations")

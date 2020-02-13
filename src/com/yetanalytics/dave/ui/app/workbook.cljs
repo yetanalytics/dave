@@ -131,6 +131,20 @@
    (get workbook-map workbook-id)))
 
 (re-frame/reg-sub
+ :workbook/analyses
+ (fn [[_ workbook-id] _]
+   (re-frame/subscribe [:workbook/lookup workbook-id]))
+ (fn [{:keys [analyses]}]
+   analyses))
+
+(re-frame/reg-sub
+ :workbook/analysis-count
+ (fn [[_ workbook-id] _]
+   (re-frame/subscribe [:workbook/analyses workbook-id]))
+ (fn [analyses]
+   (count analyses)))
+
+(re-frame/reg-sub
  :workbook/questions
  (fn [[_ workbook-id] _]
    (re-frame/subscribe [:workbook/lookup workbook-id]))

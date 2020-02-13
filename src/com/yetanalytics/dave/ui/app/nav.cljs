@@ -36,12 +36,12 @@
 (s/def ::token
   (s/with-gen string?
     (fn []
-      (sgen/fmap (fn [[?w ?q ?v]]
+      (sgen/fmap (fn [[?w ?a #_?v]]
                    (str (when ?w
                           (format "/workbooks/%s" ?w))
-                        (when ?q
-                          (format "/questions/%s" ?q))
-                        (when ?v
+                        (when ?a
+                          (format "/analyses/%s" ?q))
+                        #_(when ?v
                           (format "/visualizations/%s" ?v))))
                  (sgen/vector (sgen/string-alphanumeric) 0 3)))))
 
@@ -54,9 +54,15 @@
     :workbooks
     (s/?
      (s/cat
-      :type #{:workbooks}
+      :type        #{:workbooks}
       :workbook-id uuid?
-      :questions
+      :analyses    (s/?
+                    (s/cat :type          #{:analyses}
+                           :analysis-id   uuid?
+                           :visualization (s/? (s/cat :type #{:visualizations}
+                                          :visualization-id
+                                          uuid?))))
+      #_#_:questions
       (s/?
        (s/cat :type #{:questions}
               :question-id uuid?
@@ -69,7 +75,8 @@
   #{:loading
     :root
     :workbook
-    :question
+    :analysis
+    #_#_:question
     :visualization})
 
 (def nav-spec
@@ -204,7 +211,8 @@
                                     conj
                                     ;; remove children
                                     (dissoc item
-                                            :questions
+                                            :analyses
+                                            #_#_:questions
                                             :visualizations))
                             (assoc :db item))))
                     {:result []
@@ -226,7 +234,8 @@
               (name
                (last
                 (filter #{:workbooks
-                          :questions
+                          :analyses
+                          #_#_:questions
                           :visualizations}
                         path)))))))))
 
@@ -252,9 +261,9 @@
     (re-frame/subscribe [:nav/context])])
  (fn [[focus context] _]
    (if-let [child-key (case context
-                        :root :workbooks
-                        :workbook :questions
-                        :question :visualizations
+                        :root     :workbooks
+                        :workbook :analyses #_:questions
+                        ;;:question :visualizations
                         nil)]
      (mapv second (get focus child-key))
      [])))
