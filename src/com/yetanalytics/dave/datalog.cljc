@@ -77,194 +77,137 @@
 (s/def :statement/authority
   ::xs/actor)
 
-
-(s/def ::tx-datom
-  (s/or :regular-datom
-        (s/tuple #{:db/add}
-                 ;; db-id
-                 (s/or :string string?
-                       :number number?
-                       )
-                 qualified-keyword?
-                 (s/or :string string?
-                       :number number?
-                       :bool boolean?
-                       :nil nil?))
-        :extension-datom
-        (s/tuple #{:db/add}
-                 (s/or :string string?
-                       :number number?
-                       )
-                 ::extension-key
-                 any?)))
-
 (s/def ::schema ;; only ever one schema
   #{schema/xapi})
 
+(defn collapse
+  [m k]
+  (if-let [to-collapse (get m k)]
+    (let [kns (namespace k)]
+      (reduce-kv
+       (fn [m' k' v]
+         (assoc m'
+                (keyword (format "%s.%s"
+                                 kns
+                                 (namespace k'))
+                         (name k'))
+                v))
+       (dissoc m k)
+       to-collapse))
+    m))
 
-(defn attr-order
-  "Sort order fn for attrs by schema"
-  [schema attr]
-  (if-let [{many? :db/cardinality
-            ref? :db/valueType
-            ident? :db/unique} (get schema attr {})]
-    (cond
-      ident? -1
-      (and many? (not ref?)) 1
-      ref?    (if many?
-                3 2)
-      :else 0
-      )))
+(defn mash
+  "Make an attribute mashing two keys together"
+  [m mash-k k1 k2]
+  (let [v1 (get m k1)
+        v2 (get m k2)]
+    (if (and v1 v2
+             (not (get m mash-k)))
+      (assoc m mash-k (format "%s|%s" v1 v2))
+      m)))
 
+(defn uniqify-component
+  "Given a map and keys for the component and parent lookup, set
+  :component/unique-to to a tuple of the parent ident and key"
+  [m component-k lookup-k]
+  (let [component (get m component-k)]
+    (if (and component
+             (not (:component/unique-to component)))
+      (assoc-in m [component-k :component/unique-to] (pr-str
+                                                      [(find m lookup-k)
+                                                       component-k]))
+      m)))
 
-(defn entity-zip
-  "Produce a zipper for nested tx entities"
-  [root]
-  (z/zipper
-   coll?
-   seq ;; sorted-children
-   (fn make-node
-     [node kids]
-     (if-let [empty-coll (empty node)]
-       (into empty-coll
-             kids)
-       ;; if clojure.core/empty doesn't work, check for map entry
-       (if (map-entry? node)
-         (if (= 2 (count kids))
-           (let [[k v] kids]
-             #?(:clj (clojure.lang.MapEntry. k v)
-                :cljs (reify cljs.core/IMapEntry
-                        (-key [_]
-                          k)
-                        (-val [_]
-                          v))))
-           (throw (ex-info "Can only have two children in a MapEntry"
-                           {:type ::map-entry-constraint
-                            :node node
-                            :children kids})))
-         (throw (ex-info (format "Don't know how to make %s node" (type node))
-                         {:type ::unknown-collection
-                          :node node
-                          :node-type (type node)
-                          :children kids})))))
-   root))
+(defn uniqify-component-card-many
+  "Same as uniquify component, but for card-many components like icomps.
+  Takes an additional key for an id value on component entities
 
-(def find-ident
-  ;; "Return an entities natural ident or nil"
-  (apply some-fn (for [[attr {unique :db/unique}] schema/xapi #_(dissoc schema/xapi ;; remove compounds
-                                                          :agent/account
-                                                          :group/account)
-                       :when
-                       (= unique :db.unique/identity)]
-                   #(find % attr))))
-
-(defn entity-ident
-  "Find an ident for ANY entity"
-  [loc]
-  (let [node (z/node loc)]
-    (assert (map? node) "Must be run on a map")
-    (or (find-ident node)
-        ;; handle agent/group account silliness
-        (when-let [{:keys [account/name
-                           account/homePage]}
-                   (not-empty (select-keys node
-                                           [:account/name
-                                            :account/homePage]))]
-          [:account/mash (format "%s|%s"
-                                 homePage name)])
-        (when-let [account (:agent/account node)]
-          (let [[_ mash] (entity-ident (entity-zip account))]
-            [:agent/account-mash mash]))
-        (when-let [account (:group/account node)]
-          (let [[_ mash] (entity-ident (entity-zip account))]
-            [:group/account-mash mash]))
-
-        ;; Anon groups?!?
-
-        (when (:group/objectType node) ;; when there's no ifi, you'll get here
-          [:anon-group/member
-           ;; Anon groups are best-effort. Let's just take a hash of the members
-           (hash (:group/member node))])
+  Takes an additional function arg that applies extra processing to each member"
+  [m component-k lookup-k each-k each-fn]
+  (let [components (get m component-k)]
+    (if (not-empty components)
+      (let [lookup (find m lookup-k)]
+        (assoc m component-k
+               (into []
+                     (for [component components]
+                       (if (:component/unique-to component)
+                         component
+                         (each-fn (assoc component :component/unique-to
+                                         (pr-str
+                                          [lookup
+                                           component-k
+                                           (get component each-k)]))))))))m)))
 
 
-        (let [[parent-loc
-               parent-me-loc
-               parent-key] (some
-                            (fn [l]
-                              (let [nd (z/node l)]
-                                (when (map-entry? nd)
-                                  [(z/up l)
-                                   l
-                                   (key nd)])))
-                            (rest (iterate z/up loc)))
-              [plk plv :as parent-ident] (entity-ident parent-loc)]
-          [:component/unique-to
-           (cond
-             ;; direct component of an identified thing or subcomponent
-             (contains? #{:activity/definition
-                          :statement/context
-                          :statement/result
-                          :statement/object
-                          :context/contextActivities
-                          :result/score
-                          :sub-statement/context
-                          :sub-statement/result}
-                        parent-key)
-             (format "%s.%s"
-                     (if (= :component/unique-to plk)
-                       ;; continue another component spec
-                       plv
-                       (format "%s/%s:%s"
-                               (namespace plk)
-                               (name plk)
-                               plv))
-                     (name parent-key))
+(def collapse-any
+  (comp
+   #(collapse % :statement/result)
+   #(collapse % :sub-statement/result)
+   #(collapse % :result/score)
+   #(collapse % :statement/context)
+   #(collapse % :sub-statement/context)
+   #(collapse % :context/contextActivities)
+   #(collapse % :activity/definition)
+   #(collapse % :agent/account)
+   #(collapse % :group/account)))
 
-             ;; lmaps
-             (contains? #{:attachment/description
-                          :attachment/display
-                          :context/extensions
-                          :definition/name
-                          :definition/description
-                          :definition/extensions
-                          :result/extensions
-                          :verb/display
-                          :interaction-component/description} parent-key)
-             (format "%s.%s"
-                     (if (= :component/unique-to plk)
-                       plv
-                       (format "%s/%s:%s"
-                               (namespace plk)
-                               (name plk)
-                               plv))
-                     (name parent-key))
-             ;; icomps
-             (contains? #{:definition/source
-                          :definition/steps
-                          :definition/target
-                          :definition/choices
-                          :definition/scale}
-                        parent-key)
-             (format "%s.%s:%s"
-                     plv
-                     (name parent-key)
-                     (:interaction-component/id node))
+(def mash-any
+  (comp
+   #(mash % :agent.account/mash :agent.account/homePage :agent.account/name)
+   #(mash % :group.account/mash :group.account/homePage :group.account/name)))
 
-             ;; attachments
-             (contains? #{:statement/attachments
-                          :sub-statement/attachments} parent-key)
-             (format "%s.%s:%s"
-                     plv
-                     (name parent-key)
-                     (:attachment/sha2 node))
-             :else (throw (ex-info "No component code for map entry"
-                                   {:type ::unknown-component
-                                    ;; :me [k v]
-                                    :node node
-                                    :parent-lookup [plk plv]
-                                    :parent-key parent-key}))
+(def uniqify-icomp
+  #(uniqify-component % :interaction-component/description :component/unique-to))
 
-             )]))))
+(def uniqify-attachment
+  (comp #(uniqify-component % :attachment/display :component/unique-to)
+        #(uniqify-component % :attachment/description :component/unique-to)))
+
+(def uniqify-any
+  (comp
+   #(uniqify-component % :activity.definition/name :activity/id)
+   #(uniqify-component % :activity.definition/description :activity/id)
+   #(uniqify-component % :activity.definition/extensions :activity/id)
+   #(uniqify-component % :verb/display :verb/id)
+   #(uniqify-component % :statement.result/extensions :statement/id)
+   #(uniqify-component % :sub-statement.result/extensions :component/unique-to)
+   #(uniqify-component % :statement.context/extensions :statement/id)
+   #(uniqify-component % :sub-statement.context/extensions :component/unique-to)
+   ;; icomps
+   #(uniqify-component-card-many % :activity.definition/choices :activity/id
+                                 :interaction-component/id
+                                 uniqify-icomp)
+   #(uniqify-component-card-many % :activity.definition/scale :activity/id
+                                 :interaction-component/id
+                                 uniqify-icomp)
+   #(uniqify-component-card-many % :activity.definition/source :activity/id
+                                 :interaction-component/id
+                                 uniqify-icomp)
+   #(uniqify-component-card-many % :activity.definition/steps :activity/id
+                                 :interaction-component/id
+                                 uniqify-icomp)
+   #(uniqify-component-card-many % :activity.definition/target :activity/id
+                                 :interaction-component/id
+                                 uniqify-icomp)
+   #(uniqify-component-card-many % :statement/attachments :statement/id
+                                 :attachment/sha2
+                                 uniqify-attachment)
+   #(uniqify-component-card-many % :sub-statement/attachments :statement/id
+                                 :attachment/sha2
+                                 uniqify-attachment)
+   ))
+
+(defn anon-group-id
+  [x]
+  (if (and (:group/member x)
+           (not ((some-fn
+                 :group/account-mash
+                 :group/mbox
+                 :group/mbox_sha1sum
+                 :group/openid) x)))
+    (assoc x :anon-group/member (pr-str (:group/member x)))
+    x))
+
 (s/fdef ->tx
   :args (s/cat :schema ::schema
                :data (s/with-gen ::xs/statements
@@ -273,21 +216,10 @@
                           (fn [ss]
                             (mapv #(dissoc % "authority") ss))
                           (s/gen ::xs/lrs-statements)))))
-  :ret (s/every ::tx-datom))
-
-
-(defn parent-loc
-  "Given a loc, return the loc of the nearest parent, or nil"
-  [loc]
-  (some
-   (fn [l]
-     (let [nd (z/node l)]
-       (when (map? nd)
-         l)))
-   (take-while some? (rest (iterate z/up loc)))))
-
+  :ret (s/every map?))
 
 (defn ->tx
+  "Squish it down, leave it as entities"
   [schema data]
   (let [conformed (s/conform (s/coll-of ::xs/statement
                                         :kind vector?
@@ -297,83 +229,29 @@
                       {:type ::invalid-statements
                        :spec-error (s/explain-data ::xs/statements data)
                        :data data}))
-      (let [entity-ident-memo (memoize entity-ident)]
-        (loop [loc (entity-zip conformed)
-               tx []
-               tempid -1]
-          (if (z/end? loc)
-            (into [] (sort-by (comp
-                               (partial attr-order schema/xapi)
-                               #(get % 2))
-                              ;; remove any nil values
-                              (remove
-                               (fn [[_ _ _ v :as datom]]
-                                 (nil? v))
-                               tx)))
-            (let [node (z/node loc)]
-              (cond
-                ;; on maps, make sure they have an ident
-                (map? node)
-                (let [[lk lv] (entity-ident-memo loc)]
-                  (recur (z/next (z/edit loc assoc lk lv))
-                         tx
-                         tempid))
-
-                (map-entry? node)
-                (let [[k v] node
-                      ent-ident (entity-ident-memo (parent-loc loc))
-                      {many? :db/cardinality
-                       ref? :db/valueType
-                       component? :db/isComponent
-                       ident? :db/unique
-                       :as attr-spec} (get schema k {})
-                      ext-me? (= "extension" (namespace k))]
-                  (recur (if ext-me?
-                           ;; remove extension locs so they are not walked
-                           (z/next (z/remove loc))
-                           (z/next loc))
-                         (cond
-                           ext-me?
-                           (conj tx
-                                 [:db/add
-                                  (pr-str ent-ident)
-                                  k
-                                  v])
-                           ref?
-                           (if many?
-                             (let [child-refs (map entity-ident-memo (-> loc
-                                                                         z/down
-                                                                         z/right
-                                                                         z/down
-                                                                         (->> (iterate z/right)
-                                                                              (take-while some?))))]
-                               (into tx
-                                     (for [ref child-refs]
-                                       [:db/add
-                                        (pr-str ent-ident)
-                                        k
-                                        (pr-str ref)])))
-
-                             (let [child-ref (entity-ident-memo (-> loc z/down z/right))]
-                               (conj tx
-                                     [:db/add
-                                      (pr-str ent-ident)
-                                      k
-                                      (pr-str child-ref)])))
-                           many?
-                           (into tx
-                                 (for [v' v]
-                                   [:db/add (pr-str ent-ident) k v']))
-                           :else
-                           (conj tx [:db/add
-                                     (pr-str ent-ident)
-                                     k
-                                     v]))
-                         tempid))
-
-                :else (recur (z/next loc)
-                             tx
-                             tempid)))))))))
+      (w/postwalk
+       (fn coerce [x]
+         (if (map? x)
+           (-> x
+               collapse-any
+               mash-any
+               anon-group-id
+               uniqify-any
+               ;; remove nil vals
+               (->> (reduce-kv (fn [m k v]
+                                 (if (nil? v)
+                                   m
+                                   (assoc m k v)))
+                               {})))
+           x))
+       ;; we map over to set unique ids for substatements
+       (mapv (fn [s]
+               (cond-> s
+                   ;; for substatements, we just go and set the component/unique-by
+                   (and (:statement/object s)
+                        (get-in s [:statement/object :sub-statement/objectType]))
+                   (uniqify-component :statement/object :statement/id)))
+             conformed)))))
 
 (defn transact-xapi
   "Given a DB and some statements, transact them.

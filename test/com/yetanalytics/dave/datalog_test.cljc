@@ -28,13 +28,13 @@
 (deftest ->tx-test
   (let [tx (datalog/->tx schema/xapi statements)]
     (testing "tx expectations"
-      (is (s/valid? (s/every ::datalog/tx-datom)
+      (is (s/valid? (s/every map?)
                     tx))
-      (is (= 8773 (count tx))))
+      (is (= 224 (count tx))))
     (testing "static statements"
       (let [db (d/db-with (d/init-db [] schema/xapi) tx)]
         (is (d/db? db))
-        (is (= 3337 (count (d/datoms db :eavt))))
+        (is (= 2395 (count (d/datoms db :eavt))))
         (is (= 224
                  (d/q '[:find (count-distinct ?s) .
                         :where
