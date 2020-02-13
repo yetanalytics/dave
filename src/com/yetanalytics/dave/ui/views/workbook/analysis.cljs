@@ -2,16 +2,20 @@
   (:require [re-frame.core      :refer [subscribe dispatch]]
             [re-codemirror.core :as cm]
             [cljsjs.codemirror.mode.clojure]
-            [cljsjs.codemirror.mode.javascript]))
+            [cljsjs.codemirror.mode.javascript]
+            [cljsjs.codemirror.addon.edit.matchbrackets]
+            [cljsjs.codemirror.addon.edit.closebrackets]))
 
 (defn textarea
   [{:keys [workbook-id analysis-id
-           sub-key dis-key mode]}]
+           sub-key dis-key opts]}]
   [cm/codemirror
-   {:mode         mode
-    :theme        "solarized"
-    :lineNumbers  true
-    :lineWrapping true}
+   (merge {:mode              "javascript"
+           :lineNumbers       true
+           :lineWrapping      true
+           :matchBrackets     true
+           :autoCloseBrackets true}
+          opts)
    {:value  @(subscribe [sub-key])
     :events {"change" (fn [this [cm _]]
                         (dispatch [:workbook.analysis/update
@@ -58,14 +62,14 @@
                      :analysis-id id
                      :sub-key     :workbook.analysis/query
                      :dis-key     :query
-                     :mode        "clojure"}]]
+                     :opts        {:mode "text/x-clojure"}}]]
          [:div.cell-12
           [:h4 "Visualization Editor"]
           [textarea {:workbook-id workbook-id
                      :analysis-id id
                      :sub-key     :workbook.analysis/vega
                      :dis-key     :vega
-                     :mode        "application/json"}]]]]
+                     :opts        {:mode "application/json"}}]]]]
        [:div.cell-6
         [:div.analysis-inner
          [:div.cell-6
