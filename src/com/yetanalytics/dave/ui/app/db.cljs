@@ -146,6 +146,12 @@
   [?s :statement/timestamp ?t]
   [?s :statement.result.score/scaled ?score]
   [(array-map :x ?t :y ?score) ?datum]]"
+                            :query-data
+                            '[:find [?datum ...]
+                              :where
+                              [?s :statement/timestamp ?t]
+                              [?s :statement.result.score/scaled ?score]
+                              [(array-map :x ?t :y ?score) ?datum]]
                             :vega  "{\"a\": [1 2 3]}"}}}}})
 
 (s/def ::saved

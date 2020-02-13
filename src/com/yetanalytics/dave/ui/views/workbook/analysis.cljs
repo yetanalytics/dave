@@ -4,7 +4,8 @@
             [cljsjs.codemirror.mode.clojure]
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.edit.matchbrackets]
-            [cljsjs.codemirror.addon.edit.closebrackets]))
+            [cljsjs.codemirror.addon.edit.closebrackets]
+            [cljs.pprint :refer [pprint]]))
 
 (defn textarea
   [{:keys [workbook-id analysis-id
@@ -37,12 +38,21 @@
                 [:crud/delete-confirm workbook-id analysis-id])}
    "Delete"])
 
+(defn result-display
+  [workbook-id analysis-id]
+  [:div.result
+   [:h4 "Result"]
+   [:pre
+    (with-out-str
+      (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
+
 (defn page
   []
   (let [{:keys [id
                 text
                 query
                 query-parse-error
+                result
                 vega
                 visualization]}    @(subscribe [:nav/focus])
         [workbook-id & _] @(subscribe [:nav/path-ids])]
@@ -84,6 +94,8 @@
                                    workbook-id
                                    id]))}
            "Run"]
+          (when result
+            [result-display workbook-id id])
           [:div visualization]]]]]]]))
 
 (defn cell

@@ -1,6 +1,7 @@
 (ns com.yetanalytics.dave.ui.app.workbook.analysis
   (:require [clojure.spec.alpha                      :as s]
             [re-frame.core                           :as re-frame]
+            [com.yetanalytics.dave.datalog           :as d]
             [com.yetanalytics.dave.workbook.analysis :as analysis]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,18 +93,29 @@
  (fn [{:keys [db]} [_
                     workbook-id
                     analysis-id]]
-   (let [analysis         (get-in db [:workbooks
-                                      workbook-id
-                                      :analyses
-                                      analysis-id])
-         query            (-> analysis :query)
-         viz              (-> analysis :vega)
-         updated-analysis (merge analysis
-                                 {:visualization (str query " - " viz)})]
-     {:dispatch [:crud/update!
-                 updated-analysis
-                 workbook-id
-                 analysis-id]})))
+   (let [{:keys [query-data]
+          :as analysis} (get-in db [:workbooks
+                                    workbook-id
+                                    :analyses
+                                    analysis-id])]
+     (when query-data
+       (if-let [db (get-in db [:workbooks
+                               workbook-id
+                               :data
+                               :state
+                               :db])]
+         (try (let [result (d/q query-data db)]
+                {:dispatch [:crud/update!
+                            (assoc analysis :result result)
+                            workbook-id
+                            analysis-id]})
+              (catch js/Error e
+                {:notify/snackbar
+                 ;; TODO: HUMAN READ
+                 {:message (str "Query Error! " (ex-message e))}}))
+         {:notify/snackbar
+          ;; TODO: HUMAN READ
+          {:message "Can't find db"}})))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subs
