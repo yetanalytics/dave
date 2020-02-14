@@ -134,3 +134,33 @@
          {stc-opts
           {:num-tests 10 :max-size 3}
           })))))
+
+(deftest empty-extensions-test
+  (testing "our coercion properly handles empty extensions"
+    (let [statement {"actor"
+                     {"objectType" "Agent",
+                      "name" "xAPI account",
+                      "mbox" "mailto:xapi@adlnet.gov"},
+                     "verb"
+                     {"id" "http://adlnet.gov/expapi/verbs/attended",
+                      "display" {"en-GB" "attended", "en-US" "attended"}},
+                     "object"
+                     {"objectType" "Activity",
+                      "id" "http://www.example.com/meetings/occurances/34534",
+                      "definition"
+                      {"type" "http://adlnet.gov/expapi/activities/meeting",
+                       "name" {"en-GB" "example meeting", "en-US" "example meeting"},
+                       "description"
+                       {"en-GB"
+                        "An example meeting that happened on a specific occasion with certain people present.",
+                        "en-US"
+                        "An example meeting that happened on a specific occasion with certain people present."},
+                       "moreInfo" "http://virtualmeeting.example.com/345256",
+                       "extensions" {}}},
+                     "id" "5e46f8a1-6bef-451e-9cea-d1bdd304d0ca",
+                     "timestamp" "2020-02-14T19:44:33.512Z",
+                     "stored" "2020-02-14T19:44:33.512Z"}]
+      (testing "spec allows it"
+        (is (s/valid? ::xs/statement statement)))
+      (testing "it transacts"
+        (is (d/db? (datalog/transact (datalog/empty-db) [statement])))))))
