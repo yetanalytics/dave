@@ -9,6 +9,7 @@
             [datascript.parser :as dp]
             [com.yetanalytics.dave.datalog.schema :as schema]
             [com.yetanalytics.dave.datalog.rules :as rules]
+            [com.yetanalytics.dave.datalog.builtins :as builtins]
             [clojure.string :as cstr]
             #?@(:cljs [[goog.string :as gstring :refer [format]]
                        [goog.string.format]])))
@@ -304,6 +305,6 @@
 
 (defn q
   "Wrapper for datascript.core/q, always expects DB as a second arg, and injects
-   core rules as a third"
+   core rules as a third, and builtins as a fourth"
   [query db & extra-inputs]
-  (apply d/q query db rules/core extra-inputs))
+  (apply d/q query db builtins/builtins rules/core  extra-inputs))

@@ -5,6 +5,7 @@
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.edit.matchbrackets]
             [cljsjs.codemirror.addon.edit.closebrackets]
+            [com.yetanalytics.dave.ui.views.vega :as v :refer [vega]]
             [cljs.pprint :refer [pprint]]))
 
 (defn textarea
@@ -38,6 +39,11 @@
                 [:crud/delete-confirm workbook-id analysis-id])}
    "Delete"])
 
+(defn error-display
+  [error-str]
+  [:div.error
+   error-str])
+
 (defn result-display
   [workbook-id analysis-id]
   [:div.result
@@ -45,6 +51,16 @@
    [:pre
     (with-out-str
       (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
+
+(defn visualization-display
+  [workbook-id analysis-id]
+  (let [spec @(subscribe
+               [:workbook.analysis/result-vega-spec
+                workbook-id analysis-id])]
+
+    (cond-> [:div ;; .vis
+             [:h4 "Visualization"]]
+      spec (conj [vega spec]))))
 
 (defn page
   []
@@ -54,6 +70,7 @@
                 query-parse-error
                 result
                 vega
+                vega-parse-error
                 visualization]}    @(subscribe [:nav/focus])
         [workbook-id & _] @(subscribe [:nav/path-ids])]
     [:div.page.question
@@ -74,6 +91,7 @@
                      :sub-key     :workbook.analysis/query
                      :dis-key     :query
                      :opts        {:mode "text/x-clojure"}}]
+          [error-display query-parse-error]
           (when query-parse-error
             [:div.error query-parse-error])]
          [:div.cell-12
@@ -82,7 +100,8 @@
                      :analysis-id id
                      :sub-key     :workbook.analysis/vega
                      :dis-key     :vega
-                     :opts        {:mode "application/json"}}]]]]
+                     :opts        {:mode "application/json"}}]
+          [error-display vega-parse-error]]]]
        [:div.cell-6
         [:div.analysis-inner
          [:div.cell-6
@@ -94,9 +113,8 @@
                                    workbook-id
                                    id]))}
            "Run"]
-          (when result
-            [result-display workbook-id id])
-          [:div visualization]]]]]]]))
+          [result-display workbook-id id]
+          [visualization-display workbook-id id]]]]]]]))
 
 (defn cell
   [workbook-id {:keys [id text]}]

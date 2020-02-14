@@ -110,9 +110,11 @@
                             workbook-id
                             analysis-id]})
               (catch js/Error e
+                (.error js/console e)
                 {:notify/snackbar
                  ;; TODO: HUMAN READ
-                 {:message (str "Query Error! " (ex-message e))}}))
+                 {:timeout 1000
+                  :message (str "Query Error! " (ex-message e))}}))
          {:notify/snackbar
           ;; TODO: HUMAN READ
           {:message "Can't find db"}})))))
@@ -132,10 +134,9 @@
        [_ _ _ ?path-analysis-id & _ :as path]] [_
                                                 _
                                                 ?analysis-id]]
-   (s/unform analysis/analysis-spec
-             (get-in workbook [:analyses
-                               (or ?analysis-id
-                                   ?path-analysis-id)]))))
+   (get-in workbook [:analyses
+                     (or ?analysis-id
+                         ?path-analysis-id)])))
 
 (re-frame/reg-sub
  :workbook.analysis/text
@@ -188,3 +189,13 @@
    (re-frame/subscribe (into [:workbook/analysis] args)))
  (fn [analysis _]
    (:result analysis)))
+
+(re-frame/reg-sub
+ :workbook.analysis/result-vega-spec
+ (fn [[_ & args] _]
+   [(re-frame/subscribe (into [:workbook.analysis/result] args))
+    (re-frame/subscribe (into [:workbook.analysis/visualization] args))])
+ (fn [[result vis] _]
+   (if (and result vis)
+     (analysis/result-vega-spec {:result result
+                                 :visualization vis}))))
