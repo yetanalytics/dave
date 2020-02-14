@@ -5,8 +5,8 @@
             [com.yetanalytics.dave.ui.views.root :as root]
             [com.yetanalytics.dave.ui.views.workbook :as workbook]
             [com.yetanalytics.dave.ui.views.workbook.analysis :as analysis]
-            [com.yetanalytics.dave.ui.views.workbook.question :as question]
-            [com.yetanalytics.dave.ui.views.workbook.question.visualization
+            #_[com.yetanalytics.dave.ui.views.workbook.question :as question]
+            #_[com.yetanalytics.dave.ui.views.workbook.question.visualization
              :as visualization]
             [com.yetanalytics.dave.ui.views.nav :as nav]
             ;; [cljs.pprint :refer [pprint]]
@@ -30,10 +30,10 @@
 (defmethod page :analysis [_]
   [analysis/page])
 
-(defmethod page :question [_]
+#_(defmethod page :question [_]
   [question/page])
 
-(defmethod page :visualization [_]
+#_(defmethod page :visualization [_]
   [visualization/page])
 
 (defn loading-bar [loading?]

@@ -4,7 +4,7 @@
             [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.form.textfield :as textfield]
-            [com.yetanalytics.dave.ui.views.wizard :as wizard]))
+            #_[com.yetanalytics.dave.ui.views.wizard :as wizard]))
 
 (defn dialog
   "A modal dialog."
@@ -100,19 +100,6 @@
                     ;; :mdc-dialog-action "save"
                     :on-click #(dispatch [:dialog.form/save])}]))}])
 
-(defn dialog-wizard
-  "Dialog for the dave workbook creation wizard"
-  []
-  [dialog {:title @(subscribe [:dialog/title])
-           :full-width? true
-           :full-height? true
-           :content [[wizard/wizard]]
-           :actions
-           @(subscribe [:wizard/dialog-actions])
-           #_[#_{:label "Save"
-             ;; :mdc-dialog-action "save"
-             :on-click #(dispatch [:dialog.form/save])}]}])
-
 (defn dialog-container
   "Parent component that shows/hides the dialog"
   []
@@ -120,6 +107,4 @@
     @(subscribe [:dialog/open?])
     (conj (case @(subscribe [:dialog/mode])
             :com.yetanalytics.dave.ui.app.dialog/form
-            [dialog-form]
-            :com.yetanalytics.dave.ui.app.dialog/wizard
-            [dialog-wizard]))))
+            [dialog-form]))))

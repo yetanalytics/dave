@@ -10,13 +10,13 @@
    [com.yetanalytics.dave.ui.app.workbook.analysis]
    [com.yetanalytics.dave.ui.app.workbook.data]
    [com.yetanalytics.dave.ui.app.workbook.data.lrs]
-   [com.yetanalytics.dave.ui.app.workbook.question]
-   [com.yetanalytics.dave.ui.app.workbook.question.func]
-   [com.yetanalytics.dave.ui.app.workbook.question.visualization]
+   #_[com.yetanalytics.dave.ui.app.workbook.question]
+   #_[com.yetanalytics.dave.ui.app.workbook.question.func]
+   #_[com.yetanalytics.dave.ui.app.workbook.question.visualization]
    [com.yetanalytics.dave.ui.app.crud]
    [com.yetanalytics.dave.ui.app.dialog]
    [com.yetanalytics.dave.ui.app.picker]
-   [com.yetanalytics.dave.ui.app.wizard]))
+   #_[com.yetanalytics.dave.ui.app.wizard]))
 
 (defn init!
   "Synchronously initialize the application:
