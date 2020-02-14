@@ -93,30 +93,34 @@
  (fn [{:keys [db]} [_
                     workbook-id
                     analysis-id]]
-   (let [{:keys [query-data]
-          :as analysis} (get-in db [:workbooks
+   (try (let [{:keys [query-data]
+               :as analysis}
+              (get-in db [:workbooks
+                          workbook-id
+                          :analyses
+                          analysis-id])]
+          (when query-data
+            (if-let [db (get-in db [:workbooks
                                     workbook-id
-                                    :analyses
-                                    analysis-id])]
-     (when query-data
-       (if-let [db (get-in db [:workbooks
-                               workbook-id
-                               :data
-                               :state
-                               :db])]
-         (try (let [result (d/q query-data db)]
-                {:dispatch [:crud/update!
-                            (assoc analysis :result result)
-                            workbook-id
-                            analysis-id]})
-              (catch js/Error e
-                {:notify/snackbar
-                 ;; TODO: HUMAN READ
-                 {:timeout 5000
-                  :message (str "Query Error! " (ex-message e))}}))
-         {:notify/snackbar
-          ;; TODO: HUMAN READ
-          {:message "Can't find db"}})))))
+                                    :data
+                                    :state
+                                    :db])]
+              (try (let [result (d/q query-data db)]
+                     {:dispatch [:crud/update!
+                                 (assoc analysis :result result)
+                                 workbook-id
+                                 analysis-id]})
+                   (catch js/Error e
+                     {:notify/snackbar
+                      ;; TODO: HUMAN READ
+                      {:timeout 5000
+                       :message (str "Query Error! " (ex-message e))}}))
+              {:notify/snackbar
+               ;; TODO: HUMAN READ
+               {:message "Can't find db"}})))
+        (catch js/Error e
+          {:notify/snackbar
+           {:message (str "Can't query: " (ex-message e))}}))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subs
@@ -193,9 +197,10 @@
  :workbook.analysis/result-vega-spec
  (fn [[_ & args] _]
    [(re-frame/subscribe (into [:workbook.analysis/result] args))
-    (re-frame/subscribe (into [:workbook.analysis/visualization] args))])
- (fn [[result vis] _]
+    (re-frame/subscribe (into [:workbook.analysis/visualization] args))
+    (re-frame/subscribe (into [:workbook.analysis/query-data] args))])
+ (fn [[result vis query-data] _]
    (if result
      (if vis
-       (analysis/result-vega-spec {:result result
-                                   :visualization vis})))))
+       (if query-data
+         (analysis/result-vega-spec vis result query-data))))))

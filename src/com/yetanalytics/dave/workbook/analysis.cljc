@@ -2,6 +2,7 @@
   (:require [clojure.spec.alpha                                    :as s]
             [com.yetanalytics.dave.util.spec                       :as su]
             [com.yetanalytics.dave.datalog                         :as d]
+            [datascript.query                                      :as dq]
             [clojure.edn                                           :as edn]
             [clojure.pprint :refer [pprint] ]
             #?(:clj [clojure.data.json :as json])))
@@ -26,7 +27,11 @@
 
 (defn parse-query
   [query-str]
-  (try (d/normalize-query (edn/read-string query-str))
+  (try (let [q (d/normalize-query (edn/read-string query-str))]
+         ;; just try a full parse for any extra errors
+         (dq/memoized-parse-query q)
+         ;; but return the query
+         q)
        (catch #?(:clj Exception
                  :cljs js/Error) e
          (throw (ex-info (str "Query Parse Error - " (ex-message e))
@@ -63,7 +68,6 @@
 (s/def ::vega-parse-error
   string?)
 
-
 (s/def ::result
   any?)
 
@@ -75,6 +79,7 @@
                    ::query-data
                    ::query-parse-error
                    ::vega
+                   ::vega-parse-error
                    ::visualization
                    ::result]))
 
@@ -149,8 +154,23 @@
 
 (defn result-vega-spec
   "Given an analysis, return a combined vega vis"
-  [{vis :visualization
-    result :result}]
-  (update vis :data (fnil conj [])
-          {:name "table"
-           :values (into [] result)}))
+  [vis result query]
+  (assoc vis :data
+         [((d/result-vega-mapper query) result)]))
+
+(defn ensure-analysis
+  "Just a helper to make sure everything in an analysis is as parsed as can be"
+  [{:keys [query query-data query-parse-error
+           vega visualization vega-parse-error]
+    :as analysis}]
+  (cond-> analysis
+    ;; If there is a query but no data or error, make it happen
+    (and query
+         (not (or query-data query-parse-error)))
+    (-> (dissoc :query)
+        (update-query {:query query}))
+    ;; same for vega
+    (and vega
+         (not (or visualization vega-parse-error)))
+    (-> (dissoc :vega)
+        (update-vega {:vega vega}))))

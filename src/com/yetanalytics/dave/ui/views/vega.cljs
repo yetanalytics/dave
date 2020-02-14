@@ -322,6 +322,12 @@
     :component-will-unmount
     cleanup!}))
 
+(defn parse-error
+  [spec]
+  (try (.parse js/vega (clj->js spec))
+       nil
+       (catch js/Error e
+         (ex-message e))))
 
 ;; TODO: remove, demo stuff only
 (def bar-spec-demo

@@ -6,14 +6,18 @@
             [clojure.walk :as w]
             [datascript.core :as d]
             [datascript.query :as dq]
-            [datascript.parser :as dp]
+            [datascript.parser :as dp
+             #?@(:cljs [:refer [FindColl FindRel FindScalar FindTuple
+                                Aggregate PlainSymbol Variable]])]
             [com.yetanalytics.dave.datalog.schema :as schema]
             [com.yetanalytics.dave.datalog.rules :as rules]
             [com.yetanalytics.dave.datalog.builtins :as builtins]
             [clojure.string :as cstr]
             [com.yetanalytics.dave.util.log :as log]
             #?@(:cljs [[goog.string :as gstring :refer [format]]
-                       [goog.string.format]])))
+                       [goog.string.format]]))
+  #?(:clj (:import [datascript.parser FindColl FindRel FindScalar FindTuple
+                    Aggregate PlainSymbol Variable])))
 
 ;; Language map conformer override
 ;; just entities with ltag keys
@@ -334,3 +338,56 @@
   [query db & extra-inputs]
   (apply d/q (normalize-query query)
          db builtins/builtins rules/core extra-inputs))
+
+(defprotocol Sluggable
+  (slug [this]
+    "Convert the query component to a string slug suitable for a key"))
+
+(extend-protocol Sluggable
+  Variable
+  (slug [this]
+    (name (:symbol this)))
+  PlainSymbol
+  (slug [this]
+    (name (:symbol this)))
+  Aggregate
+  (slug [this]
+    (cstr/join "_" (cons (slug (:fn this))
+                         (map slug (:args this))))))
+
+(defprotocol VegaMappableFind
+  (vega-mapper [qfind]
+    "Given a parsed query :qfind return a function that will transform the
+    results"))
+
+(defn default-vega-mapper [result]
+  {:name "result"
+   :values result})
+
+(extend-protocol VegaMappableFind
+  FindRel
+  (vega-mapper [rel]
+    (let [rel-keys (mapv slug (:elements rel))]
+      (fn [result]
+        {:name "result"
+         :values (mapv
+                  (partial zipmap rel-keys)
+                  result)})))
+  ;; Right now, every other kind just maps directly
+  FindTuple
+  (vega-mapper [_]
+    default-vega-mapper)
+  FindColl
+  (vega-mapper [_]
+    default-vega-mapper)
+  FindScalar
+  (vega-mapper [_]
+    default-vega-mapper))
+
+(defn result-vega-mapper
+  [query]
+  (-> query
+      normalize-query
+      dq/memoized-parse-query
+      :qfind
+      vega-mapper))
