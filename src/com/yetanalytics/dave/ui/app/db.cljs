@@ -11,9 +11,7 @@
             [com.yetanalytics.dave.ui.interceptor :as i]
             [com.cognitect.transit.types :as ty]
             [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.ui.app.dialog :as dialog]
-            #_[com.yetanalytics.dave.func :as func]
-            #_[com.yetanalytics.dave.ui.app.wizard :as wizard])
+            [com.yetanalytics.dave.ui.app.dialog :as dialog])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -160,21 +158,6 @@
   (if (s/valid? db-state-spec db)
     (and
      (not= @last-saved db)
-     ;; All data is done loading
-     #_(empty?
-      (for [[workbook-id {:keys [questions]
-                          :as workbook}] (get db :workbooks)
-            [_ {:keys [data]}] questions
-            :when (true? (:loading data))]
-        workbook-id))
-     ;; All funcs are caught up
-     #_(every? true?
-             (for [[workbook-id {:keys [questions]
-                                 :as workbook}] (get db :workbooks)
-                   [_ {:keys [data
-                              function]}] questions
-                   :when (and data function)]
-               (= (:state data) (:state function))))
 
      ;; TODO: figure out any cases where we canny save
      )

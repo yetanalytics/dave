@@ -152,8 +152,6 @@
    (let [token (or (not-empty token)
                    "/")
          [_ workbook-id
-          _ question-id
-          _ visualization-id
           :as path] (token->path token)]
      (if (and
           ;; is the path valid?
