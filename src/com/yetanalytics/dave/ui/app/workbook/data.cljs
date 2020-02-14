@@ -33,7 +33,7 @@
                                :state]
                               (fnil
                                (partial max-key :statement-idx)
-                               {:statement-idx -1})
+                               state/init-state)
                               new-state))
                  [:workbooks
                   workbook-id
@@ -75,7 +75,7 @@
             stored-domain]
      :as lrs-state} :state
     :as lrs-spec
-    :or {lrs-state {:statement-idx -1}}}
+    :or {lrs-state state/init-state}}
    db]
   {:dispatch
    [:com.yetanalytics.dave.ui.app.workbook.data.lrs/query
@@ -156,7 +156,7 @@
                          [::set-state
                           workbook-id
                           (state/update-state
-                           {:statement-idx -1}
+                           state/init-state
                            body)
                           true]
                          ::data/lrs
@@ -193,7 +193,7 @@
                            :data]
                           ;; Force a fresh state
                           (merge data-spec
-                                 {:state {:statement-idx -1}}))
+                                 {:state state/init-state}))
             ;; this is where you would reset the state of queries
             :dispatch [::ensure workbook-id]}
      (= (:type data-spec) ::data/file)
