@@ -44,6 +44,14 @@
   [:div.error
    error-str])
 
+(defn query-find-bindings-display
+  [workbook-id analysis-id]
+  [:div.result
+   [:h4 "Query Bindings"]
+   [:pre
+    (with-out-str
+      (print @(subscribe [:workbook.analysis/query-find-bindings workbook-id analysis-id])))]])
+
 (defn result-display
   [workbook-id analysis-id]
   [:div.result
@@ -111,6 +119,7 @@
                                    workbook-id
                                    id]))}
            "Run"]
+          [query-find-bindings-display workbook-id id]
           [result-display workbook-id id]
           [visualization-display workbook-id id]]]]]]]))
 

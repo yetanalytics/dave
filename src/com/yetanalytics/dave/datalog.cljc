@@ -355,6 +355,35 @@
     (cstr/join "_" (cons (slug (:fn this))
                          (map slug (:args this))))))
 
+(defprotocol DescribableFind
+  (describe [this]
+    "Return data describing the bindings in a :qfind"))
+
+(extend-protocol DescribableFind
+  FindRel
+  (describe [this]
+    #{(mapv slug (:elements this))})
+  FindTuple
+  (describe [this]
+    (mapv slug (:elements this)))
+  FindColl
+  (describe [this]
+    [(slug (:element this)) '...])
+  FindScalar
+  (describe [this]
+    (slug (:element this))))
+
+(defn describe-query-find
+  "Return data describing the :find spec of a query"
+  [query]
+  (-> query
+      normalize-query
+      dq/memoized-parse-query
+      :qfind
+      describe))
+
+
+;; TODO: remove vega-specifics
 (defprotocol VegaMappableFind
   (vega-mapper [qfind]
     "Given a parsed query :qfind return a function that will transform the
