@@ -77,7 +77,10 @@
 
 (defn visualization-display
   [workbook-id analysis-id]
-  (let [error @(subscribe
+  (let [;; The spec + result will be passed into vega for parsing,
+        ;; If there is something illegal that will crash the vis,
+        ;; it must not be shown
+        error @(subscribe
                 [:workbook.analysis/visualization-parse-error
                  workbook-id analysis-id])
         spec @(subscribe
