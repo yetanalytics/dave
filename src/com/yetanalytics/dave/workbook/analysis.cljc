@@ -18,18 +18,21 @@
 (s/def ::query string?)
 
 (s/def ::query-data
-  (s/and (s/conformer (fn [x]
-                        (if (string? x)
-                          (try (d/normalize-query (edn/read-string x))
-                               (catch #?(:clj Exception
-                                         :cljs js/Error) e
-                                 ::s/invalid))
-                          x))
-                      (fn [x]
-                        (if (string? x)
-                          x
-                          (with-out-str (pprint (d/query->vec x))))))
-         ::d/query))
+  ::d/query)
+
+(s/fdef parse-query
+  :args (s/cat :query-str ::query)
+  :ret ::query-data)
+
+(defn parse-query
+  [query-str]
+  (try (d/normalize-query (edn/read-string query-str))
+       (catch #?(:clj Exception
+                 :cljs js/Error) e
+         (throw (ex-info (str "Query Parse Error - " (ex-message e))
+                         {:type ::query-parse-error
+                          :query-str query-str}
+                         e)))))
 
 (s/def ::query-parse-error
   ;; TODO: specify and make data
@@ -39,24 +42,23 @@
 (s/def ::vega string?)
 
 (s/def ::visualization
-  (s/and
-   (s/conformer (fn [x]
-                  (if (string? x)
-                    (try #?(:clj (json/read-str x)
-                            :cljs (js->clj (.parse js/JSON x)
-                                           :keywordize-keys true)
-                            )
-                         (catch #?(:clj Exception
-                                   :cljs js/Error) e
-                           ::s/invalid))
-                    x))
-                (fn [x]
-                  (if (string? x)
-                    x
-                    #?(:clj (json/write-str x)
-                       :cljs (.stringify js/JSON
-                                         (clj->js x))))))
-   map?))
+  map?)
+
+(s/fdef parse-vega
+  :args (s/cat :vega ::vega)
+  :ret ::visualization)
+
+(defn parse-vega
+  [vega]
+  (try #?(:clj (json/read-str vega :key-fn keyword)
+          :cljs (js->clj (.parse js/JSON vega)
+                         :keywordize-keys true))
+       (catch #?(:clj Exception
+                 :cljs js/Error) e
+         (throw (ex-info (str "Vega Parse Error - " (ex-message e))
+                         {:type ::vega-parse-error
+                          :vega-json vega}
+                         e)))))
 
 (s/def ::vega-parse-error
   string?)
@@ -92,17 +94,16 @@
   (if (= extant-query
          query)
     extant
-    (let [query-data (s/conform ::query-data query)]
-      (if (= ::s/invalid query-data)
-        (merge (dissoc extant :query-data)
-               {:query query
-                :query-parse-error
-                (s/explain-str ::query-data
-                               query)})
-        (dissoc (assoc extant
-                       :query query
-                       :query-data query-data)
-                :query-parse-error)))))
+    (try (dissoc (assoc extant
+                        :query query
+                        :query-data (parse-query query))
+                 :query-parse-error)
+         (catch #?(:clj Exception
+                   :cljs js/Error) e
+           (merge (dissoc extant :query-data)
+                  {:query query
+                   :query-parse-error
+                   (ex-message e)})))))
 
 (s/fdef update-vega
   :args (s/cat :extant analysis-spec
@@ -117,16 +118,16 @@
   (if (= extant-vega
          vega)
     extant
-    (let [vega-data (s/conform ::visualization vega)]
-      (if (= ::s/invalid vega-data)
-        (merge (dissoc extant :visualization)
-               {:vega vega
-                :vega-parse-error
-                (s/explain-str ::visualization vega)})
-        (dissoc (assoc extant
-                       :vega vega
-                       :visualization vega-data)
-                :vega-parse-error)))))
+    (try (dissoc (assoc extant
+                        :vega vega
+                        :visualization (parse-vega vega))
+                 :vega-parse-error)
+         (catch #?(:clj Exception
+                   :cljs js/Error) e
+           (merge (dissoc extant :visualization)
+                  {:vega vega
+                   :vega-parse-error
+                   (ex-message e)})))))
 
 (s/fdef update-analysis
   :args (s/cat :extant analysis-spec
