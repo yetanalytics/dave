@@ -44,6 +44,10 @@
   [:div.error
    error-str])
 
+(defn query-parse-error-display
+  [workbook-id analysis-id]
+  [error-display @(subscribe [:workbook.analysis/query-parse-error workbook-id analysis-id])])
+
 (defn query-find-bindings-display
   [workbook-id analysis-id]
   [:div.result
@@ -59,6 +63,10 @@
    [:pre
     (with-out-str
       (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
+
+(defn vega-parse-error-display
+  [workbook-id analysis-id]
+  [error-display @(subscribe [:workbook.analysis/vega-parse-error workbook-id analysis-id])])
 
 (defn visualization-fields-display
   [workbook-id analysis-id]
@@ -84,22 +92,19 @@
                 :else [:p "Cannot Display"]
                 ))))
 
+(defn text-display
+  [workbook-id analysis-id]
+  [:p.hometitle (str "Analysis: " @(subscribe [:workbook.analysis/text
+                                               workbook-id analysis-id]))])
+
 (defn page
   []
-  (let [{:keys [id
-                text
-                query
-                query-parse-error
-                result
-                vega
-                vega-parse-error
-                visualization]}    @(subscribe [:nav/focus])
-        [workbook-id & _] @(subscribe [:nav/path-ids])]
+  (let [[workbook-id id & _] @(subscribe [:nav/path-ids])]
     [:div.page.question
      [:div.splash]
      [:div
       [:div.testdatasetblock
-       [:p.hometitle (str "Analysis: " text)]
+       [text-display workbook-id id]
        [edit-button workbook-id id]
        [delete-button workbook-id id]]]
      [:div.analysis-grid
@@ -113,7 +118,7 @@
                      :sub-key     :workbook.analysis/query
                      :dis-key     :query
                      :opts        {:mode "text/x-clojure"}}]
-          [error-display query-parse-error]]
+          [query-parse-error-display workbook-id id]]
          [:div.cell-12
           [:h4 "Visualization Editor"]
           [textarea {:workbook-id workbook-id
@@ -121,7 +126,7 @@
                      :sub-key     :workbook.analysis/vega
                      :dis-key     :vega
                      :opts        {:mode "application/json"}}]
-          [error-display vega-parse-error]]]]
+          [vega-parse-error-display workbook-id id]]]]
        [:div.cell-6
         [:div.analysis-inner
          [:div.cell-6

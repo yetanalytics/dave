@@ -181,6 +181,13 @@
    (:vega analysis)))
 
 (re-frame/reg-sub
+ :workbook.analysis/vega-parse-error
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook/analysis] args)))
+ (fn [analysis _]
+   (:vega-parse-error analysis)))
+
+(re-frame/reg-sub
  :workbook.analysis/visualization
  (fn [[_ & args] _]
    (re-frame/subscribe (into [:workbook/analysis] args)))
