@@ -20,7 +20,7 @@
 (s/def ::query-data
   (s/and (s/conformer (fn [x]
                         (if (string? x)
-                          (try (edn/read-string x)
+                          (try (d/normalize-query (edn/read-string x))
                                (catch #?(:clj Exception
                                          :cljs js/Error) e
                                  ::s/invalid))
@@ -28,7 +28,7 @@
                       (fn [x]
                         (if (string? x)
                           x
-                          (with-out-str (pprint x)))))
+                          (with-out-str (pprint (d/query->vec x))))))
          ::d/query))
 
 (s/def ::query-parse-error
@@ -150,7 +150,6 @@
   "Given an analysis, return a combined vega vis"
   [{vis :visualization
     result :result}]
-  (when (and vis result)
-    (update vis :data (fnil conj [])
-            {:name "table"
-             :values (into [] result)})))
+  (update vis :data (fnil conj [])
+          {:name "table"
+           :values (into [] result)}))

@@ -110,10 +110,9 @@
                             workbook-id
                             analysis-id]})
               (catch js/Error e
-                (.error js/console e)
                 {:notify/snackbar
                  ;; TODO: HUMAN READ
-                 {:timeout 1000
+                 {:timeout 5000
                   :message (str "Query Error! " (ex-message e))}}))
          {:notify/snackbar
           ;; TODO: HUMAN READ
@@ -196,6 +195,7 @@
    [(re-frame/subscribe (into [:workbook.analysis/result] args))
     (re-frame/subscribe (into [:workbook.analysis/visualization] args))])
  (fn [[result vis] _]
-   (if (and result vis)
-     (analysis/result-vega-spec {:result result
-                                 :visualization vis}))))
+   (if result
+     (if vis
+       (analysis/result-vega-spec {:result result
+                                   :visualization vis})))))

@@ -11,6 +11,7 @@
             [com.yetanalytics.dave.datalog.rules :as rules]
             [com.yetanalytics.dave.datalog.builtins :as builtins]
             [clojure.string :as cstr]
+            [com.yetanalytics.dave.util.log :as log]
             #?@(:cljs [[goog.string :as gstring :refer [format]]
                        [goog.string.format]])))
 
@@ -290,13 +291,36 @@
   []
   (d/empty-db schema/xapi))
 
+(defn normalize-query
+  "Make query a map, and force the :in spec"
+  [query]
+  (let [qmap (if (map? query)
+               query
+               (dp/query->map query))]
+    #_(when-let [user-in (:in qmap)]
+      (log/warnf "Query :in clause dropped: %s" user-in))
+    (assoc qmap :in '[$ $fn %])))
+
+(defn query->vec
+  [query]
+  (if (map? query)
+    (into []
+          (mapcat (fn [[k v]]
+                    (cons k
+                          v)))
+          (dissoc query :in))
+    query))
+
 (s/def ::query
-  (s/with-gen dp/parse-query
-    #(sgen/return '[:find [?datum ...]
-                    :where
-                    [?s :statement/timestamp ?t]
-                    [?s :statement.result.score/scaled ?score]
-                    [(array-map :x ?t :y ?score) ?datum]])))
+  (s/with-gen map?
+    (fn []
+      (sgen/fmap normalize-query
+                 (sgen/return '[:find [?datum ...]
+                                :where
+                                [?s :statement/timestamp ?t]
+                                [?s :statement.result.score/scaled ?score]
+                                [->unix ?t ?u]
+                                [->x-y-datum ?u ?score ?datum]])))))
 
 (s/fdef q
   :args (s/cat :query ::query
@@ -305,6 +329,8 @@
 
 (defn q
   "Wrapper for datascript.core/q, always expects DB as a second arg, and injects
-   core rules as a third, and builtins as a fourth"
+   a db of builtin fns third, core rules as a fourth.
+  The :in clause is ignored !"
   [query db & extra-inputs]
-  (apply d/q query db builtins/builtins rules/core  extra-inputs))
+  (apply d/q (normalize-query query)
+         db builtins/builtins rules/core  extra-inputs))
