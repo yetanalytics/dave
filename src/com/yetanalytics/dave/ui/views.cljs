@@ -5,11 +5,7 @@
             [com.yetanalytics.dave.ui.views.root :as root]
             [com.yetanalytics.dave.ui.views.workbook :as workbook]
             [com.yetanalytics.dave.ui.views.workbook.analysis :as analysis]
-            [com.yetanalytics.dave.ui.views.workbook.question :as question]
-            [com.yetanalytics.dave.ui.views.workbook.question.visualization
-             :as visualization]
             [com.yetanalytics.dave.ui.views.nav :as nav]
-            ;; [cljs.pprint :refer [pprint]]
             [com.yetanalytics.dave.ui.views.picker :as picker]
             [com.yetanalytics.dave.ui.views.dialog :as dialog]))
 
@@ -29,12 +25,6 @@
 
 (defmethod page :analysis [_]
   [analysis/page])
-
-(defmethod page :question [_]
-  [question/page])
-
-(defmethod page :visualization [_]
-  [visualization/page])
 
 (defn loading-bar [loading?]
   [:div.mdc-linear-progress.mdc-linear-progress--indeterminate

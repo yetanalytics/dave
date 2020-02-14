@@ -59,25 +59,18 @@
       :analyses    (s/?
                     (s/cat :type          #{:analyses}
                            :analysis-id   uuid?
-                           :visualization (s/? (s/cat :type #{:visualizations}
+                           ;; visualizations don't currently have their own path
+                           #_:visualization #_(s/? (s/cat :type #{:visualizations}
                                           :visualization-id
-                                          uuid?))))
-      #_#_:questions
-      (s/?
-       (s/cat :type #{:questions}
-              :question-id uuid?
-              :visualizations (s/? (s/cat :type #{:visualizations}
-                                          :visualization-id
-                                          uuid?)))))))))
+                                          uuid?))
+                           )))))))
 
 ;; This enumerates all possible contexts in the app
 (s/def ::context
   #{:loading
     :root
     :workbook
-    :analysis
-    #_#_:question
-    :visualization})
+    :analysis})
 
 (def nav-spec
   (s/keys :opt-un [::token
@@ -159,8 +152,6 @@
    (let [token (or (not-empty token)
                    "/")
          [_ workbook-id
-          _ question-id
-          _ visualization-id
           :as path] (token->path token)]
      (if (and
           ;; is the path valid?
@@ -211,9 +202,7 @@
                                     conj
                                     ;; remove children
                                     (dissoc item
-                                            :analyses
-                                            #_#_:questions
-                                            :visualizations))
+                                            :analyses))
                             (assoc :db item))))
                     {:result []
                      :db db}
@@ -234,9 +223,7 @@
      (get singularize
           (last
            (filter #{:workbooks
-                     :analyses
-                     #_#_:questions
-                     :visualizations}
+                     :analyses}
                    path))))))
 
 (re-frame/reg-sub
@@ -262,9 +249,8 @@
  (fn [[focus context] _]
    (if-let [child-key (case context
                         :root     :workbooks
-                        :workbook :analyses #_:questions
-                        :analysis :editor
-                        ;;:question :visualizations
+                        :workbook :analyses
+                        :analysis :editor ;; TODO: is this getting used?
                         nil)]
      (mapv second (get focus child-key))
      [])))

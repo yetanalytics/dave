@@ -1,5 +1,5 @@
 (ns com.yetanalytics.dave.workbook.data.state
-  "State of received xAPI Data. Used in tracking for Workbook Data and Question Function state."
+  "State of received xAPI Data. Used in tracking for Workbook Data"
   (:require
    [clojure.spec.alpha :as s]
    [com.yetanalytics.dave.datalog :as d]

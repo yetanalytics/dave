@@ -1,6 +1,5 @@
 (ns com.yetanalytics.dave.ui.views.workbook
   (:require [re-frame.core :refer [dispatch subscribe]]
-            [com.yetanalytics.dave.ui.views.workbook.question :as question]
             [com.yetanalytics.dave.ui.views.workbook.data :as data]
             [com.yetanalytics.dave.ui.views.workbook.analysis :as analysis]))
 
@@ -8,11 +7,7 @@
   [id]
   [:div.descendant-counts
    [:div.tag
-    [:p "Analyses: " (str @(subscribe [:workbook/analysis-count id]))]]
-   #_#_[:div.tag
-    [:p "Questions: " (str @(subscribe [:workbook/question-count id]))]]
-   [:div.tag.visualtag
-    [:p "Visualizations: " (str @(subscribe [:workbook/visualization-count id]))]]])
+    [:p "Analyses: " (str @(subscribe [:workbook/analysis-count id]))]]])
 
 (defn edit-button [workbook-id]
   [:button.minorbutton
@@ -30,7 +25,6 @@
   (let [{:keys [id
                 title
                 description
-                questions
                 analyses
                 data]
          :as workbook} @(subscribe [:nav/focus])]
@@ -50,13 +44,7 @@
        [:button.newblock
         {:on-click #(dispatch [:workbook.analysis/new id])}
         "New Analysis"]]
-      [analysis/grid-list id analyses]
-      #_#_[:div
-       [:h1 "Question"]
-       [:button.newblock
-        {:on-click #(dispatch [:workbook.question/new id])}
-        "New Question"]]
-      [question/grid-list id questions]]]))
+      [analysis/grid-list id analyses]]]))
 
 
 

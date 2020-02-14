@@ -31,18 +31,8 @@
         :as options}
        _]]
    (let [fresh-lrs? (= lrs-state
-                       {:statement-idx -1})
-         state (if fresh-lrs?
-                 lrs-state
-                 (apply min-key
-                        :statement-idx
-                        (remove nil?
-                                (cons lrs-state
-                                      (for [[_ {{:keys [state]} :function}]
-                                            (get-in db [:workbooks
-                                                        workbook-id
-                                                        :questions])]
-                                        state)))))
+                       state/init-state)
+         state lrs-state
          ?since (get-in state [:stored-domain 1])]
      (log/debugf "Query lrs: %s state: %s" lrs-state state)
      {:http/request

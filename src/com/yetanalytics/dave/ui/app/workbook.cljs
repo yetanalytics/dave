@@ -26,7 +26,7 @@
           :as new-workbook} (merge form-map
                                    {:id (random-uuid)
                                     :index 0
-                                    :questions {}})]
+                                    :analyses {}})]
      (if-let [spec-error (s/explain-data workbook/workbook-spec
                                          new-workbook)]
        ;; it's invalid, need to inform the user
@@ -143,36 +143,3 @@
    (re-frame/subscribe [:workbook/analyses workbook-id]))
  (fn [analyses]
    (count analyses)))
-
-(re-frame/reg-sub
- :workbook/questions
- (fn [[_ workbook-id] _]
-   (re-frame/subscribe [:workbook/lookup workbook-id]))
- (fn [{:keys [questions]} _]
-   questions))
-
-(re-frame/reg-sub
- :workbook/question-count
- (fn [[_ workbook-id] _]
-   (re-frame/subscribe [:workbook/questions workbook-id]))
- (fn [questions _]
-   (count questions)))
-
-;; Collect a map of all vis for a workbook
-(re-frame/reg-sub
- :workbook/visualizations
- (fn [[_ workbook-id] _]
-   (re-frame/subscribe [:workbook/questions workbook-id]))
- (fn [questions _]
-   (reduce conj
-           {}
-           (for [[_ {:keys [visualizations]}] questions
-                 v visualizations]
-             v))))
-
-(re-frame/reg-sub
- :workbook/visualization-count
- (fn [[_ workbook-id] _]
-   (re-frame/subscribe [:workbook/visualizations workbook-id]))
- (fn [visualizations _]
-   (count visualizations)))
