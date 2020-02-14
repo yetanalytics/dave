@@ -69,8 +69,7 @@
   (s/with-gen (s/map-of ::extension-key
                         (s/nonconforming ::xs/any-json)
                         :conform-keys true
-                        :gen-max 3
-                        :min-count 1)
+                        :gen-max 3)
     (fn []
       (sgen/fmap
        (partial reduce-kv (fn [m k v]
@@ -78,8 +77,7 @@
        (s/gen (s/map-of ::extension-key
                         (s/nonconforming ::xs/any-json)
                         :conform-keys true
-                        :gen-max 3
-                        :min-count 1))))))
+                        :gen-max 3))))))
 
 ;; Statement Authority override - the conformer is crazy. Just make it any actor
 (s/def :statement/authority
