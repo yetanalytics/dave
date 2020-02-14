@@ -239,6 +239,14 @@
        (fn coerce [x]
          (if (map? x)
            (-> x
+               ;; TODO: For now we are removing extensions
+               ;; Many xapi sources, including the conformance tests,
+               ;; submit extensions with heterogenious types, which transact
+               ;; fine but throw an error when the indices are rebuild on
+               ;; deserialization
+               (dissoc :result/extensions
+                       :context/extensions
+                       :definition/extensions)
                collapse-any
                mash-any
                anon-group-id
