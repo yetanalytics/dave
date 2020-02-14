@@ -202,6 +202,14 @@
      (d/describe-query-find query-data))))
 
 (re-frame/reg-sub
+ :workbook.analysis/visualization-fields
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook.analysis/visualization] args)))
+ (fn [vis _]
+   (when vis
+     (analysis/vis-fields vis))))
+
+(re-frame/reg-sub
  :workbook.analysis/result-vega-spec
  (fn [[_ & args] _]
    [(re-frame/subscribe (into [:workbook.analysis/result] args))

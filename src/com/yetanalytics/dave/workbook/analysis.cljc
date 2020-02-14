@@ -4,6 +4,7 @@
             [com.yetanalytics.dave.datalog                         :as d]
             [datascript.query                                      :as dq]
             [clojure.edn                                           :as edn]
+            [clojure.walk                                          :as w]
             [clojure.pprint :refer [pprint] ]
             #?(:clj [clojure.data.json :as json])))
 
@@ -64,6 +65,31 @@
                          {:type ::vega-parse-error
                           :vega-json vega}
                          e)))))
+
+(s/fdef vis-fields
+  :args (s/cat :vis ::visualization)
+  :ret (s/every string?))
+
+(defn vis-fields
+  "List the referred fields in a visualization"
+  [vis]
+  (into []
+        (distinct
+         (w/postwalk
+          (fn [x]
+            (cond (map? x)
+                  (reduce-kv
+                   (fn [acc k v]
+                     (cond (and (= :field k)
+                                (= "result" (:data x)))
+                           (conj acc v)
+                           (vector? v)
+                           (into acc (flatten v))
+                           :else acc))
+                   []
+                   x)
+                  :else x))
+          vis))))
 
 (s/def ::vega-parse-error
   string?)

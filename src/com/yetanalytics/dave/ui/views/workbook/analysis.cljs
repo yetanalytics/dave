@@ -60,6 +60,13 @@
     (with-out-str
       (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
 
+(defn visualization-fields-display
+  [workbook-id analysis-id]
+  [:div.vis-fields
+   [:h4 "Visualization Fields"]
+   (with-out-str
+     (print @(subscribe [:workbook.analysis/visualization-fields workbook-id analysis-id])))])
+
 (defn visualization-display
   [workbook-id analysis-id]
   (let [spec @(subscribe
@@ -120,6 +127,7 @@
                                    id]))}
            "Run"]
           [query-find-bindings-display workbook-id id]
+          [visualization-fields-display workbook-id id]
           [result-display workbook-id id]
           [visualization-display workbook-id id]]]]]]]))
 
