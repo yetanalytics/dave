@@ -404,14 +404,26 @@
                   result)})))
   ;; Right now, every other kind just maps directly
   FindTuple
-  (vega-mapper [_]
-    default-vega-mapper)
+  (vega-mapper [rel]
+    (let [rel-keys (mapv slug (:elements rel))]
+      (fn [result]
+        {:name "result"
+         :values [(zipmap rel-keys
+                          result)]})))
   FindColl
-  (vega-mapper [_]
-    default-vega-mapper)
+  (vega-mapper [rel]
+    (let [rel-key (slug (:element rel))]
+      (fn [result]
+        {:name "result"
+         :values (into []
+                       (for [v result]
+                         {rel-key v}))})))
   FindScalar
-  (vega-mapper [_]
-    default-vega-mapper))
+  (vega-mapper [rel]
+    (let [rel-key (slug (:element rel))]
+      (fn [result]
+        {:name "result"
+         :values [{rel-key result}]}))))
 
 (defn result-vega-mapper
   [query]
