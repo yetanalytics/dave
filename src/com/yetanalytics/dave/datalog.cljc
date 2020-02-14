@@ -333,4 +333,4 @@
   The :in clause is ignored !"
   [query db & extra-inputs]
   (apply d/q (normalize-query query)
-         db builtins/builtins rules/core  extra-inputs))
+         db builtins/builtins rules/core extra-inputs))

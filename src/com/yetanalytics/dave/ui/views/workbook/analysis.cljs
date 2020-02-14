@@ -91,9 +91,7 @@
                      :sub-key     :workbook.analysis/query
                      :dis-key     :query
                      :opts        {:mode "text/x-clojure"}}]
-          [error-display query-parse-error]
-          (when query-parse-error
-            [:div.error query-parse-error])]
+          [error-display query-parse-error]]
          [:div.cell-12
           [:h4 "Visualization Editor"]
           [textarea {:workbook-id workbook-id
