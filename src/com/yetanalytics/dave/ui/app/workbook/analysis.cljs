@@ -2,7 +2,8 @@
   (:require [clojure.spec.alpha                      :as s]
             [re-frame.core                           :as re-frame]
             [com.yetanalytics.dave.datalog           :as d]
-            [com.yetanalytics.dave.workbook.analysis :as analysis]))
+            [com.yetanalytics.dave.workbook.analysis :as analysis]
+            [com.yetanalytics.dave.ui.util.vega      :as vu]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Handlers
@@ -220,3 +221,11 @@
      (if vis
        (if query-data
          (analysis/result-vega-spec vis result query-data))))))
+
+(re-frame/reg-sub
+ :workbook.analysis/visualization-parse-error
+ (fn [[_ & args] _]
+   (re-frame/subscribe (into [:workbook.analysis/result-vega-spec] args)))
+ (fn [vis _]
+   (if vis
+     (vu/parse-error vis))))

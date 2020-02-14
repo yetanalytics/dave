@@ -69,13 +69,20 @@
 
 (defn visualization-display
   [workbook-id analysis-id]
-  (let [spec @(subscribe
+  (let [error @(subscribe
+                [:workbook.analysis/visualization-parse-error
+                 workbook-id analysis-id])
+        spec @(subscribe
                [:workbook.analysis/result-vega-spec
                 workbook-id analysis-id])]
-
-    (cond-> [:div ;; .vis
-             [:h4 "Visualization"]]
-      spec (conj [vega spec]))))
+    (conj [:div ;; .vis
+           [:h4 "Visualization"]]
+          (cond error
+                [error-display error]
+                spec
+                [vega spec]
+                :else [:p "Cannot Display"]
+                ))))
 
 (defn page
   []
