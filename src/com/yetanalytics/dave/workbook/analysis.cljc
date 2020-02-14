@@ -181,8 +181,10 @@
 (defn result-vega-spec
   "Given an analysis, return a combined vega vis"
   [vis result query]
-  (assoc vis :data
-         [((d/result-vega-mapper query) result)]))
+  (update vis
+          :data
+          (fnil conj [])
+          ((d/result-vega-mapper query) result)))
 
 (defn ensure-analysis
   "Just a helper to make sure everything in an analysis is as parsed as can be"
