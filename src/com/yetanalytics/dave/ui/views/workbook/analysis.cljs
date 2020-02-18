@@ -1,5 +1,6 @@
 (ns com.yetanalytics.dave.ui.views.workbook.analysis
-  (:require [re-frame.core      :refer [subscribe dispatch]]
+  (:require [reagent.core       :as r]
+            [re-frame.core      :refer [subscribe dispatch]]
             [re-codemirror.core :as cm]
             [cljsjs.codemirror.mode.clojure]
             [cljsjs.codemirror.mode.javascript]
@@ -102,49 +103,61 @@
 
 (defn page
   []
-  (let [[workbook-id id & _] @(subscribe [:nav/path-ids])]
-    [:div.page.question
-     [:div.splash]
-     [:div
-      [:div.testdatasetblock
-       [text-display workbook-id id]
-       [edit-button workbook-id id]
-       [delete-button workbook-id id]]]
-     [:div.analysis-grid
-      [:div.analysis-inner
-       [:div.cell-6
-        [:div.analysis-inner
-         [:div.cell-12
-          [:h4 "Query Editor"]
-          [textarea {:workbook-id workbook-id
-                     :analysis-id id
-                     :sub-key     :workbook.analysis/query
-                     :dis-key     :query
-                     :opts        {:mode "text/x-clojure"}}]
-          [query-parse-error-display workbook-id id]]
-         [:div.cell-12
-          [:h4 "Visualization Editor"]
-          [textarea {:workbook-id workbook-id
-                     :analysis-id id
-                     :sub-key     :workbook.analysis/vega
-                     :dis-key     :vega
-                     :opts        {:mode "application/json"}}]
-          [vega-parse-error-display workbook-id id]]]]
-       [:div.cell-6
-        [:div.analysis-inner
-         [:div.cell-6
-          [:button.minorbutton
-           {:on-click (fn [e]
-                        (.preventDefault e)
-                        (.stopPropagation e)
-                        (dispatch [:workbook.analysis/run
-                                   workbook-id
-                                   id]))}
-           "Run"]
-          [query-find-bindings-display workbook-id id]
-          [visualization-fields-display workbook-id id]
-          [result-display workbook-id id]
-          [visualization-display workbook-id id]]]]]]]))
+  (let [state (r/atom {:advanced false})]
+    (fn []
+      (let [[workbook-id id & _] @(subscribe [:nav/path-ids])]
+        [:div.page.question
+         [:div.splash]
+         [:div
+          [:div.testdatasetblock
+           [text-display workbook-id id]
+           [edit-button workbook-id id]
+           [delete-button workbook-id id]]]
+         [:div.analysis-grid
+          [:div.analysis-inner
+           [:div.cell-6
+            [:div.analysis-inner
+             [:div.cell-12
+              [:h4 "Query Editor"]
+              [textarea {:workbook-id workbook-id
+                         :analysis-id id
+                         :sub-key     :workbook.analysis/query
+                         :dis-key     :query
+                         :opts        {:mode "text/x-clojure"}}]
+              [query-parse-error-display workbook-id id]]
+             [:div.cell-12
+              [:h4 "Visualization Editor"]
+              [textarea {:workbook-id workbook-id
+                         :analysis-id id
+                         :sub-key     :workbook.analysis/vega
+                         :dis-key     :vega
+                         :opts        {:mode "application/json"}}]
+              [vega-parse-error-display workbook-id id]]]]
+           [:div.cell-6
+            [:div.analysis-inner
+             [:div.cell-6
+              [:button.minorbutton
+               {:on-click (fn [e]
+                            (.preventDefault e)
+                            (.stopPropagation e)
+                            (dispatch [:workbook.analysis/run
+                                       workbook-id
+                                       id]))}
+               "Run"]
+              [:button.minorbutton
+               {:on-click (fn [e]
+                            (.preventDefault e)
+                            (.stopPropagation e)
+                            (swap! state update :advanced not))}
+               (if (:advanced @state)
+                 "Hide Advanced"
+                 "Show Advanced")]
+              [visualization-display workbook-id id]
+              (when (:advanced @state)
+                [:div               
+                 [query-find-bindings-display workbook-id id]
+                 [visualization-fields-display workbook-id id]
+                 [result-display workbook-id id]])]]]]]]))))
 
 (defn cell
   [workbook-id {:keys [id text]}]

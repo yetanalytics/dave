@@ -211,6 +211,17 @@
      js/vega.Info
      js/vega.Debug}))
 
+(defn export-fn
+  [chart]
+  (.then (.toImageURL chart
+                      "png")
+         (fn [url]
+           (let [link (js/document.createElement "a")
+                 _    (.setAttribute link "href" url)
+                 _    (.setAttribute link "target" "_blank")
+                 _    (.setAttribute link "download" "dave-export.png")]
+             (.click link)))))
+
 (defn did-mount
   "React lifecycle handler: set up a vega chart and any requested signal/event
   ports."
@@ -246,7 +257,15 @@
                   (.tooltip (.-call tooltip-handler))
                   (.renderer renderer)
                   (.initialize el)
-                  (cond-> hover? .hover))]
+                  (cond-> hover? .hover))
+        child (js/document.createElement "button")
+        _     (set! (.-innerHTML child) "Export")
+        _     (set! (.-className child) "minorbutton")
+        _     (set! (.-onclick child) (fn [e]
+                                        (.preventDefault e)
+                                        (.stopPropagation e)
+                                        (export-fn chart)))]
+    (.appendChild el child)
     (signal-listeners-init! chart signals-out)
     (event-listeners-init! chart events-out)
     (r/set-state this
