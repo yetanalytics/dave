@@ -241,11 +241,12 @@
         {spec-width :width
          spec-height :height} spec
         [width
-         height] (if (= spec-width spec-height)
-                   [spec-width
-                    spec-height]
-                   [el-width
-                    el-height])
+         height] [spec-width spec-height] #_(if (= spec-width spec-height)
+                        [spec-width
+                         spec-height]
+                        [el-width
+                         el-height])
+        _       (println "width: " width " - height: " height "spec: " spec-width spec-height "el: " el-width el-height)
         runtime (.parse js/vega (clj->js spec))
         tooltip-handler (js/vegaTooltip.Handler.)
         chart (-> (js/vega.View. runtime)

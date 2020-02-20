@@ -144,20 +144,24 @@
                                        workbook-id
                                        id]))}
                "Run"]
-              [:button.minorbutton
-               {:on-click (fn [e]
-                            (.preventDefault e)
-                            (.stopPropagation e)
-                            (swap! state update :advanced not))}
-               (if (:advanced @state)
-                 "Hide Advanced"
-                 "Show Advanced")]
-              [visualization-display workbook-id id]
-              (when (:advanced @state)
-                [:div               
-                 [query-find-bindings-display workbook-id id]
-                 [visualization-fields-display workbook-id id]
-                 [result-display workbook-id id]])]]]]]]))))
+              [visualization-display workbook-id id]]]]
+           [:div.cell-12
+            [:button.minorbutton
+             {:on-click (fn [e]
+                          (.preventDefault e)
+                          (.stopPropagation e)
+                          (swap! state update :advanced not))}
+             (if (:advanced @state)
+               "Hide Advanced"
+               "Show Advanced")]
+            (when (:advanced @state)
+              [:div.analysis-inner
+               [:div.cell-3
+                [query-find-bindings-display workbook-id id]]
+               [:div.cell-3                
+                [visualization-fields-display workbook-id id]]
+               [:div.cell-6
+                [result-display workbook-id id]]])]]]]))))
 
 (defn cell
   [workbook-id {:keys [id text]}]
