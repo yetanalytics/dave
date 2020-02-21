@@ -260,7 +260,7 @@
                   (.initialize el)
                   (cond-> hover? .hover))
         child (js/document.createElement "button")
-        _     (set! (.-innerHTML child) "Export")
+        _     (set! (.-innerHTML child) "Export PNG")
         _     (set! (.-className child) "minorbutton")
         _     (set! (.-onclick child) (fn [e]
                                         (.preventDefault e)

@@ -60,7 +60,13 @@
 (defn result-display
   [workbook-id analysis-id]
   [:div.result
-   [:h4 "Result"]
+   [:h4.header-title "Result"]
+   [:button.minorbutton.header-button
+    {:on-click (fn [e]
+                 (.preventDefault e)
+                 (.stopPropagation e)
+                 (println "Download Result"))}
+    "Export Data"]
    [:pre
     (with-out-str
       (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
@@ -88,7 +94,16 @@
                [:workbook.analysis/result-vega-spec
                 workbook-id analysis-id])]
     (conj [:div ;; .vis
-           [:h4 "Visualization"]]
+           [:h4.header-title
+            "Data Visualization"]
+           [:button.minorbutton.header-button
+            {:on-click (fn [e]
+                         (.preventDefault e)
+                         (.stopPropagation e)
+                         (dispatch [:workbook.analysis/run
+                                    workbook-id
+                                    analysis-id]))}
+            "Run"]]
           (cond error
                 [error-display error]
                 spec
@@ -100,6 +115,35 @@
   [workbook-id analysis-id]
   [:p.hometitle (str "Analysis: " @(subscribe [:workbook.analysis/text
                                                workbook-id analysis-id]))])
+
+(defn export-file
+  "Taking in a file blob and a file name, this will create a new anchor element.
+   It will use this to download the object."
+  [e blob file-name]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (let [link (js/document.createElement "a")]
+    (set! (.-download link) file-name)
+    ;; webkit does not need the object to be added to the page
+    (if js/window.webkitURL
+      (set! (.-href link)
+            (.createObjectURL js/window.webkitURL
+                              blob))
+      (do
+        ;; for non webkit browsers, add the element to the page
+        (set! (.-href link)
+              (.createObjectURL js/window.URL
+                                blob))
+        (set! (.-onclick link)
+              (fn [e]
+                (.preventDefault e)
+                (.stopPropagation e)
+                (.remove (.. e -currentTarget))))
+        (set! (.. link -style -display)
+              "none")
+        (.append js/document.body
+                 link)))
+    (.click link)))
 
 (defn page
   []
@@ -118,7 +162,17 @@
            [:div.cell-6
             [:div.analysis-inner
              [:div.cell-12
-              [:h4 "Query Editor"]
+              [:h4.header-title "Query Editor"]
+              [:button.minorbutton.header-button
+               {:on-click (fn [e]
+                            (.preventDefault e)
+                            (.stopPropagation e)
+                            (println @(subscribe [:workbook.analysis/query]))
+                            (export-file e
+                                         (js/Blob. @(subscribe [:workbook.analysis/query])
+                                                   (clj->js {:type "application/json"}))
+                                         "query.json"))}
+               "Export"]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/query
@@ -126,7 +180,7 @@
                          :opts        {:mode "text/x-clojure"}}]
               [query-parse-error-display workbook-id id]]
              [:div.cell-12
-              [:h4 "Visualization Editor"]
+              [:h4 "Visualization Code Editor"]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/vega
@@ -135,15 +189,7 @@
               [vega-parse-error-display workbook-id id]]]]
            [:div.cell-6
             [:div.analysis-inner
-             [:div.cell-6
-              [:button.minorbutton
-               {:on-click (fn [e]
-                            (.preventDefault e)
-                            (.stopPropagation e)
-                            (dispatch [:workbook.analysis/run
-                                       workbook-id
-                                       id]))}
-               "Run"]
+             [:div.cell-12
               [visualization-display workbook-id id]]]]
            [:div.cell-12
             [:button.minorbutton

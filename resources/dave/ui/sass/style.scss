@@ -68,3 +68,11 @@ body {
 .cell-12 {
   @include mdc-layout-grid-cell('desktop', 12, 2px);
 }
+
+.header-title {
+  display: inline-block;
+}
+
+.header-button {
+  margin-left: 16px;
+}
