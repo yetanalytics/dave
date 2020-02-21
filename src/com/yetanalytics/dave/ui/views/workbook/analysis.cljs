@@ -9,6 +9,79 @@
             [com.yetanalytics.dave.ui.views.vega :as v :refer [vega]]
             [cljs.pprint :refer [pprint]]))
 
+(defn import-file
+  "Read in the text from an input file, resolve the promise, and dispatch."
+  [e workbook-id analysis-id key]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (let [target (.. e -currentTarget)]
+    ;; Resolve the promise for the text file, should always be the 0th item.
+    (.then (js/Promise.resolve
+            (.text (aget (.. target -files) 0)))
+           #(do 
+              (dispatch [:workbook.analysis/update
+                         workbook-id
+                         analysis-id
+                         {key %}])
+              ;; clear out the temp file holding the input, so it can be reused.
+              (set! (.. target -value) "")))))
+
+(defn export-file
+  "Taking in a file blob and a file name, this will create a new anchor element.
+   It will use this to download the object."
+  [e blob file-name]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (let [link (js/document.createElement "a")]
+    (set! (.-download link) file-name)
+    ;; webkit does not need the object to be added to the page
+    (if js/window.webkitURL
+      (set! (.-href link)
+            (.createObjectURL js/window.webkitURL
+                              blob))
+      (do
+        ;; for non webkit browsers, add the element to the page
+        (set! (.-href link)
+              (.createObjectURL js/window.URL
+                                blob))
+        (set! (.-onclick link)
+              (fn [e]
+                (.preventDefault e)
+                (.stopPropagation e)
+                (.remove (.. e -currentTarget))))
+        (set! (.. link -style -display)
+              "none")
+        (.append js/document.body
+                 link)))
+    (.click link)))
+
+(defn hidden-button
+  [id workbook-id analysis-id key]
+  [:input.hidden-button
+   {:id       id
+    :type     "file"
+    :onChange (fn [e]
+                (import-file e workbook-id analysis-id key))}])
+
+(defn import-button
+  [id]
+  [:button.minorbutton.header-button
+   {:on-click (fn [e]
+                (.preventDefault e)
+                (.stopPropagation e)
+                (.click (js/document.getElementById id)))}
+   "Import"])
+
+(defn export-button
+  [key text]
+  [:button.minorbutton
+   {:on-click (fn [e]
+                (export-file e
+                             (js/Blob. [@(subscribe [key])]
+                                       (clj->js {:type "application/json"}))
+                             "query.json"))}
+   "Export"])
+
 (defn textarea
   [{:keys [workbook-id analysis-id
            sub-key dis-key opts]}]
@@ -63,13 +136,14 @@
    [:h4.header-title "Result"]
    [:button.minorbutton.header-button
     {:on-click (fn [e]
-                 (.preventDefault e)
-                 (.stopPropagation e)
-                 (println "Download Result"))}
+                 (export-file e
+                              (js/Blob. [@(subscribe [:workbook.analysis/result])]
+                                        (clj->js {:type "application/json"}))
+                              "result.json"))}
     "Export Data"]
    [:pre
     (with-out-str
-      (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
+      (pprint @(subscribe [:workbook.analysis/result])))]])
 
 (defn vega-parse-error-display
   [workbook-id analysis-id]
@@ -116,35 +190,6 @@
   [:p.hometitle (str "Analysis: " @(subscribe [:workbook.analysis/text
                                                workbook-id analysis-id]))])
 
-(defn export-file
-  "Taking in a file blob and a file name, this will create a new anchor element.
-   It will use this to download the object."
-  [e blob file-name]
-  (.preventDefault e)
-  (.stopPropagation e)
-  (let [link (js/document.createElement "a")]
-    (set! (.-download link) file-name)
-    ;; webkit does not need the object to be added to the page
-    (if js/window.webkitURL
-      (set! (.-href link)
-            (.createObjectURL js/window.webkitURL
-                              blob))
-      (do
-        ;; for non webkit browsers, add the element to the page
-        (set! (.-href link)
-              (.createObjectURL js/window.URL
-                                blob))
-        (set! (.-onclick link)
-              (fn [e]
-                (.preventDefault e)
-                (.stopPropagation e)
-                (.remove (.. e -currentTarget))))
-        (set! (.. link -style -display)
-              "none")
-        (.append js/document.body
-                 link)))
-    (.click link)))
-
 (defn page
   []
   (let [state (r/atom {:advanced false})]
@@ -163,16 +208,9 @@
             [:div.analysis-inner
              [:div.cell-12
               [:h4.header-title "Query Editor"]
-              [:button.minorbutton.header-button
-               {:on-click (fn [e]
-                            (.preventDefault e)
-                            (.stopPropagation e)
-                            (println @(subscribe [:workbook.analysis/query]))
-                            (export-file e
-                                         (js/Blob. @(subscribe [:workbook.analysis/query])
-                                                   (clj->js {:type "application/json"}))
-                                         "query.json"))}
-               "Export"]
+              [hidden-button "query-input-file" workbook-id id :query]
+              [import-button "query-input-file"]
+              [export-button :workbook.analysis/query "query.json"]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/query
@@ -180,7 +218,10 @@
                          :opts        {:mode "text/x-clojure"}}]
               [query-parse-error-display workbook-id id]]
              [:div.cell-12
-              [:h4 "Visualization Code Editor"]
+              [:h4.header-title "Visualization Code Editor"]
+              [hidden-button "vega-input-file" workbook-id id :vega]
+              [import-button "vega-input-file"]
+              [export-button :workbook.analysis/vega "visualization.json"]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/vega
