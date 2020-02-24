@@ -53,6 +53,10 @@
      (case @(subscribe [:workbook.data/type ?workbook-id])
        :com.yetanalytics.dave.workbook.data/file "insert_drive_file"
        :com.yetanalytics.dave.workbook.data/lrs "storage")]
-    @(subscribe [:workbook.data/title ?workbook-id])]
+    @(subscribe [:workbook.data/title ?workbook-id])
+    [:button.minorbutton
+     {:on-click #(dispatch [:workbook.data/offer-picker
+                            ?workbook-id])}
+     "Change Dataset"]]
    [details ?workbook-id]
    [errors ?workbook-id]])

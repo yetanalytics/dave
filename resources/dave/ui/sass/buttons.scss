@@ -5,6 +5,13 @@
   border-radius: 5px;
   text-decoration: none;
 }
+
+.block-button {
+  display: block;
+  width:   100%;
+  margin:  4px 0px;
+}
+
 .page {
 
 > div button.newblock {
@@ -29,6 +36,7 @@
 }
 
 .minorbutton{
+  height:        24px;
   margin-bottom: 20px;
   margin-right: 10px;
   border-radius: 5px;

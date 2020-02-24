@@ -57,10 +57,40 @@ body {
   @include mdc-layout-grid-inner('desktop', 4px, 4px);
 }
 
+.cell-3 {
+  @include mdc-layout-grid-cell('desktop', 3, 2px);
+}
+
 .cell-6 {
   @include mdc-layout-grid-cell('desktop', 6, 2px);
 }
 
 .cell-12 {
   @include mdc-layout-grid-cell('desktop', 12, 2px);
+}
+
+.header-title {
+  display: inline-block;
+  margin:  0px;
+}
+
+.header-button {
+  margin-left: 16px;
+}
+
+.hidden-button {
+  position:   fixed;
+  visibility: hidden;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#license {
+  padding-right: 30px;
 }

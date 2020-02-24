@@ -6,8 +6,36 @@
             [cljsjs.codemirror.mode.javascript]
             [cljsjs.codemirror.addon.edit.matchbrackets]
             [cljsjs.codemirror.addon.edit.closebrackets]
+            [com.yetanalytics.dave.ui.app.io     :as io]
             [com.yetanalytics.dave.ui.views.vega :as v :refer [vega]]
             [cljs.pprint :refer [pprint]]))
+
+(defn hidden-button
+  [id workbook-id analysis-id key]
+  [:input.hidden-button
+   {:id       id
+    :type     "file"
+    :onChange (fn [e]
+                (io/import-file e workbook-id analysis-id key))}])
+
+(defn import-button
+  [id]
+  [:button.minorbutton
+   {:on-click (fn [e]
+                (.preventDefault e)
+                (.stopPropagation e)
+                (.click (js/document.getElementById id)))}
+   "Import"])
+
+(defn export-button
+  [key text]
+  [:button.minorbutton
+   {:on-click (fn [e]
+                (io/export-file e
+                                (js/Blob. [@(subscribe [key])]
+                                          (clj->js {:type "application/json"}))
+                                "query.json"))}
+   "Export"])
 
 (defn textarea
   [{:keys [workbook-id analysis-id
@@ -60,10 +88,10 @@
 (defn result-display
   [workbook-id analysis-id]
   [:div.result
-   [:h4 "Result"]
+   [:h4.header-title "Result"]
    [:pre
     (with-out-str
-      (pprint @(subscribe [:workbook.analysis/result workbook-id analysis-id])))]])
+      (pprint @(subscribe [:workbook.analysis/result])))]])
 
 (defn vega-parse-error-display
   [workbook-id analysis-id]
@@ -84,17 +112,28 @@
         error @(subscribe
                 [:workbook.analysis/visualization-parse-error
                  workbook-id analysis-id])
-        spec @(subscribe
-               [:workbook.analysis/result-vega-spec
-                workbook-id analysis-id])]
-    (conj [:div ;; .vis
-           [:h4 "Visualization"]]
-          (cond error
-                [error-display error]
-                spec
-                [vega spec]
-                :else [:p "Cannot Display"]
-                ))))
+        spec  @(subscribe
+                [:workbook.analysis/result-vega-spec
+                 workbook-id analysis-id])
+        base  [:div
+               [:div.flex-container
+                [:h4.header-title "Data Visualization"]
+                [:div.spacer]
+                [:button.minorbutton.header-button
+                 {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (dispatch [:workbook.analysis/run
+                                         workbook-id
+                                         analysis-id]))}
+                 "Run"]]]]
+    (cond error
+          (conj base
+                [error-display error])
+          spec
+          [vega spec :workbook-id workbook-id :analysis-id analysis-id]
+          :else (conj base
+                      [:p "Create a query and data visualization spec."]))))
 
 (defn text-display
   [workbook-id analysis-id]
@@ -118,7 +157,15 @@
            [:div.cell-6
             [:div.analysis-inner
              [:div.cell-12
-              [:h4 "Query Editor"]
+              [:div.flex-container
+               [:h4.header-title "Query Editor"]
+               [:div.spacer]
+               [:button.minorbutton
+                {:on-click #(dispatch [:workbook.analysis.template/query [workbook-id id]])}
+                "Select Template"]
+               [hidden-button "query-input-file" workbook-id id :query]
+               [import-button "query-input-file"]
+               [export-button :workbook.analysis/query "query.json"]]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/query
@@ -126,7 +173,15 @@
                          :opts        {:mode "text/x-clojure"}}]
               [query-parse-error-display workbook-id id]]
              [:div.cell-12
-              [:h4 "Visualization Editor"]
+              [:div.flex-container
+               [:h4.header-title "Visualization Code Editor"]
+               [:div.spacer]
+               [:button.minorbutton
+                {:on-click #(dispatch [:workbook.analysis.template/vega [workbook-id id]])}
+                "Select Template"]
+               [hidden-button "vega-input-file" workbook-id id :vega]
+               [import-button "vega-input-file"]
+               [export-button :workbook.analysis/vega "visualization.json"]]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/vega
@@ -135,29 +190,25 @@
               [vega-parse-error-display workbook-id id]]]]
            [:div.cell-6
             [:div.analysis-inner
-             [:div.cell-6
-              [:button.minorbutton
-               {:on-click (fn [e]
-                            (.preventDefault e)
-                            (.stopPropagation e)
-                            (dispatch [:workbook.analysis/run
-                                       workbook-id
-                                       id]))}
-               "Run"]
-              [:button.minorbutton
-               {:on-click (fn [e]
-                            (.preventDefault e)
-                            (.stopPropagation e)
-                            (swap! state update :advanced not))}
-               (if (:advanced @state)
-                 "Hide Advanced"
-                 "Show Advanced")]
-              [visualization-display workbook-id id]
-              (when (:advanced @state)
-                [:div               
-                 [query-find-bindings-display workbook-id id]
-                 [visualization-fields-display workbook-id id]
-                 [result-display workbook-id id]])]]]]]]))))
+             [:div.cell-12
+              [visualization-display workbook-id id]]]]
+           [:div.cell-12
+            [:button.minorbutton
+             {:on-click (fn [e]
+                          (.preventDefault e)
+                          (.stopPropagation e)
+                          (swap! state update :advanced not))}
+             (if (:advanced @state)
+               "Hide Advanced"
+               "Show Advanced")]
+            (when (:advanced @state)
+              [:div.analysis-inner
+               [:div.cell-3
+                [query-find-bindings-display workbook-id id]]
+               [:div.cell-3                
+                [visualization-fields-display workbook-id id]]
+               [:div.cell-6
+                [result-display workbook-id id]]])]]]]))))
 
 (defn cell
   [workbook-id {:keys [id text]}]

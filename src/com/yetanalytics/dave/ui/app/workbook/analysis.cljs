@@ -22,6 +22,34 @@
       :form          {}}]}))
 
 (re-frame/reg-event-fx
+ :workbook.analysis.template/query
+ (fn [_ [_ [workbook-id analysis-id]]]
+   {:dispatch
+    [:dialog.form/offer
+     {:title         "Query Template"
+      :mode          :com.yetanalytics.dave.ui.app.dialog/options
+      :dispatch-save [:workbook.analysis/update 
+                      workbook-id 
+                      analysis-id]
+      :fields        [{:key   :query-1
+                       :label "Learners' Scores Timeline"}]
+      :form          {:query ""}}]}))
+
+(re-frame/reg-event-fx
+ :workbook.analysis.template/vega
+ (fn [_ [_ [workbook-id analysis-id]]]
+   {:dispatch
+    [:dialog.form/offer
+     {:title         "Data Viz Template"
+      :mode          :com.yetanalytics.dave.ui.app.dialog/options
+      :dispatch-save [:workbook.analysis/update 
+                      workbook-id 
+                      analysis-id]
+      :fields        [{:key   :viz-1
+                       :label "Scatter Plot"}]
+      :form          {:vega ""}}]}))
+
+(re-frame/reg-event-fx
  :workbook.analysis/create
  (fn [_ [_ workbook-id form-map]]
    (let [{:keys [id]

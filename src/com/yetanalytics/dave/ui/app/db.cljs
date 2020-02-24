@@ -11,7 +11,8 @@
             [com.yetanalytics.dave.ui.interceptor :as i]
             [com.cognitect.transit.types :as ty]
             [com.yetanalytics.dave.util.spec :as su]
-            [com.yetanalytics.dave.ui.app.dialog :as dialog])
+            [com.yetanalytics.dave.ui.app.dialog :as dialog]
+            [com.yetanalytics.dave.ui.app.template :as template])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -95,14 +96,7 @@
                            {:id    #uuid "609851e5-5bb0-4980-963a-725422312214"
                             :text  "Test Analysis"
                             :index 0
-                            :query
-                            "[:find ?x ?y ?c
-  :where
-  [?s :statement/timestamp ?t]
-  [?s :statement.result.score/scaled ?y]
-  [?s :statement/actor ?a]
-  [?a :agent/mbox ?c]
-  [->unix ?t ?x]]"
+                            :query (:query-1 template/queries)                            
                             :query-data
                             '{:find [?x ?y ?c]
                               :where
@@ -111,7 +105,7 @@
                                [?s :statement/actor ?a]
                                [?a :agent/mbox ?c]
                                [->unix ?t ?x]]}
-                            :vega  "{\n  \"autosize\": \"fit\",\n  \"legends\": [\n    {\n      \"fill\": \"color\"\n    }\n  ],\n  \"axes\": [\n    {\n      \"orient\": \"bottom\",\n      \"scale\": \"x\",\n      \"labelAngle\": 60,\n      \"labelAlign\": \"left\",\n      \"labelLimit\": 112,\n      \"labelOverlap\": true,\n      \"labelSeparation\": -35\n    },\n    {\n      \"orient\": \"left\",\n      \"scale\": \"y\"\n    }\n  ],\n  \"width\": 500,\n  \"scales\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"time\",\n      \"range\": \"width\",\n      \"domain\": {\n        \"data\": \"result\",\n        \"field\": \"?x\"\n      }\n    },\n    {\n      \"name\": \"y\",\n      \"type\": \"linear\",\n      \"range\": \"height\",\n      \"nice\": true,\n      \"zero\": true,\n      \"domain\": {\n        \"data\": \"result\",\n        \"field\": \"?y\"\n      }\n    },\n    {\n      \"name\": \"color\",\n      \"type\": \"ordinal\",\n      \"range\": \"category\",\n      \"domain\": {\n        \"data\": \"result\",\n        \"field\": \"?c\"\n      }\n    }\n  ],\n  \"padding\": 5,\n  \"marks\": [\n    {\n      \"type\": \"group\",\n      \"from\": {\n        \"facet\": {\n          \"name\": \"series\",\n          \"data\": \"result\",\n          \"groupby\": \"?c\"\n        }\n      },\n      \"marks\": [\n        {\n          \"type\": \"symbol\",\n          \"from\": {\n            \"data\": \"series\"\n          },\n          \"encode\": {\n            \"enter\": {\n              \"size\": {\n                \"value\": 50\n              },\n              \"x\": {\n                \"scale\": \"x\",\n                \"field\": \"?x\"\n              },\n              \"y\": {\n                \"scale\": \"y\",\n                \"field\": \"?y\"\n              },\n              \"fill\": {\n                \"scale\": \"color\",\n                \"field\": \"?c\"\n              }\n            }\n          }\n        }\n      ]\n    }\n  ],\n  \"$schema\": \"https://vega.github.io/schema/vega/v4.json\",\n  \"signals\": [\n    {\n      \"name\": \"interpolate\",\n      \"value\": \"linear\"\n    }\n  ],\n  \"height\": 200\n}\n"
+                            :vega  (:viz-1 template/visualizations)  
                             :visualization
                             {:autosize "fit", :legends [{:fill "color"}], :axes [{:orient "bottom", :scale "x", :labelAngle 60, :labelAlign "left", :labelLimit 112, :labelOverlap true, :labelSeparation -35} {:orient "left", :scale "y"}], :width 500, :scales [{:name "x", :type "time", :range "width", :domain {:data "result", :field "?x"}} {:name "y", :type "linear", :range "height", :nice true, :zero true, :domain {:data "result", :field "?y"}} {:name "color", :type "ordinal", :range "category", :domain {:data "result", :field "?c"}}], :padding 5, :marks [{:type "group", :from {:facet {:name "series", :data "result", :groupby "?c"}}, :marks [{:type "symbol", :from {:data "series"}, :encode {:enter {:size {:value 50}, :x {:scale "x", :field "?x"}, :y {:scale "y", :field "?y"}, :fill {:scale "color", :field "?c"}}}}]}], :$schema "https://vega.github.io/schema/vega/v4.json", :signals [{:name "interpolate", :value "linear"}], :height 200}}}}}})
 

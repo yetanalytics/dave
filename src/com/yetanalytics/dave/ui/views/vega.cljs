@@ -21,7 +21,8 @@
    [reagent.core :as r]
    [reagent.ratom :as ratom]
    [re-frame.core :refer [dispatch subscribe]]
-   [clojure.spec.alpha :as s]))
+   [clojure.spec.alpha :as s]
+   [com.yetanalytics.dave.ui.app.io :as io]))
 
 (s/def ::chart
   #(instance? js/vega.View %))
@@ -235,17 +236,17 @@
                    :or {renderer "svg"
                         hover? true
                         log-level :warn}}] (r/argv this)
-        el (r/dom-node this)
-        el-width (.-offsetWidth el)
+        el        (aget (.-childNodes (r/dom-node this)) 1)
+        el-width  (.-offsetWidth el)
         el-height (.-offsetHeight el)
         {spec-width :width
          spec-height :height} spec
         [width
-         height] (if (= spec-width spec-height)
-                   [spec-width
-                    spec-height]
-                   [el-width
-                    el-height])
+         height] [spec-width spec-height] #_(if (= spec-width spec-height)
+                        [spec-width
+                         spec-height]
+                        [el-width
+                         el-height])
         runtime (.parse js/vega (clj->js spec))
         tooltip-handler (js/vegaTooltip.Handler.)
         chart (-> (js/vega.View. runtime)
@@ -258,14 +259,12 @@
                   (.renderer renderer)
                   (.initialize el)
                   (cond-> hover? .hover))
-        child (js/document.createElement "button")
-        _     (set! (.-innerHTML child) "Export")
-        _     (set! (.-className child) "minorbutton")
-        _     (set! (.-onclick child) (fn [e]
-                                        (.preventDefault e)
-                                        (.stopPropagation e)
-                                        (export-fn chart)))]
-    (.appendChild el child)
+        header-el   (aget (.-childNodes (r/dom-node this)) 0)
+        png-button  (js/document.getElementById "export-viz-png")
+        _           (set! (.-onclick png-button) (fn [e]
+                                                   (.preventDefault e)
+                                                   (.stopPropagation e)
+                                                   (export-fn chart)))]
     (signal-listeners-init! chart signals-out)
     (event-listeners-init! chart events-out)
     (r/set-state this
@@ -327,8 +326,32 @@
                   events-out
                   renderer
                   hover?
-                  log-level] :as options}]
-  [:div.dave-vega-container])
+                  log-level
+                  workbook-id
+                  analysis-id] :as options}]
+  [:div
+   [:div.flex-container
+    [:h4.header-title "Data Visualization"]
+    [:div.spacer]
+    [:button.minorbutton.header-button
+     {:on-click (fn [e]
+                  (.preventDefault e)
+                  (.stopPropagation e)
+                  (dispatch [:workbook.analysis/run
+                             workbook-id
+                             analysis-id]))}
+     "Run"]
+    [:button#export-viz-png.minorbutton
+     {}
+     "Export PNG"]
+    [:button.minorbutton
+     {:on-click (fn [e]
+                  (io/export-file e
+                                  (js/Blob. [@(subscribe [:workbook.analysis/result])]
+                                            (clj->js {:type "application/json"}))
+                                  "result.json"))}
+     "Export JSON"]]
+   [:div.dave-vega-container]])
 
 (def vega
   (r/create-class

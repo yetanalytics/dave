@@ -4,6 +4,7 @@
             [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [com.yetanalytics.dave.ui.views.form.textfield :as textfield]
+            [com.yetanalytics.dave.ui.app.template         :as template]
             #_[com.yetanalytics.dave.ui.views.wizard :as wizard]))
 
 (defn dialog
@@ -100,6 +101,29 @@
                     ;; :mdc-dialog-action "save"
                     :on-click #(dispatch [:dialog.form/save])}]))}])
 
+(defn options-field-button
+  [{:keys [key label]}]
+  (let [form-key (-> @(subscribe [:dialog.form/form])
+                     keys
+                     first)]
+    [:button.flatbutton.block-button
+     {:on-click #(do
+                   (dispatch [:dialog.form/update-field
+                              form-key
+                              (condp = form-key
+                                :query (get template/queries key)
+                                :vega  (get template/visualizations key))])
+                   (dispatch [:dialog.form/save]))}
+     label]))
+
+(defn dialog-options
+  []
+  [dialog {:title   @(subscribe [:dialog/title])
+           :content (into []
+                          (for [field @(subscribe [:dialog.form/fields])]
+                            [options-field-button field]))
+           :actions []}])
+
 (defn dialog-container
   "Parent component that shows/hides the dialog"
   []
@@ -107,4 +131,6 @@
     @(subscribe [:dialog/open?])
     (conj (case @(subscribe [:dialog/mode])
             :com.yetanalytics.dave.ui.app.dialog/form
-            [dialog-form]))))
+            [dialog-form]
+            :com.yetanalytics.dave.ui.app.dialog/options
+            [dialog-options]))))

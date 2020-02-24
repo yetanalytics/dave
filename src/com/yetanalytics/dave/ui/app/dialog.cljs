@@ -8,7 +8,8 @@
 
 (s/def ::mode
   #{::form
-    ::wizard})
+    ::wizard
+    ::options})
 
 (s/def ::dispatch-cancel
   (s/cat :event-id qualified-keyword?
@@ -83,6 +84,12 @@
 
 (defmethod dialog-mode ::wizard [_]
   dialog-common-spec)
+
+(defmethod dialog-mode ::options [_]
+  (s/merge dialog-common-spec
+           (s/keys :req-un [::fields
+                            ::dispatch-save
+                            ::form])))
 
 (def dialog-spec
   (s/multi-spec dialog-mode :mode))
