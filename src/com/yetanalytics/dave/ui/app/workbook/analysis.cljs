@@ -26,15 +26,13 @@
  (fn [_ [_ [workbook-id analysis-id]]]
    {:dispatch
     [:dialog.form/offer
-     {:title         "Choose a Template"
+     {:title         "Query Template"
       :mode          :com.yetanalytics.dave.ui.app.dialog/options
       :dispatch-save [:workbook.analysis/update 
                       workbook-id 
                       analysis-id]
       :fields        [{:key   :query-1
-                       :label "Query 1"}
-                      {:key   :query-2
-                       :label "Query 2"}]
+                       :label "Learners' Scores Timeline"}]
       :form          {:query ""}}]}))
 
 (re-frame/reg-event-fx
@@ -42,15 +40,13 @@
  (fn [_ [_ [workbook-id analysis-id]]]
    {:dispatch
     [:dialog.form/offer
-     {:title         "Choose a Template"
+     {:title         "Data Viz Template"
       :mode          :com.yetanalytics.dave.ui.app.dialog/options
       :dispatch-save [:workbook.analysis/update 
                       workbook-id 
                       analysis-id]
       :fields        [{:key   :viz-1
-                       :label "Viz 1"}
-                      {:key   :viz-2
-                       :label "Viz 2"}]
+                       :label "Scatter Plot"}]
       :form          {:vega ""}}]}))
 
 (re-frame/reg-event-fx
