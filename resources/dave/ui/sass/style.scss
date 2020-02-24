@@ -71,6 +71,7 @@ body {
 
 .header-title {
   display: inline-block;
+  margin:  0px;
 }
 
 .header-button {
@@ -80,4 +81,16 @@ body {
 .hidden-button {
   position:   fixed;
   visibility: hidden;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#license {
+  padding-right: 30px;
 }

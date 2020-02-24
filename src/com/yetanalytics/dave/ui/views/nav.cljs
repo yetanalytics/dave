@@ -117,5 +117,6 @@
   []
   [:footer
    [:a {:href "#"} [:img {:src "img/dev/white_logo.png"}]]
-   [:a {:href "https://github.com/yetanalytics/dave/blob/master/LICENSE"}
+   [:div.spacer]
+   [:a#license {:href "https://github.com/yetanalytics/dave/blob/master/LICENSE"}
     "License"]])

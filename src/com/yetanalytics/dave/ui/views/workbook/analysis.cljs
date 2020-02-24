@@ -65,7 +65,7 @@
 
 (defn import-button
   [id]
-  [:button.minorbutton.header-button
+  [:button.minorbutton
    {:on-click (fn [e]
                 (.preventDefault e)
                 (.stopPropagation e)
@@ -168,16 +168,17 @@
                [:workbook.analysis/result-vega-spec
                 workbook-id analysis-id])]
     (conj [:div ;; .vis
-           [:h4.header-title
-            "Data Visualization"]
-           [:button.minorbutton.header-button
-            {:on-click (fn [e]
-                         (.preventDefault e)
-                         (.stopPropagation e)
-                         (dispatch [:workbook.analysis/run
-                                    workbook-id
-                                    analysis-id]))}
-            "Run"]]
+           [:div.flex-container
+            [:h4.header-title "Data Visualization"]
+            [:div.spacer]
+            [:button.minorbutton.header-button
+             {:on-click (fn [e]
+                          (.preventDefault e)
+                          (.stopPropagation e)
+                          (dispatch [:workbook.analysis/run
+                                     workbook-id
+                                     analysis-id]))}
+             "Run"]]]
           (cond error
                 [error-display error]
                 spec
@@ -207,10 +208,15 @@
            [:div.cell-6
             [:div.analysis-inner
              [:div.cell-12
-              [:h4.header-title "Query Editor"]
-              [hidden-button "query-input-file" workbook-id id :query]
-              [import-button "query-input-file"]
-              [export-button :workbook.analysis/query "query.json"]
+              [:div.flex-container
+               [:h4.header-title "Query Editor"]
+               [:div.spacer]
+               [:button.minorbutton
+                {:on-click #(dispatch [:workbook.analysis.template/query [workbook-id id]])}
+                "Select Template"]
+               [hidden-button "query-input-file" workbook-id id :query]
+               [import-button "query-input-file"]
+               [export-button :workbook.analysis/query "query.json"]]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/query
@@ -218,10 +224,15 @@
                          :opts        {:mode "text/x-clojure"}}]
               [query-parse-error-display workbook-id id]]
              [:div.cell-12
-              [:h4.header-title "Visualization Code Editor"]
-              [hidden-button "vega-input-file" workbook-id id :vega]
-              [import-button "vega-input-file"]
-              [export-button :workbook.analysis/vega "visualization.json"]
+              [:div.flex-container
+               [:h4.header-title "Visualization Code Editor"]
+               [:div.spacer]
+               [:button.minorbutton
+                {:on-click #(dispatch [:workbook.analysis.template/vega [workbook-id id]])}
+                "Select Template"]
+               [hidden-button "vega-input-file" workbook-id id :vega]
+               [import-button "vega-input-file"]
+               [export-button :workbook.analysis/vega "visualization.json"]]
               [textarea {:workbook-id workbook-id
                          :analysis-id id
                          :sub-key     :workbook.analysis/vega
