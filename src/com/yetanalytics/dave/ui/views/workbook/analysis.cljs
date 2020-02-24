@@ -112,14 +112,28 @@
         error @(subscribe
                 [:workbook.analysis/visualization-parse-error
                  workbook-id analysis-id])
-        spec @(subscribe
-               [:workbook.analysis/result-vega-spec
-                workbook-id analysis-id])]
+        spec  @(subscribe
+                [:workbook.analysis/result-vega-spec
+                 workbook-id analysis-id])
+        base  [:div
+               [:div.flex-container
+                [:h4.header-title "Data Visualization"]
+                [:div.spacer]
+                [:button.minorbutton.header-button
+                 {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (dispatch [:workbook.analysis/run
+                                         workbook-id
+                                         analysis-id]))}
+                 "Run"]]]]
     (cond error
-          [error-display error]
+          (conj base
+                [error-display error])
           spec
           [vega spec :workbook-id workbook-id :analysis-id analysis-id]
-          :else [:p "Cannot Display"])))
+          :else (conj base
+                      [:p "Create a query and data visualization spec."]))))
 
 (defn text-display
   [workbook-id analysis-id]

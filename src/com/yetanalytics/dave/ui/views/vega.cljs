@@ -21,7 +21,8 @@
    [reagent.core :as r]
    [reagent.ratom :as ratom]
    [re-frame.core :refer [dispatch subscribe]]
-   [clojure.spec.alpha :as s]))
+   [clojure.spec.alpha :as s]
+   [com.yetanalytics.dave.ui.app.io :as io]))
 
 (s/def ::chart
   #(instance? js/vega.View %))

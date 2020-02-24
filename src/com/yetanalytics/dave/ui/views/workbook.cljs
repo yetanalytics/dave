@@ -16,7 +16,7 @@
    "Edit"])
 
 (defn delete-button [workbook-id]
-  [:button.minor-button
+  [:button.minorbutton
    {:on-click #(dispatch
                 [:crud/delete-confirm workbook-id])}
    "Delete"])
