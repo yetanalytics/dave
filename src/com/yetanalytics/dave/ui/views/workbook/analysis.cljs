@@ -88,7 +88,7 @@
 (defn result-display
   [workbook-id analysis-id]
   [:div.result
-   [:h4.header-title "Result"]
+   [:h4 "Result"]
    [:pre
     (with-out-str
       (pprint @(subscribe [:workbook.analysis/result])))]])
