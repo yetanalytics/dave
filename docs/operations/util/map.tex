@@ -1,0 +1,27 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+
+\subsubsection{Map}
+The $map$ operation takes in a function $fn?$, Collection $coll?$ and additional Arguments $args?$ (as necessary)
+and returns a modified Collection $coll!$ with members $fn!_{n}$. The ordering of $coll?$ is maintained within $coll!$
+\begin{schema}{Map[(\_~\pfun~\_), Collection, V]}
+  fn? : (\_~\pfun~\_) \\
+  args? : V \\
+  coll?, coll! : Collection \\
+  map~\_ : (\_~\pfun~\_) \cross Collection \cross V \surj Collection
+  \where
+  coll! = map(fn?, coll?, args?) @ \\
+  \t3 \langle ~\forall n : i~..~j \in coll? ~|~ i \leq n \leq j ~\land ~j = ~\# ~coll? @ \\
+  \t4 \exists_1 ~fn!_{n} : V ~|~ fn!_{n} = \\
+  \t5 (fn?(coll?_{n}, args?) \iff args? \not = \emptyset) ~\lor \\
+  \t5 (fn?(coll?_{n}) \iff args? = \emptyset) \rangle \implies fn!_{i} \cat fn!_{n} \cat fn!_{j} \\
+\end{schema}
+Above, $fn!_{n}$ is introduced to handle the case where $fn?$ only requires a single argument.
+Additional arguments may be necessary but if they are not ($args? = \emptyset$) then only $coll?_{n}$ is passed to $fn?$.
+\begin{argue}
+  X = \langle 1, 2, 3 \rangle \\
+  \t1 map~(succ, X) = \langle 2, 3, 4 \rangle & increment each member of $X$ \\
+  \t1 map~(+, X, 2) = \langle 3, 4, 5 \rangle & add 2 to each member of $X$
+\end{argue}
+
+\end{document}

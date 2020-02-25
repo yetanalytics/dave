@@ -1,0 +1,41 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+
+\subsection{Rate Of}
+The Operation $rateOf$ calculates the number of times something occurs
+within an interval of time given a unit of time.
+$$rateOf(nOccurances, start, end, unit)$$
+Where the output translates to: the rate of occurrence per unit within interval
+\begin{itemize}
+\item $nOccurances$ is the number of times something happened and should be an Integer (called $nO?$ bellow)
+\item $start$ is an ISO 8601 timestamp which serves as the first timestamp within the interval
+\item $end$ is an ISO 8601 timestamp which servers as the last timestamp within the interval
+\item $unit$ is a String Enum representing the unit of time
+\end{itemize}
+This can be seen in the definition of $rateOf$ bellow.
+\begin{schema}{RateOf[\nat, TIMESTAMP, TIMESTAMP, TIMEUNIT]}
+  nO? : \nat \\
+  rate! : \num \\
+  start?, end? : TIMESTAMP \\
+  unit? : TIMEUNIT \\
+  rateOf~\_ : \nat \cross TIMESTAMP \cross TIMESTAMP \cross TIMEUNIT \fun \num
+  \where
+  rate! = rateOf(nO?, start?, end?, unit?) @ \\
+  \t1 let \ \ ~~ interval == isoToUnix(end) - isoToUnix(start) \\
+  \t2 unitS == toSeconds(unit?) \\
+  \t1 \ = nO? \div (interval \div units)
+\end{schema}
+The only other functionality required by $rateOf$ is supplied via basic arithmetic
+\begin{argue}
+  start = 2015-11-18T12:17:00Z \\
+  end = 2015-11-18T14:17:00Z \\
+  unit = second \\
+  nO? = 10 \\
+  \t1 startN = isoToUnix(start) = 1447849020 \\
+  \t1 endN = isoToUnix(end) = 1447856220 \\
+  \t1 interval = endN - StartN = 7200\\
+  \t1 unitN = toSeconds(unit) = 60 \\
+  0.001389 = rateOf(nO?, start, end, unit) \implies 10 \div (7200 \div 60) \\
+  5 = rateOf(nO?, start, end, hour) \implies 10 \div (7200 \div 3600)
+\end{argue}
+\end{document}

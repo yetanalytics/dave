@@ -1,0 +1,333 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Z Notation Introduction}
+
+The following subsections provide a high level overview of select properties of Z Notation based on
+"The Z Notation: A Reference Manual" by J. M. Spivey. A copy
+of this reference manual can be found at dave/docs/z/Z-notation reference manual.pdf.
+In many cases, definitions will be pulled directly from the reference manual and when this occurs,
+the relevant page number(s) will be included. For a proper introduction with tutorial examples, see
+chapter 1, "Tutorial Introduction" from pages 1 to 23. For the $LaTeX$ symbols used to write Z,
+see the reference document found at dave/docs/z/zed-csp-documentation.pdf.
+
+\subsection{Decorations}
+The following decorations are used throughout this document and are taken directly from the reference manual.
+For a complete summary of the Syntax of Z, see chapter 6, Syntax Summary, starting on page 142.
+\begin{argue}
+  ' & indicates final state of an operation \\
+  ? & indicates input to an operation \\
+  ! & indicates output of an operation \\
+  \Delta & indicates the schema results in a change to the state space \\
+  \Xi & indicates the schema does not result in a change to the state space \\
+  \pipe & indicates output of the left schema is input to the right schema
+\end{argue}
+
+\subsection{Types}
+Objects have a type which characterizes them and distinguish them from other kinds of objects.
+\begin{itemize}
+\item Basic types are sets of objects which have no internal structure of interest meaning the concrete definition of the members is not relevant, only their shared type.
+\item Free types are used to describe (potentially nested and/or recursive) sets of objects. In the most simple case, a free type can be an enumeration of constants.
+\end{itemize}
+Within the xAPI Formal Specification, both of these types are used to describe the
+\href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#inversefunctional}{Inverse Functional Identifier}
+property.
+\begin{itemize}
+\item Introduction of the basic types $MBOX$, $MBOX\_SHA1SUM$, $OPENID$ and $ACCOUNT$
+  allows the specification to talk about these constraints within the xAPI
+  specification without defining their exact structure
+\item The free type $IFI$ is defined as one of the above basic types meaning an object
+  of type $IFI$ is of type $MBOX$ or $MBOX\_SHA1SUM$ or $OPENID$ or $ACCOUNT$.
+\end{itemize}
+Types can be composed together to form composite types and thus complex objects.
+\begin{zed}
+  [MBOX, MBOX\_SHA1SUM, OPENID, ACCOUNT]
+  \also
+  IFI ::= MBOX \,|\, MBOX\_SHA1SUM \,|\, OPENID \,|\, ACCOUNT
+\end{zed}
+Within the xAPI Formal Specification, $IFI$ is used within the definition
+of an $agent$ as presented in the schema $Agent$.
+
+\begin{schema}{Agent}
+  agent : AGENT \\
+  objectType : OBJECTTYPE \\
+  name : \finset_1 \#1 \\
+  ifi : IFI
+  \where
+  objectType = Agent \\
+  agent = \{ifi\} \cup \power \{name, objectType\}
+\end{schema}
+See section 2.2, pages 28 to 34, and chapter 3, pages 42 to 85, for more information about Schemas and the Z Language.
+
+\subsection{Sets}
+A collection of elements that all share a type. A set is characterized solely by which objects are members and which are not.
+Both the order and repetition of objects are ignored. Sets are written in one of two ways:
+\begin{itemize}
+\item listing their elements
+\item by a property which is characteristic of the elements of the set.
+\end{itemize}
+such that the following law from page 55 holds for some object y
+$$y \in \{x_{1},...,x_{n}\} \iff y = x_{1} \lor ... \lor y = x_{n}$$
+
+\subsection{Ordered Pairs}
+Two objects $(x, y)$ where $x$ is paired with $y$. An n-tuple is
+the pairing of n objects together such that equality between two n-tuple pairs
+is given by the law from page 55
+$$(x_{1},...,x_{n}) = (y_{1},...,y_{n}) \iff x_{1} = y_{1} \land ... \land x_{n} = y_{n}$$
+When ordered pairs are used with respect to application (as seen on page 60)
+$$f x \implies f(x) \iff (x,y) \in f$$
+which states that $f(x)$ is defined if and only if there is a unique value $y$ which result from $f x$
+Additionally, application associates to the left
+$$f x y \implies (f x) y \implies (f(x), y)$$
+meaning $f(x)$ results in a function which is then applied to $y$.
+
+\subsection{Sequences}
+A collection of elements where their ordering matters such that
+$$\langle a_{1},...,a_{n} \rangle \implies \{1 \mapsto a_{1}, ..., n \mapsto a_{n}\}$$
+as seen on page 115. Additionally, $\iseq$ is used to describe a sequence whose members are distinct.
+
+\subsection{Bags}
+A collection of elements where the number of times an element appears in the collection is meaningful.
+$$\lbag a_{1},...,a_{n} \rbag \implies \{a_{1} \mapsto k_{1},...,k_{n} \mapsto k_{n}\}$$
+As described on page 124, each element $a_{i}$ appears $k_{i}$ times in the list $a_{1},...,a_{n}$
+such that the number of occurrences of $a_{i}$ within bag $A$ is returned by
+$$count ~A ~a_{i} \ \equiv A ~\# ~a_{i}$$
+
+\subsection{Maps}
+This document introduces a named subcategory of sets, $map$ of the free type $KV$,
+which are akin to sequences and bags. To enumerate the members of a $map$, $\ldata ... \rdata$ is used
+but should not be confused with $d_{i}\ldata E_{i}[T]\rdata$ within a Free Type definition. The
+distinction between the two usages is context dependent but in general, if $\ldata ... \rdata$
+is used outside of a constructor declaration within a Free Type definition,
+it should be assumed to represent a $map$.
+$$KV ::= base ~| ~associate\ldata KV \cross X \cross Y \rdata$$
+where
+\begin{argue}
+  base & is a constant which is the empty $KV \implies \ldata \rdata$ \\
+  associate & is a constructor and is inferred to be an injection
+\end{argue}
+The full enumeration of all properties, constraints and functions
+specific to a $map$ with type $KV$ will be defined elsewhere but
+$associate$ can be understood to (in the most basic case) operate as follows.
+$$associate(base, x_{i}, y_{i}) = \ldata (x_{i}, y_{i}) \rdata \implies \ldata x_{i} \mapsto y_{i} \rdata$$
+The enumeration of a $map$ was chosen to be $\ldata ... \rdata$ as a $map$ is a collection of injections
+such that if $M$ is the result of $associate(base, x_{i}, y_{i})$ from above then
+$$atKey(M, x_{i}) = y_{i} \iff x_{i} \mapsto y_{i} ~\land (x_{i}, y_{i}) \in M$$
+
+\subsection{Select Operations and Symbols}
+The follow are defined in Chapter 4 (The Mathematical Tool-kit) within the reference manual
+and are used extensively throughout this document. In many cases, the functions listed here
+will serve as Operations in the context of Primitives and Algorithms.
+
+\subsubsection{Functions}
+\begin{argue}
+  \pfun & relate each x $\in$ X to at most one y $\in$ Y, page 105 \\
+  \fun & relate each x $\in$ X to exactly one y $\in$ Y, page 105 \\
+  \pinj & map different elements of x to different y, page 105 \\
+  \inj & $\pinj$ that are also $\fun$, page 105 \\
+  \psurj & $X \pfun Y$ where whole of Y is the range, page 105 \\
+  \surj & $X \pfun Y$ whole of X as domain and whole of Y as range, page 105 \\
+  \bij & map x $\in$ X one-to-one with y $\in$ Y, page 105
+\end{argue}
+\begin{zed}
+  X \pfun Y == \{~f : X \rel Y ~| ~(\forall x : X; y1, y2 : Y @ \\
+  \t5 (x \mapsto y_{1} \in f \ \land \ (x \mapsto y_{2}) \in f \implies y_{1} = y_{2}))\} \\
+  X \fun Y == \{~f : X \pfun Y ~| ~\dom f = X\} \\
+  X \pinj Y == \{~f : X \pfun Y ~| ~(\forall x_{1}, x_{2} : \dom f @ f(x_{1}) = f(x_{2}) \implies x_{1} = x_{2})\} \\
+  X \inj Y == (X \pinj Y) \cap (X \fun Y) \\
+  X \psurj Y == \{~f : X \pinj Y ~| ~\ran f = Y\} \\
+  X \surj Y == (X \psurj Y) \cap (X \fun Y) \\
+  X \bij Y == (X \surj Y) \cap (X \inj Y)
+\end{zed}
+
+\subsubsection{Ordered Pairs, Maplet and Composition of Relations}
+\begin{argue}
+  first & returns the first element of an ordered pair, page 93 \\
+  second & returns the second element of an ordered pair, page 93 \\
+  \mapsto & maplet is a graphic way of expressing an ordered pair, page 95 \\
+  \dom & set of all x $\in$ X related to at least one y $\in$ Y by R, page 96 \\
+  \ran & set of all y $\in$ Y related to at least one x $\in$ X by R, page 96 \\
+  \comp & The composition of two relationships, page 97 \\
+  \circ & The backward composition of two relationships, page 97
+\end{argue}
+
+\begin{gendef}[X,Y]
+  first: X \cross Y \fun X \\
+  second: X \cross Y \fun Y
+  \where
+  \forall x: X; y: Y @ \\
+  \t1 first(x,y) = x \ \land \\
+  \t1 second(x,y) = y
+\end{gendef}
+
+\begin{gendef}[X,Y]
+  \_\mapsto\_: X \cross Y \fun X \cross Y
+  \where
+  \forall x:X; y:Y @ \\
+  x \mapsto y = (x, y)
+\end{gendef}
+
+\begin{gendef}[X,Y]
+  \dom : (X \rel Y) \fun \power X \\
+  \ran : (X \rel Y) \fun \power Y
+  \where
+  \forall R : X \rel Y @ \\
+  \t1 \dom R = \{~x : X; ~y : Y ~| ~x \underline{R} y @ x\} ~\land \\
+  \t1 \ran R = \{~x : X; ~y : Y ~| ~x \underline{R} y @ y\}
+\end{gendef}
+
+\begin{gendef}[X,Y,Z]
+  \_\comp\_: (X \rel Y) \cross (Y \rel Z) \fun (X \rel Z) \\
+  \_\circ\_: (Y \rel X) \cross (X \rel Y) \fun (X \rel X)
+  \where
+  \forall ~Q : X \rel Y; R : Y \rel Z @ \\
+  \t1 Q \comp R = R \circ Q = \{~x : X; y : Y; z : Z | \\
+  \t5  x ~\underline{Q} ~y \ \land \ y ~\underline{R} ~z @ x \mapsto z\}
+\end{gendef}
+
+\subsubsection{Numeric}
+
+\begin{argue}
+  succ & the next natural number, page 109\\
+  .. & set of integers within a range, page 109 \\
+  \# & number of members of a set, page 111 \\
+  \min & smallest number in a set of numbers, page 113 \\
+  \max & largest number in a set of numbers, page 113
+\end{argue}
+
+\begin{axdef}
+  succ : \nat \fun \nat \\
+  \_~..~\_ : \num \cross \num \fun \power \num
+  \where
+  \forall n : \nat @ succ(n) = n + 1 \\
+  forall a,b : \num @ \\
+  \t2 a~..~b = \{~k : \num ~| ~a \leq k \leq b\}
+\end{axdef}
+
+\begin{gendef}[X]
+  \# : \finset X \fun \nat
+  \where
+  \forall S : \finset X @ \\
+  \t1 \#S = (\mu ~n : \nat ~| ~(\exists f : 1~..~n \inj X @ \ran f = S))
+\end{gendef}
+
+\begin{axdef}
+  \min : \power_1 \num \pfun \num \\
+  \max : \power_1 \num \pfun \num
+  \where
+  \min = \{~S : \power_1 \num; m : \num ~| \\
+  \t2 m \in S ~\land ~(\forall n : S @ m \leq n) @ S \mapsto m\} \\
+  \max = \{~S : \power_1 \num; m : \num ~| \\
+  \t2 m \in S ~\land ~(\forall n : S @ m \geq n) @ S \mapsto m\}
+\end{axdef}
+
+\subsubsection{Sequences}
+\begin{argue}
+  \cat & concatenation of two sequences, page 116 \\
+  rev & reverse a sequence, page 116 \\
+  head & first element of a sequence, page 117 \\
+  last & last element of a sequence, page 117 \\
+  tail & all elements of a sequence except for the first, page 117 \\
+  front & all elements of a sequence except for the last, page 117 \\
+  \extract & sub seq based on provided indices, order maintained, page 118\\
+  \filter & sub seq based on provided condition, order maintained, page 118 \\
+  squash & compacts a fn of positive integers into a sequence, page 118 \\
+  \dcat & flatten seq of seqs into single seq, page 121 \\
+  \disjoint & pairs of sets in family have empty intersection, page 122 \\
+  \partition & union of all pairs of sets = the family set, page 122
+\end{argue}
+
+\begin{gendef}[X]
+  \_~\cat~\_ : \seq X \cross \seq X \fun \seq X \\
+  rev : \seq X \fun \seq X
+  \where
+  \forall s, t : \seq X @ \\
+  \t1 s \cat t = s \cup \{~n : \dom t @ n + \# s \mapsto t(n)\} \\
+  \forall s : \seq X @ \\
+  \t1 rev s = (\lambda ~n : \dom s @ s(\#s - n + 1))
+\end{gendef}
+
+\begin{gendef}[X]
+  head, last : \seq_1 X \fun X \\
+  tail, front : \seq_1 X \fun \seq X
+  \where
+  \forall s : \seq_1 X @ \\
+  \t1 head ~s = s(1) ~\land \\
+  \t1 last ~s = s(\#s) ~\land \\
+  \t1 tail ~s = (\lambda ~n : 1 ~..~\#s - 1 @ s(n + 1)) ~\land \\
+  \t1 front ~s = (1~..~\#s - 1) \dres s
+\end{gendef}
+
+\begin{gendef}[X]
+  \_~\extract~\_ : \power \nat_1 \cross \seq X \fun \seq X \\
+  \_~\filter~\_ : \seq X \cross \power X \fun \seq X \\
+  squash : (\nat_1 \pfun X) \fun \seq X
+  \where
+  \forall U : \power \nat_1; s : \seq X @ \\
+  \t1 U \extract s = squash(U \dres s) \\
+  \forall s : \seq X; V : \power X @ \\
+  \t1 s \filter V = squash(s \rres V) \\
+  \forall f : \nat_1 \pfun X @ \\
+  \t1 squash f = f ~ \circ ~(\mu ~p : 1~..~\# f \bij \dom f ~| ~p \circ succ \circ p \inv \subseteq (\_ ~< ~\_))
+\end{gendef}
+
+\begin{gendef}[X]
+  \dcat : \seq(\seq X) \fun \seq X
+  \where
+  \dcat \langle \rangle = \langle  \rangle \\
+  \forall s : \seq X @ \dcat \langle s \rangle = s \\
+  \forall q,r : \seq(\seq X) @ \\
+  \t1 \dcat (q \cat r) = (\dcat q) \cat (\dcat r)
+\end{gendef}
+
+\begin{gendef}[I,X]
+  \disjoint ~\_ : \power (I \pfun \power X) \\
+  ~\_ ~\partition ~\_ : (I \pfun \power X) \rel \power X
+  \where
+  \forall S : I \pfun \power X; T : \power X @ \\
+  \t1 (\disjoint S \iff \\
+  \t2 (\forall i,j : \dom S ~| ~i \not= j @ S(i) \cap S(j) = \emptyset))~ \land \\
+  \t1 (S \partition T \iff \\
+  \t2 \disjoint S ~ \land ~ \bigcup \{~i : \dom S @ S(i)\} = T)
+\end{gendef}
+
+\subsubsection{Bags}
+
+\begin{argue}
+  count, \# & the number of times something appears in a bag, page 124 \\
+  \otimes & scaling across a bag, page 124 \\
+  \uplus & union of two bags, sum of occurrences, page 126 \\
+  \uminus & bag difference, subtract occurrences or zero if negative, page 126 \\
+  items & conversion from $\seq$ to $\bag$, page 127
+\end{argue}
+
+\begin{gendef}[X]
+  count : \bag X \bij (X \fun \nat) \\
+  \_ ~ \# ~ \_ : \bag X \cross X \fun \nat \\
+  \_ ~ \otimes ~\_ : \nat \cross \bag X \fun \bag X
+  \where
+  \forall B : \bag X @ \\
+  \t1 count B = (\lambda x : X @ 0) \oplus B \\
+  \forall x : X; B : \bag x @ \\
+  \t1 B ~\# ~x = count ~B ~x \\
+  \forall n : \nat ; B : \bag X; x : X @ \\
+  \t1 (n \otimes B) ~\# ~x = n * (B ~\# ~x)
+\end{gendef}
+
+\begin{gendef}[X]
+  \_ ~\uplus ~\_ ~, ~\_ ~ \uminus ~\_ : \bag X \cross \bag X \fun \bag X
+  \where
+  \forall B ~, ~C : \bag X; x : X @ \\
+  \t1 (B ~ \uplus ~C) ~\# ~x = B ~ \# ~ x + C ~ \# x ~ \land \\
+  \t1 (B ~ \uminus ~C) ~\# ~ x = \max \{B ~\# x ~- ~C ~\# ~x, 0\}
+\end{gendef}
+
+\begin{gendef}[X]
+  items : \seq X \fun \bag X
+  \where
+  \forall s : \seq X; x : X @ \\
+  \t1 (items ~s) ~\# ~x = \#\{~i : \dom s ~| ~s(i) = x\}
+\end{gendef}
+
+\end{document}

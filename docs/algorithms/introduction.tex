@@ -1,0 +1,652 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Operations, Primitives and Algorithms}
+The following sections introduce, define and explain Operations, Primitives and Algorithms generally using the Terminology presented below. Operations are the building blocks of Primitives whereas Primitives are the building blocks of Algorithms. The definitions which follow are flexible enough to support implementation across programing languages but have been inspired by the core concepts found within Lisp and Z. The focus of these sections is to define the properties of and interactions between Operations, Primitives and Algorithms in a general way which doesn't place unnecessary bounds on their range of possible functionality with respect to processing xAPI data.
+
+\subsection{Terminology}
+
+Within this document, (s) indicates one or more.
+
+\subsubsection{Scalar}
+When working with xAPI data, Statements are written using \href{https://www.json.org/}{JavaScript Object Notation} (JSON).
+This data model supports a few fundamental types as described by \href{https://json-schema.org/understanding-json-schema/reference/type.html}{JSON Schema}.
+In order to speak about a singular valid JSON value (string, number, boolean, null) generically, the term Scalar is used.
+To talk about a scalar within a Z Schema, the following free and basic types are introduced.
+\begin{zed}
+  [STRING, NULL] \\
+  Boolean :== true ~| ~false \\
+  Scalar :== Boolean ~| ~STRING ~| ~NULL ~| ~\num
+\end{zed}
+Arrays and Objects are also valid JSON values but will be referenced using the terms Collection and Map $\lor$ KV respectively.
+
+\subsubsection{Collection}
+a sequence $\langle ... \rangle$ of items $c$ such that each $c : \nat \cross V \implies (\nat, V) \implies \nat \mapsto V$
+\begin{axdef}
+  C : Collection
+  \where
+  C = \langle c_{i}..c_{n}..c_{j} \rangle \implies \{~i \mapsto c_{i}, n \mapsto c_{n}, j \mapsto c_{j} \} @
+  i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j
+\end{axdef}
+And the following free type is introduced for collections
+\begin{argue}
+  Collection :== emptyColl ~| ~append \ldata Collection \cross Scalar ~\lor Collection ~\lor KV \cross \nat \rdata \\
+  \t1 emptyColl & the empty Collection $\langle  \rangle$ \\
+  \t1 append & is a constructor and is inferred to be an injection \\
+  \t1 KV & a free type introduced bellow \\
+  append(emptyColl, c?, 0) = \langle c_{0} \rangle \implies \{~0 \mapsto c?\} & $append$ adds $c?$ to $\langle  \rangle$ at $\nat$
+\end{argue}
+
+\subsubsection{Key}
+
+An identifier $k$ paired with some value $v$ to create an ordered pair $(k, v)$. $k$ can take on any valid JSON value (Scalar, Collection, KV)
+except for the Scalar null. The following free type is introduced for keys.
+\begin{zed}
+  K ::= (Scalar \hide NULL) ~| ~Collection ~| ~KV
+\end{zed}
+
+\subsubsection{Value}
+
+A value $v$ is paired with an identifier $k$ to create an ordered pair $(k, v)$. $v$ can be any valid JSON value (Scalar, Collection, KV)
+The following free type is introduced for values.
+
+\begin{zed}
+  V ::= Scalar ~| ~Collection ~| ~KV
+\end{zed}
+
+\subsubsection{Map}
+Within the Z Notation Introduction section, Maps are introduced using the free type $KV$.
+\begin{zed}
+  KV ::= base ~| ~associate \ldata~KV \cross X \cross Y \rdata
+\end{zed}
+This definition is more accurately
+\begin{zed}
+  KV ::= base ~| ~associate \ldata~KV \cross K \cross V \rdata
+\end{zed}
+which indicates the usage of Key $k$ and Value $v$ within $associate$. Using this updated definition,
+\begin{zed}
+  associate(base, k, v) = \ldata (k, v) \rdata
+\end{zed}
+such that a Map is a Collection of ordered pairs $(k_{n}, v_{n})$ and thus a Collection of mappings
+\begin{zed}
+  (k_{n}, v_{n}) \implies k_{n} \mapsto v_{n}
+\end{zed}
+but Maps are special cases of Collections as $k_{n}$ is the unique identifier of $v_{n}$ within a Map
+but the opposite is not true. In fact, keys are their own identifiers
+\begin{zed}
+  \id v_{n} = k_{n} \\
+  \id k_{n} \not= v_{n} \\
+  \id k_{n} = k_{n}
+\end{zed}
+Given a Map $M = \ldata (k_{i}, v_{i})~..~(k_{n}, v_{n})~..~(k_{j}, v_{j}) \rdata$ the following demonstrates the uniqueness of Keys
+but the same is not true for all $v$ within $M$
+\begin{zed}
+  k_{i} \not= k_{n} \not= k_{j} \\
+  v_{i} = v_{n} \lor v_{i} \not= v_{n} \
+  v_{i} = v_{j} \lor v_{i} \not= v_{j} \
+  v_{j} = v_{n} \lor v_{j} \not= v_{n}
+\end{zed}
+which can all be stated formally as
+\begin{gendef}[K, V]
+  Map : K \cross V \bij KV
+  \where
+  Map = \ldata (k_{i}, v_{i})~..~(k_{n}, v_{n})~..~(k_{j}, v_{j}) \rdata @ \\
+  \t1 \dom Map = \{~ k_{i}~..~k_{n}~..~k_{j}\} \\
+  \t1 \ran Map = \{~v_{i}~..~v_{n}~..~v_{j}\} \\
+  \t1 first(k_{i}, v_{i}) \not= first(k_{n}, v_{n}) \not= first (k_{j}, v_{j}) ~\land \\
+  \t1 v_{i} = v_{n} \lor v_{i} \not= v_{n} \ v_{i} = v_{j} \lor v_{i} \not= v_{j} \ v_{j} = v_{n} \lor v_{j} \not= v_{n} ~\land \\
+  \t1 \id ~v_{i} = k_{i} ~\land \id ~v_{n} = k_{n} ~\land \id ~v_{j} = k_{j} ~\land \\
+  \t1 \id ~k_{i} = k_{i} ~\land \id ~k_{n} = k_{n} ~\land \id k_{j} = k_{j}
+\end{gendef}
+Given that $v$ can be a Map $M$, or a Collection $C$, Arbitrary nesting is allowed within Maps but the properties of a Map hold at any depth.
+$$M = \ldata (k_{i}, v_{i})~..~(k_{n}, \ldata (k_{ni}, v_{ni}) \rdata)~..(k_{j}, \langle v_{ji}~..~\ldata (k_{jn}, v_{jn}) \rdata~..~\langle v_{jji}~..~v_{jjn}~..~v_{jjj}\rangle\rangle) \rdata$$
+such that $\ldata (k_{ni}, v_{ni}) \rdata$ and $\ldata (k_{nj}, v_{nj}) \rdata$ are both Maps and adhere to the constraints enumerated above.
+
+\subsubsection{Statement}
+
+Immutable Map conforming to the \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md#24-statement-properties}{xAPI Specification} as described in the xAPI Formal Definition section of this document. The immutability of a Statement $s$ is demonstrated by the following
+which indicates that $s$ was not altered when passed to $associate$.
+\begin{axdef}
+  s!, s? : STATEMENT \\
+  k? : K \\
+  v? : V \\
+  \where
+  s! = associate(s?, k?, v?) = s? \implies (k?, v?) \not \in s! \implies s! = s? \\
+\end{axdef}
+ Additionally, given the schema $Statements$ the following is true for all $Statement$(s)
+\begin{axdef}
+  Statements \\
+  Keys : STRING \\
+  S : Collection
+  \where
+  Keys = \{~id, actor, verb, object, result, context, attachments, timestamp, stored\} \\
+  \dom statement = K \dres Keys \\
+  S = \langle ~statement_{i}~..~statement_{n}~..~statement_{j} \rangle @ \\
+  \t1 atKey(statement_{i}, id) \not= atKey(statement_{n}, id) \not= atKey(statement_{j}, id) \implies \\
+  \t1 id_{i} \not= id_{n} \not= id_{j} \iff statement_{i} \not= statement_{n} \not= statement_{j}
+\end{axdef}
+Which confirms the constraints found in the schema $Statement$ and adds an additional constraint
+to $Statements$ such that every unique $Statement$ in a $Collection$ of $Statements$ has a unique $id$.
+
+\subsubsection{Algorithm State}
+
+Mutable Map $state$ without any domain restriction such that
+\begin{axdef}
+  state?, state! : KV \\
+  k? : K \\
+  v? : V
+  \where
+  associate(state?, k?, v?) = state! @ (k, v) \in state! \implies state? \not= state!
+\end{axdef}
+
+\subsubsection{Option}
+
+Mutable Map $opt$ which is used to alter the result of an Algorithm. The effect of $opt$ on an Algorithm will be discussed in the Algorithm Result section bellow.
+
+\section{Operation}
+
+An Operation is a function of arbitrary arguments and is defined using Z. For example, Operations pulled directly from "The Z Notation: A Reference Manual" include
+\begin{itemize}
+\item $first$
+\item $second$
+\item $succ$
+\item $\min$
+\item $\max$
+\item $count \equiv \#$
+\item $\cat$
+\item $rev$
+\item $head$
+\item $last$
+\item $tail$
+\item $front$
+\item $\extract$
+\item $\filter$
+\item $\dcat$
+\item $\disjoint$
+\item $\partition$
+\item $\otimes$
+\item $\uplus$
+\item $\uminus$
+\item $items$
+\end{itemize}
+
+\subsection{Domain}
+The arguments passed to an Operation can be any of the following but the definition of an Operation may limit the domain to a subset of the following
+\begin{itemize}
+\item Key(s)
+\item Value(s)
+\item Set(s)
+\item Collection(s)
+\item Bag(s)
+\item KV(s)
+\item Statement(s)
+\item Algorithm State
+\end{itemize}
+
+\subsection{Range}
+The result of an Operation can be any of the following but the definition of an Operation may limit this range to a subset of the following
+
+\begin{itemize}
+\item Key(s)
+\item Value(s)
+\item Set(s)
+\item Collection(s)
+\item Bag(s)
+\item KV(s)
+\item Statement(s)
+\item Algorithm State
+\end{itemize}
+
+\section{Primitive}
+Primitives break the processing of xAPI data down into discrete units that can be composed to create new analytical functions.
+Primitives allow users to address the methodology of answering research questions as a sequence of generic algorithmic steps
+which establish the necessary data transformations, aggregations and calculations required to reach the solution in an implementation agnostic way.
+
+Within this document, they will be defined as a Collection of Operations and/or Primitives where the output is piped from member to member.
+In this section, $o_{n}$ and $p_{n}$ can be used as to describe Primitive members but for simplicity, only $o_{n}$ will be used.
+\begin{zed}
+  p_{\langle i~..~n~..~j \rangle} = o_{i} ~\pipe ~o_{n} ~\pipe ~o_{j}
+\end{zed}
+Within any given Primitive $p$, variables local to $p$ and any global variables may be passed as arguments to any member of $p$
+and there is no restriction on the ordering of arguments with respect to the piping.
+In the following, $q?$ is a global variable whereas the rest are local.
+\begin{axdef}
+  x?, y?, z?, i!, n!, j!, p! : Value \\
+  o_{i} : Value \pfun Value \\
+  o_{n} : Value \cross Value \pfun Value \\
+  o_{j}, p : Value \cross Value \cross Value \pfun Value \\
+  \where
+  i! = o_{i}(x?) \\
+  n! = o_{n}(i!, y?) \\
+  j! = o_{j}(z?, n!, q?) \\
+  p! = j! \implies o_{j}(z?, o_{n}(o_{i}(x?), y?), q?)
+\end{axdef}
+In the rest of this document, the following notation is used to distinguish between
+the functionality of a Primitive and its composition. This notation should be used when defining Primitives.
+\begin{axdef}
+  primitiveName~\_ : ~\_~\pfun~\_
+  \where
+  primitiveName = \langle primitiveName_{i}~\_~..~primitiveName_{n}~\_~..~primitiveName_{j}~\_~ \rangle
+\end{axdef}
+\begin{itemize}
+\item The top line indicates the Primitive
+  \begin{itemize}
+  \item should be written using postfix notation within other schemas
+  \item is at least a partial function from some input to some output
+  \end{itemize}
+\item The bottom line is an enumeration of the composing Operations and/or Primitives and their order of execution
+\end{itemize}
+This means the definition of $p$ from above can be updated as follows.
+\begin{axdef}
+  p~\_ : Value \cross Value \cross Value \pfun Value
+  \where
+  p = \langle ~o_{i}, ~o_{n}, ~o_{j} \rangle \\
+  p(x?, y?, z?) = o_{j}(z?, o_{n}(o_{i}(x?), y?), q?)
+\end{axdef}
+Additionally, this notation supports declaration of recursive iteration via the presence of $recur~\_$ within a Primitive chain
+\begin{axdef}
+  primitiveName_{i} = \langle \langle  primitiveName_{ii}~\_~, primitiveName_{in}~\_ ~\rangle, ~ recur~\_ ~ \rangle \bsup \#~\_ \esup
+  \where
+  \langle \langle primitiveName_{ii}~\_~, primitiveName_{in}~\_ ~\rangle, ~ recur~\_ ~ \rangle \bsup \#~\_ \esup \implies \\
+  \t2 (primtiveName_{ii} ~\pipe ~primitiveName_{in}) \bsup \#~\_ \esup @ \\
+  \t3 \forall ~n : i~..~j @ j = \#~\_ ~ \land ~i ~\leq ~n ~\leq j ~|~ \exists_1 p_{n} : ~\_~\pfun \_\_ \pfun~\_ @ \\
+  \t4 let ~~ \ \ p_{i} == primtiveName_{ii} ~\pipe ~primitiveName_{in} \implies \\
+  \t6 p_{i}~\_ = primitiveName_{in}(primitiveName_{ii}~\_)  \\
+  \t5 p_{n} == p_{i} ~\pipe ~ primtiveName_{ii} ~\pipe ~primitiveName_{in} \implies\\
+  \t6 p_{n}~\_ = primitiveName_{in}(primitiveName_{ii}(p_{i}~\_)) \\
+  \t5 p_{j} == p_{n} ~\pipe ~ primtiveName_{ii} ~\pipe ~primitiveName_{in} \implies\\
+  \t6 p_{j}~\_ = primitiveName_{in}(primitiveName_{ii}(p_{n}~\_)) \\
+  \t3 p_{j} = (primtiveName_{ii} ~\pipe ~primitiveName_{in}) \bsup \#~\_ \esup @ j = 3 \implies \\
+  \t5 ~ (primtiveName_{ii} ~\pipe ~primitiveName_{in}) ~ \pipe \\
+  \t5 ~ (primtiveName_{ii} ~\pipe ~primitiveName_{in}) ~ \pipe \\
+  \t5 ~ (primtiveName_{ii} ~\pipe ~primitiveName_{in}) \implies \\
+  \t6 primitiveName_{in}( \\
+  \t7 primitiveName_{ii}( \\
+  \t8 primitiveName_{in}( \\
+  \t9 primitiveName_{ii}(p_{i}~\_))))
+\end{axdef}
+Here, $p_{i}$ was chosen to only be two primitives $primtiveName_{ii} ~ \land ~ primitiveName_{in}$ for simplicity sake.
+The Primitive chain can be of arbitrary length. The number of iterations is described using the count operation $\#~\_$.
+Above $j = 3$ was used to demonstrate the piping between iterations but $j$ is not exclusively $= 3$. Given above,
+the term Primitive Chain can be defined as:
+\begin{zed}
+  (primtiveName_{i} ~\pipe ~primitiveName_{n} ~ \pipe ~ primitiveName_{j})\bsup \#~\_ \esup @ \\
+  \t1 \#~\_ = 0 \implies primtiveName_{i} ~\pipe ~primitiveName_{n} ~ \pipe ~ primitiveName_{j}
+\end{zed}
+where a Primitive chain iterated to the 0 is just the chain itself hence recursion is not a requirement of, but is supported within, the definition of Primitives.
+
+\subsection{Domain}
+Any of the following dependent upon the Operations which compose the Primitive
+
+\begin{itemize}
+\item Key(s)
+\item Value(s)
+\item Set(s)
+\item Collection(s)
+\item Bag(s)
+\item KV(s)
+\item Statement(s)
+\item Algorithm State
+\end{itemize}
+
+\subsection{Range}
+Any of the following dependent upon the Domain and Functionality of the Primitive
+
+\begin{itemize}
+\item Key(s)
+\item Value(s)
+\item Set(s)
+\item Collection(s)
+\item Bag(s)
+\item KV(s)
+\item Statement(s)
+\item Algorithm State
+\end{itemize}
+
+\section{Algorithm}
+Given a Collection of statement(s) $S_{\langle a..b..c \rangle}$ and potentially option(s) $opt$ and potentially an existing Algorithm State $state$ an Algorithm $A$ executes as follows
+
+\begin{enumerate}
+\item call $init$
+\item for each $stmt \in S_{\langle a..b..c \rangle}$
+  \begin{enumerate}
+  \item $relevant?$
+  \item $accept?$
+  \item $step$
+  \end{enumerate}
+\item return $result$
+\end{enumerate}
+with each process within $A$ is enumerated as
+
+\begin{lstlisting}[frame=single]
+  (init [state] body)
+   - init state
+
+  (relevant? [state statement] body)
+   - is the statement valid for use in algorithm?
+
+  (accept? [state statement] body)
+   - can the algorithm consider the current statement?
+
+  (step [state statement] body)
+   - processing per statement
+   - can result in a modified state
+
+  (result [state] body)
+   - return without option(s) provided
+   - possibly sets default option(s)
+
+  (result [state opt] body)
+   - return with consideration to option(s)
+\end{lstlisting}
+\begin{itemize}
+\item $body$ is a collection of Primitive(s) which establishes the processing of inputs $\to$ outputs
+\item $state$ is a mutable Map of type $KV$ and synonymous with Algorithm State
+\item $statement$ is a single statement within the collection of statements passed as input data to the Algorithm $A$
+\item $opt$ are additional arguments passed to the algorithm $A$ which impact the return value of the algorithm and synonymous with Option
+\end{itemize}
+An Algorithm must be passed an Algorithm State and a Collection of Statement(s). Option is optional.
+\begin{itemize}
+\item Statement(s)
+\item Algorithm State
+\item Option(s)
+\end{itemize}
+An Algorithm will return an Algorithm State.
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+An Algorithm can be described via its components. A formal definition for an Algorithm
+is presented at the end of this section. The following subsections go into more detail about the components of an Algorithm.
+\begin{zed}
+  Algorithm ::= Init ~\pipe ~Relevant? ~\pipe ~Accept? ~\pipe ~Step ~\pipe Result
+\end{zed}
+\subsection{Initialization}
+
+First process to run within an Algorithm which returns the Algorithm State for the current iteration.
+
+\begin{schema}{Init[KV]}
+  state?, state! : KV \\
+  init~\_: KV \surj KV
+  \where
+  init = \langle body \rangle \\
+  state! = init(state?) @ state! = state? ~\lor ~state! \not = state?
+\end{schema}
+such that some $state!$ does not need to be related to its arguments $state?$
+but $state!$ could be derived from some seed $state?$.
+This functionality is dependent upon the composition of $body$ within $init$.
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsection{Relevant?}
+
+First process that each $stmt$ passes through $\implies relevant? \prec accept? \prec step$
+\begin{schema}{Relevant?[KV, STATEMENT]}
+  state? : KV \\
+  stmt? : STATEMENT \\
+  relevant?~\_ : KV \cross STATEMENT \fun Boolean
+  \where
+  relevant? = \langle body \rangle \\
+  relevant?(state?, stmt?) = true ~\lor false
+\end{schema}
+resulting in an indication of whether the $stmt$ is valid within algorithm $A$.
+The criteria which determines validity of $stmt$ within $A$ is defined by the $body$ of $relevant?$
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Statement
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Boolean
+\end{itemize}
+
+\subsection{Accept?}
+
+Second process that each $stmt$ passes through $\implies relevant? \prec accept? \prec step$
+\begin{schema}{Accept?[KV, STATEMENT]}
+  state? : KV \\
+  stmt? : STATEMENT \\
+  accept?~\_ : KV \cross STATEMENT \fun Boolean
+  \where
+  accept? = \langle body \rangle \\
+  accept?(state?, stmt?) = true ~\lor false
+\end{schema}
+resulting in an indication of whether the $stmt$ can be sent to $step$ given the current $state$.
+The criteria which determines usability of $stmt$ given $state$ is defined by the $body$ of $accept?$
+
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Statement
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Scalar
+\end{itemize}
+
+\subsection{Step}
+
+An Algorithm Step consists of a sequential composition of Primitive(s)
+where the output of some function is passed as an argument to the next function both within and across Primitives in $body$.
+$$body = p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \implies o_{ii} ~\pipe ~o_{in} ~\pipe ~o_{ij} ~\pipe ~o_{ni} ~\pipe ~o_{nn} ~\pipe ~o_{nj} ~\pipe ~o_{ji} ~\pipe ~o_{jn} ~\pipe ~o_{jj}$$
+The selection and ordering of Operation(s) and Primitive(s) into an Algorithmic Step determines how the Algorithm State changes during iteration through Statement(s) passed as input to the Algorithm.
+\begin{axdef}
+  P = \langle p_{i}~..~p_{n}~..~p_{j} \rangle @ i \leq n \leq j \implies i \prec n \prec j \iff i \not= n \not= j @ p_{i} ~\pipe ~p_{n} ~\pipe ~p_{j} \\
+  P' = \langle p_{i'}~..~p_{n'}~..~p_{j'} \rangle @ i' \leq n' \leq j' \implies i' \prec n' \prec j' \iff i' \not= n' \not= j' @ p_{i'} ~\pipe ~p_{n'} ~\pipe ~p_{j'} \\
+  P'' = \langle p_{x}~..~p_{y}~..~p_{z}\rangle @ x \leq y \leq z \implies x \prec y \prec z \iff x \not= y \not= z @ p_{x} ~\pipe ~p_{y} ~\pipe ~p_{z}
+  \where
+  P = P' \iff i \mapsto i' ~\land ~n \mapsto n' ~\land ~j \mapsto j' \\
+  P = P'' \iff (i \mapsto x ~\land n \mapsto y ~\land j \mapsto z) ~\land (p_{i} \equiv p_{x} ~\land p_{n} \equiv p_{y} ~\land p_{j} \equiv p_{z})
+\end{axdef}
+$step$ may or may not update the input Algorithm State given the current Statement from the Collection of Statement(s).
+\begin{axdef}
+  S : Collection \\
+  stmt_{a}, stmt_{b}, stmt_{c} : STATEMENT \\
+  state?, step_{a}!, step_{b}!, step_{c}! : KV \\
+  step~\_ : KV \cross STATEMENT \surj KV
+  \where
+  S = \langle stmt_{a}..stmt_{b}..stmt_{c} \rangle @ a \leq b \leq c \implies a \prec b \prec c \iff a \not= b \not= c \\
+  step_{a}! = step(state?, stmt_{a}) @ step_{a}! = state? ~\lor ~step_{a}! \not= state? \\
+  step_{b}! = step(step_{a}!, stmt_{b}) @ step_{b}! = step_{a}! ~\lor ~step_{b}! \not= step_{a}! \\
+  step_{c}! = step(step_{b}!, stmt_{c}) @ step_{c}! = step_{b}! ~\lor ~step_{c}! \not= step_{b}!
+\end{axdef}
+In general, this allows $step$ to be defined as
+\begin{schema}{Step[KV, STATEMENT]}
+  state?, state! : KV \\
+  stmt? : STATEMENT \\
+  step~\_ : KV \cross STATEMENT \surj KV
+  \where
+  step = \langle body \rangle \\
+  state! = step~(state?, stmt?) = state? ~\lor ~state! \not= state?
+\end{schema}
+A change of $state? \to state! @ state! \not= state?$ can be predicted to occur given
+\begin{itemize}
+\item The definition of individual Operations which constitute a Primitive
+\item The ordering of Operations within a Primitive
+\item The Primitive(s) chosen for inclusion within the body of $step$
+\item The ordering of Primitive(s) within the body of $step$
+\item The key value pair(s) in both Algorithm State and the current Statement
+\item The ordering of Statement(s)
+\end{itemize}
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Statement
+\item Algorithm State
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsection{Result}
+
+Last process to run within an Algorithm which returns the Algorithm State $state$
+when all $s \in S$ have been processed by $step$
+
+\begin{zed}
+  relevant? \prec accept? \prec step \prec result \prec relevant? \iff S \not= \emptyset \\
+  relevant? \prec accept? \prec step \prec result \iff S = \emptyset
+\end{zed}
+and does so without preventing subsequent calls of $A$
+\begin{schema}{Result[KV, KV]}
+  result!, state?, opt? : KV \\
+  result~\_ : KV \cross KV \surj KV
+  \where
+  result = \langle body \rangle \\
+  result! = result(state?, opt?) = state? ~\lor ~state! \not= state?
+\end{schema}
+such that if at some future point $j$ within the timeline $i~..~n~..~j$
+\begin{argue}
+  S(t_{n}) = \emptyset & S is empty at $t_{n}$ \\
+  S(t_{j}) \not= \emptyset & S is not empty at $t_{j}$ \\
+  S(t_{n - i}) & stmts(s) added to $S$ between $t_{i}$  and $t_{n}$ \\
+  S(t_{j - n}) & stmts(s) added to $S$ between $t_{n}$  and $t_{j}$ \\
+  S(t_{j - i}) = S(t_{n - i}) \ \cup \ S(t_{j - n}) & stmts(s) added to $S$ between $t_{i}$ and $t_{j}$
+\end{argue}
+Algorithm $A$ can pick up from a previous $state_{n}$ without losing track of its own history.
+\begin{axdef}
+  state_{n-i} = A(state_{i},\ S(t_{n - i})) \\
+  state_{n-1} = A(state_{n-2}, \ S(t_{n - 1})) \\
+  state_{n} = A(state_{n-1},\ S(t_{n})) \\
+  state_{j-n} = A(state_{n}, \ S(t_{j-n})) \\
+  state_{j} = A(state_{i},\ S(t_{j - i}))
+  \where
+  state_{n} = state_{n-1} \iff S(t_{n}) = \emptyset ~\land S(t_{n-1}) \not = \emptyset \\
+  state_{j} = state_{j-n} \iff state_{n-i} = state_{n} = state_{n-1}
+\end{axdef}
+Which makes $A$ capable of taking in some $S_{\langle i..n..j..\infty \rangle}$ as not all $s \in S_{\langle i..\infty \rangle}$ have to be considered at once. In other words, the input data does not need to persist across the history of $A$, only the effect of $s$ on $state$ must be persisted.
+Additionally, the effect of $opt$ is determined by the $body$ within $result$ such that
+\begin{zed}
+  A(state_{n}, \ S(t_{j-n}), \ opt) \\
+  \t1 \equiv A(state_{i}\ S(t_{j - i})) \\
+  \t1 \equiv A(state_{i},\ S(t_{j - i}), \ opt) \\
+  \t1 \equiv A(state_{n}, \ S(t_{j-n}))
+\end{zed}
+implying that the effect of $opt$ doesn't prevent backwards compatibility of $state$.
+
+\subsubsection{Domain}
+
+\begin{itemize}
+\item Algorithm State
+\item Option(s)
+\end{itemize}
+
+\subsubsection{Range}
+
+\begin{itemize}
+\item Algorithm State
+\end{itemize}
+
+\subsection{Algorithm Formal Definition}\label{AFD_ref}
+In previous sections, $A~\_$ was used to indicate calling an Algorithm.
+In the rest of this document, that notation will be replaced with $algorithm~\_$.
+This new notation is defined using the definitions of Algorithm Components presented above.
+The previous definition of an Algorithm
+\begin{zed}
+  Algorithm ::= Init ~\pipe ~Relevant? ~\pipe ~Accept? ~\pipe ~Step ~\pipe Result
+\end{zed}
+can be refined using the Operation $recur$ and Primitive $algorithmIter$ (defined in following subsections)
+to illustrate how an Algorithm processes a Collection of Statement(s).
+\begin{schema}{Algorithm[KV, Collection, KV]}
+  Algorithm ~Iter, ~Recur, ~Init, ~Result \\
+  opt?, state?, state! : KV \\
+  S? : Collection @ \forall s? \in S? ~| ~s? : STATEMENT \\
+  algorithm~\_ : KV \cross Collection \cross KV \surj KV
+  \where
+  algorithm = \langle ~init~\_~, \langle ~algorithmIter~\_~, ~recur~\_~\rangle \bsup \#~S? \esup, ~result~\_~\rangle \\
+  state! = algorithm(state?, S?, opt?) @ \\
+  \t1 let \ \ ~ init! == init(state?) @ \\
+  \t1 \forall s_{n} \in S? ~|~ s_{n} : STATEMENT, n : \nat @ i \leq n \leq j ~@ \\
+  \t2 \exists_1 state_{n} ~|~ state_{n} : KV @ \\
+  \t3 let \ \ ~ S?_{n} = tail(S?)\bsup n-i \esup \\
+  \t4 state_{i} = algorithmIter(init!, ~S?_{n}) \implies ~S?_{n} = S? \iff n = i \\
+  \t4 state_{n} = recur(state_{i}, ~S?_{n}, ~\_~algorithmIter~\_)\bsup j-1 \esup \iff n \not = i ~\land n \not = j\\
+  \t4 state_{j} = recur(state_{n}, (\{j-1, j\} \extract S?), ~\_~algorithmIter~\_) \iff n = j \\
+  \t4 state_{j+1}  = state_{j} \implies recur(state_{j}, (j \extract S?), ~\_~algorithmIter~\_) \iff n = j+1\\
+  \t1 \ \ = result(state_{j}, opt?)
+\end{schema}
+Within the schema above, the following notation is intended to show that $algorithm$ is a Primitive $\implies$ Collection of Primitives and/or Operations.
+$$\langle ~init~\_~, \langle ~algorithmIter~\_~, ~recur~\_~\rangle \bsup \#~S? \esup, ~result~\_~\rangle$$
+Within that notation, the following notation is intended to represent the iteration through the Statement(s) via tail recursion.
+$$\langle ~algorithmIter~\_~, ~recur~\_~\rangle \bsup \#~S? \esup$$
+which implies that each Statement is passed to $algorithmIter~\_$ and
+the result is then passed on to the next iteration of the loop.
+The completion of this loop is the prerequisites of $result~\_$
+
+\subsubsection{Recur}
+The following schema introduces the Operation $recur$ which expects an accumulator ($KV$),
+a $Collection$ of Value(s) ($V$) being iterated over and
+a function ($\_~\pfun~\_$) which will be called as the result of $recur$.
+This Operation has been written to be as general purpose as possible and represents
+the ability to perform \href{https://cs.stackexchange.com/questions/6230/what-is-tail-recursion}{tail recursion}.
+Given this intention, $recur$ must only ever be the last Operation within a Primitive
+\begin{axdef}
+  p_{i~..~j} : \seq_1 @ \forall o \in p ~|~ o : \_~\pfun~\_
+  \where
+  p_{i~..~j} = \langle ~\forall ~n : \nat ~|~ i \leq n \leq j ~\land~ o_{n} \in p_{i~..~j} @ \\
+  \t2 \exists_1 o_{n} @ o_{n} \not = recur ~\lor ~o_{n}= recur \iff n = j \rangle ~ \implies \\
+  \t3 front(p_{i~..~j}) \filter recur = \langle  \rangle
+\end{axdef}
+and results in a call to the passed in function where the
+accumulator $ack?$ and the Collection (minus the first member)
+are passed as arguments to $fn?$. If this would result in the empty Collection ($\langle  \rangle$)
+being passed to $fn?$, instead the accumulator $ack?$ is returned.
+\begin{schema}{Recur[KV, Collection, (\_~\pfun~\_)]}
+  ack? : KV \\
+  S? : Collection \\
+  fn? : (\_~\pfun~\_) \\
+  recur~\_ : KV \cross Collection \cross (\_~\pfun~\_) \rel (KV \cross Collection ~\pfun~\_)
+  \where
+  recur(ack?, S?, fn?) = fn?(ack?, tail(S?)) \iff tail(S?) \not = \langle  \rangle \\
+  recur(ack?, S?, fn?) = first(ack?, tail(S?)) \iff tail(S?) = \langle  \rangle
+\end{schema}
+In the context of Algorithms,
+\begin{zed}
+  ack? = Algorithm State \\
+  S? = Collection of Statement(s) \\
+  fn? = algorithmIter
+\end{zed}
+\subsubsection{Algorithm Iter}
+The following schema introduce the Primitive $algorithmIter$ which
+demonstrates the life cycle of a single statement as its passed through the components of an Algorithm.
+\begin{schema}{Algorithm Iter[KV, Collection]}
+  Relevant?, ~Accept?, ~Step \\
+  state?, state! : KV \\
+  S? : Collection \\
+  s? : STATEMENT \\
+  algorithmIter~\_ : KV \cross STATEMENT \surj KV
+  \where
+  algorithmIter = \langle ~relevant?~\_~, ~accept?~\_~, ~step~\_ ~\rangle \\
+  s? = head(S?) \\
+  state! = algorithmIter(state?, s?) @ \\
+  \t1 let \ \ ~ relevant! == relevant?(state?, s?) \\
+  \t2 accept! == accept?(state?, s?) \\
+  \t2 step! == step(state?, s?)\\
+  \t1 \ ~ = (state? \iff relevant! = false ~ \lor ~ accept! = false) ~\lor \\
+  \t1 \ \ \ \ ~ (step! \iff relevant! = true ~ \land ~ accept! = true)
+\end{schema}
+If a statement if both relevant and acceptable, $state!$ will be the result of $step$. Otherwise,
+the passed in state is returned $\implies step! = state?$.
+\end{document}

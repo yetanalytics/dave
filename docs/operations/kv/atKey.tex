@@ -1,0 +1,32 @@
+\documentclass[../../main.tex]{subfiles}
+\begin{document}
+\subsubsection{At Key}
+The operation $atKey$ will return the Value $v$ at some specified Key $k$.
+\begin{schema}{AtKey[KV, K]}
+  m? : KV \\
+  v! : V \\
+  k? : K \\
+  atKey~\_ : KV \cross K \surj V
+  \where
+  v! = atKey(m?, k?) @ \\
+  \t2 let ~~ coll == ((\seq m?) \filter (k?, m?_{k?})) \implies \langle (k?, m?_{k?}) \rangle \iff k? \in \dom m? \\
+  \ \ \ = (second(head(coll)) \iff k? \mapsto m?_{k?} \in coll) ~\lor \\
+  \t1 (\emptyset \iff k? \not \in \dom m?)
+\end{schema}
+In the schema above, $coll$ is the result of filtering for $(k?, m?_{k?})$ within $\seq m?$.
+If the mapping was in the original $m?$, it will also be in the sequence of mappings. This means
+we can filter over the sequence to look for the mapping and if found, it is returned as $\langle (k?, m?_{k?}) \rangle$.
+To return the mapping itself, $head(coll)$ is used to extract the mapping such that the value mapped to $k?$ can be returned.
+\begin{zed}
+  v! = atKey(m?, k?) = second(head(coll)) = m?_{k?} @ m?_{k?} : V \iff k? \in \dom m?
+\end{zed}
+The following examples demonstrate the properties of $atKey$
+\begin{argue}
+  M = \ldata k_{0}v_{k_{0}}, k_{1}v_{k_{1}} \rdata \\
+  \t1 k_{0} = abc \ \land  v_{k_{0}} = 123 & $k_{0}v_{k_{0}} = abc \mapsto 123$ \\
+  \t1 k_{1} = def \ \land v_{k_{1}} = xyz \mapsto 456 & $k_{1}v_{k_{1}} = def \mapsto xyz \mapsto 456$ \\
+  atKey(M, abc) = 123 \\
+  atKey(M, def) = xyz \mapsto 456 \\
+  atKey(M, foo) = \emptyset
+\end{argue}
+\end{document}

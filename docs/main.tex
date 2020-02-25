@@ -1,0 +1,165 @@
+\documentclass{article}
+
+%%% Package imports
+% cross .tex document references,
+% sources: (https://texfaq.org/FAQ-extref), (http://www-users.york.ac.uk/~pjh503/LaTeX/ref.html)
+\usepackage{xr}
+\usepackage{xr-hyper}
+
+\usepackage{graphicx}
+\graphicspath{{../../resources/plots/} {../resources/plots/} {../../resources/figures/} {../resources/figures/}}
+\usepackage{placeins}
+\usepackage{subfiles}
+\usepackage[utf8]{inputenc}
+\usepackage[ruled]{algorithm2e}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+\usepackage{amsmath}
+\usepackage{zed-csp}
+\usepackage{breqn}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{dateplot}
+\usepgfplotslibrary{polar}
+\usetikzlibrary{pgfplots.dateplot}
+\usetikzlibrary{pgfplots.patchplots}
+\usetikzlibrary{patterns}
+
+\usepackage{floatrow}
+
+\usepackage{calc}
+%%% \makeatletter\amparswitchfalse\makeatother\
+\DeclareMarginSet{hangleft}{\setfloatmargins
+{\hskip-\marginparwidth\hskip-\marginparsep}{\hfil}}
+\floatsetup[widefigure]{margins=hangleft}
+%%% ^ Figure formatting within Appendex A
+
+\lstset{literate = {-}{-}1} % get dashs to show up
+
+\pgfplotsset{compat=1.15}
+
+\SetKw{KwBy}{by}
+
+\usepackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
+
+\title{Data Analytics and Visualization Environment for xAPI and the Total Learning Architecture: DAVE Learning Analytics Algorithms}
+\author{Yet Analytics, Inc. \\ 201 E. Baltimore St., Ste. 630, Baltimore, MD 21202 USA}
+
+\begin{document}
+
+\begin{titlepage}
+  \maketitle
+\end{titlepage}
+
+\section*{Introduction}
+
+This report introduces a language for defining the functionality of learning analytics algorithms in terms of
+\textbf{Operations}, \textbf{Primitives} and \textbf{Algorithms} which will be used to define Algorithms corresponding
+to an initial set of learning analytics questions. Additional questions may be added to this set in the future.
+This document will be updated to include additional Operations, Primitives, and Algorithms as they are defined by the Author(s)
+of this report or by members of the Open Source Community. Updates may also address refinement of existing definitions,
+thus this document is subject to continuous change but those which are significant will be documented within the DAVE change log.
+Any changes made to this report or to the \href{https://github.com/yetanalytics/dave}{DAVE github repository} should follow
+the conventions established in the \href{https://github.com/yetanalytics/dave/wiki/Contributing}{Contributing Wiki Page}.
+The formal definitions in this document are optimized for understandability and conceptual presentation meaning they are not
+presented as, or intended to be, the most computationally efficient definition possible. The formal definitions are intended
+to serve as referential documentation of methodologies and programmatic strategies for handling the processing of xAPI data.
+$\\\\$
+The structure of this document is as follows:
+\begin{enumerate}
+\item An Introduction to Z notation and its usage in this document
+\item A formal specification for xAPI written in Z % FIXME: review + refactor as necessary
+\item Terminology: Operations, Primitives and Algorithms
+\item What is an Operation
+\item What is a Primitive
+\item What is an Algorithm
+\item Foundational Operations
+\item Common Primitives
+\item Example Algorithm
+  \begin{enumerate}
+  \item Init
+  \item Relevant?
+  \item Accept?
+  \item Step
+  \item Result
+  \end{enumerate}
+\end{enumerate}
+
+% FIXME: direct section references using cross-refering mechanism
+% - \label + \externaldocument + \nameref, \ref, pageref
+
+\subfile{z/introduction.tex}
+\subfile{z/xapi.tex}
+\subfile{algorithms/introduction.tex}
+
+\section{Foundational Operations}
+The Operations in this section use the Operations pulled from the Z Reference Manual (section 1,4) within their own definitions.
+They are defined as Operations opposed to Primitives because they represent core functionality needed in the context
+of processing xAPI data given the definition of an Algorithm above. As such, these Operations are added to the global
+dictionary of symbols usable, without a direct reference to the components schema, within the definition of
+Operations and Primitives throughout the rest of this document. In general, Operations are intended to be
+simple, and should not contain any recursive calls. They are building blocks which are used across Primitives
+of varying functionality. When defining an Operation not already in the set of Foundational Operations defined here, its schema
+MUST be referenced at the top of all Schemas which utilize the new Operation.
+
+\subsection{Collections}
+Operations which expect a Collection $X = \langle x_{i}..x_{n}..x_{j} \rangle$
+\subfile{operations/collections/array?.tex}
+\subfile{operations/collections/append.tex}
+\subfile{operations/collections/remove.tex}
+\subfile{operations/collections/atIndex.tex}
+\subfile{operations/collections/update.tex}
+
+\subsection{Key Value Pairs}
+Operations which expect a Map $M = \ldata k_{i}v_{k_{i}}..k_{n}v_{k_{n}}..k_{j}v_{k_{j}} \rdata$
+
+\subfile{operations/kv/map?.tex}
+\subfile{operations/kv/associate.tex}
+\subfile{operations/kv/dissociate.tex}
+\subfile{operations/kv/atKey.tex}
+
+\subsection{Utility}
+Operations which are useful in many Statement processing contexts.
+\subfile{operations/util/map.tex}
+\subfile{operations/util/isoToUnix.tex}
+\subfile{operations/util/timeUnitToNumberOfSeconds.tex}
+\subfile{operations/util/rateOf.tex}
+% FIXME: Define atJSONPath as Operation (special case, hence utility categorization).
+% - Reference another definition of atJsonPath by URL within copy and establish likeness to getIn
+% - in the case of JSONPath, the arg $path?$ is a domain specific structured string but that language is defined outside of this document
+% - further details are outside the scope of this document
+% - update file path, prev version = \subfile{primitives/atJsonPath.tex}
+
+\section{Common Primitives}
+% Low Priority:
+% TODO: update file name?
+% TODO: split into multiple files?
+% TODO: clean~\_ primitive - removes all mappings where V \mapsto \emptyset
+\subfile{primitives/walk.tex}
+
+% New section handled within rateOfCompletions
+\subfile{algorithm_definitions/rateOfCompletions.tex}
+
+% TODO: update legacy versions to Z
+%\subfile{algorithm_definitions/timelineLearnerSuccess.tex}
+%\subfile{algorithm_definitions/mostDifficultAssessmentQuestions.tex}
+%\subfile{algorithm_definitions/followedRecommendations.tex}
+
+% TODO: remove references to legacy versions of Algorithms
+%\subfile{algorithms/rate_of_completions.tex}
+%\subfile{algorithms/timeline_learner_success.tex}
+%\subfile{algorithms/most_difficult_assessment_questions.tex}
+%\subfile{algorithms/followed_recommendations.tex}
+
+\subfile{appendices/a.tex}
+
+\end{document}

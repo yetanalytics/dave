@@ -1,0 +1,430 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Timeline Of Learner Success}
+As learners engage in activities supported by a learning ecosystem, they will build
+up a history of learning experiences. When the digital resources of that learning ecosystem
+adhere to a framework dedicated to supporting and understanding the
+learner, such as the Total Learning Architecture (TLA), it becomes
+possible to retell their learning story through data and data visualization. One important aspect of
+that story is the' learners history of success.
+
+\subsection{Ideal Statements}
+In order to accurately portray a learner's timeline of success, there
+are a few base requirements of the data produced by a Learning Record
+Provider (LRP). They are as follows:
+
+\begin{itemize}
+\item the learner must be uniquely and consistently identified across
+  all statements
+\item learning activities which evaluate a learner's understanding of material must report if the learner was successful or not
+  \begin{itemize}
+  \item the grade earned by the learner must be reported
+  \item the minimum and maximum possible grade must be reported
+  \end{itemize}
+\item The learning activities must be uniquely and consistently identified across all statements
+\item The time at which a learner completed a learning activity must be recorded
+  \begin{itemize}
+  \item The timestamp should contain an appropriate level of specificity.
+  \item ie. Year, Month, Day, Hour, Minute, Second, Timezone
+  \end{itemize}
+\end{itemize}
+
+\subsection{Input Data Retrieval}
+How to query an LRS via a GET request to the Statements Resource via
+curl. The following section contains the appropriate parameters with
+example values as well as the curl command necessary for making the
+request.\footnote{\label{moreLink} $S$ is the set of all statements
+  parsed from the statements array within the HTTP response to the
+  Curl request(s). It may be possible that multiple Curl requests are
+  needed to retrieve all query results. If multiple requests are
+  necessary, $S$ is the result of concatenating the result of each
+  request into a single set}\footnote{\label{noZ} Querying an LRS will
+  not be defined within the following Z specifications but the results
+  of the query will be utilized}\footnote{\label{allTime} If you want
+  to query across the entire history of a LRS, omit Since and Until
+  from the endpoint(s) and remove the associated \& symbols.}
+
+\begin{lstlisting}[frame=single]
+  Agent = "agent={"account":
+    {"homePage": "https://example.homepage",
+      "name": 123456}}"
+
+  Since = "since=2018-07-20T12:08:47Z"
+
+  Until = "until=2018-07-21T12:08:47Z"
+
+  Base = "https://example.endpoint/statements?"
+
+  endpoint = Base + Agent + "&" + Since + "&" + Until
+
+  Auth = Hash generated from basic auth
+
+  S = curl -X GET -H "Authorization: Auth"
+  -H "Content-Type: application/json"
+  -H "X-Experience-API-Version: 1.0.3"
+  Endpoint
+\end{lstlisting}
+
+\subsection{Statement Parameters to Utilize}
+The statement parameter locations here are written in
+\href{http://goessner.net/articles/JsonPath/}{JSONPath}. This notation
+is also compatable with the xAPI Z notation due to the defined
+hierarchy of components. Within the Z specifications, a variable name
+will be used instead of the $\$$
+\begin{itemize}
+\item $\$.timestamp$
+\item $\$.result.success$
+\item $\$.result.score.raw$
+\item $\$.result.score.min$
+\item $\$.result.score.max$
+\item $\$.verb.id$
+\end{itemize}
+
+\subsection{2018 Pilot TLA Statement Problems}
+The initial pilot test data supports this algorithm.
+This section may require updates pending future data review following iterations of the TLA testing.
+\subsection{Summary}
+\begin{enumerate}
+\item Query an LRS via a \href{https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Communication.md#213-get-statements}{GET} request to the statements endpoint using the parameters agent, since and until
+\item Filter the results to the set of statements where:
+  \begin{itemize}
+  \item $\$.verb.id$ is one of:
+    \begin{itemize}
+    \item http://adlnet.gov/expapi/verbs/passed
+    \item https://w3id.org/xapi/dod-isd/verbs/answered
+    \item http://adlnet.gov/expapi/verbs/completed
+    \end{itemize}
+  \item $\$.result.success$ is true
+  \end{itemize}
+\item process the filtered data
+  \begin{itemize}
+  \item extract $\$.timestamp$
+  \item extract the score values from $\$.result.score.raw$,
+    $\$.result.score.min$ and $\$.result.score.max$ and convert them
+    to the scale 0..100
+  \item create a pair of [$\$.timestamp$, $\#$]
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Formal Specification}
+\subsubsection{Basic Types}
+
+$COMPLETION$ :== \\ $\{http://adlnet.gov/expapi/verbs/passed\} \, | \\
+\{https://w3id.org/xapi/dod-isd/verbs/answered\} \; | \\
+\{http://adlnet.gov/expapi/verbs/completed$\} \\
+\\
+$SUCCESS$ :== $\{true\}$
+
+\subsubsection{System State}
+
+\begin{schema}{TimelineLearnerSuccess}
+  Statements \\
+  S_{all} : \finset_1 \\
+  S_{completion},S_{success},S_{processed} : \finset \\
+  \where
+  S_{all} = statements \\
+  S_{completion} \subseteq S_{all} \\
+  S_{success} \subseteq S_{completion} \\
+  S_{processed} = \{pair : (statement.timestamp, \nat)\}
+\end{schema}
+\begin{itemize}
+
+\item The set $S_{all}$ is a non-empty, finite set and is the
+  component $statements$
+\item The sets $S_{completion}$ and $S_{success}$ are both finite sets
+\item the set $S_{completion}$ is a subset of $S_{all}$ which may
+  contain every value within $S_{all}$
+\item the set $S_{success}$ is a subset of $S_{completion}$ which may
+  contain every value within $S_{completion}$
+\item the set $S_{processed}$ is a finite set of pairs where each
+  contains a $statement.timestamp$ and a natural number
+\end{itemize}
+
+\subsubsection{Initial System State}
+\begin{schema}{InitTimelineLearnerSuccess}
+  TimelineLearnerSuccess \\
+  \where
+  S_{all} \not = \emptyset \\
+  S_{completion} = \emptyset \\
+  S_{success} = \emptyset \\
+  S_{processed} = \emptyset
+\end{schema}
+\begin{itemize}
+\item The set $S_{all}$ is a non-empty set
+\item The sets $S_{completion}$,\,$S_{success}$ and $S_{processed}$ are all initially empty
+\end{itemize}
+
+\subsubsection{Filter for Completion}
+\begin{schema}{Completion}
+  Statement \\
+  completion : STATEMENT \pfun \finset \\
+  s? : STATEMENT \\
+  s! : \finset \\
+  \where
+  s? = statement \\
+  s! = completion(s?) \\
+  completion(s?) = \IF s?.verb.id : COMPLETION \\\t5 \THEN s! = s?
+  \\\t5 \ELSE s! = \emptyset
+\end{schema}
+\begin{itemize}
+\item The schema $Completion$ inroduces the function $completion$
+  which takes in the variable $s?$ and returns the variable $s!$
+\item The variable $s?$ is the component $statement$
+\item $s!$ is equal to $s?$
+  if $\$.verb.id$ is of the type $COMPLETION$ otherwise $s!$ is an empty set
+\end{itemize}
+
+\begin{schema}{FilterForCompletion}
+  \Delta TimelineLearnerSuccess \\
+  Completion \\
+  completions : \finset
+  \where
+  completions \subseteq S_{all} \\
+  completions' = \{s : STATEMENT \,|\, completion(s) \not = \emptyset\} \\
+  S_{completion}' = S_{completion} \cup completions' \\
+\end{schema}
+\begin{itemize}
+\item the set $completions$ is a subset of $S_{all}$ which may contain
+  every value within $S_{all}$
+\item The set $completions'$ is the set of all statements $s$ where
+  the result of $completion(s)$ is not an empty set
+\item the updated set $S'_{completion}$ is the union of the previous
+  state of set $S_{completion}$ and the set $completions'$
+\end{itemize}
+
+\subsubsection{Filter for Success}
+\begin{schema}{Success}
+  Statement \\
+  success : STATEMENT \pfun \finset \\
+  s? : STATEMENT \\
+  s! : \finset \\
+  \where
+  s? = statement \\
+  s! = success(s?) \\
+  success(s?) = \IF s?.result.success : SUCCESS \\\t4 \THEN s! = s?
+  \\\t4 \ELSE s! = \emptyset
+\end{schema}
+\begin{itemize}
+\item the schema $Success$ introduces the function $success$ which
+  takes in the variable $s?$ and returns the variable $s!$
+\item the variable $s?$ is the component $statement$
+\item $s!$ is equal to $s?$ if $\$.result.success$ is of the type
+  $SUCCESS$ otherwise $s!$ is an empty set
+\end{itemize}
+
+\begin{schema}{FilterForSuccess}
+  \Delta TimelineLearnerSuccess \\
+  Success \\
+  successes : \finset
+  \where
+  successes \subseteq S_{completion} \\
+  successes' = \{s : STATEMENT \,|\, success(s) \not = \emptyset\} \\
+  S_{success}' = S_{success} \cup successes'
+\end{schema}
+\begin{itemize}
+\item the set $successes$ is a subset of $S_{completion}$ which may contain
+  every value within $S_{completion}$
+\item The set $successes'$ contains elements $s$ of type $STATEMENT$
+  where $success(s)$ is not an empty set
+\item The updated set $S_{success}'$ is the union of the previous
+  state of $S_{success}$ and $successes'$
+\end{itemize}
+
+
+\subsubsection{Processes Results}
+\begin{schema}{Scale}
+  scaled! : \nat \\
+  raw?, min?, max? : \num \\
+  scale : \num \fun \nat
+  \where
+  scaled! = scale(raw?, min?, max?) \\
+  scale(raw?, min?, max?) = \\\t4
+  (raw? * ((0.0 - 100.0) \, div \, (min? - \, max?))) \, + \\ \t4
+  (0.0 - (min? * ((0.0 - 100.0) div (min? - \, max?))))
+\end{schema}
+\begin{itemize}
+\item The schema $Scale$ introduces the function $scale$ which takes
+  3 arguments, $raw?$, $min?$ and $max?$. The function converts
+  $raw?$ from the range $min?..max?$ to 0.0..100.0
+\end{itemize}
+
+\begin{schema}{ProcessStatements}
+  \Delta TimelineLearnerSuccess \\
+  Scale \\
+  FilterStatements \\
+  processed : \finset
+  \where
+  processed \subseteq S_{success} \\
+  processed' = \{p : (\finset_1\#1 , \nat) \,|\, \\\t3
+  \LET \{processed_{i}..processed_{j}\} == \{s_{i}..s_{j}\} @ \\ \t3
+  i \leq n \leq j @ \forall s_{n} : s_{i}..s_{j} @
+  \exists \, p_{n} : p_{i}..p_{j} @ \\\t3 first~p_{n} = s_{n}.timestamp \, \land
+  \\\t3 second~p_{n} = scale(s_{n}.result.score.raw, \\\t7
+  s_{n}.result.score.min, \\\t7
+  s_{n}.result.score.max)\} \\
+  S_{processed}' = S_{processed} \cup processed'
+
+\end{schema}
+\begin{itemize}
+\item The operation $ProcessStatements$ introduces the variable
+  $processed$ which is a subset of $S_{success}$ which may contain
+  every value within $S_{success}$
+\item $S_{success}$ is the result of the operation $FilterStatements$
+\item The operation defines the variable $processsed'$ which is a
+  set of objects $p$ which are ordered pairs of (1) a finite set
+  containing one value and (2) a single positive number.
+\item The first component of every object $p$, is the
+  timestamp from the associated $statement$ within $processed$
+  ie. $s.timestamp$
+\item The second component of every object $p$ is the result
+  of the function $scale$. The score values contained within the
+  associated $statement$ $s$ are the arugments passed to $scale$. ie $scale(s.result.score.raw, s.result.score.min,
+  s.result.score.max)$
+\item The result of the operation $ProcessStatements$ is to updated
+  the set $S_{processed}$ with the values contained within $processed'$
+\end{itemize}
+
+\subsubsection{Sequence of Operations}
+
+$FilterStatements \defs FilterForCompletion \semi FilterForSuccess$
+\begin{itemize}
+\item The schema $FilterStatements$ is the sequential composition
+  of operation schemas $FilterForCompletion$ and
+  $FilterForSuccess$
+\item $FilterForCompletion$ happens before $FilterForSuccess$
+\end{itemize}
+%%% this fixes indenting
+$ProcessedStatements \defs FilterStatements \semi ProcessStatements$
+\begin{itemize}
+\item The schema $ProcessedStatements$ is the sequential composition
+  of operation schemas $FilterStatements$ and
+  $ProcessStatements$
+\item $FilterStatements$ happens before $ProcessStatements$
+\end{itemize}
+
+\subsubsection{Return}
+\begin{schema}{Return}
+  \Xi TimelineLearnerSuccess \\
+  ProcessedStatements \\
+  S_{processed}! : \finset
+  \where
+  S_{processed}! = S_{processed}
+\end{schema}
+\begin{itemize}
+\item The returned variable $S_{processed}!$ is equal to the current
+  state of variable $S_{processed}$ after the operations
+  $FilterForCompletion$, $FilterForSuccess$ and $ProcessStatements$
+\end{itemize}
+
+\subsection{Pseudocode}
+
+\begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{$S_{all}$}
+  \KwResult{$coll'$}
+  \emph{coll = []}\;
+  \While{$S_{all} \not = \emptyset$}
+  {\ForEach{$s \in S_{all}$}
+    {\eIf{$s.verb.id = COMPLETION$}
+      {\bf do \\
+        $S_{completion}' \leftarrow s \cup S_{completion}$\;
+        $S_{all}' \leftarrow S_{all} \setminus s$ \;
+        recur $S_{completion}', S_{all}'$\;}
+      {\bf do \\
+        $S_{all}' \leftarrow S_{all} \setminus s$\;
+        recur $S_{all}'$\;}}}
+  \While{$S_{completion}' \not = \emptyset$}
+  {\ForEach{$sc \in S_{completion}'$}
+    {\eIf{$sc.result.success = SUCCESS$}
+      {\bf do \\
+        $S_{success}' \leftarrow sc \cup S_{success}$\;
+        $S_{completion}' \leftarrow S_{completion} \setminus sc$\;
+        recur $S_{success}', S_{completion}'$\;}
+      {\bf do \\
+        $S_{completion}' \leftarrow S_{completion} \setminus sc$\;
+        recur $S_{completion}'$\;}}}
+  {\ForEach{$ss \in S_{success}'$}
+    {$raw? \leftarrow ss.result.score.raw$\;
+     $max? \leftarrow ss.result.score.max$\;
+     $min? \leftarrow ss.result.score.min$\;
+     $scaled \leftarrow scale(raw?, min?, max?)$\;
+     $subVec \leftarrow [ss.timestamp, scaled]$\;
+     $coll' \leftarrow coll \cat subVec$\;
+     {\bf recur $coll'$}}
+   \Return $coll'$}
+  \caption{Timeline of Learner Success}
+\end{algorithm}
+\begin{itemize}
+\item The Z schemas are used within this pseudocode
+\item The return value coll is an array of arrays, each containing a
+  $statement.timestamp$ and a scaled score.
+\end{itemize}
+
+\subsection{JSON Schema}
+\begin{lstlisting}[]
+{"type":"array",
+   "items":{"type":"array",
+      "items":[{"type":"string"}, {"type":"number"}]}}
+\end{lstlisting}
+
+\subsection{Visualization Description}
+
+The \textbf{Timeline of Learner Success} visualization will be a line chart
+where the domain is time and the range is score on a scale of 0.0 to
+100.0. Every subarray will be a point on the chart. The domain of the graph should be in
+chronological order. \\
+
+\subsection{Visualization prototype}
+\pgfplotstabletypeset[string type]
+
+\begin{tikzpicture}
+  \begin{axis}[
+    title = Timeline of Learner Success,
+    ylabel = $score(\%)$,
+    ymin = 0,
+    ymax = 100,
+    date coordinates in=x,
+    xtick=data,
+    xticklabel style=
+    {rotate=90,anchor=near xticklabel},
+    xticklabel=\month:\day. \hour:\minute,]
+    \addplot coordinates {
+      (2018-07-15 22:22, 75.0)
+      (2018-07-16 15:15, 84.0)
+      (2018-07-17 18:18, 81.0)
+      (2018-07-18 13:13, 91.0)
+      (2018-07-19 17:17, 88.0)
+      (2018-07-20 06:06, 85.0)
+      (2018-07-21 12:12, 87.0)
+    };
+  \end{axis}
+\end{tikzpicture}
+
+\subsection{Prototype Improvement Suggestions}
+Additional features may be implemented on top of this base
+specification but they would require adding aditional values to each
+subarray returned by the algorithm. These additional values can be
+retrieved via (1) performing metadata lookup within or independently of the
+algorithm (2) by utilizing additional xAPI statement paramters and/or (3) by
+performing additional computations. The following examples assume the
+metadata is contained within each statement available to the algorithm.
+\begin{itemize}
+\item A tooltip containing the name of an activity when hovering
+  over a specific point on the chart
+  \begin{itemize}
+  \item this would require utilizing $\$.object.definition.name$
+  \end{itemize}
+\item A tooltip containing the device on which the activity was experienced
+  \begin{itemize}
+  \item this would require utilizing $\$.context.platform$
+  \end{itemize}
+\item A tooltip containing the instructor associated with a
+  particular data point
+  \begin{itemize}
+  \item this would require utilizing $\$.context.instructor$
+  \end{itemize}
+\end{itemize}
+
+\end{document}

@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changes to the Wizard navigation footer and other DAVE related buttons
 - Run headless cljs tests via nodejs
+- Documentation split up into stand alone .tex and .pdf files which are required within main.tex
+  - docs/algorithms/master.<tex + pdf> => docs/main.<tex + pdf>
 
 ### Removed
 ### Fixed
