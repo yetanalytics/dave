@@ -40,7 +40,7 @@
        (when data
          [data/info id])]
       [:div
-       [:h1 "Analysis"]
+       [:h1 "Analyses"]
        [:button.newblock
         {:on-click #(dispatch [:workbook.analysis/new id])}
         "New Analysis"]]
