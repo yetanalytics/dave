@@ -189,6 +189,9 @@ div.app-description {
           background-color: #2A58CD;
           color:#ffffff;
           border-radius: 5px 5px 5px 5px;
+          white-space:   nowrap;
+          overflow:      hidden;
+          text-overflow: ellipsis;
         }
         .text{
           padding: 10px;
