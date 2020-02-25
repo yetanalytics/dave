@@ -213,15 +213,20 @@
      js/vega.Debug}))
 
 (defn export-fn
-  [chart]
-  (.then (.toImageURL chart
-                      "png")
-         (fn [url]
-           (let [link (js/document.createElement "a")
-                 _    (.setAttribute link "href" url)
-                 _    (.setAttribute link "target" "_blank")
-                 _    (.setAttribute link "download" "dave-export.png")]
-             (.click link)))))
+  [chart export-type]
+  (let [extension (condp = export-type
+                    :png "png"
+                    :svg "svg"
+                    "png")]
+    (.then (.toImageURL chart
+                        extension)
+           (fn [url]
+             (let [link (js/document.createElement "a")
+                   _    (.setAttribute link "href" url)
+                   _    (.setAttribute link "target" "_blank")
+                   _    (.setAttribute link "download" (str "dave-export."
+                                                            extension))]
+               (.click link))))))
 
 (defn did-mount
   "React lifecycle handler: set up a vega chart and any requested signal/event
@@ -264,7 +269,12 @@
         _           (set! (.-onclick png-button) (fn [e]
                                                    (.preventDefault e)
                                                    (.stopPropagation e)
-                                                   (export-fn chart)))]
+                                                   (export-fn chart :png)))
+        svg-button  (js/document.getElementById "export-viz-svg")
+        _           (set! (.-onclick svg-button) (fn [e]
+                                                   (.preventDefault e)
+                                                   (.stopPropagation e)
+                                                   (export-fn chart :svg)))]
     (signal-listeners-init! chart signals-out)
     (event-listeners-init! chart events-out)
     (r/set-state this
@@ -344,6 +354,9 @@
     [:button#export-viz-png.minorbutton
      {}
      "Export PNG"]
+    [:button#export-viz-svg.minorbutton
+     {}
+     "Export SVG"]
     [:button.minorbutton
      {:on-click (fn [e]
                   (io/export-file e
