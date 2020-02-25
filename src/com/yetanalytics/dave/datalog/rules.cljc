@@ -5,5 +5,8 @@
   '[[[->unix ?timestamp ?unix]
      [$fn :timestamp->unix ?f]
      [(?f ?timestamp) ?unix]]
+    [[math ?format ?args ?result]
+     [$fn :math-transform ?f]
+     [(?f ?format ?args) ?result]]
     [[->x-y-datum ?x ?y ?datum]
      [(array-map :x ?x :y ?y) ?datum]]])
