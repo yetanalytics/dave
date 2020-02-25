@@ -1,4 +1,5 @@
-(ns com.yetanalytics.dave.ui.app.io)
+(ns com.yetanalytics.dave.ui.app.io
+  (:require [re-frame.core :refer [dispatch]]))
 
 (defn import-file
   "Read in the text from an input file, resolve the promise, and dispatch."
