@@ -183,8 +183,8 @@
   [vis result query]
   (update vis
           :data
-          (fnil conj [])
-          ((d/result-vega-mapper query) result)))
+          #(into %2 %1)
+          [((d/result-vega-mapper query) result)]))
 
 (defn ensure-analysis
   "Just a helper to make sure everything in an analysis is as parsed as can be"
