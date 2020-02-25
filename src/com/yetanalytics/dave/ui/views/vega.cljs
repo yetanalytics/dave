@@ -347,7 +347,7 @@
     [:button.minorbutton
      {:on-click (fn [e]
                   (io/export-file e
-                                  (js/Blob. [@(subscribe [:workbook.analysis/result])]
+                                  (js/Blob. [@(subscribe [:workbook.analysis/result-vega-spec])]
                                             (clj->js {:type "application/json"}))
                                   "result.json"))}
      "Export JSON"]]
