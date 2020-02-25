@@ -34,7 +34,7 @@
     (testing "static statements"
       (let [db (d/db-with (d/init-db [] schema/xapi) tx)]
         (is (d/db? db))
-        (is (= 2395 (count (d/datoms db :eavt))))
+        (is (= 2368 (count (d/datoms db :eavt))))
         (is (= 224
                  (d/q '[:find (count-distinct ?s) .
                         :where
@@ -66,13 +66,13 @@
                      db-2))
               (is (= db-1-attr-freqs
                      db-2-attr-freqs))))
-          (testing "even more so with transact-xapi"
+          (testing "even more so with transact"
             (let [db-1 (-> (d/init-db [] schema/xapi)
-                           (datalog/transact-xapi statements))
+                           (datalog/transact statements))
                   db-1-datoms (d/datoms db-1 :eavt)
                   db-1-attr-freqs (frequencies (map :a db-1-datoms))
                   db-2 (-> db-1
-                           (datalog/transact-xapi statements)) ;; should be a no-op
+                           (datalog/transact statements)) ;; should be a no-op
                   db-2-datoms (d/datoms db-2 :eavt)
                   db-2-attr-freqs (frequencies (map :a db-2-datoms))
                   ]
@@ -116,3 +116,51 @@
                     db-2))
              (is (= db-1-attr-freqs
                     db-2-attr-freqs))))))
+
+#?(:clj (deftest transact-test
+          (is (empty?
+               (failures
+                (stest/check
+                 `datalog/transact
+                 {stc-opts
+                  {:num-tests 10 :max-size 3}
+                  }))))))
+
+(deftest empty-db-test
+  (is (empty?
+       (failures
+        (stest/check
+         `datalog/empty-db
+         {stc-opts
+          {:num-tests 10 :max-size 3}
+          })))))
+
+(deftest empty-extensions-test
+  (testing "our coercion properly handles empty extensions"
+    (let [statement {"actor"
+                     {"objectType" "Agent",
+                      "name" "xAPI account",
+                      "mbox" "mailto:xapi@adlnet.gov"},
+                     "verb"
+                     {"id" "http://adlnet.gov/expapi/verbs/attended",
+                      "display" {"en-GB" "attended", "en-US" "attended"}},
+                     "object"
+                     {"objectType" "Activity",
+                      "id" "http://www.example.com/meetings/occurances/34534",
+                      "definition"
+                      {"type" "http://adlnet.gov/expapi/activities/meeting",
+                       "name" {"en-GB" "example meeting", "en-US" "example meeting"},
+                       "description"
+                       {"en-GB"
+                        "An example meeting that happened on a specific occasion with certain people present.",
+                        "en-US"
+                        "An example meeting that happened on a specific occasion with certain people present."},
+                       "moreInfo" "http://virtualmeeting.example.com/345256",
+                       "extensions" {}}},
+                     "id" "5e46f8a1-6bef-451e-9cea-d1bdd304d0ca",
+                     "timestamp" "2020-02-14T19:44:33.512Z",
+                     "stored" "2020-02-14T19:44:33.512Z"}]
+      (testing "spec allows it"
+        (is (s/valid? ::xs/statement statement)))
+      (testing "it transacts"
+        (is (d/db? (datalog/transact (datalog/empty-db) [statement])))))))

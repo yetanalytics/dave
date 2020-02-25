@@ -2,6 +2,7 @@
   "Handle top-level app state & persistence"
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
+            [com.yetanalytics.dave.datalog :as d]
             [com.yetanalytics.dave.ui.app.nav :as nav]
             [com.yetanalytics.dave.ui.app.picker :as picker]
             [cognitect.transit :as t]
@@ -11,8 +12,7 @@
             [com.cognitect.transit.types :as ty]
             [com.yetanalytics.dave.util.spec :as su]
             [com.yetanalytics.dave.ui.app.dialog :as dialog]
-            [com.yetanalytics.dave.func :as func]
-            [com.yetanalytics.dave.ui.app.wizard :as wizard])
+            [com.yetanalytics.dave.ui.app.template :as template])
   (:import [goog.storage Storage]
            [goog.storage.mechanism HTML5LocalStorage]))
 
@@ -20,55 +20,12 @@
 (extend-type ty/UUID
   cljs.core/IUUID)
 
-;; Set handlers for our funcs
-;; TODO: figure out a better way to handle (de)serialization
 (def read-handlers
-  (into {"com.yetanalytics.dave.func/SuccessTimeline"
-         (fn [m]
-           (func/map->SuccessTimeline (update-in m
-                                                 [:state
-                                                  :successes]
-                                                 #(into (sorted-map) %))))
-         "com.yetanalytics.dave.func/DifficultQuestions"
-         (fn [m]
-           (func/map->DifficultQuestions m))
-         "com.yetanalytics.dave.func/CompletionRate"
-         (fn [m]
-           (func/map->CompletionRate m))
-         "com.yetanalytics.dave.func/FollowedRecommendations"
-         (fn [m]
-           (func/map->FollowedRecommendations
-            (update-in m
-                       [:state
-                        :statements]
-                       #(into (sorted-map) %))))
-         "com.yetanalytics.dave.func/LearningPath"
-         (fn [m]
-           (func/map->LearningPath m))}
-        dt/read-handlers))
+  dt/read-handlers)
 
 (def write-handlers
-  (into {func/SuccessTimeline
-         (t/write-handler (constantly "com.yetanalytics.dave.func/SuccessTimeline")
-                          (fn [st]
-                            (into {} st)))
-         func/DifficultQuestions
-         (t/write-handler (constantly "com.yetanalytics.dave.func/DifficultQuestions")
-                          (fn [st]
-                            (into {} st)))
-         func/CompletionRate
-         (t/write-handler (constantly "com.yetanalytics.dave.func/CompletionRate")
-                          (fn [st]
-                            (into {} st)))
-         func/FollowedRecommendations
-         (t/write-handler (constantly "com.yetanalytics.dave.func/FollowedRecommendations")
-                          (fn [st]
-                            (into {} st)))
-         func/LearningPath
-         (t/write-handler (constantly "com.yetanalytics.dave.func/LearningPath")
-                          (fn [st]
-                            (into {} st)))}
-        dt/write-handlers))
+  dt/write-handlers)
+
 ;; Persistence
 (defonce w (t/writer :json {:handlers write-handlers}))
 (defonce r (t/reader :json {:handlers read-handlers}))
@@ -119,8 +76,7 @@
             ::nav
             ::workbooks
             ::dialog
-            ::wizard]))
-
+            ]))
 
 ;; This will include the default workbooks for DAVE
 (def db-default
@@ -134,96 +90,24 @@
                        :type :com.yetanalytics.dave.workbook.data/file
                        :uri "data/dave/ds.json"
                        :built-in? true
-                       :state {:statement-idx -1}}
-                :questions {#uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
-                            {:id #uuid "344d1296-bb19-43f5-92e5-ceaeb7089bb1"
-                             :text "When do learners do their best work?"
-                             :function {:id :com.yetanalytics.dave.func/success-timeline
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                               (func/get-func
-                                                :com.yetanalytics.dave.func/success-timeline))}
-                             :index 0
-                             :visualizations
-                             {#uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                              {:id #uuid "c9d0e0c2-3d40-4c5d-90ab-5a482588459f"
-                               :title "Scores of Successful Statements"
-                               :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter
-                                     :args {}}
-                               :index 0}}}
-                            #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
-                            {:id #uuid "4e285a1c-ff7f-4de9-87bc-8ab346ffedea"
-                             :text "What activities are most difficult?"
-                             :function {:id :com.yetanalytics.dave.func/difficult-questions
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                                (func/get-func
-                                                 :com.yetanalytics.dave.func/difficult-questions))}
-                             :index 1
-                             :visualizations
-                             {#uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                              {:id #uuid "8cd6ea72-08d0-4d8e-8547-032d6a340a0b"
-                               :title "Failed Attempts Bar"
-                               :vis {:id :com.yetanalytics.dave.vis.bar/base
-                                     :args {}}
-                               :index 0}
-                              #uuid "5147c763-7e77-4e1b-80e1-1054d2225ec5"
-                              {:id #uuid "5147c763-7e77-4e1b-80e1-1054d2225ec5"
-                               :title "Failed Attempts Pie"
-                               :vis {:id :com.yetanalytics.dave.vis.pie/base
-                                     :args {}}
-                               :index 1}}}
-                            #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
-                            {:id #uuid "ec3b9f97-d9e9-4029-9988-a96a367d9b9f"
-                             :text "What activities are completed the most?"
-                             :function {:id :com.yetanalytics.dave.func/completion-rate
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                                (func/get-func
-                                                 :com.yetanalytics.dave.func/completion-rate))
-                                        :args {:time-unit :day}}
-                             :index 2
-                             :visualizations
-                             {#uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
-                              {:id #uuid "85d7d9c4-fe08-4ab0-8e7e-5970881182c5"
-                               :title "Rate of Activity Completion"
-                               :vis {:id :com.yetanalytics.dave.vis.bar/base
-                                     :args {}}
-                               :index 0}}}
-                            #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
-                            {:id #uuid "958d2e94-ffdf-441f-a42c-3754cac04c71"
-                             :text "How often are recommendations followed?"
-                             :function {:id :com.yetanalytics.dave.func/followed-recommendations
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                                (func/get-func
-                                                 :com.yetanalytics.dave.func/followed-recommendations))
-                                        :args {:time-unit :day}}
-                             :index 3
-                             :visualizations
-                             {#uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
-                              {:id #uuid "01e6394f-e67b-4f48-8c80-81046fce536e"
-                               :title "Recommendations, Launches and Follows"
-                               :vis {:id :com.yetanalytics.dave.vis.bar/base
-                                     :args {}}
-                               :index 0}}}
-                            #uuid "e25e517c-1fd8-4f9b-b073-ad0117ddcfa9"
-                            {:id #uuid "e25e517c-1fd8-4f9b-b073-ad0117ddcfa9"
-                             :text "What paths do learners take?"
-                             :function {:id :com.yetanalytics.dave.func/learning-path
-                                        :state {:statement-idx -1}
-                                        :func (:function
-                                               (func/get-func
-                                                :com.yetanalytics.dave.func/learning-path))
-                                        :args {}}
-                             :index 4
-                             :visualizations
-                             {#uuid "73da0a5a-614d-4f47-97fb-b72bae720857"
-                              {:id #uuid "73da0a5a-614d-4f47-97fb-b72bae720857"
-                               :title "Learning Path"
-                               :vis {:id :com.yetanalytics.dave.vis.scatter/time-scatter-point
-                                     :args {}}
-                               :index 0}}}}}}})
+                       :state {:statement-idx -1
+                               :db (d/empty-db)}}
+                :analyses {#uuid "609851e5-5bb0-4980-963a-725422312214"
+                           {:id    #uuid "609851e5-5bb0-4980-963a-725422312214"
+                            :text  "Test Analysis"
+                            :index 0
+                            :query (:query-1 template/queries)                            
+                            :query-data
+                            '{:find [?x ?y ?c]
+                              :where
+                              [[?s :statement/timestamp ?t]
+                               [?s :statement.result.score/scaled ?y]
+                               [?s :statement/actor ?a]
+                               [?a :agent/mbox ?c]
+                               [->unix ?t ?x]]}
+                            :vega  (:viz-1 template/visualizations)  
+                            :visualization
+                            {:autosize "fit", :legends [{:fill "color"}], :axes [{:orient "bottom", :scale "x", :labelAngle 60, :labelAlign "left", :labelLimit 112, :labelOverlap true, :labelSeparation -35} {:orient "left", :scale "y"}], :width 500, :scales [{:name "x", :type "time", :range "width", :domain {:data "result", :field "?x"}} {:name "y", :type "linear", :range "height", :nice true, :zero true, :domain {:data "result", :field "?y"}} {:name "color", :type "ordinal", :range "category", :domain {:data "result", :field "?c"}}], :padding 5, :marks [{:type "group", :from {:facet {:name "series", :data "result", :groupby "?c"}}, :marks [{:type "symbol", :from {:data "series"}, :encode {:enter {:size {:value 50}, :x {:scale "x", :field "?x"}, :y {:scale "y", :field "?y"}, :fill {:scale "color", :field "?c"}}}}]}], :$schema "https://vega.github.io/schema/vega/v4.json", :signals [{:name "interpolate", :value "linear"}], :height 200}}}}}})
 
 (s/def ::saved
   (s/keys :req-un [::workbooks]))
@@ -268,21 +152,9 @@
   (if (s/valid? db-state-spec db)
     (and
      (not= @last-saved db)
-     ;; All data is done loading
-     (empty?
-      (for [[workbook-id {:keys [questions]
-                          :as workbook}] (get db :workbooks)
-            [_ {:keys [data]}] questions
-            :when (true? (:loading data))]
-        workbook-id))
-     ;; All funcs are caught up
-     (every? true?
-             (for [[workbook-id {:keys [questions]
-                                 :as workbook}] (get db :workbooks)
-                   [_ {:keys [data
-                              function]}] questions
-                   :when (and data function)]
-               (= (:state data) (:state function)))))
+
+     ;; TODO: figure out any cases where we canny save
+     )
     (.error js/console "DB State Invalid, not saving!" (s/explain-str db-state-spec
                                                                       db))))
 
@@ -301,8 +173,6 @@
                         :picker
                         ;; so is the dialog
                         :dialog
-                        ;; so is the wizard
-                        :wizard
                         ;; Don't save dave.debug state, as it might be huge
                         :debug)]
     (when (save? to-save)
@@ -347,15 +217,13 @@
        :as ctx} _]
    {:db/save! db}))
 
-;; Debounced save, can be called a lot, but not while the wizard is up...
 (re-frame/reg-event-fx
  :db/save
  (fn [{:keys [db]} _]
-   (when-not (:wizard db)
-     {:dispatch-debounce
-      [::save!
-       [:db/save!]
-       3000]})))
+   {:dispatch-debounce
+    [::save!
+     [:db/save!]
+     3000]}))
 
 
 

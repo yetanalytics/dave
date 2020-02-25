@@ -9,6 +9,7 @@
 @import "dave/ui/sass/dialog.scss";
 @import "dave/ui/sass/wizard.scss";
 @import "dave/ui/sass/debug.scss";
+@import "dave/ui/sass/codemirror.scss";
 
 body {
   margin: 0 0 0 0;
@@ -46,4 +47,50 @@ body {
       @include mdc-layout-grid-cell('desktop', 4, 2px)
     }
   }
+}
+
+.analysis-grid {
+  @include mdc-layout-grid('desktop', 16px);
+}
+
+.analysis-inner {
+  @include mdc-layout-grid-inner('desktop', 4px, 4px);
+}
+
+.cell-3 {
+  @include mdc-layout-grid-cell('desktop', 3, 2px);
+}
+
+.cell-6 {
+  @include mdc-layout-grid-cell('desktop', 6, 2px);
+}
+
+.cell-12 {
+  @include mdc-layout-grid-cell('desktop', 12, 2px);
+}
+
+.header-title {
+  display: inline-block;
+  margin:  0px;
+}
+
+.header-button {
+  margin-left: 16px;
+}
+
+.hidden-button {
+  position:   fixed;
+  visibility: hidden;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#license {
+  padding-right: 30px;
 }

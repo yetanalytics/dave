@@ -33,14 +33,16 @@
                                :state]
                               (fnil
                                (partial max-key :statement-idx)
-                               {:statement-idx -1})
+                               state/init-state)
                               new-state))
                  [:workbooks
                   workbook-id
                   :data
                   :loading?]
                  false)]
-     (cond-> {:db new-db}
+     {:db new-db}
+     ;; here is where you would fire off reactive results, which we're currently not doing
+     #_(cond-> {:db new-db}
        (not= db new-db)
        (assoc :dispatch-n [[:workbook.question.function/result-all!
                             workbook-id]
@@ -73,7 +75,7 @@
             stored-domain]
      :as lrs-state} :state
     :as lrs-spec
-    :or {lrs-state {:statement-idx -1}}}
+    :or {lrs-state state/init-state}}
    db]
   {:dispatch
    [:com.yetanalytics.dave.ui.app.workbook.data.lrs/query
@@ -154,18 +156,20 @@
                          [::set-state
                           workbook-id
                           (state/update-state
-                           {:statement-idx -1}
+                           state/init-state
                            body)
                           true]
                          ::data/lrs
                          then-dispatch)]
      (if (= 200 status)
-       {:dispatch-n [[:workbook.question.function/step-all!
+       {:dispatch-n [;; TODO: fire off step functions if desired
+                     #_[:workbook.question.function/step-all!
                       workbook-id
                       idx-range
                       body
                       ;; pass continuation
-                      then-dispatch]
+                        then-dispatch]
+                     then-dispatch
                      [::clear-errors workbook-id]]}
        {:db (update-in db
                        [:workbooks
@@ -189,17 +193,9 @@
                            :data]
                           ;; Force a fresh state
                           (merge data-spec
-                                 {:state {:statement-idx -1}}))
-            :dispatch [:workbook.question.function/reset-all!
-                       workbook-id
-                       [::ensure workbook-id]]
-            #_(cond-> [:workbook.question.function/reset-all!
-                               workbook-id
-                               [::ensure workbook-id]]
-                        (or (not (:wizard db))
-                            (= (:type data-spec) ::data/file))
-                        (conj [::ensure workbook-id]))
-            }
+                                 {:state state/init-state}))
+            ;; this is where you would reset the state of queries
+            :dispatch [::ensure workbook-id]}
      (= (:type data-spec) ::data/file)
      (assoc :stop-timer
             [::ensure workbook-id]))))
@@ -236,16 +232,10 @@
        ;; TODO: proceed with creation
        {:notify/snackbar
         {:message "Connecting LRS..."}
-        :dispatch-n (cond-> [[::change
-                              workbook-id
-                              lrs-data-spec]]
-                      ;; If we're in the wizard, don't dismiss the dialog
-                      (not (:wizard db))
-                      (conj [:dialog/dismiss])
-                      ;; if we are, advance
-                      #_(:wizard db)
-                      #_(conj [:wizard/next])
-                      )}
+        :dispatch-n [[::change
+                      workbook-id
+                      lrs-data-spec]
+                     [:dialog/dismiss]]}
        {:notify/snackbar
         {:message
          (format "LRS Error: %d"

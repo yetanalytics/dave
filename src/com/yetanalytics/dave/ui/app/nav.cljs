@@ -36,12 +36,12 @@
 (s/def ::token
   (s/with-gen string?
     (fn []
-      (sgen/fmap (fn [[?w ?q ?v]]
+      (sgen/fmap (fn [[?w ?a #_?v]]
                    (str (when ?w
                           (format "/workbooks/%s" ?w))
-                        (when ?q
-                          (format "/questions/%s" ?q))
-                        (when ?v
+                        (when ?a
+                          (format "/analyses/%s" ?a))
+                        #_(when ?v
                           (format "/visualizations/%s" ?v))))
                  (sgen/vector (sgen/string-alphanumeric) 0 3)))))
 
@@ -54,23 +54,23 @@
     :workbooks
     (s/?
      (s/cat
-      :type #{:workbooks}
+      :type        #{:workbooks}
       :workbook-id uuid?
-      :questions
-      (s/?
-       (s/cat :type #{:questions}
-              :question-id uuid?
-              :visualizations (s/? (s/cat :type #{:visualizations}
+      :analyses    (s/?
+                    (s/cat :type          #{:analyses}
+                           :analysis-id   uuid?
+                           ;; visualizations don't currently have their own path
+                           #_:visualization #_(s/? (s/cat :type #{:visualizations}
                                           :visualization-id
-                                          uuid?)))))))))
+                                          uuid?))
+                           )))))))
 
 ;; This enumerates all possible contexts in the app
 (s/def ::context
   #{:loading
     :root
     :workbook
-    :question
-    :visualization})
+    :analysis})
 
 (def nav-spec
   (s/keys :opt-un [::token
@@ -152,8 +152,6 @@
    (let [token (or (not-empty token)
                    "/")
          [_ workbook-id
-          _ question-id
-          _ visualization-id
           :as path] (token->path token)]
      (if (and
           ;; is the path valid?
@@ -204,13 +202,15 @@
                                     conj
                                     ;; remove children
                                     (dissoc item
-                                            :questions
-                                            :visualizations))
+                                            :analyses))
                             (assoc :db item))))
                     {:result []
                      :db db}
                     (partition 2 path)))))
 
+(def singularize
+  {:workbooks :workbook
+   :analyses  :analysis})
 
 (re-frame/reg-sub
  :nav/context
@@ -220,15 +220,11 @@
      nil :loading
      [] :root
      ;; singularized path resource
-     (keyword
-      (apply str
-             (butlast
-              (name
-               (last
-                (filter #{:workbooks
-                          :questions
-                          :visualizations}
-                        path)))))))))
+     (get singularize
+          (last
+           (filter #{:workbooks
+                     :analyses}
+                   path))))))
 
 (re-frame/reg-sub
  :nav/focus
@@ -252,9 +248,9 @@
     (re-frame/subscribe [:nav/context])])
  (fn [[focus context] _]
    (if-let [child-key (case context
-                        :root :workbooks
-                        :workbook :questions
-                        :question :visualizations
+                        :root     :workbooks
+                        :workbook :analyses
+                        :analysis :editor ;; TODO: is this getting used?
                         nil)]
      (mapv second (get focus child-key))
      [])))

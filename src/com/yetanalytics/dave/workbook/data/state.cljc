@@ -1,13 +1,17 @@
 (ns com.yetanalytics.dave.workbook.data.state
-  "State of received xAPI Data. Used in tracking for Workbook Data and Question Function state."
+  "State of received xAPI Data. Used in tracking for Workbook Data"
   (:require
    [clojure.spec.alpha :as s]
+   [com.yetanalytics.dave.datalog :as d]
    [xapi-schema.spec :as xs]
    [com.yetanalytics.dave.util.spec :as su]
    [#?(:clj clj-time.core
         :cljs cljs-time.core) :as t]
    [#?(:clj clj-time.coerce
         :cljs cljs-time.coerce) :as tc]))
+
+(s/def ::db
+  ::d/db)
 
 ;; Assumption: Statements are provided contiguously, in order.
 ;;
@@ -29,12 +33,14 @@
 
 (def spec
   (s/keys
-   :req-un [::statement-idx]
+   :req-un [::statement-idx
+            ::db]
    :opt-un [::stored-domain
             ::stored-timestamp]))
 
 (def init-state
-  {:statement-idx -1})
+  {:statement-idx -1
+   :db (d/empty-db)})
 
 (defn- update-domain
   [[s e] k ss]
@@ -54,6 +60,7 @@
 (defn update-state
   [state statements]
   (-> state
+      (update :db (fnil d/transact (d/empty-db)) statements)
       (update :statement-idx
               + (count statements))
       (cond->
