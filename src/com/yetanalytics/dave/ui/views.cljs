@@ -46,16 +46,17 @@
      #_(when ^boolean goog.DEBUG
          [dave.debug/debug-bar])
      ;; App description floats in the upper right
-     [nav/app-description]
-     ;; the top bar dominates the header area
-     [nav/topmenu]
-     ;; single-line loading bar
-     [loading-bar (contains? #{:loading} context)]
-     ;; Breadcrumb nav expresses context and allows tree nav
-     [nav/breadcrumbs]
-     ;; The page changes depending on context
-     [page context]
-     [dialog/dialog-container]
+     [:div.dave-app-body
+      [nav/app-description]
+      ;; the top bar dominates the header area
+      [nav/topmenu]
+      ;; single-line loading bar
+      [loading-bar (contains? #{:loading} context)]
+      ;; Breadcrumb nav expresses context and allows tree nav
+      [nav/breadcrumbs]
+      ;; The page changes depending on context
+      [page context]
+      [dialog/dialog-container]]
      ;; Static Footer
      [nav/footer]
      ;; Picker overlay

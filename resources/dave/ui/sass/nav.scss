@@ -314,13 +314,21 @@ div.descendant-counts {
   }
 }
 
+.dave-app {
+  display:        flex;
+  flex-direction: column;
+  height:         100vh;
+  > .dave-app-body {
+    flex: 1 0 auto;
+  }
+}
 
 .dave-app > footer {
+  flex-shrink: 0;
   height: 80px;
   width: 100%;
   background-color:#3C4967 ;
   background-size: contain;
-  margin-top: 50px;
   flex-wrap: wrap;
   display:flex;
   align-items: center;
