@@ -1,97 +1,182 @@
-# DAVE
-## The Data Analytics Visualization Environment for xAPI and the Total Learning Architecture
+# DAVE QUERIES
+## The Data Analytics Visualization Environment for xAPI and the Total Learning Architecture - Query Features
 
-*How to contribute to Project DAVE: https://github.com/yetanalytics/dave/wiki/Contributing (includes workflow requirements).*
+**What is the DAVE Query Syntax**
 
-*Quickstart: Click on "Projects" above to see the current status of issues. Feel free to start working on the issues of your choice.*
+The DAVE Beta implementation uses a new query syntax for xAPI filter, aggregate, and transformation queries. The basis of the language is DataScript, a variant of Datalog, and you can find some additional information below. Also provided by this implementation is a suite of xAPI attributes for traversing xAPI statements, and many math functions for transforms.
 
-**What is DAVE?**
+**DataScript Resources**
 
-The DAVE Framework will provide an open source means of creating domain-based xAPI learning data dashboards. It is extendable to new learning problems, instructional strategies, technological realities, and metrics objectives and will provide a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA).
+To get started using the new transform syntax implemented in DAVE Beta, you will need to know the basics of DataScript, as the DAVE query syntax is based on it. Here are a few resources to help get started:
 
-**The Framework Will Feature**
+- [Getting Started](https://github.com/tonsky/datascript/wiki/Getting-started)
+- [Tutorials](https://github.com/kristianmandrup/datascript-tutorial)
+- [DataScript 101](http://udayv.com/clojurescript/clojure/2016/04/28/datascript101/)
 
-* a suite of prototype analytics algorithms and data visualization templates
-* open source dashboard prototypes for TLA data analytics and visualization
-* open source code — reusable by developers and learning engineers — that is modular and aligned to the capabilities of xAPI & xAPI Profiles and the flexible and extensible needs of the Total Learning Architecture.
+**xAPI Attributes**
 
-Project DAVE is funded by the Advanced Distributed Learning Initiative at the U.S. Department of Defense.
+xAPI attributes are programmed directly into the DAVE query syntax and can be used in queries to address specific elements of a statement. The following are currently available.
 
-**Take Part**
+    :language-map/language-tag
+    :language-map/text
 
-Here is a quick link to the master doc for review of the template: https://github.com/yetanalytics/dave/blob/master/docs/algorithms/master.pdf
+    :extension/iri
+    :extension/json
 
-The structure, contents and format of the above document are currently undergoing a revision. For more information, see:
-- [Primitives Documentation Branch](../../tree/primitives-document)
-   - [Introduction to Operations, Primitives and Algorithms](../../tree/primitives-document/docs/algorithms/introduction.pdf)
-      - [Example Operation - Associate](../../tree/primitives-document/docs/operations/associate.pdf)
-      - [Example Primitive - Accumulate](../../tree/primitives-document/docs/primitives/accumulate.pdf)
-      - [Example of Algorithm - Rate of Completions](../../tree/primitives-document/docs/algorithm_definitions/rateOfCompletions.pdf)
+    :account/name
+    :account/homePage
 
-The [Primitives Documentation Branch](../../tree/primitives-document) is Active and thus subject to change. Please avoid committing directly to this branch. Instead, either open an [Issue](../../issues) or [branch](https://help.github.com/en/articles/about-branches) off of the [Primitives Documentation Branch](../../tree/primitives-document). For more information, see the [Contributing Wiki](../../wiki/Contributing)
+    :agent/objectType
+    :agent/name
+    :agent/mbox
+    :agent/mbox_sha1sum
+    :agent/openid
+    :agent/account
 
-## For Developers: Running the Interactive Workbooks & Testing
+    :group/objectType
+    :group/name
+    :group/mbox
+    :group/mbox_sha1sum
+    :group/account
+    :group/member
+    :group/account
 
-### Interactive Workbooks
+    :verb/id
+    :verb/display
 
-DAVE's interactive workbooks are written in [ClojureScript](https://clojurescript.org/)
-which is compiled to Javascript to run in a browser. To get started, you'll need
-the Java JDK version 1.8 or later, and a working installation of the [Clojure CLI](https://clojure.org/guides/getting_started).
+    :interaction-component/id
+    :interaction-component/description
 
-To get an interactive development environment run:
+    :definition/name
+    :definition/description
+    :definition/correctResponsesPattern
+    :definition/interactionType
+    :definition/type
+    :definition/moreInfo
+    :definition/choices
+    :definition/scale
+    :definition/source
+    :definition/target
+    :definition/steps
+    :definition/extensions
 
-    clj -A:fig:build
+    :activity/objectType
+    :activity/id
+    :activity/definition
 
-Or via the `Makefile`:
+    :statement-reference/objectType
+    :statement-reference/id
 
-    make dev-repl
+    :score/scaled
+    :score/raw
+    :score/min
+    :score/max
 
-A browser window will open automatically to `http://localhost:9500`
+    :result/score
+    :result/success
+    :result/completion
+    :result/response
+    :result/duration
+    :result/extensions
 
-To live-compile SASS files to CSS (do this in another shell):
+    :context-activities/parent
+    :context-activities/grouping
+    :context-activities/category
+    :context-activities/other
 
-    clojure -A:watch-sass
+    :context/registration
+    :context/instructor
+    :context/team
+    :context/contextActivities
+    :context/revision
+    :context/platform
+    :context/language
+    :context/statement
+    :context/extensions
 
-Or via the `Makefile`:
+    :attachment/usageType
+    :attachment/display
+    :attachment/description
+    :attachment/contentType
+    :attachment/length
+    :attachment/sha2
+    :attachement/fileUrl
 
-    make watch-sass
+    :sub-statement/actor
+    :sub-statement/verb
+    :sub-statement/object
+    :sub-statement/result
+    :sub-statement/context
+    :sub-statement/timestamp
+    :sub-statement/attachments
+    :sub-statement/objectType
 
-The root SASS file can be found at `/resources/dave/ui/sass/style.scss`
+    :statement/id
+    :statement/actor
+    :statement/verb
+    :statement/object
+    :statement/result
+    :statement/context
+    :statement/timestamp
+    :statement/stored
+    :statement/authority
+    :statement/version
+    :statement/attachments
 
-### Testing
+Example usage might be getting the Object ID from an activity in a Statement
 
-The ClojureScript tests will run automatically while Figwheel is running, to view their output navigate to `http://localhost:9500/figwheel-extra-main/auto-testing`.
+    [:find ?s ?aid
+     :where
+     [?s :statement/object ?o]
+     [?o :activity/id ?aid]]
 
-To run the ClojureScript tests outside of figwheel:
+**Math Functions**
 
-    clojure -Afig:test-cljs
+The DAVE Query language also provides a large implementation of math functions, which are listed below:
 
-Or via the `Makefile`:
+    abs()
+    acos()
+    acosh()
+    asin()
+    asinh()
+    atan()
+    atan2()
+    atanh()
+    cbrt()
+    ceil()
+    clz32()
+    cos()
+    cosh()
+    exp()
+    expm1()
+    floor()
+    fround()
+    hypot()
+    imul()
+    log()
+    log10()
+    log1p()
+    log2()
+    max()
+    min()
+    pow()
+    random()
+    round()
+    sign()
+    sin()
+    sinh()
+    sqrt()
+    tan()
+    tanh()
+    trunc()
 
-    make test-cljs
+These can be used in queries to transform values using the math transform syntax we designed for DAVE, which follows the pattern:
 
-To run Clojure tests on the JVM:
+    [math :log ?input ?output]
 
-    clojure -Atest-clj
+Where "math" is the keyword that tells DAVE to perform a math transform, ":log" tells it to use the logarithm function from above, and ?input is the value to take the log of, and ?output is the transformed value prepared for the output data. An example of a query using this syntax might be:
 
-Or via the `Makefile`:
-
-    make test-clj
-
-All tests can be run via the `Makefile`:
-
-    make ci
-
-And an application package for GitHub Pages can be generated at `./gh_pages`:
-
-    make gh_pages
-
-And all project artifacts can be deleted:
-
-    make clean
-
-## License
-
-Copyright © 2018-2020 Yet Analytics Inc
-
-Distributed under the Apache 2.0 License. See the file LICENSE for more information.
+    [:find ?score-log
+     :where
+     [?s :statement.result.score/scaled ?score]
+     [math :log ?score ?score-log]]
