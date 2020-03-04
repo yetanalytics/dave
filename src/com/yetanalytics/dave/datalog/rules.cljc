@@ -9,4 +9,7 @@
      [$fn :math-transform ?f]
      [(?f ?format ?args) ?result]]
     [[->x-y-datum ?x ?y ?datum]
-     [(array-map :x ?x :y ?y) ?datum]]])
+     [(array-map :x ?x :y ?y) ?datum]]
+    [[time-format ?fmt ?t ?t-str]
+     [$fn :time/format ?f]
+     [(?f ?fmt ?t) ?t-str]]])
