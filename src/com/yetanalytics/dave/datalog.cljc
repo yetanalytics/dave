@@ -14,6 +14,12 @@
             [com.yetanalytics.dave.datalog.builtins :as builtins]
             [clojure.string :as cstr]
             [com.yetanalytics.dave.util.log :as log]
+            [#?(:clj clj-time.core
+                :cljs cljs-time.core) :as t]
+            [#?(:clj clj-time.format
+                :cljs cljs-time.format) :as tf]
+            [#?(:clj clj-time.coerce
+                :cljs cljs-time.coerce) :as tc]
             #?@(:cljs [[goog.string :as gstring :refer [format]]
                        [goog.string.format]]))
   #?(:clj (:import [datascript.parser FindColl FindRel FindScalar FindTuple
@@ -214,6 +220,17 @@
     (assoc x :anon-group/member (pr-str (:group/member x)))
     x))
 
+(defn index-timestamps
+  [{timestamp :statement/timestamp
+    stored    :statement/stored
+    {?sub-stamp :sub-statement/timestamp} :statement/object
+    :as s}]
+  (-> s
+      (assoc :statement/timestamp-inst (tc/to-date timestamp))
+      (assoc :statement/stored-inst (tc/to-date stored))
+      (cond->
+          ?sub-stamp (assoc-in [:statement/object :sub-statement/timestamp-inst]
+                               (tc/to-date ?sub-stamp)))))
 (s/fdef ->tx
   :args (s/cat :schema ::schema
                :data (s/with-gen ::xs/statements
@@ -258,14 +275,15 @@
                                    (assoc m k v)))
                                {})))
            x))
-       ;; we map over to set unique ids for substatements
-       (mapv (fn [s]
-               (cond-> s
-                   ;; for substatements, we just go and set the component/unique-by
-                   (and (:statement/object s)
-                        (get-in s [:statement/object :sub-statement/objectType]))
-                   (uniqify-component :statement/object :statement/id)))
-             conformed)))))
+       (->> conformed
+            (map index-timestamps)
+            ;; we map over to set unique ids for substatements
+            (mapv (fn [s]
+                    (cond-> s
+                      ;; for substatements, we just go and set the component/unique-by
+                      (and (:statement/object s)
+                           (get-in s [:statement/object :sub-statement/objectType]))
+                      (uniqify-component :statement/object :statement/id)))))))))
 
 (s/def ::db
   (s/with-gen d/db?

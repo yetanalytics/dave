@@ -34,7 +34,7 @@
     (testing "static statements"
       (let [db (d/db-with (d/init-db [] schema/xapi) tx)]
         (is (d/db? db))
-        (is (= 2368 (count (d/datoms db :eavt))))
+        (is (= 2816 (count (d/datoms db :eavt))))
         (is (= 224
                  (d/q '[:find (count-distinct ?s) .
                         :where
