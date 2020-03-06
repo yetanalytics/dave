@@ -21752,7 +21752,10 @@ div.app-description {
           padding: 10px;
           background-color: #2A58CD;
           color: #ffffff;
-          border-radius: 5px 5px 5px 5px; }
+          border-radius: 5px 5px 5px 5px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis; }
         .breadcrumbs > div > div > a .text {
           padding: 10px;
           color: #373737;
@@ -21856,12 +21859,19 @@ div.descendant-counts > .tag {
 div.descendant-counts > .visualtag {
   background-color: #189366; }
 
+.dave-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; }
+  .dave-app > .dave-app-body {
+    flex: 1 0 auto; }
+
 .dave-app > footer {
+  flex-shrink: 0;
   height: 80px;
   width: 100%;
   background-color: #3C4967;
   background-size: contain;
-  margin-top: 50px;
   flex-wrap: wrap;
   display: flex;
   align-items: center;
