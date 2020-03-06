@@ -220,6 +220,9 @@
     (assoc x :anon-group/member (pr-str (:group/member x)))
     x))
 
+;; TODO: currently, timestamps cannot be compared with clojure.core/< and
+;; friends on JVM clojure
+
 (defn index-timestamps
   [{timestamp :statement/timestamp
     stored    :statement/stored
