@@ -70,9 +70,12 @@
    :statement/object              {:db/valueType :db.type/ref},
    :sub-statement/object          {:db/valueType :db.type/ref},
 
-   :statement/stored              {:db/index true},
-   :statement/timestamp           {:db/index true},
-   :sub-statement/timestamp       {:db/index true},
+   ; :statement/stored              {:db/index true}, ;; Don't index if we are duping
+   :statement/stored-inst         {:db/index true},
+   ; :statement/timestamp           {:db/index true},
+   :statement/timestamp-inst      {:db/index true},
+   ; :sub-statement/timestamp       {:db/index true},
+   :sub-statement/timestamp-inst  {:db/index true},
    :statement/verb                {:db/valueType :db.type/ref},
    :sub-statement/verb            {:db/valueType :db.type/ref},
    :statement-ref/id              {:db/unique :db.unique/identity},

@@ -1,4 +1,5 @@
 (ns com.yetanalytics.dave.datalog.builtins
+  (:require [com.yetanalytics.dave.datalog.builtins.time :as t])
   #?(:clj (:import [java.util Date TimeZone]
                    [java.time
                     Instant
@@ -61,4 +62,5 @@
 
 (def builtins
   [[:timestamp->unix timestamp->unix]
-  [:math-transform math-transform]])
+   [:math-transform math-transform]
+   [:time/format t/tformat]])
