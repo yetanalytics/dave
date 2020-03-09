@@ -7,8 +7,8 @@
         {:git/url "https://github.com/yetanalytics/xapi-schema.git"
          :sha "e2c517e7adcedc7f3012b90bce274e2c33cdbcc1"}
         com.cognitect/transit-cljs {:mvn/version "0.8.256"}
-        cljsjs/vega {:mvn/version "5.3.4-0"}
-        cljsjs/vega-tooltip {:mvn/version "0.17.0-0"}
+        cljsjs/vega {:mvn/version "5.9.0-0"}
+        cljsjs/vega-tooltip {:mvn/version "0.20.0-0"}
         cljs-http {:mvn/version "0.1.45"}
         clj-http {:mvn/version "3.9.1"}
         com.andrewmcveigh/cljs-time {:mvn/version "0.5.2"}
