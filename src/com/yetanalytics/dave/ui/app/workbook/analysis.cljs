@@ -28,11 +28,21 @@
     [:dialog.form/offer
      {:title         "Query Template"
       :mode          :com.yetanalytics.dave.ui.app.dialog/options
-      :dispatch-save [:workbook.analysis/update 
-                      workbook-id 
+      :dispatch-save [:workbook.analysis/update
+                      workbook-id
                       analysis-id]
       :fields        [{:key   :query-1
-                       :label "Learners' Scores Timeline"}]
+                       :label "Learners' Scores Timeline"},
+                      {:key   :query-2
+                       :label "Learner Engagement"},
+                      {:key   :query-3
+                       :label "Task Determination by Actor"},
+                      {:key   :query-4
+                       :label "Activity Engagement"},
+                      {:key   :query-5
+                       :label "Raw Score for Activity by Actor"},
+                      {:key   :query-6
+                       :label "Average Scaled Score by Actor"}]
       :form          {:query ""}}]}))
 
 (re-frame/reg-event-fx
@@ -42,11 +52,23 @@
     [:dialog.form/offer
      {:title         "Data Viz Template"
       :mode          :com.yetanalytics.dave.ui.app.dialog/options
-      :dispatch-save [:workbook.analysis/update 
-                      workbook-id 
+      :dispatch-save [:workbook.analysis/update
+                      workbook-id
                       analysis-id]
       :fields        [{:key   :viz-1
-                       :label "Scatter Plot"}]
+                       :label "Scatter Plot"},
+                      {:key   :viz-2
+                       :label "Bar: Count Top Ten DESC"},
+                      {:key   :viz-3
+                       :label "Bar: Count Bottom Ten ASC"},
+                      {:key   :viz-4
+                       :label "Bar: Task Determination by Actor DESC"},
+                      {:key   :viz-5
+                       :label "Bar: Top 5 Raw"},
+                      {:key   :viz-6
+                       :label "Bar: Bottom 5 Raw"},
+                      {:key   :viz-7
+                       :label "Bar: Top 10 Average"}]
       :form          {:vega ""}}]}))
 
 (re-frame/reg-event-fx
