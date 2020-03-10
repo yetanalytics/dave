@@ -287,6 +287,11 @@
 (s/fdef did-update
   :args (s/cat :this #(instance? js/Object %)))
 
+(defn- but-result-data
+  "Remove query result data from the vis"
+  [spec]
+  (update spec :data (comp vec rest)))
+
 (defn did-update
   "React lifecycle handler: given new data (and possibly other attributes),
   attempt to update the chart. If non-data changes are made, will clean up and
@@ -295,8 +300,8 @@
   (let [{:keys [chart]} (r/state this)
         new-spec (-> this r/argv second)
         old-spec (second old-argv)]
-    (if (= (dissoc new-spec :data) ;; if the only thing that changed is data
-           (dissoc old-spec :data))
+    (if (= (but-result-data new-spec) ;; if the only thing that changed is data
+           (but-result-data old-spec))
       (let [new-data-map (dset-map (:data new-spec))
             old-data-map (dset-map (:data old-spec))]
         ;; Detect series changes, dumb updates
