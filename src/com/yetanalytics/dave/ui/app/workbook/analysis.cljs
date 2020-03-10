@@ -42,7 +42,9 @@
                       {:key   :query-5
                        :label "Raw Score for Activity by Actor"},
                       {:key   :query-6
-                       :label "Average Scaled Score by Actor"}]
+                       :label "Average Scaled Score by Actor"},
+                      {:key   :query-7
+                       :label "Scaled Scores by Hour of Day"}]
       :form          {:query ""}}]}))
 
 (re-frame/reg-event-fx
@@ -68,7 +70,9 @@
                       {:key   :viz-6
                        :label "Bar: Bottom 5 Raw"},
                       {:key   :viz-7
-                       :label "Bar: Top 10 Average"}]
+                       :label "Bar: Top 10 Average"},
+                      {:key   :viz-8
+                       :label "Linear Regression by Hour of Day"}]
       :form          {:vega ""}}]}))
 
 (re-frame/reg-event-fx
