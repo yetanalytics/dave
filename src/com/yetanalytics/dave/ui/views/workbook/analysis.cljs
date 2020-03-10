@@ -161,7 +161,7 @@
                [:h4.header-title "Query Editor"]
                [:div.spacer]
                [:button.minorbutton
-                {:on-click #(dispatch [:workbook.analysis.template/query [workbook-id id]])}
+                {:on-click #(dispatch [:workbook.analysis.template/query workbook-id id])}
                 "Select Template"]
                [hidden-button "query-input-file" workbook-id id :query]
                [import-button "query-input-file"]
@@ -177,7 +177,7 @@
                [:h4.header-title "Visualization Code Editor"]
                [:div.spacer]
                [:button.minorbutton
-                {:on-click #(dispatch [:workbook.analysis.template/vega [workbook-id id]])}
+                {:on-click #(dispatch [:workbook.analysis.template/vega workbook-id id])}
                 "Select Template"]
                [hidden-button "vega-input-file" workbook-id id :vega]
                [import-button "vega-input-file"]

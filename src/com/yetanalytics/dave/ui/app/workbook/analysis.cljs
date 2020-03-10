@@ -23,7 +23,7 @@
 
 (re-frame/reg-event-fx
  :workbook.analysis.template/query
- (fn [_ [_ [workbook-id analysis-id]]]
+ (fn [_ [_ workbook-id analysis-id]]
    {:dispatch
     [:dialog.form/offer
      {:title         "Query Template"
@@ -49,7 +49,7 @@
 
 (re-frame/reg-event-fx
  :workbook.analysis.template/vega
- (fn [_ [_ [workbook-id analysis-id]]]
+ (fn [_ [_ workbook-id analysis-id]]
    {:dispatch
     [:dialog.form/offer
      {:title         "Data Viz Template"
