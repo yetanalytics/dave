@@ -3,7 +3,8 @@
   (:require [re-frame.core :as re-frame]
             [com.yetanalytics.dave.workbook.data.state :as state]
             [com.yetanalytics.dave.workbook.data.lrs.client :as client]
-            [com.yetanalytics.dave.util.log :as log]))
+            [com.yetanalytics.dave.util.log :as log]
+            [lambdaisland.uri :refer [join]]))
 
 ;; ingress
 (re-frame/reg-event-fx
@@ -36,8 +37,7 @@
          ?since (get-in state [:stored-domain 1])]
      (log/debugf "Query lrs: %s state: %s" lrs-state state)
      {:http/request
-      {:request {:url (str endpoint
-                           "/xapi/statements")
+      {:request {:url (str endpoint "/statements")
                  :headers {"X-Experience-Api-Version" "1.0.3"}
                  :basic-auth (select-keys
                               auth
@@ -185,8 +185,7 @@
    (log/debugf "Continue state: %s more: %s"
              state more-link)
    {:http/request
-    {:request {:url (str endpoint
-                         more-link)
+    {:request {:url (join (str endpoint "/") (or more-link "statements"))
                :headers {"X-Experience-Api-Version" "1.0.3"}
                :basic-auth (select-keys
                             auth

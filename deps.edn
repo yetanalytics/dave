@@ -20,7 +20,8 @@
                               :exclusions [org.clojure/clojurescript
                                            reagent]}
         datascript {:mvn/version "0.18.8"}
-        datascript-transit {:mvn/version "0.3.0"}}
+        datascript-transit {:mvn/version "0.3.0"}
+        lambdaisland/uri {:mvn/version "1.2.1"}}
  :paths ["src" "resources"]
  :aliases {:fig {:extra-deps
                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
