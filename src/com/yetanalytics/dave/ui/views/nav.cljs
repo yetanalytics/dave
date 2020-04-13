@@ -22,8 +22,8 @@
    to launch the new work wizard."
   []
   [:div.app-description
-   [:h2.title
-    "Data Analytics and Visualization Environment for xAPI and the Total Learning Architecture"]
+   ; [:h2.title
+   ;  "Data Analytics and Visualization Environment for xAPI and the Total Learning Architecture"]
    #_[:p.description
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    #_[:button
@@ -88,7 +88,7 @@
 (defn topmenu
   []
   [:div.topmenu
-   [:a {:href "#/"}  [:img {:src "img/dev/dave-logo-sm.png"}]]
+   [:a {:href "#/"}  [:img {:src "img/dev/DAVElogo.png"}]]
    [:a {:href "https://github.com/yetanalytics/dave"} "Contribute on GitHub"]])
 
 (defn top-bar-links
