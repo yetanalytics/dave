@@ -100,7 +100,7 @@ xAPI attributes are programmed directly into the DAVE query syntax and can be us
     :attachment/contentType
     :attachment/length
     :attachment/sha2
-    :attachement/fileUrl
+    :attachment/fileUrl
 
     :sub-statement/actor
     :sub-statement/verb
