@@ -91,8 +91,11 @@
    [:a {:href "#/"}
     [:img {:src "img/dev/DAVElogo.png"}]]
 
-   [:a {:href "https://github.com/yetanalytics/dave"}
-    [:img.topmenuicon {:src "img/dev/Githublogo.png"}] "Contribute on GitHub"]])
+
+   [:a.iconflex {:href "https://github.com/yetanalytics/dave"}
+    [:img#topmenuicon {:src "img/dev/Githublogo.png"}] "Contribute on GitHub"]
+
+   ])
 
 (defn top-bar-links
   "The links in the top app bar"
