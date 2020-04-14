@@ -91,12 +91,13 @@
    [:a {:href "#/"}
     [:img#homeicon {:src "img/dev/DAVElogo.png"}]]
 
+   [:div.flex-container
     [:p "Data Analytics and Visualization Environment"
     [:br]"for xAPI and the Total Learning Architecture"]
 
    [:div.iconflex
    [:a.headerlink {:href "https://github.com/yetanalytics/dave"}
-    [:img#topmenuicon {:src "img/dev/Githublogo.png"}] "Contribute on GitHub"]]
+    [:img#topmenuicon {:src "img/dev/Githublogo.png"}] "Contribute on GitHub"]]]
 
 
    ])
