@@ -89,7 +89,7 @@
   []
   [:div.topmenu
    [:a {:href "#/"}
-    [:img {:src "img/dev/DAVElogo.png"}]]
+    [:img#homeicon {:src "img/dev/DAVElogo.png"}]]
 
     [:p "Data Analytics and Visualization Environment"
     [:br]"for xAPI and the Total Learning Architecture"]
