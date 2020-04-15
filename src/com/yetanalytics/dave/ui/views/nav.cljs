@@ -99,6 +99,8 @@
    [:a.headerlink {:href "https://github.com/yetanalytics/dave"}
     [:img#topmenuicon {:src "img/dev/Githublogo.png"}] "Contribute on GitHub"]]]
 
+   [:img#topnavborder {:src "img/dev/headerdetailimg.png"}]
+
 
    ])
 
