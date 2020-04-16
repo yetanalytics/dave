@@ -92,7 +92,7 @@
     [:img#homeicon {:src "img/dev/DAVElogo.png"}]]
 
    [:div.flex-container
-    [:p "Data Analytics and Visualization Environment"
+    [:p [:b"Data Analytics and Visualization Environment"]
     [:br]"for xAPI and the Total Learning Architecture"]
 
    [:div.iconflex
