@@ -356,6 +356,9 @@
                              workbook-id
                              analysis-id]))}
      "Run"]
+  [:div.dropdown
+  [:button.dropbtn "Export As..."]
+   [:div.dropdown-content
     [:button#export-viz-png.minorbutton
      {}
      "Export PNG"]
@@ -368,7 +371,9 @@
                                   (js/Blob. [@(subscribe [:workbook.analysis/result-vega-spec])]
                                             (clj->js {:type "application/json"}))
                                   "result.json"))}
-     "Export JSON"]]
+     "Export JSON"]]]
+
+    ]
    [:div.dave-vega-container]])
 
 (def vega
