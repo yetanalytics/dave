@@ -36,26 +36,25 @@
 }
 
 .minorbutton{
-  height:        24px;
-  margin-bottom: 20px;
-  margin-right: 10px;
-  border-radius: 5px;
-  padding: 2px 30px;
-  background-color: #345BC6;
-  color:white;
-  font-size: 1em;
-  -webkit-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-  -moz-box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-  box-shadow: 0px 2px 14px -2px rgba(0,0,0,0.32);
-  transition-duration: .1s;
+     margin-bottom: 20px;
+     margin-right: 10px;
+     border-radius: 19px;
+     border: 2px solid #2a58cd57;
+     padding: 2px 30px;
+     color: #353535;
+     font-size: 1em;
+     /* -webkit-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32); */
+     -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+     /* box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32); */
+     transition-duration: .1s;
 }
 
- .minorbutton:active{
-  -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-  -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-  box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
-  transition-duration: .1s;
-}
+//  .minorbutton:active{
+//   -webkit-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
+//   -moz-box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
+//   box-shadow: 0px 4px 16px -3px rgba(0,0,0,0);
+//   transition-duration: .1s;
+// }
 
 .majorbutton{
   margin-right: 20px;
