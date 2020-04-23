@@ -20,7 +20,7 @@
 
 (defn import-button
   [id]
-  [:button.minorbutton
+  [:button.minimalbutton
    {:on-click (fn [e]
                 (.preventDefault e)
                 (.stopPropagation e)
@@ -29,7 +29,7 @@
 
 (defn export-button
   [key text]
-  [:button.minorbutton
+  [:button.minimalbutton
    {:on-click (fn [e]
                 (io/export-file e
                                 (js/Blob. [@(subscribe [key])]
@@ -193,7 +193,7 @@
              [:div.cell-12
               [visualization-display workbook-id id]]]]
            [:div.cell-12
-            [:button.minorbutton
+            [:button.minimalbutton
              {:on-click (fn [e]
                           (.preventDefault e)
                           (.stopPropagation e)
@@ -205,7 +205,7 @@
               [:div.analysis-inner
                [:div.cell-3
                 [query-find-bindings-display workbook-id id]]
-               [:div.cell-3                
+               [:div.cell-3
                 [visualization-fields-display workbook-id id]]
                [:div.cell-6
                 [result-display workbook-id id]]])]]]]))))
