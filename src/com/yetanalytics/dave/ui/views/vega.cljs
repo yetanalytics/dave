@@ -348,7 +348,7 @@
    [:div.flex-container
     [:h4.header-title "Data Visualization"]
     [:div.spacer]
-    [:button.minorbutton.header-button
+    [:button.majorbutton.header-button
      {:on-click (fn [e]
                   (.preventDefault e)
                   (.stopPropagation e)
