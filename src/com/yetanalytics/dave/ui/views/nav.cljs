@@ -22,8 +22,8 @@
    to launch the new work wizard."
   []
   [:div.app-description
-   [:h2.title
-    "Data Analytics and Visualization Environment for xAPI and the Total Learning Architecture"]
+   ; [:h2.title
+   ;  "Data Analytics and Visualization Environment for xAPI and the Total Learning Architecture"]
    #_[:p.description
     "If the objective is to analyze, interpret, and visualize micro-level behavior-driven learning, we need a framework for analysis and visualization which aligns with xAPI, xAPI Profiles, and the Total Learning Architecture (TLA)."]
    #_[:button
@@ -88,8 +88,21 @@
 (defn topmenu
   []
   [:div.topmenu
-   [:a {:href "#/"}  [:img {:src "img/dev/dave-logo-sm.png"}]]
-   [:a {:href "https://github.com/yetanalytics/dave"} "Contribute on GitHub"]])
+   [:a {:href "#/"}
+    [:img#homeicon {:src "img/dev/DAVElogo.png"}]]
+
+   [:div.flex-container
+    [:p [:b"Data Analytics and Visualization Environment"]
+    [:br]"for xAPI and the Total Learning Architecture"]
+
+   [:div.iconflex
+   [:a.headerlink {:href "https://github.com/yetanalytics/dave"}
+    [:img#topmenuicon {:src "img/dev/Githublogo.png"}] "Contribute on GitHub"]]]
+
+   [:img#topnavborder {:src "img/dev/headerdetailimg.png"}]
+
+
+   ])
 
 (defn top-bar-links
   "The links in the top app bar"
@@ -115,8 +128,8 @@
 (defn footer
   "The footer at the bottom of the app."
   []
-  [:footer
-   [:a {:href "#"} [:img {:src "img/dev/white_logo.png"}]]
+  [:footer.flex-container
+   [:a {:href "#"} [:img {:src "img/dev/dave-logo-sm.png"}]]
    [:div.spacer]
    [:a#license {:href "https://github.com/yetanalytics/dave/blob/master/LICENSE"}
     "License"]])
