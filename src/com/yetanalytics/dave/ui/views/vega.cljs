@@ -359,13 +359,13 @@
   [:div.dropdown
   [:button.dropbtn "Export As..."]
    [:div.dropdown-content
-    [:button#export-viz-png.minorbutton
+    [:button#export-viz-png.minordropbutton
      {}
      "Export PNG"]
-    [:button#export-viz-svg.minorbutton
+    [:button#export-viz-svg.minordropbutton
      {}
      "Export SVG"]
-    [:button.minorbutton
+    [:button.minordropbutton
      {:on-click (fn [e]
                   (io/export-file e
                                   (js/Blob. [@(subscribe [:workbook.analysis/result-vega-spec])]
