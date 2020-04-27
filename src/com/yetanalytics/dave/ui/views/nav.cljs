@@ -128,8 +128,8 @@
 (defn footer
   "The footer at the bottom of the app."
   []
-  [:footer
-   [:a {:href "#"} [:img {:src "img/dev/white_logo.png"}]]
+  [:footer.flex-container
+   [:a {:href "#"} [:img {:src "img/dev/dave-logo-sm.png"}]]
    [:div.spacer]
    [:a#license {:href "https://github.com/yetanalytics/dave/blob/master/LICENSE"}
     "License"]])
