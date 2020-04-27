@@ -357,7 +357,7 @@
                              analysis-id]))}
      "Run"]
   [:div.dropdown
-  [:button.dropbtn "Export As..."]
+  [:button.minorbutton "Export As..."]
    [:div.dropdown-content
     [:button#export-viz-png.minordropbutton
      {}
