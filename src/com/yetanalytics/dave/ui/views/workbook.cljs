@@ -41,7 +41,7 @@
          [data/info id])]
       [:div
        [:h1 "Analyses"]
-       [:button.newblock
+       [:button.majorbutton.newblock
         {:on-click #(dispatch [:workbook.analysis/new id])}
         "New Analysis"]]
       [analysis/grid-list id analyses]]]))
