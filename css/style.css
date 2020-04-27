@@ -21502,6 +21502,35 @@ a.mdc-list-item {
 .mdc-button:not(:disabled) {
   color: white !important; }
 
+.dropdown {
+  position: relative;
+  display: inline-block; }
+  .dropdown .dropbtn {
+    margin-bottom: 20px;
+    margin-right: 10px;
+    border: none;
+    padding: 2px 30px;
+    background-color: white;
+    color: #353535;
+    font-size: 1em;
+    transition-duration: .1s; }
+  .dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    min-width: 160px;
+    z-index: 1; }
+    .dropdown .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block; }
+    .dropdown .dropdown-content a:hover {
+      background-color: #f1f1f1; }
+
+.dropdown:hover .dropdown-content {
+  display: block; }
+
 .flatbutton {
   color: #345BC6;
   border: 2px solid #345BC6;
@@ -21514,37 +21543,27 @@ a.mdc-list-item {
   width: 100%;
   margin: 4px 0px; }
 
-.page > div button.newblock {
-  background-color: #2A58CD;
-  color: white;
-  width: 200px;
-  padding: 10px;
-  font-size: 1em;
-  border-radius: 5px;
-  margin-left: 24px;
-  -webkit-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  transition-duration: .1s; }
-
-.page div button.newblock:active {
-  -webkit-box-shadow: 0px 4px 16px -3px transparent;
-  -moz-box-shadow: 0px 4px 16px -3px transparent;
-  box-shadow: 0px 4px 16px -3px transparent;
-  transition-duration: .1s; }
-
-.minorbutton {
+.minordropbutton {
+  border: none;
   height: 24px;
   margin-bottom: 20px;
   margin-right: 10px;
   border-radius: 5px;
   padding: 2px 30px;
-  background-color: #345BC6;
-  color: white;
+  background-color: #ffffff;
+  color: #3D4967;
   font-size: 1em;
-  -webkit-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+  transition-duration: .1s; }
+
+.minorbutton {
+  margin-bottom: 20px;
+  margin-right: 10px;
+  border-radius: 19px;
+  border: 2px solid #bbc6ec;
+  padding: 2px 30px;
+  background-color: white;
+  color: #353535;
+  font-size: 1em;
   transition-duration: .1s; }
 
 .minorbutton:active {
@@ -21554,37 +21573,49 @@ a.mdc-list-item {
   transition-duration: .1s; }
 
 .majorbutton {
-  margin-right: 20px;
-  background-color: #459069;
-  color: white;
-  border-radius: 5px;
-  padding: 5px 15px;
-  margin-bottom: 20px;
-  font-size: 1em;
   border: none;
+  margin-bottom: 20px;
+  margin-right: 10px;
+  border-radius: 5px;
+  margin-left: 24px;
+  padding: 10px 50px;
+  background-color: #148c5f;
+  color: white;
+  font-size: 1em;
   -webkit-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
   -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+  box-shadow: 0px 5px 14px -2px #148c5f;
   transition-duration: .1s; }
+
+.majorbutton:hover {
+  -webkit-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+  -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+  box-shadow: 0px 5px 14px -2px #148c5f;
+  transform: translateY(3px);
+  transition-duration: .1s;
+  background-color: #0f8055; }
 
 .majorbutton:active {
-  -webkit-box-shadow: 0px 4px 16px -3px transparent;
-  -moz-box-shadow: 0px 4px 16px -3px transparent;
-  box-shadow: 0px 4px 16px -3px transparent;
+  -webkit-box-shadow: 0px 2px 14px -7px rgba(0, 0, 0, 0.32);
+  -moz-box-shadow: 0px 2px 14px -7px rgba(0, 0, 0, 0.32);
+  box-shadow: 0px 5px 14px -7px #148c5f;
   transition-duration: .1s; }
 
-.majorbuttonpurple {
-  margin-right: 20px;
-  margin-top: 10px;
-  background-color: #4349A6;
-  color: white;
-  border-radius: 5px;
-  padding: 5px 15px;
-  font-size: 1em;
+.minimalbutton {
+  height: 24px;
   border: none;
-  -webkit-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+  background-color: white;
+  margin-bottom: 20px;
+  margin-right: 10px;
+  border-radius: 5px;
+  padding: 2px 30px;
+  font-size: 1em;
   -moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
-  box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+  transition-duration: .1s;
+  color: #353f5a; }
+
+.minimalbutton:hover {
+  background-color: #f7f7f7;
   transition-duration: .1s; }
 
 .wizardfooter {
@@ -21641,20 +21672,52 @@ a.mdc-list-item {
   font-weight: 400; }
 
 .topmenu {
-  background-color: #3C4967;
-  min-height: 64px;
-  display: flex;
+  background-image: radial-gradient(circle farthest-corner at 10% 20%, #2a58cd 0%, #3f4865 100.3%);
+  min-height: 150px;
+  color: white;
+  line-height: 23px;
+  padding-bottom: 20px;
   flex-wrap: wrap;
   align-items: center;
+  position: relative;
+  overflow: hidden;
   padding-left: 30px; }
   .topmenu > a {
     text-decoration: none;
     color: white;
     font-size: 13px;
     padding-right: 40px; }
-  .topmenu > a img {
-    height: 56px;
-    padding: 4px 0px 0px 0px; }
+  .topmenu #homeicon {
+    height: 36px;
+    transition-duration: .3s;
+    padding: 30px 0px 0px 0px; }
+  .topmenu #homeicon:hover {
+    transform: translateY(5px);
+    transition-duration: .3s;
+    height: 36px;
+    padding: 30px 0px 0px 0px; }
+  .topmenu #topmenuicon {
+    height: 20px;
+    margin-right: 10px; }
+  .topmenu #topmenuicon:hover {
+    height: 20px;
+    margin-right: 10px; }
+  .topmenu img#topnavborder {
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 10px;
+    position: absolute; }
+  .topmenu .iconflex {
+    display: flex;
+    align-items: center;
+    margin-left: 30px; }
+  .topmenu .headerlink {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none; }
 
 header.top-bar {
   min-height: 256px !important;
@@ -22723,6 +22786,7 @@ body {
   visibility: hidden; }
 
 .flex-container {
+  align-items: baseline;
   display: flex; }
 
 .spacer {
