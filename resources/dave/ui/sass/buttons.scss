@@ -100,6 +100,7 @@
   margin-right: 10px;
   border-radius: 5px;
   padding: 2px 30px;
+  border:none;
   background-color: #345BC6;
   border:none;
   color:white;
@@ -147,4 +148,23 @@
   -moz-box-shadow: 0px 2px 14px -7px rgba(0, 0, 0, 0.32);
   box-shadow: 0px 5px 14px -7px rgb(20, 140, 95);
      transition-duration: .1s;
+}
+
+.minimalbutton{
+  height: 24px;
+border: none;
+background-color: white;
+margin-bottom: 20px;
+margin-right: 10px;
+border-radius: 5px;
+padding: 2px 30px;
+font-size: 1em;
+-moz-box-shadow: 0px 2px 14px -2px rgba(0, 0, 0, 0.32);
+transition-duration: .1s;
+color: #353f5a;
+}
+
+.minimalbutton:hover{
+  background-color: #f7f7f7;
+  transition-duration: .1s;
 }
