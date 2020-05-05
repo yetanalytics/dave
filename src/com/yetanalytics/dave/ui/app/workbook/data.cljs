@@ -210,7 +210,7 @@
    ;; Do an authenticated HEAD request
    {:http/request
     {:request {:url (str (:endpoint lrs-spec)
-                         "/xapi/statements?limit=1")
+                         "/statements?limit=1")
                :headers {"X-Experience-Api-Version" "1.0.3"}
                :basic-auth (select-keys
                             (:auth lrs-spec)
