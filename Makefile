@@ -4,27 +4,27 @@ clean:
 	rm -rf target node_modules package.json package-lock.json gh_pages *.log resources/public/css/style.css*
 
 watch-sass:
-	clojure -A:watch-sass
+	clojure -M:watch-sass
 
 dev-repl:
-	clojure -A:fig:build
+	clojure -M:fig:build
 
 test-cljs:
-	clojure -Afig:test-cljs
+	clojure -Mfig:test-cljs
 
 test-clj:
-	clojure -Atest-clj
+	clojure -Mtest-clj
 
 ci: test-cljs test-clj
 
 build-prod:
-	clojure -Abuild-prod
+	clojure -Mbuild-prod
 
 build-prod-server:
-	clojure -Abuild-prod-server
+	clojure -Mbuild-prod-server
 
 build-sass:
-	clojure -Abuild-sass
+	clojure -Mbuild-sass
 
 gh_pages: build-prod build-sass
 	mkdir -p gh_pages/cljs-out
